@@ -83,7 +83,7 @@
     max-width: 100%;
     margin: 0 0 8px;
     color: var(--tinta);
-    font-family: 'Outfit', 'Montserrat', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: clamp(1.08rem, 3.9vw, 1.68rem);
     font-weight: 300;
     line-height: 1.14;
@@ -307,7 +307,7 @@
     grid-column: 1;
     grid-row: 2;
     align-self: start;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(34px, 4vw, 52px);
     font-weight: 600;
     letter-spacing: -0.025em;

@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "project": {
+    "name": "LumiNails",
+    "productType": "beauty salon service and booking website",
+    "stack": ["static HTML", "CSS", "vanilla JavaScript"]
+  },
+  "sources": {
+    "tokens": [
+      "src/styles/00-base.css",
+      "src/admin-styles/00-foundation.css",
+      "src/admin-styles/20-workspace.css"
+    ],
+    "components": [
+      "src/styles/18-hero-inner-pages.css",
+      "src/styles/30-booking.css",
+      "src/admin-styles/10-components.css"
+    ],
+    "assets": ["kepek/"],
+    "instructions": ["AGENTS.md", "DEVELOPMENT.md", "docs/design-system.md"]
+  },
+  "design": {
+    "colorMode": "light public UI; light and dark admin UI",
+    "colors": {
+      "primary": "#C9D4CF",
+      "onPrimary": "#31383f",
+      "accent": "#8BA198",
+      "background": "#e3dcd2",
+      "surface": "#F5F1EB",
+      "foreground": "#31383f",
+      "mutedForeground": "#555d64",
+      "accentForeground": "#4B625A",
+      "highlight": "#DFE7E3",
+      "adminPrimary": "#FFD1DC"
+    },
+    "typography": {
+      "display": "Playfair Display",
+      "body": "DM Sans",
+      "character": "editorial serif with clear functional sans-serif UI"
+    },
+    "spacing": {
+      "base": "4px",
+      "component": ["8px", "12px", "16px", "24px", "32px"],
+      "section": ["48px", "64px", "72px", "96px", "112px"],
+      "contentWidth": "1200px",
+      "sectionInline": "var(--ui-gutter), 20px on mobile",
+      "sectionBlock": "clamp(72px, 8vw, 112px), 58px on mobile"
+    },
+    "radius": {
+      "control": "3px",
+      "card": "4px",
+      "hero": "desktop split; uncropped 16:9 mobile image with one directional scrim, compact left text and a unified bottom benefit strip; actions below",
+      "pill": "999px only for semantic pills"
+    },
+    "shadows": {
+      "soft": "0 16px 38px rgba(49, 56, 63, 0.10)",
+      "elevated": "0 24px 64px rgba(49, 56, 63, 0.10)"
+    },
+    "motion": {
+      "level": "subtle",
+      "rule": "transform and opacity only; respect prefers-reduced-motion"
+    },
+    "density": "spacious public UI; compact admin workspace"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [
+      "existing .gomb button",
+      "existing .urlap-mezo field",
+      "existing booking choice cards",
+      "existing admin v2 controls"
+    ],
+    "patterns": [
+      "full-bleed split editorial hero",
+      "dark service showcase with pearl-sage highlights",
+      "consistent gallery caption overlays",
+      "single shared public footer",
+      "progressive booking step cards",
+      "split branded admin authentication"
+    ]
+  },
+  "constraints": {
+    "must": [
+      "Edit source CSS and rebuild generated bundles",
+      "Keep public and admin CSS ownership separate",
+      "Use semantic tokens and visible focus states",
+      "Keep mobile controls at least 44x44px and fields at least 16px",
+      "Use risk-proportionate local checks",
+      "Read docs/design-system.md and docs/visual-audit.md before UI changes"
+    ],
+    "avoid": [
+      "Do not edit style.css or admin-v2.css directly",
+      "Do not use !important or duplicate override layers",
+      "Do not enable zoom in standalone admin PWA",
+      "Do not run tests in GitHub Actions",
+      "Do not use decorative glass or gradients without a functional reason",
+      "Do not introduce a new font family or radius tier"
+    ]
+  },
+  "decisions": [
+    {
+      "date": "2026-09-08",
+      "decision": "Compress the homepage gallery transitions and shared footer, remove the redundant inner gallery title, and present service-detail heroes as an untinted 3:2 image plus neutral copy on mobile.",
+      "reason": "The previous transition, footer and service heroes consumed disproportionate screen space. The new treatment keeps 44px targets, full imagery and readable hierarchy without adding a component dependency; a 21st.dev search only informed the understated arrow CTA styling."
+    },
+    {
+      "date": "2026-09-08",
+      "decision": "Keep the homepage notice, gallery transition and shared footer compact; center the mobile hero benefits and use a balanced two-column action row. Preserve public page zoom while keeping form controls large enough to prevent iOS focus zoom.",
+      "reason": "The previous vertical rhythm consumed too much of a phone screen, while narrow footer columns harmed readability. Compact spacing must come from layout and redundant copy, not from shrinking touch targets or form text."
+    },
+    {
+      "date": "2026-09-08",
+      "decision": "Replace the public pink primary and pink-tinted surfaces with pearl sage and neutral ivory, simplify the mobile hero into one image composition, and remove the homepage carousel glow and card shadows.",
+      "reason": "The user rejected the visible pink and the fragmented hero, while the clipped carousel shadow created an obvious edge artifact. Slate-on-sage and slate-on-ivory keep strong contrast without changing public flows or the admin theme."
+    },
+    {
+      "date": "2026-09-08",
+      "decision": "Keep the mobile hero image exactly 16:9 without cropping or zoom, place all three benefit labels on the photo, and replace the broad overlay with text-local translucent backgrounds.",
+      "reason": "The user plans to upload 16:9 images and needs predictable framing. Compact mobile typography fits the fixed image height; desktop layout remains unchanged."
+    },
+    {
+      "date": "2026-09-08",
+      "decision": "Use an edge-to-edge mobile hero photo with left-aligned slate text over a light readability scrim and account actions below the image.",
+      "reason": "The user requested a desktop-inspired mobile hero and removal of brown hero text. Preserve the CMS image and copy, desktop split layout, and existing action links."
+    },
+    {
+      "date": "2026-09-01",
+      "decision": "Adopt a quiet-luxury editorial redesign for the TEST critical views.",
+      "reason": "The user explicitly approved a redesign; the direction preserves LumiNails imagery and typography while improving hierarchy, booking clarity, contrast and responsive behavior."
+    },
+    {
+      "date": "2026-09-01",
+      "decision": "Use deep cacao as the primary action and dark showcase color, with warm ivory surfaces and muted blush accents.",
+      "reason": "This keeps the beauty-studio character while providing stronger text and control contrast than the previous dusty rose primary."
+    },
+    {
+      "date": "2026-09-02",
+      "decision": "Treat the mobile hero image and gallery label as one framed card, and suppress the account recommendation when the hero already includes an account action.",
+      "reason": "A single radius owner prevents broken nested corners, while removing the adjacent duplicate account promotion restores a clear homepage action hierarchy."
+    },
+    {
+      "date": "2026-09-02",
+      "decision": "Restore the original quiet-luxury public and admin color systems while retaining the later layout and responsive fixes.",
+      "reason": "The five-color earth-tone experiment flattened the interface hierarchy; the approved original semantic tokens provide clearer surfaces, states and readable contrast."
+    },
+    {
+      "date": "2026-09-02",
+      "decision": "Use one shared 1200px content width and responsive section padding, while keeping the desktop home hero full-bleed.",
+      "reason": "Introduction, services and gallery align to the same gutters; the hero no longer clips its visual, and account and booking utility layouts retain desktop proportions."
+    },
+    {
+      "date": "2026-09-02",
+      "decision": "Implement the supplied Figma system with Playfair Display, DM Sans, a slate/pink/greige palette, sharp component radii, consistent gallery captions, and one shared public footer.",
+      "reason": "The user supplied an editable Figma source and explicitly requested implementation across desktop, mobile, public pages, and admin while preserving the current homepage gallery imagery."
+    },
+    {
+      "date": "2026-09-03",
+      "decision": "Use #FFD1DC as the shared public and admin primary pink.",
+      "reason": "The user explicitly selected the lighter pink for every component using the primary brand color."
+    }
+  ],
+  "evidence": [
+    { "fact": "project.instructions", "source": "AGENTS.md" },
+    { "fact": "design.system", "source": "docs/design-system.md" },
+    { "fact": "visual.audit", "source": "docs/visual-audit.md" },
+    { "fact": "implemented.critical.views", "source": "index.html, foglalas/index.html, admin/index.html" }
+  ],
+  "generatedAt": "2026-09-01T00:00:00+02:00"
+}

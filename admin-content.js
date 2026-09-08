@@ -111,7 +111,6 @@
                 field('fooldal.galeriaAtvezeto.kiemeltAkcentus', 'Nagy cím kiemelt sora'),
                 field('fooldal.galeriaAtvezeto.metaLeiras', 'Kiemelt cím melletti leírás', 'textarea'),
                 field('fooldal.galeriaAtvezeto.belsoKicker', 'Galériakártyák melletti kis szöveg'),
-                field('fooldal.galeriaAtvezeto.cim', 'Cím'),
                 field('fooldal.galeriaAtvezeto.leiras', 'Leírás', 'textarea'),
                 field('fooldal.galeriaAtvezeto.gombSzoveg', 'Gomb szövege')
             ]
@@ -494,8 +493,8 @@
             field(`${base}.kicker`, 'Nyitókép kis felső szövege'),
             field(`${base}.cim`, 'Oldal főcíme'),
             field(`${base}.leiras`, 'Nyitókép bevezető szövege', 'textarea'),
-            image(`${base}.kep`, 'Nyitókép'),
-            field(`${base}.kepAlt`, 'Nyitókép leírása'),
+            image(`${base}.kep`, 'A szolgáltatásoldal nyitóképe'),
+            field(`${base}.kepAlt`, 'A szolgáltatásoldal nyitóképének leírása'),
             field(`${base}.bevezetoKicker`, 'Bevezető kis felső szövege'),
             field(`${base}.bevezetoCim`, 'Bevezető címe'),
             field(`${base}.bevezeto`, 'Bevezető szövege', 'textarea'),
@@ -543,7 +542,7 @@
         const extrasStart = closingStart + 3;
         const sets = [
             ['Keresőbeállítások', 0, 1],
-            ['Nyitókép', 2, 6],
+            ['Nyitókép – csak ezen a szolgáltatásoldalon', 2, 6],
             ['Bevezető', 7, 9],
             ['Első tartalmi rész', 10, 12],
             ['Második tartalmi rész', 13, 15],
@@ -1243,7 +1242,10 @@
         }
         setPath(normalized, 'fooldal.galeriaAtvezeto.kivalasztottKepek', kivalasztottKepek);
         const galeriaAtvezeto = getPath(normalized, 'fooldal.galeriaAtvezeto');
-        if (galeriaAtvezeto && typeof galeriaAtvezeto === 'object') delete galeriaAtvezeto.kepek;
+        if (galeriaAtvezeto && typeof galeriaAtvezeto === 'object') {
+            delete galeriaAtvezeto.cim;
+            delete galeriaAtvezeto.kepek;
+        }
 
         const nailArt = getPath(normalized, 'szolgaltatasOldalak.nailArt');
         if (nailArt && typeof nailArt === 'object') {

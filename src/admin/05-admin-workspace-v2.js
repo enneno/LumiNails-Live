@@ -280,7 +280,7 @@
                 ${adminV2StatKartya('Mai időpontok', 'admin-v2-stat-today', 'calendar')}
                 ${adminV2StatKartya('Megerősítésre vár', 'admin-v2-stat-pending', 'clock', 'warning')}
                 ${adminV2StatKartya('Email problémák', 'admin-v2-stat-email', 'mail', 'danger')}
-                ${adminV2StatKartya('Foglalható időszak', 'admin-v2-stat-horizon', 'check', 'success')}
+                ${adminV2StatKartya('Foglalható napok', 'admin-v2-stat-horizon', 'check', 'success')}
             </section>
 
             <div class="admin-v2-dashboard-grid">
@@ -969,7 +969,7 @@
             return {
                 tipus: 'blocked',
                 cim,
-                leiras: 'Kézzel felvett idő',
+                leiras: keziSzolgaltatasNev(data) || 'Kézzel felvett idő',
                 kereses: cim,
                 starts_at: data.starts_at,
                 ends_at: data.ends_at,
@@ -1081,19 +1081,21 @@
                 .select('work_date')
                 .eq('active', true);
             if (typeof query.gte === 'function') query = query.gte('work_date', todayKey);
-            query = query.order('work_date', { ascending: false }).limit(1);
+            query = query.order('work_date', { ascending: true });
             const { data, error } = await query;
-            if (error || !data?.length) {
-                value.textContent = '—';
+            const availableDates = [...new Set((data || [])
+                .map(item => String(item?.work_date || '').trim())
+                .filter(dateKey => dateKey >= todayKey))]
+                .sort();
+            if (error || !availableDates.length) {
+                value.textContent = error ? '—' : '0';
                 meta.textContent = 'Nincs jövőbeli foglalható nap';
                 return;
             }
 
-            const lastDate = new Date(`${data[0].work_date}T12:00:00`);
-            const today = new Date(`${todayKey}T12:00:00`);
-            const days = Math.max(0, Math.round((lastDate - today) / 86400000));
-            value.textContent = `${days} nap`;
-            meta.textContent = `${new Intl.DateTimeFormat('hu-HU', { month: 'long', day: 'numeric' }).format(lastDate)} napjáig`;
+            const lastDate = new Date(`${availableDates[availableDates.length - 1]}T12:00:00`);
+            value.textContent = String(availableDates.length);
+            meta.textContent = `Legutolsó: ${new Intl.DateTimeFormat('hu-HU', { month: 'long', day: 'numeric' }).format(lastDate)}`;
         } catch (error) {
             value.textContent = '—';
             meta.textContent = 'A foglalható időszak nem olvasható';

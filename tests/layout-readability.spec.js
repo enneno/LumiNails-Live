@@ -106,27 +106,22 @@ test.describe('célzott elrendezési és olvashatósági ellenőrzés', () => {
         expect(account.cardBackgroundImage).toBe('none');
     });
 
-    test('a főoldali Saját Lumi és bemutatkozás középre igazodik, az ellenőrző mezők két sorban vannak', async ({ page }) => {
+    test('a főoldali bemutatkozás középre igazodik, az ellenőrző mezők két sorban vannak', async ({ page }) => {
         await page.setViewportSize({ width: 1440, height: 1000 });
         await page.goto('/', { waitUntil: 'domcontentloaded' });
-        await page.waitForSelector('#fiok-ajanlo');
 
         const home = await page.evaluate(() => {
-            const account = document.querySelector('#fiok-ajanlo');
-            const accountInner = document.querySelector('.fiok-ajanlo-belso').getBoundingClientRect();
-            const introImage = document.querySelector('.bemutatkozas-kep').getBoundingClientRect();
             const introCopy = document.querySelector('.bemutatkozas-szoveg').getBoundingClientRect();
+            const introParagraph = document.querySelector('.bemutatkozas-szoveg p').getBoundingClientRect();
             return {
-                accountCenterDelta: Math.abs(accountInner.left + accountInner.width / 2 - window.innerWidth / 2),
-                accountBackgroundImage: getComputedStyle(account).backgroundImage,
-                introColumnDelta: Math.abs(introImage.width - introCopy.width),
+                accountRecommendationAbsent: !document.querySelector('#fiok-ajanlo'),
+                paragraphColumnDelta: Math.abs(introParagraph.width - introCopy.width),
                 removedIntroLink: !document.querySelector('.bemutatkozas-szoveg > .szoveges-link')
             };
         });
 
-        expect(home.accountCenterDelta).toBeLessThanOrEqual(1);
-        expect(home.accountBackgroundImage).toBe('none');
-        expect(home.introColumnDelta).toBeLessThanOrEqual(1);
+        expect(home.accountRecommendationAbsent).toBe(true);
+        expect(home.paragraphColumnDelta).toBeLessThanOrEqual(1);
         expect(home.removedIntroLink).toBe(true);
 
         await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
@@ -135,15 +130,21 @@ test.describe('célzott elrendezési és olvashatósági ellenőrzés', () => {
             const reference = document.querySelector('#foglalas-azonosito').getBoundingClientRect();
             const contact = document.querySelector('#foglalas-elerhetoseg');
             const contactRect = contact.getBoundingClientRect();
+            const style = getComputedStyle(contact);
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = style.font;
             return {
                 contactBelowReference: contactRect.top >= reference.bottom - 1,
                 placeholder: contact.placeholder,
+                placeholderFits: context.measureText(contact.placeholder).width + 32 <= contact.clientWidth,
                 columns: getComputedStyle(document.querySelector('.foglalas-kezelo-biztonsagi-mezok')).gridTemplateColumns.split(' ').length
             };
         });
 
         expect(fields.contactBelowReference).toBe(true);
         expect(fields.placeholder).toContain('pelda@email.hu');
+        expect(fields.placeholderFits).toBe(true);
         expect(fields.columns).toBe(1);
     });
 

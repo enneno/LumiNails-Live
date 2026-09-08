@@ -86,7 +86,6 @@ function lablecBetoltese() {
                             <a data-footer-phone href="#" hidden style="display: none;"></a>
                         </span>
                         <a data-footer-email href="#" hidden style="display: none;"></a>
-                        <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
                     </address>
                 </div>
 
@@ -106,8 +105,11 @@ function lablecBetoltese() {
                         </a>
                     </div>
                 </div>
+                <div class="footer-meta">
+                    <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
+                    <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
+                </div>
             </div>
-            <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
         </footer>
     `;
 

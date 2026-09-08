@@ -23,6 +23,10 @@ Ez a fájl a `C:\Users\llevi\OneDrive\Asztali gép\LumiNails_test` projektben v�
 - Kódtakarítás vizuális és funkcionális változás nélkül történjen, hacsak a felhasználó kifejezetten mást nem kér.
 - A módosítás maradjon a lehető legkisebb, jól körülhatárolt és könnyen ellenőrizhető.
 - Az alapstílus, a komponensvariáns és a környezeti eltérés felelőssége legyen világosan elkülönítve.
+- Forrás-CSS módosításakor le kell futtatni az `npm run lint:css` parancsot. Ez gyors statikus ellenőrzés, nem böngészős vagy teljes oldalas teszt.
+- A Stylelint kizárólag a forrás-CSS-t ellenőrzi; a generált `style.css` és `admin-v2.css` fájlokat nem szabad külön lintelni vagy közvetlenül javítani.
+- Stylelint-szabályt vagy egyedi lintjelzést csak dokumentált projektkompatibilitási okból szabad kikapcsolni. Tilos egy új hibát indoklás nélkül `stylelint-disable` megjegyzéssel elrejteni.
+- A Stylelint `--fix` kapcsolóját tilos ellenőrzés nélkül az egész projektre futtatni; automatikus javítás csak szűk fájlkörön és a diff kézi átnézésével használható.
 
 ## Normál weboldal és PWA
 
@@ -39,6 +43,14 @@ Ez a fájl a `C:\Users\llevi\OneDrive\Asztali gép\LumiNails_test` projektben v�
 - A publikus felületet, az admin felületet, a SEO-t, a sitemapet és a PWA-kódot csak akkor szabad módosítani, ha az aktuális feladat ezt kifejezetten kéri.
 - Generált fájl helyett az irányadó forrásfájlt kell módosítani.
 - Titkokat, kulcsokat, tokeneket és személyes adatokat tilos forráskódba vagy naplóba írni.
+
+## UI- és mobilos skillhasználat
+
+- Reszponzív elrendezés, mobilos tördelés, túlcsordulás vagy képméretezés javításakor a `mobile-responsive` skill használható az irányadó forráskód feltérképezésére és a legkisebb javítás kiválasztására.
+- Kontraszt-, olvashatósági, fókusz-, billentyűzet- vagy űrlap-hozzáférhetőségi probléma esetén a `web-accessibility` skill használható; az automatikus eredményt szükség szerint vizuális vagy kézi ellenőrzéssel kell kiegészíteni.
+- Mobilos UI-változás után a `mobile-responsive-qa` skill a kockázathoz igazított ellenőrzési kör meghatározására használható. A projekt meglévő Playwright-parancsai és az alábbi tesztelési alapelvek elsőbbséget élveznek a skillhez mellékelt általános segédprogramokkal szemben.
+- A `ui-ux-pro-max`, `impeccable`, `design-taste-frontend` és 21st.dev skillek csak akkor használhatók együtt, ha eltérő, szükséges feladatot fednek le; ugyanarra a vizuális döntésre nem kell több, egymást ismétlő auditot futtatni.
+- A skillek használata nem bővíti a felhasználó által jóváhagyott módosítási kört, és nem indokol automatikusan teljes oldalas, minden viewportot érintő vagy teljes tesztcsomagos ellenőrzést.
 
 ## Tesztelési alapelv
 

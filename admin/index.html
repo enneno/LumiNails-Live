@@ -22,10 +22,10 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="/admin-v2.css?v=1ed4e086413b">
+    <link rel="stylesheet" href="/admin-v2.css?v=576c3f51558b">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@300;400;500;600;700&family=Montserrat:wght@300;400;600;700&family=Outfit:wght@300;400;500;600&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -34,20 +34,23 @@
 
     <main class="admin-oldal">
         <section id="admin-bejelentkezes-panel" class="admin-fejlec admin-auth-panel">
-            <p class="admin-eyebrow">Lumi Nails admin</p>
-            <h1 class="admin-cim">Bejelentkezés</h1>
-            <p class="admin-leiras">Az online foglalások és idősávok kezeléséhez jelentkezz be a Supabase-ben létrehozott admin fiókkal.</p>
+            <div class="admin-auth-brand" aria-hidden="true">Lumi<br>Nails</div>
+            <div class="admin-auth-content">
+                <p class="admin-eyebrow">Lumi Nails admin</p>
+                <h1 class="admin-cim">Bejelentkezés</h1>
+                <p class="admin-leiras">Az online foglalások és idősávok kezeléséhez jelentkezz be a Supabase-ben létrehozott admin fiókkal.</p>
 
-            <form id="admin-login-form" class="admin-login-form">
-                <input type="hidden" id="admin-email" value="llevisimon@gmail.com" autocomplete="username">
-                <label class="admin-mezo-cimke" for="admin-jelszo">
-                    <span>Jelszó</span>
-                    <input type="password" id="admin-jelszo" class="urlap-mezo" autocomplete="current-password" required>
-                </label>
-                <button type="submit" class="gomb admin-gomb">Belépés</button>
-            </form>
+                <form id="admin-login-form" class="admin-login-form">
+                    <input type="hidden" id="admin-email" value="llevisimon@gmail.com" autocomplete="username">
+                    <label class="admin-mezo-cimke" for="admin-jelszo">
+                        <span>Jelszó</span>
+                        <input type="password" id="admin-jelszo" class="urlap-mezo" autocomplete="current-password" required>
+                    </label>
+                    <button type="submit" class="gomb admin-gomb">Belépés</button>
+                </form>
 
-            <p id="admin-auth-status" class="admin-status" aria-live="polite"></p>
+                <p id="admin-auth-status" class="admin-status" aria-live="polite"></p>
+            </div>
         </section>
 
         <div id="admin-tartalom" class="admin-vedett" hidden>
@@ -315,6 +318,12 @@
                                 <input type="time" id="admin-tiltas-vege" required>
                             </label>
                             <label class="admin-mezo admin-mezo-szeles">
+                                Szolgáltatás
+                                <select id="admin-tiltas-szolgaltatas" required disabled>
+                                    <option value="">Szolgáltatások betöltése…</option>
+                                </select>
+                            </label>
+                            <label class="admin-mezo admin-mezo-szeles">
                                 Név / megjegyzés
                                 <input type="text" id="admin-tiltas-ok" placeholder="Pl. Anna Instagram, külső foglalás" required>
                             </label>
@@ -385,11 +394,11 @@
     <div id="lablec-helye"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
-    <script src="/supabase-config.js?v=2e314bc918dc"></script>
-    <script src="/script.js?v=d6e571ae6b5c"></script>
-    <script src="/admin-supabase.js?v=315ebf78428d"></script>
+    <script src="/supabase-config.js?v=334baddf6f93"></script>
+    <script src="/script.js?v=03b9c3bde819"></script>
+    <script src="/admin-supabase.js?v=05a03413b679"></script>
     <script src="/admin-export.js?v=7f5a873b8293"></script>
-    <script src="/admin-content.js?v=85baf45185ea"></script>
+    <script src="/admin-content.js?v=d20c181831af"></script>
 </body>
 
 </html>

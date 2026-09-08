@@ -61,7 +61,7 @@
   display: block;
   visibility: hidden;
   opacity: 0;
-  background: rgba(42, 31, 28, 0.46);
+  background: rgba(18, 22, 25, 0.56);
   transition: opacity 190ms ease, visibility 190ms ease;
 }
 

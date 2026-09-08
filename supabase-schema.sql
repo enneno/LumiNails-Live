@@ -419,6 +419,8 @@ declare
     v_starts_at timestamptz;
     v_ends_at timestamptz;
     v_reason text;
+    v_has_paid_amount boolean;
+    v_paid_amount integer;
     v_notification jsonb;
     v_job public.booking_email_jobs%rowtype;
     v_jobs jsonb := '[]'::jsonb;
@@ -467,10 +469,20 @@ begin
         v_starts_at := (v_change->>'starts_at')::timestamptz;
         v_ends_at := (v_change->>'ends_at')::timestamptz;
         v_reason := left(trim(coalesce(v_change->>'reason', '')), 500);
+        v_has_paid_amount := v_change ? 'paid_amount';
+        v_paid_amount := case
+            when v_has_paid_amount and v_change->'paid_amount' <> 'null'::jsonb
+                then (v_change->>'paid_amount')::integer
+            else null
+        end;
         v_notification := coalesce(v_change->'email_notification', 'null'::jsonb);
 
         if v_starts_at >= v_ends_at then
             raise exception 'A befejezesnek kesobbinek kell lennie a kezdesnel.';
+        end if;
+
+        if v_paid_amount < 0 then
+            raise exception 'A fizetett osszeg nem lehet negativ.';
         end if;
 
         if v_type = 'booking' then
@@ -481,7 +493,8 @@ begin
             update public.bookings
             set status = v_status,
                 starts_at = v_starts_at,
-                ends_at = v_ends_at
+                ends_at = v_ends_at,
+                paid_amount = case when v_has_paid_amount then v_paid_amount else paid_amount end
             where id = v_id;
 
             if not found then
@@ -546,7 +559,8 @@ begin
             set status = v_status,
                 starts_at = v_starts_at,
                 ends_at = v_ends_at,
-                reason = v_reason
+                reason = v_reason,
+                paid_amount = case when v_has_paid_amount then v_paid_amount else paid_amount end
             where id = v_id;
 
             if not found then
@@ -2729,14 +2743,23 @@ CREATE TABLE IF NOT EXISTS "public"."blocked_times" (
     "starts_at" timestamp with time zone NOT NULL,
     "ends_at" timestamp with time zone NOT NULL,
     "reason" "text" DEFAULT ''::"text",
+    "service_id" "uuid",
+    "paid_amount" integer,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "status" "text" DEFAULT 'blocked'::"text" NOT NULL,
     CONSTRAINT "blocked_times_check" CHECK (("ends_at" > "starts_at")),
+    CONSTRAINT "blocked_times_paid_amount_check" CHECK (("paid_amount" IS NULL) OR ("paid_amount" >= 0)),
     CONSTRAINT "blocked_times_status_check" CHECK (("status" = ANY (ARRAY['blocked'::"text", 'done'::"text", 'cancelled_by_customer'::"text"])))
 );
 
 
 ALTER TABLE "public"."blocked_times" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."blocked_times"."service_id" IS 'Optional service selected for a manually added occupied time. No customer email workflow is triggered.';
+
+
+COMMENT ON COLUMN "public"."blocked_times"."paid_amount" IS 'Actual amount paid in Hungarian forints for a manually added booking; null means not recorded.';
 
 
 CREATE TABLE IF NOT EXISTS "public"."booking_email_jobs" (
@@ -2872,7 +2895,9 @@ CREATE TABLE IF NOT EXISTS "public"."bookings" (
     "retention_next_attempt_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "retention_last_error" "text",
     "customer_user_id" "uuid",
+    "paid_amount" integer,
     CONSTRAINT "bookings_check" CHECK (("ends_at" > "starts_at")),
+    CONSTRAINT "bookings_paid_amount_check" CHECK (("paid_amount" IS NULL) OR ("paid_amount" >= 0)),
     CONSTRAINT "bookings_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'confirmed'::"text", 'done'::"text", 'cancelled'::"text", 'cancelled_by_customer'::"text"])))
 );
 
@@ -2881,6 +2906,9 @@ ALTER TABLE "public"."bookings" OWNER TO "postgres";
 
 
 COMMENT ON COLUMN "public"."bookings"."customer_user_id" IS 'Server-assigned owner of a booking. Clients must never provide this value directly.';
+
+
+COMMENT ON COLUMN "public"."bookings"."paid_amount" IS 'Actual amount paid in Hungarian forints; null means not recorded.';
 
 
 
@@ -3121,6 +3149,10 @@ CREATE INDEX "bookings_customer_user_starts_at_idx" ON "public"."bookings" USING
 
 
 
+CREATE INDEX "blocked_times_service_id_idx" ON "public"."blocked_times" USING "btree" ("service_id") WHERE ("service_id" IS NOT NULL);
+
+
+
 CREATE UNIQUE INDEX "bookings_legacy_public_reference_key" ON "public"."bookings" USING "btree" ("legacy_public_reference") WHERE ("legacy_public_reference" IS NOT NULL);
 
 
@@ -3206,6 +3238,11 @@ ALTER TABLE ONLY "public"."bookings"
 
 ALTER TABLE ONLY "public"."bookings"
     ADD CONSTRAINT "bookings_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "public"."services"("id");
+
+
+
+ALTER TABLE ONLY "public"."blocked_times"
+    ADD CONSTRAINT "blocked_times_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "public"."services"("id") ON DELETE SET NULL;
 
 
 

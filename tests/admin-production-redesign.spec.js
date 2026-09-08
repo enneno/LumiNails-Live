@@ -30,6 +30,7 @@ function fixtures() {
                 ends_at: isoAt(0, 12),
                 status: 'confirmed',
                 created_at: isoAt(-4, 12),
+                paid_amount: 6500,
                 coupon_code: '',
                 coupon_title: '',
                 nail_style: 'Francia',
@@ -104,6 +105,8 @@ function fixtures() {
                 starts_at: isoAt(0, 8),
                 ends_at: isoAt(0, 9),
                 reason: 'Adminisztracio',
+                service_id: 'service-1',
+                services: { name: 'Erositett gel lakk', description: '', price_text: '6 500 Ft', duration_minutes: 120 },
                 status: 'active',
                 created_at: isoAt(-1, 9)
             },
@@ -242,6 +245,11 @@ async function installSupabaseBoundaryMock(page) {
         contentType: 'text/javascript; charset=utf-8',
         body: ''
     }));
+    await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
+        status: 200,
+        contentType: 'text/css; charset=utf-8',
+        body: ''
+    }));
 
     await page.addInitScript((seed) => {
         const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -259,7 +267,20 @@ async function installSupabaseBoundaryMock(page) {
             range() { return this; }
             abortSignal() { return this; }
             throwOnError() { return this; }
-            insert() { return this; }
+            insert(values) {
+                const records = (Array.isArray(values) ? values : [values]).map((value, index) => {
+                    const record = clone(value);
+                    if (!record.id) record.id = `mock-${this.table}-${Date.now()}-${index}`;
+                    if (this.table === 'blocked_times' && record.service_id) {
+                        const service = seed.services.find(item => item.id === record.service_id);
+                        if (service) record.services = clone(service);
+                    }
+                    return record;
+                });
+                seed[this.table] = [...(seed[this.table] || []), ...records];
+                window.__adminLastInsert = clone({ table: this.table, values });
+                return this;
+            }
             update() { return this; }
             upsert() { return this; }
             delete() { return this; }
@@ -357,6 +378,7 @@ async function installSupabaseBoundaryMock(page) {
                     return { data: clone(seed.admin_registered_customer_profiles), error: null };
                 }
                 if (name === 'apply_admin_booking_changes') {
+                    window.__adminLastRpc = clone({ name, args });
                     for (const change of args?.p_changes || []) {
                         const rows = change.type === 'blocked' ? seed.blocked_times : seed.bookings;
                         const row = rows.find(item => item.id === change.id);
@@ -364,6 +386,7 @@ async function installSupabaseBoundaryMock(page) {
                         row.status = change.status;
                         row.starts_at = change.starts_at;
                         row.ends_at = change.ends_at;
+                        row.paid_amount = change.paid_amount;
                         if (change.type === 'blocked') row.reason = change.reason;
                     }
                     return { data: { email_jobs: [] }, error: null };
@@ -436,6 +459,14 @@ function expectHeadingTopsAligned(tops) {
 }
 
 test.describe('production admin redesign', () => {
+    test('dashboard counts distinct future bookable dates', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 1440, height: 1000 });
+
+        await expect(page.locator('#admin-v2-stat-horizon')).toHaveText('2');
+        await expect(page.locator('#admin-v2-stat-horizon-meta')).toContainText('Legutolsó:');
+        expect(browserErrors).toEqual([]);
+    });
+
     test('desktop: the new information architecture is compact and usable', async ({ page }) => {
         const browserErrors = await openAdmin(page, { width: 1440, height: 1000 });
 
@@ -520,6 +551,168 @@ test.describe('production admin redesign', () => {
         if (process.env.LUMI_CAPTURE_ADMIN_REDESIGN === '1') {
             await page.screenshot({ path: 'test-results/admin-redesign-desktop.png', fullPage: true });
         }
+        expect(browserErrors).toEqual([]);
+    });
+
+    test('manual occupied time stores the selected service and derives its end time on mobile', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 390, height: 844 });
+
+        await page.getByRole('button', { name: 'Navigáció megnyitása' }).click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="munkaido"]').click();
+        await page.locator('#admin-panel-idosavok [data-admin-v2-panel="tiltasok"]').click();
+
+        const panel = page.locator('#admin-panel-tiltasok');
+        const service = panel.locator('#admin-tiltas-szolgaltatas');
+        await expect(service).toBeEnabled();
+        await expect(service.locator('option')).toHaveCount(5);
+
+        await panel.locator('#admin-tiltas-datum').fill(dateKey(10));
+        await panel.locator('#admin-tiltas-kezdes').fill('10:00');
+        await service.selectOption('service-1');
+        await expect(panel.locator('#admin-tiltas-vege')).toHaveValue('12:00');
+        await panel.locator('#admin-tiltas-ok').fill('Kézi vendég');
+
+        await panel.locator('[data-admin-v2-save]').click();
+        await expect(panel.locator('#admin-tiltas-lista .admin-db-kartya').filter({ hasText: 'Kézi vendég' }))
+            .toContainText('Erositett gel lakk');
+
+        const insert = await page.evaluate(() => window.__adminLastInsert);
+        expect(insert.table).toBe('blocked_times');
+        expect(insert.values.service_id).toBe('service-1');
+        expect(insert.values.reason).toBe('Kézi vendég');
+        expect(new Date(insert.values.ends_at) - new Date(insert.values.starts_at)).toBe(120 * 60 * 1000);
+
+        const overflow = await page.evaluate(() => ({
+            body: document.body.scrollWidth,
+            root: document.documentElement.scrollWidth,
+            viewport: window.innerWidth
+        }));
+        expect(overflow.body).toBeLessThanOrEqual(overflow.viewport);
+        expect(overflow.root).toBeLessThanOrEqual(overflow.viewport);
+        expect(browserErrors).toEqual([]);
+    });
+
+    test('paid amounts can be reviewed and saved for online and manual bookings on mobile', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 390, height: 844 });
+
+        await page.getByRole('button', { name: 'Navigáció megnyitása' }).click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="foglalasok"]').click();
+        const panel = page.locator('#admin-panel-foglalasok');
+        const saveButton = panel.getByRole('button', { name: 'Módosítások mentése' });
+
+        let onlineCard = panel.locator('.admin-foglalas-kartya').filter({ hasText: 'Nagy Anna' });
+        await onlineCard.locator('h3').click();
+        await expect(onlineCard.locator('.admin-foglalas-meta-fizetett')).toContainText('6 500 Ft');
+        await onlineCard.getByRole('button', { name: 'Szerkesztés' }).click();
+        const onlineAmount = onlineCard.locator('[data-idopont-mezo="paid_amount"]');
+        await expect(onlineAmount).toBeEnabled();
+        await onlineAmount.fill('7000');
+        await onlineAmount.blur();
+        await expect(onlineAmount).toHaveAttribute('aria-invalid', 'false');
+        await saveButton.click();
+
+        let lastRpc = await page.evaluate(() => window.__adminLastRpc);
+        expect(lastRpc.name).toBe('apply_admin_booking_changes');
+        expect(lastRpc.args.p_changes).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                id: '00000000-0000-4000-8000-000000000001',
+                type: 'booking',
+                paid_amount: 7000
+            })
+        ]));
+
+        onlineCard = panel.locator('.admin-foglalas-kartya').filter({ hasText: 'Nagy Anna' });
+        await onlineCard.locator('h3').click();
+        await expect(onlineCard.locator('.admin-foglalas-meta-fizetett')).toContainText('7 000 Ft');
+
+        let manualCard = panel.locator('.admin-foglalas-kartya').filter({ hasText: 'Adminisztracio' });
+        await manualCard.locator('h3').click();
+        await expect(manualCard.locator('.admin-foglalas-meta-fizetett')).toContainText('Nincs rögzítve');
+        await manualCard.getByRole('button', { name: 'Szerkesztés' }).click();
+        const manualAmount = manualCard.locator('[data-idopont-mezo="paid_amount"]');
+        const manualReason = manualCard.locator('[data-idopont-mezo="reason"]');
+        const lowerRowMetrics = await manualCard.locator('.admin-kezi-foglalas-also-sor').evaluate(element => {
+            const reason = element.querySelector('[data-idopont-mezo="reason"]')?.closest('label');
+            const amount = element.querySelector('[data-idopont-mezo="paid_amount"]')?.closest('label');
+            const reasonRect = reason.getBoundingClientRect();
+            const amountRect = amount.getBoundingClientRect();
+            return {
+                topDifference: Math.abs(reasonRect.top - amountRect.top),
+                widthRatio: reasonRect.width / amountRect.width
+            };
+        });
+        expect(lowerRowMetrics.topDifference).toBeLessThanOrEqual(1);
+        expect(lowerRowMetrics.widthRatio).toBeGreaterThan(1.45);
+        expect(lowerRowMetrics.widthRatio).toBeLessThan(1.55);
+        await expect(manualReason).toBeEnabled();
+        await manualAmount.fill('-1');
+        await manualAmount.blur();
+        await expect(manualAmount).toHaveAttribute('aria-invalid', 'true');
+        await expect(manualCard.locator('.admin-fizetett-osszeg-hiba')).toContainText('0 vagy annál nagyobb');
+        await manualAmount.fill('5000');
+        if (process.env.LUMI_CAPTURE_ADMIN_REDESIGN === '1') {
+            await page.screenshot({ path: 'test-results/admin-paid-amount-layout-mobile.png', fullPage: true });
+        }
+        await saveButton.click();
+
+        lastRpc = await page.evaluate(() => window.__adminLastRpc);
+        expect(lastRpc.args.p_changes).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                id: '00000000-0000-4000-8000-000000000100',
+                type: 'blocked',
+                paid_amount: 5000
+            })
+        ]));
+
+        manualCard = panel.locator('.admin-foglalas-kartya').filter({ hasText: 'Adminisztracio' });
+        await manualCard.locator('h3').click();
+        await expect(manualCard.locator('.admin-foglalas-meta-fizetett')).toContainText('5 000 Ft');
+
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(overflow).toBeLessThanOrEqual(1);
+
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        const desktopOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(desktopOverflow).toBeLessThanOrEqual(1);
+        await expect(manualCard.locator('.admin-foglalas-meta-fizetett')).toContainText('5 000 Ft');
+        expect(browserErrors).toEqual([]);
+    });
+
+    test('mobile booking card names keep descenders visible', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 390, height: 844 });
+
+        await page.getByRole('button', { name: 'Navigáció megnyitása' }).click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="foglalasok"]').click();
+        const headings = page.locator('#admin-panel-foglalasok .admin-foglalas-nev-blokk h3');
+        await expect(headings).toHaveCount(6);
+
+        const metrics = await headings.evaluateAll(elements => elements.map(element => {
+            const style = getComputedStyle(element);
+            const elementRect = element.getBoundingClientRect();
+            const textRange = document.createRange();
+            textRange.selectNodeContents(element);
+            const textRect = textRange.getBoundingClientRect();
+            return {
+                text: element.textContent.trim(),
+                fontSize: Number.parseFloat(style.fontSize),
+                lineHeight: Number.parseFloat(style.lineHeight),
+                paddingBottom: Number.parseFloat(style.paddingBottom),
+                height: elementRect.height,
+                textBottomClearance: elementRect.bottom - textRect.bottom
+            };
+        }));
+
+        expect(metrics.some(metric => metric.text === 'Nagy Anna')).toBe(true);
+        for (const metric of metrics) {
+            expect(metric.lineHeight, `${metric.text}: line-height`).toBeGreaterThanOrEqual(metric.fontSize * 1.29);
+            expect(metric.paddingBottom, `${metric.text}: bottom padding`).toBeGreaterThanOrEqual(2);
+            expect(metric.height, `${metric.text}: element height`)
+                .toBeGreaterThanOrEqual(metric.lineHeight + metric.paddingBottom - 0.5);
+            expect(metric.textBottomClearance, `${metric.text}: text bottom clearance`).toBeGreaterThanOrEqual(1.5);
+        }
+
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth))
+            .toBeLessThanOrEqual(1);
         expect(browserErrors).toEqual([]);
     });
 
@@ -784,7 +977,7 @@ test.describe('production admin redesign', () => {
         const onlineService = onlineCard.locator('.admin-foglalas-rovid-szolgaltatas');
 
         await expect(manualCard.locator('.admin-kartya-tipus')).toHaveText('Kézzel felvett idő');
-        await expect(manualService).toBeEmpty();
+        await expect(manualService).toHaveText('Erositett gel lakk');
         expect(await manualCard.locator('.admin-kartya-tipus').evaluate(
             element => getComputedStyle(element).textTransform
         )).toBe('uppercase');

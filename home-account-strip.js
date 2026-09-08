@@ -6,6 +6,7 @@
 
     const hero = document.getElementById('hero');
     if (!hero) return;
+    if (hero.querySelector('.hero-actions a[href^="/fiokom"]')) return;
 
     const section = document.createElement('section');
     section.id = 'fiok-ajanlo';

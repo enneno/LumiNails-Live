@@ -1,5 +1,5 @@
 .arlista-oldal {
-    width: min(960px, calc(100% - 48px));
+    width: min(1200px, calc(100% - 48px));
     margin: 0 auto;
     padding: clamp(72px, 8vw, 116px) 0 0;
 }
@@ -7,7 +7,7 @@
 .arlista-oldal > h1 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(68px, 9vw, 116px);
     font-weight: 600;
     letter-spacing: -0.045em;
@@ -25,33 +25,34 @@
 }
 
 .arlista-panel {
-    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
     margin: 70px 0 0;
     padding: 0;
     border: 0;
-    border-top: 1px solid var(--ui-line-strong);
     border-radius: 0;
     background: transparent;
     box-shadow: none;
 }
 
 .arlista-ket-oszlop {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0 76px;
+    display: contents;
 }
 
 .arlista-csoport,
 .arlista-ket-oszlop .arlista-csoport {
     margin: 0;
-    padding: 38px 0 30px;
-    border-bottom: 1px solid var(--ui-line);
+    padding: 34px 32px;
+    border: 1px solid var(--ui-line);
+    border-radius: var(--lumi-radius-card);
+    background: var(--ui-surface);
 }
 
 .arlista-csoport h3 {
     margin: 0 0 20px;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(28px, 3vw, 36px);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -66,7 +67,7 @@
     min-height: 50px;
     padding: 8px 0;
     color: var(--ui-ink);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: 20px;
     line-height: 1.45;
 }
@@ -99,18 +100,19 @@
 }
 
 .arlista-ido {
-    color: color-mix(in srgb, var(--ui-muted) 72%, transparent);
-    font-family: 'Manrope', sans-serif;
+    color: var(--ui-muted);
+    font-family: 'DM Sans', sans-serif;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.02em;
 }
 
 .arlista-megjegyzes {
+    grid-column: 1 / -1;
     margin: 32px 0 0;
     padding: 18px 20px;
     border-left: 2px solid var(--ui-rose);
-    background: rgba(255, 253, 249, 0.7);
+    background: var(--ui-surface);
     color: var(--ui-muted);
     font-size: var(--lumi-font-body-small);
     font-style: normal;
@@ -148,7 +150,18 @@
     }
 
     .arlista-ket-oszlop {
+        display: contents;
+    }
+
+    .arlista-panel {
         grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 38px;
+    }
+
+    .arlista-csoport,
+    .arlista-ket-oszlop .arlista-csoport {
+        padding: 26px 20px;
     }
 }
 

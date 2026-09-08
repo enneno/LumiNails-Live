@@ -12,12 +12,12 @@
     width: 100%;
     max-width: none;
     margin-bottom: 0;
-    padding: clamp(72px, 8vw, 112px) var(--ui-gutter);
-    background: var(--ui-primary);
+    padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
+    background: var(--ui-off-black);
 }
 
 .szolgaltatasok-belso {
-    width: min(1160px, 100%);
+    width: min(var(--lumi-content-width), 100%);
     margin-inline: auto;
 }
 
@@ -40,8 +40,8 @@
 #szolgaltatasok h2 {
     max-width: 100%;
     margin: 14px 0 0;
-    color: var(--ui-on-primary);
-    font-family: "Cormorant Garamond", serif;
+    color: var(--ui-on-dark);
+    font-family: "Playfair Display", serif;
     font-size: clamp(52px, 6vw, 78px);
     font-weight: 600;
     letter-spacing: -0.045em;
@@ -72,42 +72,42 @@
 .szolgaltatas-lista {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    width: var(--lumi-container-width);
-    max-width: 1400px;
+    gap: 18px;
+    width: 100%;
+    max-width: none;
     box-sizing: border-box;
     margin: 0 auto;
     padding: 0;
     overflow: visible;
     border: 0;
-    border-radius: var(--lumi-radius-card);
+    border-radius: 0;
     background: transparent;
-    box-shadow: 0 18px 46px rgba(78, 54, 48, 0.075);
+    box-shadow: none;
 }
 
 .szolgaltatas-kartya {
     position: relative;
     display: flex;
     grid-template-columns: minmax(210px, 0.22fr) minmax(0, 1fr);
-    min-height: 286px;
+    min-height: 320px;
     flex-direction: column;
     align-items: flex-start;
     gap: clamp(14px, 2.4vw, 30px);
     margin: 0;
-    padding: 30px;
+    padding: 32px;
     overflow: hidden;
-    border: 2px solid var(--ui-accent);
+    border: 1px solid rgba(255, 250, 246, 0.22);
     border-radius: 4px;
     isolation: isolate;
-    background: var(--ui-primary);
-    box-shadow: 0 22px 48px rgba(145, 118, 110, 0.22);
+    background: #3b434b;
+    box-shadow: none;
     transform: none;
     transition:
         box-shadow 220ms ease-out,
         transform 220ms ease-out;
 }
 .szolgaltatas-lista > .szolgaltatas-kartya {
-    border: 2px solid var(--ui-accent);
+    border: 1px solid rgba(255, 250, 246, 0.22);
 }
 
 
@@ -121,7 +121,7 @@
     background-position: var(--service-position, center);
     background-repeat: no-repeat;
     background-size: cover;
-    filter: brightness(0.64) saturate(0.82);
+    filter: brightness(0.72) saturate(0.78);
     content: "";
     pointer-events: none;
     transform: scale(1);
@@ -134,7 +134,7 @@
     border-radius: inherit;
     z-index: 0;
     display: block;
-    background: linear-gradient(135deg, rgba(33, 27, 25, 0.8), rgba(145, 118, 110, 0.64));
+    background: linear-gradient(135deg, rgba(49, 56, 63, 0.76), rgba(49, 56, 63, 0.6));
     content: "";
     pointer-events: none;
 }
@@ -175,8 +175,8 @@
 
 
 .szolgaltatas-tipus {
-    color: var(--ui-on-primary);
-    font-family: "Manrope", sans-serif;
+    color: var(--ui-on-dark);
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 750;
     letter-spacing: 0.12em;
@@ -188,8 +188,8 @@
 .szolgaltatas-kartya h3 {
     max-width: 12ch;
     margin: 0 0 16px;
-    color: var(--ui-on-primary);
-    font-family: "Cormorant Garamond", serif;
+    color: var(--ui-on-dark);
+    font-family: "Playfair Display", serif;
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 500;
     line-height: 1;
@@ -200,9 +200,9 @@
     max-width: 48ch;
     margin: 0 0 22px;
     padding-left: clamp(14px, 2vw, 22px);
-    color: var(--ui-on-primary);
+    color: var(--ui-on-dark);
     border-left: 1px solid rgba(185, 133, 143, 0.22);
-    font-family: 'Manrope', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: var(--lumi-font-body-small);
     font-weight: 400;
     line-height: 1.7;
@@ -221,7 +221,7 @@
     align-items: center;
     gap: 8px;
     margin: auto 0 -10px;
-    color: var(--ui-on-primary);
+    color: var(--ui-on-dark);
     font-size: var(--lumi-font-caption);
     font-weight: 800;
     line-height: 1.45;
@@ -248,9 +248,9 @@
 @media (hover: hover) and (pointer: fine) {
     .szolgaltatas-kartya:hover {
         z-index: 1;
-        background: rgba(185, 133, 143, 0.06);
-        box-shadow: 0 26px 58px rgba(145, 118, 110, 0.32);
-        transform: scale(1.015);
+        background: #414a54;
+        box-shadow: 0 18px 40px rgba(23, 27, 31, 0.2);
+        transform: none;
     }
 
     .szolgaltatas-kartya:hover::before {
@@ -275,8 +275,8 @@
 }
 
 .szolgaltatas-zaras strong {
-    color: var(--ui-on-primary);
-    font-family: "Cormorant Garamond", serif;
+    color: var(--ui-on-dark);
+    font-family: "Playfair Display", serif;
     font-size: 24px;
     font-weight: 600;
     line-height: 1.1;
@@ -292,13 +292,13 @@
     flex: 0 0 auto;
     border-color: var(--ui-warm);
     background: var(--ui-highlight);
-    color: var(--ui-primary);
+    color: var(--ui-off-black);
 }
 
 .szolgaltatas-zaras .gomb:hover {
-    border-color: var(--ui-on-primary);
-    background: var(--ui-on-primary);
-    color: var(--ui-primary);
+    border-color: var(--ui-on-dark);
+    background: var(--ui-on-dark);
+    color: var(--ui-off-black);
 }
 
 #szolgaltatasok a:focus-visible {
@@ -322,7 +322,7 @@
 @media screen and (max-width: 768px) {
     #szolgaltatasok {
         width: 100%;
-        padding: 58px 20px 60px;
+        padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
     }
 
     .szolgaltatasok-belso {
@@ -441,6 +441,13 @@
 }
 
 @media screen and (max-width: 380px) {
+    #szolgaltatasok h2 {
+        font-size: clamp(31px, 10vw, 36px);
+        letter-spacing: -0.04em;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+
     .szolgaltatas-lista {
         width: calc(100% - 24px);
         max-width: calc(100% - 24px);
@@ -458,7 +465,8 @@
 
 /* Home introduction — végleges megjelenés (99-ből migrálva) */
 #bemutatkozas {
-    width: min(1120px, calc(100% - 48px));
+    width: 100%;
+    max-width: none;
     margin-right: auto;
     margin-bottom: 0;
     margin-left: auto;
@@ -468,11 +476,11 @@
 
 #bemutatkozas .bemutatkozas-belso {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(52px, 8vw, 110px);
+    grid-template-columns: minmax(420px, 44.8%) minmax(0, 55.2%);
+    gap: 0;
     align-items: stretch;
     width: 100%;
-    margin: 0;
+    margin: 0 auto;
 }
 
 .bemutatkozas-kep {
@@ -481,8 +489,8 @@
     height: auto;
     margin: 0;
     overflow: hidden;
-    border-radius: 4px;
-    background: var(--ui-soft);
+    border-radius: 0;
+    background: var(--ui-bg);
     transform: none;
 }
 
@@ -491,9 +499,11 @@
 }
 
 .bemutatkozas-kep img {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     min-height: 0;
     aspect-ratio: auto;
     object-fit: contain;
@@ -514,7 +524,7 @@
     height: 98px;
     border: 1px solid rgba(255, 249, 245, 0.4);
     border-radius: 50%;
-    background: rgba(45, 38, 35, 0.68);
+    background: rgba(44, 33, 30, 0.78);
     color: var(--ui-off-white);
     transform: none;
     backdrop-filter: blur(12px);
@@ -524,6 +534,8 @@
     position: static;
     align-self: center;
     min-width: 0;
+    width: 100%;
+    padding: clamp(48px, 5vw, 72px) clamp(54px, 8vw, 150px) clamp(48px, 5vw, 72px) clamp(48px, 5.2vw, 96px);
     color: var(--ui-ink);
 }
 
@@ -535,17 +547,18 @@
 .bemutatkozas-szoveg h2 {
     margin: 16px 0 30px;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
-    font-size: clamp(64px, 7vw, 94px);
+    font-family: "Playfair Display", serif;
+    font-size: clamp(60px, 6.4vw, 76px);
     font-weight: 600;
     letter-spacing: -0.045em;
-    line-height: 0.9;
+    line-height: 0.94;
+    text-wrap: balance;
 }
 
 .bemutatkozas-szoveg p {
-    max-width: 580px;
+    max-width: 760px;
     color: var(--ui-muted);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-body);
     line-height: 1.85;
     text-align: justify;
@@ -558,7 +571,7 @@
 @media screen and (max-width: 768px) {
     #bemutatkozas {
         width: 100%;
-        padding: 0 20px;
+        padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
     }
 
     #bemutatkozas .bemutatkozas-belso {
@@ -567,7 +580,8 @@
     }
 
     #bemutatkozas .bemutatkozas-kep {
-        border-radius: 3px;
+        aspect-ratio: 4 / 5;
+        border-radius: 4px;
     }
 
     .bemutatkozas-kep-jelveny {
@@ -580,16 +594,29 @@
     .bemutatkozas-szoveg h2 {
         max-width: 100%;
         margin: 13px 0 24px;
-        font-size: calc(clamp(42px, 12vw, 52px) + 2px);
+        font-size: clamp(38px, 10.4vw, 43px);
         letter-spacing: -0.04em;
         line-height: 0.98;
-        overflow-wrap: normal;
+        overflow-wrap: anywhere;
         word-break: normal;
+    }
+
+    #bemutatkozas .bemutatkozas-szoveg {
+        padding: 0;
     }
 
     .bemutatkozas-szoveg p {
         font-size: var(--lumi-font-body-small);
         line-height: 1.75;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .bemutatkozas-szoveg h2 {
+        font-size: clamp(31px, 10vw, 36px);
+        letter-spacing: -0.04em;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 }
 
@@ -601,19 +628,20 @@
     gap: 50px;
     align-items: end;
     width: 100%;
-    padding: clamp(70px, 8vw, 110px) var(--ui-gutter);
+    padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
     border: 0;
     border-radius: 0;
-    background: var(--ui-warm);
+    background: var(--ui-primary);
 }
 
 .fooldal #kapcsolat h2 {
     max-width: 760px;
     margin: 12px 0 18px;
     color: var(--ui-off-black);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(54px, 7vw, 88px);
-    line-height: 0.92;
+    line-height: 0.96;
+    text-wrap: balance;
 }
 
 .fooldal .kapcsolat-tartalom,
@@ -654,17 +682,17 @@
 @media screen and (max-width: 768px) {
     .fooldal #kapcsolat {
         gap: 24px;
-        padding: 32px 20px 40px;
+        padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
         border-top: 1px solid var(--ui-line);
     }
 
     .fooldal #kapcsolat h2 {
         max-width: 100%;
         margin: 11px 0 18px;
-        font-size: calc(clamp(34px, 9.4vw, 42px) + 2px);
+        font-size: clamp(36px, 10vw, 44px);
         letter-spacing: -0.045em;
         line-height: 0.98;
-        overflow-wrap: normal;
+        overflow-wrap: anywhere;
         white-space: normal;
         word-break: normal;
     }
@@ -699,11 +727,11 @@
 .vendegertesito-belso {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
-    gap: 24px;
+    gap: 18px;
     width: 100%;
     max-width: 1240px;
     margin-inline: auto;
-    padding-block: 17px;
+    padding-block: 12px;
 }
 
 .vendegertesito-cimke {
@@ -712,8 +740,8 @@
     align-self: start;
     gap: 10px;
     min-height: 24px;
-    color: #e3b7c4;
-    font-family: "Manrope", sans-serif;
+    color: var(--ui-primary);
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     letter-spacing: 0.17em;
@@ -735,12 +763,12 @@
     max-width: 820px;
     margin: 0;
     color: #fffdf9;
-    font-family: "Manrope", sans-serif;
-    font-size: var(--lumi-font-body);
+    font-family: "DM Sans", sans-serif;
+    font-size: var(--lumi-font-body-small);
     font-weight: 450;
-    line-height: 1.7;
+    line-height: 1.5;
     overflow-wrap: anywhere;
-    white-space: pre-line;
+    white-space: normal;
 }
 
 @media screen and (max-width: 768px) {
@@ -750,8 +778,8 @@
 
     .vendegertesito-belso {
         grid-template-columns: minmax(0, 1fr);
-        gap: 6px;
-        padding-block: 15px 17px;
+        gap: 4px;
+        padding-block: 10px 12px;
     }
 
     .vendegertesito-cimke {
@@ -759,7 +787,7 @@
     }
 
     .vendegertesito-szoveg {
-        font-size: var(--lumi-font-body);
-        line-height: 1.65;
+        font-size: var(--lumi-font-body-small);
+        line-height: 1.45;
     }
 }

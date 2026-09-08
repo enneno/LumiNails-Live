@@ -8,7 +8,7 @@
 .jogi-fejlec h1 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(68px, 9vw, 116px);
     font-weight: 600;
     letter-spacing: -0.045em;
@@ -41,8 +41,8 @@
 .jogi-fejlec .jogi-cimke {
     max-width: none;
     margin: 0 0 18px;
-    color: var(--ui-rose-dark);
-    font-family: "Manrope", sans-serif;
+    color: var(--ui-accent-text);
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 750;
     letter-spacing: 0.17em;
@@ -72,7 +72,7 @@
 
 .jogi-tartalomjegyzek > p {
     margin: 0 0 14px;
-    color: var(--ui-rose-dark);
+    color: var(--ui-accent-text);
     font-size: var(--lumi-font-caption);
     font-weight: 750;
     letter-spacing: 0.16em;
@@ -106,7 +106,7 @@
 
 .jogi-tartalomjegyzek a::before {
     content: counter(jogi-tartalom, decimal-leading-zero);
-    color: var(--ui-primary);
+    color: var(--ui-accent-text);
     font-size: var(--lumi-font-micro);
     letter-spacing: 0.04em;
 }
@@ -141,7 +141,7 @@
 .jogi-tartalom h2 {
     margin: 0 0 18px;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: 40px;
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -152,7 +152,7 @@
 .jogi-tartalom h3 {
     margin: 0 0 8px;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: 26px;
     font-weight: 600;
     line-height: 1.1;
@@ -267,7 +267,7 @@
 
 .jogi-frissitve {
     margin: 34px 0 0;
-    color: var(--ui-primary);
+    color: var(--ui-accent-text);
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     letter-spacing: 0.04em;

@@ -34,27 +34,27 @@
 }
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-calendar-header-bg: #2a2421;
-  --booking-calendar-cell-bg: #211d1b;
-  --booking-calendar-empty-bg: #1c1917;
-  --booking-calendar-hover-bg: #2d2724;
-  --booking-calendar-selected-bg: #382729;
-  --booking-calendar-count-bg: #332b28;
-  --booking-calendar-event-bg: #2f2926;
-  --booking-calendar-event-border: #9a8177;
-  --booking-calendar-event-text: #eadeda;
-  --booking-calendar-pending-border: #c78397;
-  --booking-calendar-pending-bg: #3a252d;
-  --booking-calendar-confirmed-border: #79a7bd;
-  --booking-calendar-confirmed-bg: #22313a;
-  --booking-calendar-done-border: #7ba68a;
-  --booking-calendar-done-bg: #24362b;
-  --booking-calendar-cancelled-border: #7c716d;
-  --booking-calendar-cancelled-bg: #302a27;
-  --booking-calendar-cancelled-customer-border: #b07c8e;
-  --booking-calendar-cancelled-customer-bg: #3a2930;
-  --booking-calendar-day-row-bg: #24201e;
-  --booking-calendar-day-status-bg: #332c29;
+  --booking-calendar-header-bg: #3a4249;
+  --booking-calendar-cell-bg: #31383f;
+  --booking-calendar-empty-bg: #293036;
+  --booking-calendar-hover-bg: #414a52;
+  --booking-calendar-selected-bg: #4d3942;
+  --booking-calendar-count-bg: #444c54;
+  --booking-calendar-event-bg: #3d454c;
+  --booking-calendar-event-border: #9aa3aa;
+  --booking-calendar-event-text: #f2e9eb;
+  --booking-calendar-pending-border: #ffd1dc;
+  --booking-calendar-pending-bg: #503440;
+  --booking-calendar-confirmed-border: #8db5ca;
+  --booking-calendar-confirmed-bg: #304853;
+  --booking-calendar-done-border: #8fb99c;
+  --booking-calendar-done-bg: #2f4437;
+  --booking-calendar-cancelled-border: #92999f;
+  --booking-calendar-cancelled-bg: #414950;
+  --booking-calendar-cancelled-customer-border: #d293a5;
+  --booking-calendar-cancelled-customer-bg: #513a44;
+  --booking-calendar-day-row-bg: #31383f;
+  --booking-calendar-day-status-bg: #444c54;
 }
 
 /* Toolbar and search */
@@ -127,7 +127,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   place-items: center;
   border: 0;
   border-radius: var(--admin-ui-icon-radius);
-  color: var(--admin-rose-dark);
+  color: var(--admin-v2-brand-dark);
   background: transparent;
   font-size: var(--admin-ui-action-font-size);
   line-height: 1;
@@ -175,7 +175,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-kicker {
   display: block;
   margin-bottom: 4px;
-  color: var(--admin-rose-dark);
+  color: var(--admin-v2-brand-dark);
   font-size: var(--lumi-font-caption);
   font-weight: 600;
   letter-spacing: .12em;
@@ -192,7 +192,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   font-size: var(--lumi-font-body-small);
 }
 .admin-body.admin-v2 #admin-panel-foglalasok #admin-vendeg-lemondas-darab {
-  color: var(--admin-rose-dark);
+  color: var(--admin-v2-brand-dark);
   font-weight: 600;
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-akciok {
@@ -202,7 +202,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-nyugtazas {
   border-color: var(--admin-rose-dark);
-  color: var(--ui-off-white);
+  color: var(--ui-on-primary);
   background: var(--admin-rose-dark);
 }
 
@@ -295,7 +295,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-body.admin-v2 #admin-panel-foglalasok :is(
   .admin-foglalas-statusz-blocked,
   .admin-foglalas-kartya:has(.admin-db-statusz option[value="blocked"]:checked)
-) { --booking-state-color: var(--admin-v2-brand); --booking-state-bg: var(--admin-v2-brand-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-brand) 34%, var(--admin-v2-border)); }
+) { --booking-state-color: var(--admin-v2-brand-dark); --booking-state-bg: var(--admin-v2-brand-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-brand) 34%, var(--admin-v2-border)); }
 .admin-body.admin-v2 #admin-panel-foglalasok :is(
   .admin-foglalas-statusz-cancelled,
   .admin-foglalas-kartya:has(.admin-db-statusz option[value="cancelled"]:checked)
@@ -392,12 +392,13 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-azonosito code { color: inherit; font: inherit; }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk h3 {
   margin: 0;
+  padding-bottom: 2px;
   overflow: hidden;
   color: var(--admin-v2-ink);
-  font-family: "Manrope", sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -585,12 +586,33 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo-szeles {
   grid-column: 1 / -1;
 }
+.admin-body.admin-v2 #admin-panel-foglalasok .admin-kezi-foglalas-also-sor {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+  gap: 6px;
+  min-width: 0;
+}
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo textarea {
   height: 56px;
   min-height: 56px;
   padding: 8px 10px;
   border-radius: 12px;
   resize: vertical;
+}
+.admin-body.admin-v2 #admin-panel-foglalasok .admin-fizetett-osszeg-seged {
+  margin: 0;
+  color: var(--admin-v2-subtle);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.admin-body.admin-v2 #admin-panel-foglalasok [data-idopont-mezo="paid_amount"][aria-invalid="true"] {
+  border-color: var(--admin-v2-danger);
+}
+.admin-body.admin-v2 #admin-panel-foglalasok .admin-fizetett-osszeg-hiba {
+  color: var(--admin-v2-danger);
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-db-akciok {
   margin-top: 7px;
@@ -619,7 +641,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   border-radius: var(--lumi-radius-pill);
   color: var(--akcentus);
   background: rgba(185, 133, 143, .08);
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-button-compact);
   font-weight: 600;
   cursor: pointer;
@@ -660,7 +682,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-inspiracio-modal-doboz h3 {
   margin: 0;
   color: var(--barna);
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 34px;
   line-height: 1;
 }
@@ -714,7 +736,7 @@ body.admin-modal-nyitva { overflow: hidden; }
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-fej h3 {
   margin: 0;
-  font-family: "Cormorant Garamond", serif;
+  font-family: "Playfair Display", serif;
   font-size: clamp(26px, 3vw, 36px);
   font-weight: 600;
   line-height: 1;
@@ -782,7 +804,7 @@ body.admin-modal-nyitva { overflow: hidden; }
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap.mai .admin-foglalas-naptar-napszam {
   border-radius: 50%;
-  color: var(--ui-off-white);
+  color: var(--ui-on-primary);
   background: var(--admin-rose-dark);
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-darab {
@@ -850,7 +872,7 @@ body.admin-modal-nyitva { overflow: hidden; }
 }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-fej h4 {
   margin: 0;
-  font-family: "Cormorant Garamond", serif;
+  font-family: "Playfair Display", serif;
   font-size: 24px;
   font-weight: 600;
   line-height: 1.1;
@@ -905,7 +927,7 @@ body.admin-modal-nyitva { overflow: hidden; }
   .admin-body.admin-v2 #admin-panel-foglalasok { --booking-status-width: 150px; }
   .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya { padding-right: 2px; padding-left: 8px; }
   .admin-body.admin-v2 #admin-panel-foglalasok .admin-db-kartya-fej { min-height: 88px; gap: 4px 10px; padding: 8px 0; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk h3 { font-size: 16px; line-height: 1.2; }
+  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk h3 { font-size: 16px; }
   .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-rovid-szolgaltatas { font-size: 13px; }
   .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-datum { font-size: 14px; }
   .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-ido { font-size: 12px; }

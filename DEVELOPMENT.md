@@ -35,12 +35,18 @@ Az önálló `admin-content.js`, `supabase-config.js` és a HTML-fájlok tovább
 
 - `npm run build` – összeállítja a böngészőnek szánt CSS/JS fájlokat.
 - `npm run assets:version` – a fájlok tartalmából frissíti a cache-verziókat a HTML-ben.
+- `npm run lint:css` – gyors, helyi Stylelint-ellenőrzés a forrás-CSS fájlokra; CSS-módosítás után futtatandó.
 - `npm run check` – statikus ellenőrzések, szintaxis, hivatkozások, Supabase-kliens, CSS-szabályok és forrás/bundle egyezés.
 - `npm test` – a Playwright böngészős tesztcsomag; csak az `AGENTS.md` szerint indokolt esetben futtatandó teljes egészében.
+- `npm run test:visual` – az öt kritikus TEST-nézet célzott Playwright-képernyőképeit készíti el a `test-results/` alatt: kezdőlap asztali és mobil, foglalás mobil, admin asztali és mobil. Csak az érintett kritikus felület változásakor futtatandó; az eredményt vizuálisan is át kell nézni.
+- `npm run test:a11y` – a kezdőlap, a mobil foglalás és a mobil admin axe accessibility-ratchet ellenőrzése. A dokumentált jelenlegi eltérések számát nem engedi növelni, az új szabálysértés-típusokat pedig elutasítja.
+- `npm run audit:lighthouse` – helyben elindítja a TEST szervert, majd Lighthouse HTML- és JSON-jelentést készít a kezdőlapról a `test-results/` mappába. Igény szerinti audit, nem általános commit-előfeltétel.
 - `npm run verify` – a teljes helyi kiadási ellenőrzés; csak nagy kockázatú, több fontos folyamatot érintő változásnál vagy kifejezett kérésre futtatandó.
 - `npm run serve` – helyi szerver a 8101-es porton.
 
 Commit vagy push előtt a módosítás kockázatához illeszkedő legkisebb elegendő helyi ellenőrzést kell sikeresen elvégezni. A teljes `verify` nem általános előfeltétel.
+
+A vizuális alapelvek és a CSS-felelősségek rövid forrása a `docs/design-system.md`. A bizonyított hibák, következetlenségek és külön jóváhagyást igénylő ötletek a `docs/visual-audit.md` fájlban vannak. Az új UI-munka előtt mindkettőt át kell nézni.
 
 ## Biztonság
 

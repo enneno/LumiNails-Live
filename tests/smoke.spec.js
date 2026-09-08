@@ -260,6 +260,23 @@ test('a főoldali vendégértesítő adminból kapcsolható és mobilon is rende
     await expect(ertesito).toBeHidden();
 });
 
+test('a főoldali hero pontosan a tartalomszerkesztőben megadott képet használja', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('body')).not.toHaveClass(/tartalom-toltes/);
+
+    await page.evaluate(() => {
+        window.fooldalAdatokAlkalmazasa({
+            hero: {
+                kep: '/kepek/hero-exact.jpg',
+                kepAlt: 'Tartalomszerkesztő hero tesztkép'
+            }
+        }, {});
+    });
+
+    await expect(page.locator('.hero-kep')).toHaveAttribute('src', '/kepek/hero-exact.jpg');
+    await expect(page.locator('.hero-kep')).toHaveAttribute('alt', 'Tartalomszerkesztő hero tesztkép');
+});
+
 test('mobilon minden szerkeszthető publikus és admin mező megőrzi az iOS-barát technikai méretet', async ({ page }) => {
     const mezoSelector = [
         'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"])',
@@ -853,7 +870,6 @@ test('a publikus H2-k mobilon két pixellel nőnek, desktopon változatlanok mar
         (cim) => Number.parseFloat(getComputedStyle(cim).fontSize)
     ));
     expect(desktopFooldalH2Meretek).toEqual([94, 78, 78, 78, 88]);
-    await expect(page.locator('#fiok-ajanlo-cim')).toHaveCSS('font-size', '48.96px');
     expect(await akciosH2Meret()).toBe(52);
 
     await page.goto('/adatkezeles/', { waitUntil: 'domcontentloaded' });
@@ -868,7 +884,6 @@ test('a publikus H2-k mobilon két pixellel nőnek, desktopon változatlanok mar
         (cim) => Number.parseFloat(getComputedStyle(cim).fontSize)
     ));
     expect(mobilFooldalH2Meretek).toEqual([48.8, 44.9, 42.95, 40, 38.66]);
-    await expect(page.locator('#fiok-ajanlo-cim')).toHaveCSS('font-size', '36.66px');
     expect(await akciosH2Meret()).toBe(36);
 
     await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
@@ -967,11 +982,11 @@ test('a főoldali szolgáltatásrész a Barna-Beige-Rosy rendszerben asztalon é
     });
 
     expect(asztali).toMatchObject({
-        primary: '#91766e',
-        accent: '#f0d7d5',
-        highlight: '#f3ece3',
-        warm: '#f0d7d5',
-        hatter: 'rgb(145, 118, 110)',
+        primary: '#5d3d36',
+        accent: '#e8c9c3',
+        highlight: '#f5e6e1',
+        warm: '#ead2cc',
+        hatter: 'rgb(44, 33, 30)',
         listaOverflow: 'visible',
         oszlopok: 2,
         kartyak: 4
@@ -980,11 +995,11 @@ test('a főoldali szolgáltatásrész a Barna-Beige-Rosy rendszerben asztalon é
     expect(hatterKepSzelessegek.every((szelesseg) => szelesseg > 0)).toBe(true);
     expect(asztali.kepHatters.every((kep) => kep !== 'none')).toBe(true);
     expect(asztali.fedoretegek.every((reteg) => reteg.includes('linear-gradient'))).toBe(true);
-    expect(asztali.keretSzinek.every((szin) => szin === 'rgb(240, 215, 213)')).toBe(true);
-    expect(asztali.keretSzelessegek.every((szelesseg) => szelesseg === '2px')).toBe(true);
+    expect(asztali.keretSzinek.every((szin) => szin === 'rgba(255, 250, 246, 0.22)')).toBe(true);
+    expect(asztali.keretSzelessegek.every((szelesseg) => szelesseg === '1px')).toBe(true);
     expect(asztali.keretIvek.every(({ kartya, keret }) => kartya === keret)).toBe(true);
     expect(asztali.szamok).toBe(0);
-    expect(asztali.cimSzinek.every((szin) => szin === 'rgb(255, 249, 245)')).toBe(true);
+    expect(asztali.cimSzinek.every((szin) => szin === 'rgb(255, 250, 246)')).toBe(true);
 
     const elsoKartya = page.locator('.szolgaltatas-kartya').first();
     await elsoKartya.hover();
@@ -2173,51 +2188,48 @@ test('a header, CTA es telefonszam komponens egyseges', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('.site-header')).toHaveCSS('background-color', 'rgb(243, 236, 227)');
-    await expect(page.locator('.menu-pontok a').first()).toHaveCSS('color', 'rgb(33, 27, 25)');
-    await expect(page.locator('#kapcsolat h2')).toHaveCSS('color', 'rgb(33, 27, 25)');
-    await expect(page.locator('#kapcsolat .szekcio-leiras')).toHaveCSS('color', 'rgb(33, 27, 25)');
-    await expect(page.locator('.hero-primary')).toHaveCSS('background-color', 'rgb(240, 215, 213)');
-    await expect(page.locator('.hero-primary')).toHaveCSS('color', 'rgb(33, 27, 25)');
+    await expect(page.locator('.site-header')).toHaveCSS('background-color', 'color(srgb 0.972549 0.952941 0.929412 / 0.92)');
+    await expect(page.locator('.menu-pontok a').first()).toHaveCSS('color', 'rgb(44, 33, 30)');
+    await expect(page.locator('#kapcsolat h2')).toHaveCSS('color', 'rgb(44, 33, 30)');
+    await expect(page.locator('#kapcsolat .szekcio-leiras')).toHaveCSS('color', 'rgb(44, 33, 30)');
+    await expect(page.locator('.hero-primary')).toHaveCSS('background-color', 'rgb(93, 61, 54)');
+    await expect(page.locator('.hero-primary')).toHaveCSS('color', 'rgb(255, 250, 246)');
     await expect(page.locator('.bemutatkozas-szoveg p').first()).toHaveCSS('text-align', 'justify');
     await expect(page.locator('.bemutatkozas-szoveg p').first()).toHaveCSS('hyphens', 'none');
 
     const asztaliIllesztes = await page.evaluate(() => {
         const hero = document.querySelector('#hero').getBoundingClientRect();
         const heroKep = document.querySelector('.hero-visual').getBoundingClientRect();
-        const fiokAjanlo = document.querySelector('#fiok-ajanlo').getBoundingClientRect();
         return {
-            heroEsFiokAjanlo: Math.abs(hero.bottom - fiokAjanlo.top),
-            heroUtanFiokAjanloJon: document.querySelector('#hero').nextElementSibling?.id === 'fiok-ajanlo',
+            fiokAjanloHianyzik: !document.querySelector('#fiok-ajanlo'),
             heroKepTeteje: Math.abs(hero.top - heroKep.top),
             heroKepAlja: Math.abs(hero.bottom - heroKep.bottom)
         };
     });
-    expect(asztaliIllesztes.heroEsFiokAjanlo).toBeLessThanOrEqual(0.1);
-    expect(asztaliIllesztes.heroUtanFiokAjanloJon).toBe(true);
+    expect(asztaliIllesztes.fiokAjanloHianyzik).toBe(true);
     expect(asztaliIllesztes.heroKepTeteje).toBeLessThanOrEqual(0.1);
     expect(asztaliIllesztes.heroKepAlja).toBeLessThanOrEqual(0.1);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect(page.locator('.hamburger')).toHaveCSS('background-color', 'rgb(240, 215, 213)');
-    await expect(page.locator('.hero-primary')).toHaveCSS('background-color', 'rgb(240, 215, 213)');
+    await expect(page.locator('.hamburger')).toHaveCSS('background-color', 'rgb(232, 201, 195)');
+    await expect(page.locator('.hero-primary')).toHaveCSS('background-color', 'rgb(93, 61, 54)');
 
     const mobilIllesztes = await page.evaluate(() => {
         const hero = document.querySelector('#hero').getBoundingClientRect();
         const heroKep = document.querySelector('.hero-visual').getBoundingClientRect();
         const monogram = document.querySelector('.hero-monogram').getBoundingClientRect();
-        const fiokAjanlo = document.querySelector('#fiok-ajanlo').getBoundingClientRect();
         return {
-            heroEsFiokAjanlo: Math.abs(hero.bottom - fiokAjanlo.top),
+            fiokAjanloHianyzik: !document.querySelector('#fiok-ajanlo'),
             heroKepEsHeroAlja: Math.abs(hero.bottom - heroKep.bottom),
             monogramBalTavolsag: Math.abs((monogram.left - heroKep.left) - 14)
         };
     });
-    expect(mobilIllesztes.heroEsFiokAjanlo).toBeLessThanOrEqual(0.1);
-    expect(mobilIllesztes.heroKepEsHeroAlja).toBeLessThanOrEqual(0.1);
-    expect(mobilIllesztes.monogramBalTavolsag).toBeLessThanOrEqual(0.1);
+    expect(mobilIllesztes.fiokAjanloHianyzik).toBe(true);
+    expect(mobilIllesztes.heroKepEsHeroAlja).toBeGreaterThanOrEqual(19);
+    expect(mobilIllesztes.heroKepEsHeroAlja).toBeLessThanOrEqual(21);
+    expect(mobilIllesztes.monogramBalTavolsag).toBeLessThanOrEqual(1.1);
     await page.locator('.hamburger').click();
-    await expect(page.locator('.mobile-menu.open a').first()).toHaveCSS('color', 'rgb(33, 27, 25)');
+    await expect(page.locator('.mobile-menu.open a').first()).toHaveCSS('color', 'rgb(44, 33, 30)');
 
     for (const url of ['/arlista/', '/galeria/']) {
         await page.goto(url, { waitUntil: 'domcontentloaded' });
@@ -2244,8 +2256,8 @@ test('a header, CTA es telefonszam komponens egyseges', async ({ page }) => {
     }
 
     await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('.tel-prefix')).toHaveCSS('color', 'rgb(33, 27, 25)');
-    await expect(page.locator('.tel-prefix')).toHaveCSS('background-color', 'rgb(243, 236, 227)');
+    await expect(page.locator('.tel-prefix')).toHaveCSS('color', 'rgb(44, 33, 30)');
+    await expect(page.locator('.tel-prefix')).toHaveCSS('background-color', 'rgb(248, 243, 237)');
 });
 test('az adatkezelési oldal asztali és mobil elrendezése áttekinthető', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });

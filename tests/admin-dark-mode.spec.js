@@ -5,6 +5,32 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
+test('brand controls and readonly booking status keep readable contrast in both themes', async ({ page }) => {
+  const css = read('admin-v2.css');
+  for (const theme of ['light', 'dark']) {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.setContent(`<!doctype html><html data-admin-theme="${theme}"><head><style>${css}</style></head><body class="admin-body admin-v2"><main id="admin-tartalom"><button class="admin-v2-button admin-v2-button-primary">Mentés</button><section id="admin-panel-foglalasok"><div class="admin-foglalas-kartya admin-foglalas-statusz-blocked"><select class="admin-db-statusz admin-db-statusz--foglalas" disabled><option value="blocked" selected>Foglalt</option></select></div></section></main></body></html>`);
+      // axe excludes disabled controls, although this status still conveys booking information.
+      const ratios = await page.evaluate(() => {
+        const luminance = color => {
+          const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+            const channel = value / 255;
+            return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          });
+          return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+        };
+        return ['.admin-v2-button-primary', '.admin-db-statusz'].map(selector => {
+          const style = getComputedStyle(document.querySelector(selector));
+          const values = [luminance(style.color), luminance(style.backgroundColor)];
+          return (Math.max(...values) + 0.05) / (Math.min(...values) + 0.05);
+        });
+      });
+      for (const ratio of ratios) expect(ratio, `${theme}, ${width}px`).toBeGreaterThanOrEqual(4.5);
+    }
+  }
+});
+
 test('dark mode is a persisted admin setting applied before the stylesheet', async () => {
   const index = read('admin/index.html');
   const workspace = read('src/admin/05-admin-workspace-v2.js');
@@ -52,7 +78,7 @@ test('dark theme changes the shared surfaces, controls, switch and PWA dock', as
   expect(metrics.cardBg).not.toBe('rgb(255, 255, 255)');
   expect(metrics.inputBg).not.toBe('rgb(255, 250, 244)');
   expect(metrics.inputColor).not.toBe('rgb(43, 37, 33)');
-  expect(metrics.toggleBg).not.toBe('rgb(44, 39, 36)');
+  expect(metrics.toggleBg).toBe('rgb(255, 209, 220)');
   expect(metrics.dockBg).not.toBe('rgba(255, 252, 249, 0.9)');
   expect(metrics.notificationBg).not.toBe('rgb(255, 255, 255)');
 });
@@ -78,13 +104,13 @@ test('booking calendar uses dark surfaces and dark status colors', async ({ page
     };
   });
 
-  expect(metrics.header).toBe('rgb(42, 36, 33)');
-  expect(metrics.cell).toBe('rgb(33, 29, 27)');
-  expect(metrics.empty).toBe('rgb(28, 25, 23)');
-  expect(metrics.selected).toBe('rgb(56, 39, 41)');
-  expect(metrics.count).toBe('rgb(51, 43, 40)');
-  expect(metrics.done).toBe('rgb(36, 54, 43)');
-  expect(metrics.doneText).toBe('rgb(234, 222, 218)');
-  expect(metrics.dayRow).toBe('rgb(36, 32, 30)');
-  expect(metrics.dayStatus).toBe('rgb(51, 44, 41)');
+  expect(metrics.header).toBe('rgb(58, 66, 73)');
+  expect(metrics.cell).toBe('rgb(49, 56, 63)');
+  expect(metrics.empty).toBe('rgb(41, 48, 54)');
+  expect(metrics.selected).toBe('rgb(77, 57, 66)');
+  expect(metrics.count).toBe('rgb(68, 76, 84)');
+  expect(metrics.done).toBe('rgb(47, 68, 55)');
+  expect(metrics.doneText).toBe('rgb(242, 233, 235)');
+  expect(metrics.dayRow).toBe('rgb(49, 56, 63)');
+  expect(metrics.dayStatus).toBe('rgb(68, 76, 84)');
 });

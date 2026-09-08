@@ -15,6 +15,7 @@ module.exports = defineConfig({
         baseURL: `http://127.0.0.1:${testPort}`,
         headless: true,
         channel: 'msedge',
+        serviceWorkers: 'block',
         trace: 'retain-on-failure'
     },
     webServer: {

@@ -105,7 +105,7 @@ function lumiAlapOldalAdatok() {
                 kicker: 'Körmös Tatabánya',
                 cim: 'Lumi Nails',
                 leiras: 'Elegáns manikűr, gél lakk és körömépítés személyes figyelemmel.',
-                gombSzoveg: 'Belépés / Regisztráció',
+                gombSzoveg: 'Időpontot foglalok',
                 elonyok: [
                     { kiemeles: 'Személyes', szoveg: 'figyelem' },
                     { kiemeles: 'Precíz', szoveg: 'kivitelezés' },
@@ -147,7 +147,6 @@ function lumiAlapOldalAdatok() {
                 kiemeltAkcentus: 'Nagy hatás.',
                 metaLeiras: 'Formák, színek és személyre szabott részletek a Lumi Nails világából.',
                 belsoKicker: 'Részletek, színek, formák',
-                cim: 'Galéria',
                 leiras: 'Nézd meg a korábbi munkákat, színeket és formákat inspirációként a következő időpontodhoz.',
                 gombSzoveg: 'Galéria megnyitása',
                 kivalasztottKepek: []
@@ -593,7 +592,6 @@ function lablecBetoltese() {
                             <a data-footer-phone href="#" hidden style="display: none;"></a>
                         </span>
                         <a data-footer-email href="#" hidden style="display: none;"></a>
-                        <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
                     </address>
                 </div>
 
@@ -613,8 +611,11 @@ function lablecBetoltese() {
                         </a>
                     </div>
                 </div>
+                <div class="footer-meta">
+                    <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
+                    <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
+                </div>
             </div>
-            <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
         </footer>
     `;
 
@@ -1414,6 +1415,15 @@ function galeriaAdatokAlkalmazasa(galeria) {
         kep.decoding = 'async';
         if (index === 0) kep.fetchPriority = 'high';
         gomb.appendChild(kep);
+
+        const felirat = document.createElement('span');
+        felirat.className = 'galeria-kep-felirat';
+        const cim = document.createElement('strong');
+        cim.textContent = elem.kepAlt || 'Lumi Nails köröm munka';
+        const meta = document.createElement('small');
+        meta.textContent = 'Lumi Nails · Tatabánya';
+        felirat.append(cim, meta);
+        gomb.appendChild(felirat);
         racs.appendChild(gomb);
     });
 }
@@ -1475,8 +1485,14 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
 
     const heroAdatok = fooldal.hero || {};
     szovegBeallitasa('.hero-kicker', heroAdatok.kicker);
-    szovegBeallitasa('.hero-content h1', heroAdatok.cim);
-    szovegBeallitasa('.hero-content > p', heroAdatok.leiras);
+    const heroCim = document.querySelector('.hero-content h1');
+    if (heroCim && heroAdatok.cim !== undefined) {
+        const cimReszek = String(heroAdatok.cim || '').trim().split(/\s+/).filter(Boolean);
+        heroCim.innerHTML = cimReszek.length > 1
+            ? `<span class="hero-title-line">${html(cimReszek.slice(0, -1).join(' '))}</span><span class="hero-title-line">${html(cimReszek.at(-1))}</span>`
+            : `<span class="hero-title-line">${html(cimReszek[0] || '')}</span>`;
+    }
+    szovegBeallitasa('.hero-copy > p', heroAdatok.leiras);
     szovegBeallitasa('.hero-primary', heroAdatok.gombSzoveg);
 
     const heroElonyok = document.querySelector('.hero-bizalom');
@@ -1502,8 +1518,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     const hero = document.getElementById('hero');
     const heroKep = hero?.querySelector('.hero-kep');
     if (hero && heroAdatok.kep) {
-        const heroKepSrc = heroAdatok.kep === '/kepek/hero-exact.jpg'
-            ? '/kepek/hero-turkiz.jpg' : (heroAdatok.kep || '/kepek/hero-turkiz.jpg');
+        const heroKepSrc = heroAdatok.kep;
 
         if (heroKep) {
             heroKep.src = heroKepSrc;
@@ -1780,7 +1795,6 @@ function galeriaAtvezetoAlkalmazasa(galeria, teljesGaleria) {
     }
     szovegBeallitasa('.galeria-showcase-meta p', galeria.metaLeiras, szekcio);
     szovegBeallitasa('.galeria-atvezeto-szoveg .szekcio-kicker', galeria.belsoKicker, szekcio);
-    szovegBeallitasa('.galeria-atvezeto-szoveg h2', galeria.cim, szekcio);
     szovegBeallitasa('.galeria-atvezeto-szoveg .szekcio-leiras', galeria.leiras, szekcio);
     szovegBeallitasa('.galeria-atvezeto-szoveg .gomb', galeria.gombSzoveg, szekcio);
 

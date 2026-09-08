@@ -183,7 +183,7 @@
             const adat = elem.adat || {};
             const nev = foglalasNaptarElemNev(elem);
             const szolgaltatas = elem.tipus === 'blocked'
-                ? 'Kézzel felvett idő'
+                ? keziSzolgaltatasNev(adat) || 'Kézzel felvett idő'
                 : adat.services?.name || 'Törölt szolgáltatás';
             return '<button type="button" class="admin-foglalas-napi-sor admin-foglalas-naptar-statusz-'
                 + attr(foglalasNaptarStatuszOsztaly(elem))

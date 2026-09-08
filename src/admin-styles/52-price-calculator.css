@@ -36,7 +36,7 @@
 .admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-osszegzes h2 {
   margin: 0;
   color: var(--admin-v2-ink);
-  font-family: "Manrope", sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 17px;
   line-height: 1.25;
 }
@@ -274,7 +274,7 @@
   display: block;
   margin: 10px 0 17px;
   color: var(--admin-v2-brand-dark);
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(34px, 4vw, 48px);
   font-weight: 600;
   letter-spacing: -.02em;

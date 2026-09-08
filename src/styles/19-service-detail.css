@@ -1,6 +1,6 @@
 /* SEO/AEO service detail page: one owner for the public service article layout. */
 
-.seo-szolgaltatas-oldal {
+body > #fo-tartalom.seo-szolgaltatas-oldal {
     --seo-tartalmi-terkoz: clamp(64px, 8vw, 96px);
     width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
@@ -19,6 +19,7 @@
 
 .seo-szolgaltatas-oldal p {
     text-align: justify;
+    text-align-last: left;
     text-justify: inter-word;
 }
 
@@ -29,7 +30,7 @@
     align-items: flex-end;
     width: 100vw;
     max-width: none;
-    min-height: clamp(640px, 76vh, 820px);
+    min-height: clamp(500px, 64vh, 680px);
     margin-right: calc(50% - 50vw);
     margin-left: calc(50% - 50vw);
     padding: 0;
@@ -49,7 +50,7 @@
     max-width: 920px;
     margin: 18px 0 26px;
     color: var(--ui-off-white);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(62px, 7.5vw, 104px);
     font-weight: 600;
     letter-spacing: -0.052em;
@@ -85,7 +86,7 @@
     position: absolute;
     z-index: 1;
     inset: 0;
-    background: rgba(24, 18, 17, 0.58);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--ui-off-black) 86%, transparent) 0%, color-mix(in srgb, var(--ui-off-black) 58%, transparent) 52%, color-mix(in srgb, var(--ui-off-black) 18%, transparent) 100%);
     content: "";
 }
 
@@ -111,7 +112,7 @@
 
 .seo-szolgaltatas-ugras a {
     color: var(--ui-muted);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-label);
     font-weight: 700;
     text-decoration-color: var(--ui-line-strong);
@@ -135,7 +136,7 @@
 .seo-gyik h2,
 .seo-szolgaltatas-zaras h2 {
     margin: 14px 0 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(42px, 5vw, 66px);
     font-weight: 600;
     letter-spacing: -0.035em;
@@ -228,7 +229,7 @@
 .seo-szolgaltatas-kepek h2 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: clamp(42px, 5vw, 66px);
     font-weight: 600;
     letter-spacing: -0.035em;
@@ -298,7 +299,7 @@
 .seo-gyik-lista h3 {
     margin: 0 0 14px;
     color: var(--ui-ink);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: 28px;
     font-weight: 600;
     line-height: 1.15;
@@ -312,6 +313,7 @@
 }
 
 .seo-szolgaltatas-zaras {
+    --ui-accent-text: var(--ui-primary);
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
     align-items: end;
@@ -414,26 +416,67 @@
 }
 
 @media screen and (max-width: 768px) {
-    .seo-szolgaltatas-oldal {
+    body > #fo-tartalom.seo-szolgaltatas-oldal {
         --seo-tartalmi-terkoz: 52px;
         width: calc(100% - 32px);
     }
 
     .seo-szolgaltatas-hero {
-        min-height: min(760px, calc(100svh - var(--ui-header-height)));
+        display: grid;
+        min-height: 0;
+        align-items: stretch;
+        background: var(--ui-surface);
     }
 
     .seo-szolgaltatas-hero-szoveg {
+        position: relative;
+        z-index: 1;
         width: calc(100% - 32px);
-        padding: 120px 0 58px;
+        padding: 24px 0 28px;
+        color: var(--ui-ink);
     }
 
     .seo-szolgaltatas-hero h1 {
-        font-size: clamp(46px, 12vw, 72px);
+        margin: 10px 0 14px;
+        color: var(--ui-ink);
+        font-size: clamp(40px, 11vw, 54px);
+        line-height: 0.96;
+    }
+
+    .seo-szolgaltatas-hero-szoveg > p {
+        color: var(--ui-muted);
+        font-size: var(--lumi-font-body-small);
+        line-height: 1.65;
+    }
+
+    .seo-szolgaltatas-bevezeto h2,
+    .seo-szolgaltatas-szekcio h2,
+    .seo-szolgaltatas-kiemeles h2,
+    .seo-gyik h2,
+    .seo-szolgaltatas-zaras h2 {
+        min-width: 0;
+        font-size: clamp(34px, 9vw, 42px);
     }
 
     .seo-szolgaltatas-hero-kep::after {
-        background: rgba(24, 18, 17, 0.62);
+        display: none;
+    }
+
+    .seo-szolgaltatas-hero-kep {
+        position: relative;
+        z-index: 0;
+        inset: auto;
+        aspect-ratio: 3 / 2;
+    }
+
+    .seo-szolgaltatas-hero-kep img {
+        height: auto;
+        aspect-ratio: 3 / 2;
+        object-fit: contain;
+    }
+
+    .seo-szolgaltatas-hero .szekcio-kicker {
+        color: var(--ui-accent-text);
     }
 
     .seo-szolgaltatas-ugras {
@@ -467,6 +510,10 @@
     .seo-gyik-fej {
         gap: 20px;
         margin-bottom: 32px;
+    }
+
+    .seo-gyik-fej > * {
+        min-width: 0;
     }
 
     .seo-gyik-lista {

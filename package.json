@@ -11,8 +11,12 @@
     "admin:css:isolate": "node scripts/admin-css-isolation.js --fix",
     "admin:css:check": "node scripts/admin-css-isolation.js --check",
     "public:css:check": "node scripts/public-css-architecture.js --check",
-    "check": "node scripts/check-site.js && npm run build:check && npm run public:css:check && npm run admin:css:check",
+    "lint:css": "stylelint \"src/styles/**/*.css\" \"src/admin-styles/**/*.css\" \"booking-manage.css\" \"home-account-strip.css\" \"typography-tuning.css\"",
+    "check": "node scripts/check-site.js && npm run build:check && npm run public:css:check && npm run admin:css:check && npm run lint:css",
     "test": "playwright test",
+    "test:visual": "playwright test tests/visual-critical.spec.js",
+    "test:a11y": "playwright test tests/accessibility-critical.spec.js",
+    "audit:lighthouse": "node scripts/run-lighthouse.js",
     "test:admin": "playwright test tests/admin-production-redesign.spec.js tests/admin-booking-css-architecture.spec.js tests/admin-v2-regressions.spec.js tests/admin-cms-image-workspace.spec.js tests/admin-dark-mode.spec.js",
     "verify:admin": "npm run build && npm run assets:version && npm run check && npm run test:admin",
     "verify": "npm run build && npm run assets:version && npm run check && npm test"
@@ -20,6 +24,12 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "devDependencies": {
-    "playwright": "^1.61.1"
+    "@axe-core/playwright": "^4.13.0",
+    "lighthouse": "^13.4.1",
+    "playwright": "^1.61.1",
+    "prettier": "^3.9.6",
+    "sharp": "^0.35.4",
+    "stylelint": "^17.14.1",
+    "stylelint-config-standard": "^40.0.0"
   }
 }

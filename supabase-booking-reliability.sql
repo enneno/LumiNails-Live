@@ -308,6 +308,8 @@ declare
     v_starts_at timestamptz;
     v_ends_at timestamptz;
     v_reason text;
+    v_has_paid_amount boolean;
+    v_paid_amount integer;
     v_notification jsonb;
     v_job public.booking_email_jobs%rowtype;
     v_jobs jsonb := '[]'::jsonb;
@@ -356,10 +358,20 @@ begin
         v_starts_at := (v_change->>'starts_at')::timestamptz;
         v_ends_at := (v_change->>'ends_at')::timestamptz;
         v_reason := left(trim(coalesce(v_change->>'reason', '')), 500);
+        v_has_paid_amount := v_change ? 'paid_amount';
+        v_paid_amount := case
+            when v_has_paid_amount and v_change->'paid_amount' <> 'null'::jsonb
+                then (v_change->>'paid_amount')::integer
+            else null
+        end;
         v_notification := coalesce(v_change->'email_notification', 'null'::jsonb);
 
         if v_starts_at >= v_ends_at then
             raise exception 'A befejezesnek kesobbinek kell lennie a kezdesnel.';
+        end if;
+
+        if v_paid_amount < 0 then
+            raise exception 'A fizetett osszeg nem lehet negativ.';
         end if;
 
         if v_type = 'booking' then
@@ -370,7 +382,8 @@ begin
             update public.bookings
             set status = v_status,
                 starts_at = v_starts_at,
-                ends_at = v_ends_at
+                ends_at = v_ends_at,
+                paid_amount = case when v_has_paid_amount then v_paid_amount else paid_amount end
             where id = v_id;
 
             if not found then
@@ -435,7 +448,8 @@ begin
             set status = v_status,
                 starts_at = v_starts_at,
                 ends_at = v_ends_at,
-                reason = v_reason
+                reason = v_reason,
+                paid_amount = case when v_has_paid_amount then v_paid_amount else paid_amount end
             where id = v_id;
 
             if not found then

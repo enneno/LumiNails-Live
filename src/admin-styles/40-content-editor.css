@@ -18,7 +18,7 @@
 .cms-gallery-header h3 {
   margin: 0 0 8px;
   color: var(--tinta);
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
 }
 .admin-cms-heading p { margin-bottom: 0; }
 .admin-cms-main-actions {
@@ -49,7 +49,7 @@
   border: 0;
   color: var(--tinta);
   background: transparent;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-lead);
   font-weight: 600;
   text-align: left;
@@ -317,7 +317,7 @@ body.cms-image-lightbox-open { overflow: hidden; }
 }
 .admin-body.admin-v2 #admin-panel-szovegek .cms-editor-card-header h3 {
   margin: 0;
-  font-family: "Manrope", sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.25;

@@ -1,8 +1,8 @@
 .fiok-main {
-    width: min(1080px, calc(100% - 40px));
+    width: min(1360px, 100%);
     min-height: 70vh;
     margin: 0 auto;
-    padding: 58px 0 96px;
+    padding: 58px var(--lumi-section-padding-inline) 96px;
 }
 
 .fiok-main [hidden] {
@@ -29,7 +29,7 @@
 .fiok-auth-bevezeto h2 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-weight: 600;
     line-height: 1.02;
 }
@@ -45,15 +45,15 @@
 .fiok-auth-bevezeto li {
     margin: 0;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-body-small);
     line-height: 1.72;
 }
 
 .fiok-kicker {
     margin: 0 0 12px;
-    color: var(--ui-rose-dark, #91766e);
-    font-family: "Manrope", sans-serif;
+    color: var(--ui-accent-text);
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-micro);
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -68,7 +68,7 @@
     border-radius: 12px;
     background: rgba(222, 236, 228, 0.54);
     color: #395c4c;
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     line-height: 1.55;
 }
@@ -82,9 +82,9 @@
 
 .fiok-auth-elrendezes {
     display: grid;
-    grid-template-columns: minmax(260px, 0.72fr) minmax(420px, 1fr);
+    grid-template-columns: minmax(340px, 0.88fr) minmax(500px, 1.12fr);
     align-items: center;
-    width: min(100%, 980px);
+    width: min(100%, 1160px);
     min-height: calc(100svh - var(--ui-header-height) - 154px);
     gap: clamp(26px, 5vw, 72px);
     margin: 0 auto;
@@ -104,7 +104,7 @@
     max-width: 430px;
     margin: 18px 0 0;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-body-small);
     line-height: 1.65;
 }
@@ -138,7 +138,7 @@
 .fiok-egyszeru-panel {
     box-sizing: border-box;
     border: 1px solid var(--ui-line, rgba(145, 118, 110, 0.18));
-    border-radius: 20px;
+    border-radius: var(--lumi-radius-card);
     background: var(--ui-surface, #fffaf4);
     box-shadow: var(--lumi-soft-shadow);
 }
@@ -154,7 +154,7 @@
     margin-bottom: 34px;
     padding: 4px;
     border: 1px solid var(--ui-line, rgba(145, 118, 110, 0.18));
-    border-radius: 12px;
+    border-radius: var(--lumi-radius-control);
     background: rgba(145, 118, 110, 0.06);
 }
 
@@ -162,10 +162,10 @@
     min-height: 40px;
     padding: 8px 14px;
     border: 0;
-    border-radius: 9px;
+    border-radius: 2px;
     background: transparent;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     cursor: pointer;
@@ -204,7 +204,7 @@
     display: grid;
     gap: 8px;
     color: var(--ui-ink, #64524d);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
 }
@@ -217,13 +217,13 @@
     box-sizing: border-box;
     padding: 10px 13px;
     border: 1px solid var(--lumi-control-border);
-    border-radius: 11px;
+    border-radius: var(--lumi-radius-control);
     outline: none;
     appearance: none;
     background: var(--lumi-control-bg);
     color: var(--ui-off-black, #211b19);
-    font-family: "Manrope", sans-serif;
-    font-size: var(--lumi-font-body-small);
+    font-family: "DM Sans", sans-serif;
+    font-size: max(16px, var(--lumi-font-body-small));
 }
 
 .fiok-form input:not([type="checkbox"]),
@@ -293,7 +293,7 @@
 .fiok-mezo-tipp {
     margin: -7px 0 0;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-micro);
     line-height: 1.55;
 }
@@ -304,7 +304,7 @@
     align-items: start;
     gap: 10px;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     line-height: 1.55;
 }
@@ -336,7 +336,7 @@
     border-radius: 10px;
     background: var(--ui-surface, #fffaf4);
     color: var(--ui-ink, #64524d);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     line-height: 1.35;
@@ -347,7 +347,7 @@
 .fiok-gomb-kiemelt {
     border-color: var(--ui-ink, #91766e);
     background: var(--ui-ink, #91766e);
-    color: var(--ui-on-primary, #fff9f5);
+    color: var(--ui-on-dark, #f2e9eb);
 }
 
 .fiok-gomb:hover:not(:disabled) {
@@ -371,7 +371,7 @@
     border: 0;
     background: transparent;
     color: var(--ui-ink, #64524d);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     text-decoration: underline;
@@ -384,7 +384,7 @@
     padding-top: 22px;
     border-top: 1px solid var(--ui-line, rgba(145, 118, 110, 0.18));
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     line-height: 1.55;
 }
@@ -426,7 +426,7 @@
 
 .fiok-dashboard-racs {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 22px;
     margin-top: 34px;
@@ -479,7 +479,7 @@
 .fiok-foglalas-fej h3 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Playfair Display", serif;
     font-size: 25px;
     font-weight: 600;
     line-height: 1.1;
@@ -489,7 +489,7 @@
 .fiok-ures {
     margin: 5px 0 0;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     line-height: 1.55;
 }
@@ -502,7 +502,7 @@
     border-radius: 999px;
     background: rgba(145, 118, 110, 0.1);
     color: var(--ui-ink, #64524d);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-micro);
     font-weight: 700;
     line-height: 1.25;
@@ -540,7 +540,7 @@
 
 .fiok-foglalas-meta span {
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-micro);
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -549,7 +549,7 @@
 
 .fiok-foglalas-meta strong {
     color: var(--ui-off-black, #211b19);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 600;
 }
@@ -580,7 +580,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     line-height: 1.45;
@@ -611,7 +611,7 @@
     display: grid;
     gap: 7px;
     color: var(--ui-ink, #64524d);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     font-weight: 700;
 }
@@ -626,7 +626,8 @@
     outline: none;
     background: var(--lumi-control-bg);
     color: var(--ui-off-black, #211b19);
-    font: inherit;
+    font-family: "DM Sans", sans-serif;
+    font-size: max(16px, var(--lumi-font-body-small));
     font-weight: 400;
     resize: vertical;
 }
@@ -648,7 +649,7 @@
     grid-column: 1 / -1;
     margin: 2px 0 0;
     color: var(--ui-muted, #756a65);
-    font-family: "Manrope", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     line-height: 1.5;
 }
@@ -672,8 +673,8 @@
 
 @media screen and (max-width: 768px) {
     .fiok-main {
-        width: min(100% - 28px, 680px);
-        padding: 24px 0 64px;
+        width: min(100%, 680px);
+        padding: 24px 14px 64px;
     }
 
     .fiok-hero,
@@ -729,7 +730,8 @@
 
 @media screen and (max-width: 480px) {
     .fiok-main {
-        width: calc(100% - 24px);
+        width: 100%;
+        padding-inline: 12px;
     }
 
     .fiok-auth-kartya,

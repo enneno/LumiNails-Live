@@ -1,39 +1,40 @@
 /* Admin foundation: tokens, reset and shared brand primitives only. */
 :root {
-  --akcentus: #b9858f;
-  --akcentus-vilagos: #d9aaa7;
-  --tinta: #2b2521;
-  --barna: #5d4d46;
-  --krem: #fdf4e2;
-  --kartya: #fffaf4;
-  --szoveg: #655e57;
-  --rozsa-halvany: #f1ded9;
+  --akcentus: #ffd1dc;
+  --akcentus-vilagos: #e8afbf;
+  --tinta: #31383f;
+  --barna: #596067;
+  --krem: #e3dcd2;
+  --kartya: #f2e9eb;
+  --szoveg: #555d64;
+  --rozsa-halvany: #ead4da;
   --zsalyaszurke: #a7b7a1;
 
-  --ui-primary: #91766e;
-  --ui-on-primary: #fff9f5;
-  --ui-accent: #f0d7d5;
-  --ui-on-accent: #211b19;
-  --ui-bg: #f3ece3;
-  --ui-surface: #fff9f5;
-  --ui-soft: #e7d8d3;
-  --ui-highlight: #f3ece3;
-  --ui-warm: #f0d7d5;
-  --ui-off-black: #211b19;
-  --ui-off-white: #fff9f5;
-  --ui-ink: var(--ui-primary);
-  --ui-muted: #6f5e58;
+  --ui-primary: #ffd1dc;
+  --ui-on-primary: #31383f;
+  --ui-accent: #ffd1dc;
+  --ui-on-accent: #31383f;
+  --ui-bg: #e3dcd2;
+  --ui-surface: #f2e9eb;
+  --ui-soft: #e9dfe1;
+  --ui-highlight: #ffd1dc;
+  --ui-warm: #cc8b65;
+  --ui-off-black: #31383f;
+  --ui-off-white: #f2e9eb;
+  --ui-on-dark: #f2e9eb;
+  --ui-ink: var(--tinta);
+  --ui-muted: #555d64;
   --ui-rose: var(--ui-accent);
-  --ui-rose-dark: var(--ui-primary);
-  --ui-line: rgba(145, 118, 110, 0.16);
-  --ui-line-strong: rgba(145, 118, 110, 0.3);
+  --ui-rose-dark: #cc8b65;
+  --ui-line: rgba(255, 209, 220, 0.19);
+  --ui-line-strong: rgba(49, 56, 63, 0.28);
   --ui-header-height: 82px;
 
   --lumi-radius-pill: 999px;
-  --lumi-radius-card: 28px;
-  --lumi-radius-control: 16px;
+  --lumi-radius-card: 4px;
+  --lumi-radius-control: 3px;
   --lumi-button-height: 44px;
-  --lumi-button-font: 'Outfit', 'Montserrat', sans-serif;
+  --lumi-button-font: 'DM Sans', sans-serif;
   --lumi-font-micro: 11px;
   --lumi-font-caption: 13px;
   --lumi-font-label: 14px;
@@ -44,63 +45,64 @@
   --lumi-font-button-compact: 12px;
   --lumi-font-control: 18px;
   --lumi-font-calendar: 11px;
-  --lumi-control-bg: rgba(255, 250, 244, 0.92);
-  --lumi-control-border: rgba(185, 133, 143, 0.24);
-  --lumi-control-border-strong: rgba(185, 133, 143, 0.5);
-  --lumi-control-focus: 0 0 0 3px rgba(185, 133, 143, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  --lumi-soft-shadow: 0 14px 34px rgba(70, 48, 42, 0.1);
+  --lumi-control-bg: #f2e9eb;
+  --lumi-control-border: rgba(49, 56, 63, 0.2);
+  --lumi-control-border-strong: rgba(49, 56, 63, 0.44);
+  --lumi-control-focus: 0 0 0 3px rgba(255, 209, 220, 0.24);
+  --lumi-soft-shadow: 0 16px 38px rgba(49, 56, 63, 0.1);
   --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%2364524d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
   --szin-szoveg: var(--ui-ink);
   --szin-szoveg-halvany: var(--ui-muted);
   --szin-kiemeles: var(--ui-primary);
 }
 
 html[data-admin-theme="dark"] {
-  --akcentus: #c7969f;
-  --akcentus-vilagos: #ddb1ad;
-  --tinta: #f2e9e5;
-  --barna: #d7c9c3;
-  --krem: #2d2724;
-  --kartya: #28221f;
-  --szoveg: #bfb1ab;
-  --rozsa-halvany: #493332;
-  --zsalyaszurke: #869680;
+  --akcentus: #ffd1dc;
+  --akcentus-vilagos: #e8afbf;
+  --tinta: #f2e9eb;
+  --barna: #c9c3c5;
+  --krem: #242a2f;
+  --kartya: #31383f;
+  --szoveg: #c9c3c5;
+  --rozsa-halvany: #4d3942;
+  --zsalyaszurke: #9eb29a;
 
-  --ui-primary: #d4a49a;
-  --ui-on-primary: #211917;
-  --ui-accent: #4b3531;
-  --ui-on-accent: #f5ece8;
-  --ui-bg: #181514;
-  --ui-surface: #24201e;
-  --ui-soft: #302a27;
-  --ui-highlight: #2b2522;
-  --ui-warm: #3a2a27;
-  --ui-off-black: #f4ece8;
-  --ui-off-white: #fff9f5;
-  --ui-ink: #eee5e1;
-  --ui-muted: #b5a8a2;
-  --ui-rose: #4b3531;
-  --ui-rose-dark: #a96f78;
-  --ui-line: rgba(235, 220, 214, 0.14);
-  --ui-line-strong: rgba(235, 220, 214, 0.28);
+  --ui-primary: #ffd1dc;
+  --ui-on-primary: #31383f;
+  --ui-accent: #4d3942;
+  --ui-on-accent: #f2e9eb;
+  --ui-bg: #242a2f;
+  --ui-surface: #31383f;
+  --ui-soft: #3a4249;
+  --ui-highlight: #e8afbf;
+  --ui-warm: #cc8b65;
+  --ui-off-black: #171b1e;
+  --ui-off-white: #f2e9eb;
+  --ui-on-dark: #f2e9eb;
+  --ui-ink: #f2e9eb;
+  --ui-muted: #c9c3c5;
+  --ui-rose: #ffd1dc;
+  --ui-rose-dark: #b86f83;
+  --ui-line: rgba(242, 233, 235, 0.14);
+  --ui-line-strong: rgba(242, 233, 235, 0.28);
 
-  --lumi-control-bg: #2c2623;
-  --lumi-control-border: rgba(212, 164, 154, 0.24);
-  --lumi-control-border-strong: rgba(212, 164, 154, 0.52);
-  --lumi-control-focus: 0 0 0 3px rgba(212, 164, 154, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --lumi-control-bg: #3a4249;
+  --lumi-control-border: rgba(232, 175, 191, 0.28);
+  --lumi-control-border-strong: rgba(232, 175, 191, 0.56);
+  --lumi-control-focus: 0 0 0 3px rgba(255, 209, 220, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-soft-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23d8cac4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23f2e9eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-  --admin-page-bg: #181514;
+  --admin-page-bg: #242a2f;
   --admin-native-color-scheme: dark;
 }
 
 html {
-  --admin-page-bg: #f7f4f1;
+  --admin-page-bg: #e3dcd2;
   --admin-native-color-scheme: light;
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   min-width: 100%;
@@ -115,7 +117,7 @@ html {
 body.admin-body {
   --admin-primary: var(--ui-primary);
   --admin-accent: var(--ui-accent);
-  --admin-ink: var(--ui-primary);
+  --admin-ink: var(--ui-ink);
   --admin-muted: var(--ui-muted);
   --admin-surface: var(--ui-surface);
   --admin-canvas: var(--ui-bg);
@@ -129,7 +131,7 @@ body.admin-body {
   overflow-x: hidden;
   color: var(--tinta);
   background: var(--admin-page-bg);
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -163,7 +165,7 @@ body.admin-body [hidden] {
 }
 
 .logo-lumi {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 34px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -173,7 +175,7 @@ body.admin-body [hidden] {
 .logo-nails {
   position: relative;
   padding-left: 11px;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-micro);
   font-weight: 600;
   letter-spacing: 0.28em;
@@ -206,7 +208,7 @@ body.admin-body [hidden] {
   border-radius: 3px;
   color: var(--ui-on-primary);
   background: var(--ui-rose-dark);
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-button);
   font-weight: 600;
   line-height: 1.15;
@@ -230,7 +232,7 @@ body.admin-body [hidden] {
   border-radius: var(--lumi-radius-control);
   color: var(--tinta);
   background: var(--lumi-control-bg);
-  font-family: 'Manrope', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-control);
   color-scheme: var(--admin-native-color-scheme);
 }

@@ -11,3 +11,4 @@ preview-*.png
 *.local-redesign-backup.*
 playwright-report/
 test-results/
+output/playwright/
