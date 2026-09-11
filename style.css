@@ -120,24 +120,6 @@ textarea:focus-visible {
     outline-offset: 3px;
 }
 
-.lumi-js body.tartalom-toltes > section,
-.lumi-js body.tartalom-toltes > main,
-.lumi-js body.tartalom-toltes #lablec-helye,
-.lumi-js body.tartalom-toltes #lebego-foglalas-gomb {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.lumi-js body.tartalom-toltes::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    background: var(--krem);
-    pointer-events: none;
-}
-
-
 /* ===================================
             1. FEJLÉC ÉS MENÜ (Header, Hamburger)
             ===================================== */
@@ -2580,26 +2562,6 @@ select.urlap-mezo:invalid {
 .szolgaltatas-kartya > * {
     position: relative;
     z-index: 1;
-}
-
-.szolgaltatas-kartya--epites {
-    --service-image: url("/kepek/szolgaltatas-epites.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--diszites {
-    --service-image: url("/kepek/szolgaltatas-diszites.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--gel-lakk {
-    --service-image: url("/kepek/szolgaltatas-gel-lakk.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--manikur {
-    --service-image: url("/kepek/szolgaltatas-manikur.jpg");
-    --service-position: center;
 }
 
 .szolgaltatas-kartya-fej {

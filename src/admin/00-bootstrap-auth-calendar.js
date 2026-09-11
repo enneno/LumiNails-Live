@@ -110,6 +110,7 @@
         });
         elemek.szolgaltatasLista?.addEventListener('click', szolgaltatasListaKattintas);
         elemek.kuponLista?.addEventListener('click', kuponListaKattintas);
+        elemek.kuponLista?.addEventListener('change', kuponListaValtozas);
         elemek.esemenynaploLapozo?.addEventListener('click', esemenynaploLapozoKattintas);
         elemek.esemenynaploLapozo?.addEventListener('change', esemenynaploLapozoKattintas);
         elemek.esemenynaploLapozoFelso?.addEventListener('click', esemenynaploLapozoKattintas);

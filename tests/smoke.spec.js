@@ -277,6 +277,50 @@ test('a főoldali hero pontosan a tartalomszerkesztőben megadott képet haszná
     await expect(page.locator('.hero-kep')).toHaveAttribute('alt', 'Tartalomszerkesztő hero tesztkép');
 });
 
+test('a CMS által vezérelt képekhez nem indul párhuzamos beégetett letöltés', async ({ page }) => {
+    const root = path.resolve(__dirname, '..');
+    const homeHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    expect(homeHtml).not.toContain('rel="preload" as="image" href="/kepek/hero-turkiz.jpg"');
+    expect(homeHtml).not.toMatch(/class="hero-kep"[^>]+src=/);
+    expect(homeHtml).not.toMatch(/class="bemutatkozas-kep"[\s\S]*?<img\s+src=/);
+
+    const servicePages = [
+        'mukorom-epites-toltes',
+        'korom-diszites-nail-art-tatabanya',
+        'gel-lakk-tatabanya',
+        'manikur-tatabanya'
+    ];
+    servicePages.forEach(directory => {
+        const html = fs.readFileSync(path.join(root, directory, 'index.html'), 'utf8');
+        expect(html).not.toMatch(/rel="preload" as="image"/);
+        expect(html).not.toMatch(/class="seo-szolgaltatas-hero-kep"[\s\S]*?<img\s+src=/);
+    });
+
+    await page.route('**/rest/v1/site_settings*', route => route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ value: {} })
+    }));
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+        const adatok = window.lumiAlapOldalAdatok();
+        adatok.fooldal.szolgaltatasok.kartyak[0].kep = '/kepek/szolgaltatas-manikur.jpg';
+        window.fooldalAdatokAlkalmazasa(adatok.fooldal, adatok.galeria);
+    });
+    await expect(page.locator('.szolgaltatas-kartya').first()).toHaveCSS(
+        'background-image',
+        'none'
+    );
+    const kartyaHatter = await page.locator('.szolgaltatas-kartya').first().evaluate(kartya =>
+        getComputedStyle(kartya, '::before').backgroundImage
+    );
+    expect(kartyaHatter).toContain('szolgaltatas-manikur.jpg');
+
+    const cms = fs.readFileSync(path.join(root, 'admin-content.js'), 'utf8');
+    expect(cms).toContain('`${label} háttérképe`');
+    expect(cms).toContain('SERVICE_CARD_IMAGE_MAX_BYTES = 220 * 1024');
+});
+
 test('mobilon minden szerkeszthető publikus és admin mező megőrzi az iOS-barát technikai méretet', async ({ page }) => {
     const mezoSelector = [
         'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"])',
@@ -405,6 +449,179 @@ test('a foglalási kapcsolati linkek a tényleges tartalombetöltéskor frissül
     await expect(page.locator('[data-booking-contact="instagram"]')).toHaveAttribute('href', instagramUrl);
     await expect(page.locator('[data-booking-contact="messenger"]')).toHaveAttribute('href', messengerUrl);
     await expect(page.locator('[data-booking-contact="sms"]')).toHaveAttribute('href', smsUrl);
+});
+
+test('a kuponmező aktív kuponnál jelenik meg és az aktuális kódot kérdezi le', async ({ page }) => {
+    await page.route('https://cdn.jsdelivr.net/**', route => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript; charset=utf-8',
+        body: ''
+    }));
+    await page.addInitScript(() => {
+        window.__lumiCouponCodeLookups = 0;
+        const service = {
+            id: 'service-1',
+            name: 'Gél lakk',
+            description: '',
+            price_text: '8 000 Ft',
+            price_amount: 8000,
+            price_unit: 'Ft',
+            price_suffix: '',
+            duration_minutes: 90
+        };
+        const coupon = {
+                id: 'coupon-live-check',
+                code: 'LUMI10',
+                title: 'Tesztkupon',
+                description: '',
+                discount_type: 'percent',
+                discount_value: 10,
+                discount_basis: 'service',
+                discount_text: '10% kedvezmény',
+                service_id: null,
+                service_category: null,
+                customer_scope: 'all',
+                valid_from: null,
+                valid_until: null,
+                active: true,
+                show_on_home: true,
+                sort_order: 10
+        };
+        function queryFor(table) {
+            const filters = {};
+            const result = single => {
+                if (table === 'site_settings') return { data: single ? { value: {} } : [], error: null };
+                if (table === 'services') return { data: [service], error: null };
+                if (table === 'coupons' && filters.code) {
+                    window.__lumiCouponCodeLookups += 1;
+                    return { data: single ? coupon : [coupon], error: null };
+                }
+                if (table === 'coupons') return { data: [coupon], error: null };
+                return { data: single ? null : [], error: null };
+            };
+            const query = {
+                select: () => query,
+                eq: (key, value) => { filters[key] = value; return query; },
+                order: () => query,
+                maybeSingle: async () => result(true),
+                then: (resolve, reject) => Promise.resolve(result(false)).then(resolve, reject)
+            };
+            return query;
+        }
+        const client = {
+            from: table => queryFor(table),
+            rpc: async () => ({ data: [], error: null }),
+            auth: {
+                getSession: async () => ({ data: { session: null }, error: null }),
+                onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } })
+            }
+        };
+        window.supabase = { createClient: () => client };
+    });
+
+    await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#foglalas-kupon-blokk')).toBeVisible();
+    await page.locator('#foglalas-kupon').fill('lumi10');
+    await page.locator('#foglalas-kupon-ellenorzes').click();
+    await expect(page.locator('#foglalas-kupon-status')).toContainText('LUMI10');
+    await expect(page.locator('#foglalas-kupon-ellenorzes')).toBeEnabled();
+    expect(await page.evaluate(() => window.__lumiCouponCodeLookups)).toBe(1);
+});
+
+test('a kuponmező aktív kupon nélkül rejtve marad', async ({ page }) => {
+    await page.route('https://cdn.jsdelivr.net/**', route => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript; charset=utf-8',
+        body: ''
+    }));
+    await page.addInitScript(() => {
+        window.__lumiCouponProbeDone = false;
+        function queryFor(table) {
+            const query = {
+                select: () => query,
+                eq: () => query,
+                order: () => query,
+                maybeSingle: async () => ({ data: null, error: null }),
+                then: (resolve, reject) => {
+                    if (table === 'coupons') window.__lumiCouponProbeDone = true;
+                    return Promise.resolve({ data: [], error: null }).then(resolve, reject);
+                }
+            };
+            return query;
+        }
+        const client = {
+            from: table => queryFor(table),
+            rpc: async () => ({ data: [], error: null }),
+            auth: {
+                getSession: async () => ({ data: { session: null }, error: null }),
+                onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } })
+            }
+        };
+        window.supabase = { createClient: () => client };
+    });
+
+    await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => window.__lumiCouponProbeDone === true);
+    await expect(page.locator('#foglalas-kupon-blokk')).toBeHidden();
+});
+
+test('a megszakadt kuponellenőrzés nem hagyja zárolva a foglalási felületet', async ({ page }) => {
+    await page.clock.install();
+    await page.route('https://cdn.jsdelivr.net/**', route => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript; charset=utf-8',
+        body: ''
+    }));
+    await page.addInitScript(() => {
+        const service = {
+            id: 'service-1',
+            name: 'Gél lakk',
+            description: '',
+            price_text: '8 000 Ft',
+            price_amount: 8000,
+            price_unit: 'Ft',
+            price_suffix: '',
+            duration_minutes: 90
+        };
+        const couponProbe = {
+            id: 'coupon-timeout',
+            valid_from: null,
+            valid_until: null,
+            active: true
+        };
+        function queryFor(table) {
+            const query = {
+                select: () => query,
+                eq: () => query,
+                order: () => query,
+                maybeSingle: () => table === 'coupons'
+                    ? new Promise(() => {})
+                    : Promise.resolve({ data: null, error: null }),
+                then: (resolve, reject) => Promise.resolve({
+                    data: table === 'services' ? [service] : (table === 'coupons' ? [couponProbe] : []),
+                    error: null
+                }).then(resolve, reject)
+            };
+            return query;
+        }
+        const client = {
+            from: table => queryFor(table),
+            rpc: async () => ({ data: [], error: null }),
+            auth: {
+                getSession: async () => ({ data: { session: null }, error: null }),
+                onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } })
+            }
+        };
+        window.supabase = { createClient: () => client };
+    });
+
+    await page.goto('/foglalas/', { waitUntil: 'domcontentloaded' });
+    await page.locator('#foglalas-kupon').fill('LUMI10');
+    await page.locator('#foglalas-kupon-ellenorzes').click();
+    await expect(page.locator('#foglalas-kupon-ellenorzes')).toBeDisabled();
+    await page.clock.fastForward(15_001);
+    await expect(page.locator('#foglalas-kupon-ellenorzes')).toBeEnabled();
+    await expect(page.locator('#foglalas-kupon-status')).toContainText('túl sokáig tartott');
 });
 
 test('a publikus foglalási útvonalak megőrzik a kártya- és ikonstílusukat', async ({ page }) => {
@@ -747,6 +964,22 @@ test('a foglalások között kötelező a 30 perces szünet', () => {
     expect(utkozik(12 * 60 + 30, 13 * 60)).toBe(false);
 });
 
+test('a kupon kedvezménye teljes árra, szolgáltatásra vagy díszítésre állítható', () => {
+    const migration = fs.readFileSync(path.resolve(__dirname, '..', 'supabase-coupon-discount-basis.sql'), 'utf8');
+    const adminForras = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'admin', '30-coupons.js'), 'utf8');
+    const kalkulatorForras = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'admin', '21-price-calculator.js'), 'utf8');
+    const foglalasForras = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'booking', '20-coupons.js'), 'utf8');
+
+    expect(migration).toContain("discount_basis in ('total', 'service', 'decoration')");
+    expect(migration).toContain("v_discount_basis = 'decoration'");
+    expect(migration).toContain("v_discount_basis = 'total' and v_has_decoration");
+    expect(migration).toContain('coupon_discount_basis');
+    expect(adminForras).toContain('data-mezo="discount_basis"');
+    expect(kalkulatorForras).toContain('decoration: diszitesOsszeg');
+    expect(kalkulatorForras).toContain('total: osszeg');
+    expect(foglalasForras).toContain("discountBasis === 'total' && diszitett");
+});
+
 test('az admin csak a ténylegesen módosított foglalási kártyákat menti', () => {
     const adminForras = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'admin', '10-bookings-events.js'), 'utf8');
 
@@ -938,7 +1171,7 @@ test('minden publikus mobil szöveg ugyanazt az egyetlen mesterskálát örökli
     expect(adminSkala).toBe('100%');
 });
 
-test('a főoldali szolgáltatásrész a Barna-Beige-Rosy rendszerben asztalon és mobilon is rendezett', async ({ page }) => {
+test('a főoldali szolgáltatásrész a jelenlegi zsályás rendszerben asztalon és mobilon is rendezett', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const hatterKepSzelessegek = await page.locator('.szolgaltatas-kartya').evaluateAll(async (kartyak) =>
@@ -982,11 +1215,11 @@ test('a főoldali szolgáltatásrész a Barna-Beige-Rosy rendszerben asztalon é
     });
 
     expect(asztali).toMatchObject({
-        primary: '#5d3d36',
-        accent: '#e8c9c3',
-        highlight: '#f5e6e1',
-        warm: '#ead2cc',
-        hatter: 'rgb(44, 33, 30)',
+        primary: '#c9d4cf',
+        accent: '#c9d4cf',
+        highlight: '#dfe7e3',
+        warm: '#8ba198',
+        hatter: 'rgb(49, 56, 63)',
         listaOverflow: 'visible',
         oszlopok: 2,
         kartyak: 4
@@ -999,13 +1232,13 @@ test('a főoldali szolgáltatásrész a Barna-Beige-Rosy rendszerben asztalon é
     expect(asztali.keretSzelessegek.every((szelesseg) => szelesseg === '1px')).toBe(true);
     expect(asztali.keretIvek.every(({ kartya, keret }) => kartya === keret)).toBe(true);
     expect(asztali.szamok).toBe(0);
-    expect(asztali.cimSzinek.every((szin) => szin === 'rgb(255, 250, 246)')).toBe(true);
+    expect(asztali.cimSzinek.every((szin) => szin === 'rgb(245, 241, 235)')).toBe(true);
 
     const elsoKartya = page.locator('.szolgaltatas-kartya').first();
     await elsoKartya.hover();
     await expect.poll(async () => elsoKartya.evaluate((kartya) =>
         new DOMMatrixReadOnly(getComputedStyle(kartya).transform).a
-    )).toBeGreaterThan(1.01);
+    )).toBe(1);
     await expect.poll(async () => elsoKartya.evaluate((kartya) =>
         new DOMMatrixReadOnly(getComputedStyle(kartya, '::before').transform).a
     )).toBeGreaterThan(1.03);

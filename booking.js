@@ -94,6 +94,31 @@
         kuponokBetoltese(elemek);
     });
 
+    const FOGLALASI_LEKERES_IDOKERET_MS = 15_000;
+    const FOGLALASI_KULDES_IDOKERET_MS = 30_000;
+
+    function igeretIdokerettel(igeret, idokeret = FOGLALASI_LEKERES_IDOKERET_MS, uzenet = '') {
+        let idozito = null;
+        const idotullepes = new Promise((_, reject) => {
+            idozito = window.setTimeout(() => {
+                const hiba = new Error(uzenet || 'A kapcsolat túl lassú. Kérlek, próbáld újra.');
+                hiba.code = 'LUMI_REQUEST_TIMEOUT';
+                reject(hiba);
+            }, idokeret);
+        });
+
+        return Promise.race([Promise.resolve(igeret), idotullepes])
+            .finally(() => window.clearTimeout(idozito));
+    }
+
+    async function supabaseValaszIdokerettel(igeret, idokeret, uzenet) {
+        try {
+            return await igeretIdokerettel(igeret, idokeret, uzenet);
+        } catch (error) {
+            return { data: null, error };
+        }
+    }
+
     async function vendegFiokFoglalasElokitese(elemek) {
         if (!allapot.kliens?.auth || !elemek.nev || !elemek.telefon || !elemek.email) return;
 
@@ -342,20 +367,28 @@
         kartyaUzenet(elemek.idoKartyak, 'Előbb válassz dátumot.');
         statuszKiirasa(elemek.statusz, '');
 
-        let { data, error } = await allapot.kliens
-            .from('services')
-            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes')
-            .eq('active', true)
-            .eq('booking_enabled', true)
-            .order('sort_order', { ascending: true });
-
-        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-            ({ data, error } = await allapot.kliens
+        let { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens
                 .from('services')
-                .select('id,name,description,price_text,duration_minutes')
+                .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes')
                 .eq('active', true)
                 .eq('booking_enabled', true)
-                .order('sort_order', { ascending: true }));
+                .order('sort_order', { ascending: true }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szolgáltatások betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
+
+        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
+            ({ data, error } = await supabaseValaszIdokerettel(
+                allapot.kliens
+                    .from('services')
+                    .select('id,name,description,price_text,duration_minutes')
+                    .eq('active', true)
+                    .eq('booking_enabled', true)
+                    .order('sort_order', { ascending: true }),
+                FOGLALASI_LEKERES_IDOKERET_MS,
+                'A szolgáltatások betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+            ));
         }
 
         if (error) {
@@ -520,12 +553,16 @@
         kartyaUzenet(elemek.datumKartyak, 'Szabad dátumok betöltése...');
         statuszKiirasa(elemek.statusz, '');
 
-        const { data, error } = await allapot.kliens.rpc('get_available_dates_for_style', {
-            p_service_id: szolgaltatasId,
-            p_start_date: maiDatum(),
-            p_days: 90,
-            p_nail_style: koromStilus
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_available_dates_for_style', {
+                p_service_id: szolgaltatasId,
+                p_start_date: maiDatum(),
+                p_days: 90,
+                p_nail_style: koromStilus
+            }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szabad dátumok betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
 
         if (
             keresAzonosito !== allapot.datumKeresAzonosito
@@ -588,11 +625,15 @@
         kartyaUzenet(elemek.idoKartyak, 'Szabad időpontok betöltése...');
         statuszKiirasa(elemek.statusz, '');
 
-        const { data, error } = await allapot.kliens.rpc('get_available_slots_for_style', {
-            p_service_id: szolgaltatasId,
-            p_date: datum,
-            p_nail_style: koromStilus
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_available_slots_for_style', {
+                p_service_id: szolgaltatasId,
+                p_date: datum,
+                p_nail_style: koromStilus
+            }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szabad időpontok betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
 
         if (
             keresAzonosito !== allapot.idoKeresAzonosito
@@ -748,19 +789,23 @@
         const requestKey = foglalasKeresKulcsa(adatok);
 
         try {
-            const { data, error } = await allapot.kliens.functions.invoke('create-booking-with-email', {
-                body: {
-                    request_key: requestKey,
-                    service_id: adatok.szolgaltatasId,
-                    customer_name: adatok.nev,
-                    customer_phone: adatok.telefon,
-                    customer_email: adatok.email,
-                    note: adatok.megjegyzes,
-                    starts_at: adatok.startsAt,
-                    coupon_id: adatok.kupon?.id || null,
-                    coupon_code: adatok.kupon?.code || null
-                }
-            });
+            const { data, error } = await igeretIdokerettel(
+                allapot.kliens.functions.invoke('create-booking-with-email', {
+                    body: {
+                        request_key: requestKey,
+                        service_id: adatok.szolgaltatasId,
+                        customer_name: adatok.nev,
+                        customer_phone: adatok.telefon,
+                        customer_email: adatok.email,
+                        note: adatok.megjegyzes,
+                        starts_at: adatok.startsAt,
+                        coupon_id: adatok.kupon?.id || null,
+                        coupon_code: adatok.kupon?.code || null
+                    }
+                }),
+                FOGLALASI_KULDES_IDOKERET_MS,
+                'A foglalás elküldése túl sokáig tartott. Kérlek, próbáld újra; ugyanaz a kérés nem hoz létre dupla foglalást.'
+            );
 
             if (!error && data?.ok && data?.booking_id) {
                 console.info('Lumi Nails booking function result:', data);
@@ -872,7 +917,11 @@
             body.append('metadata', JSON.stringify(inspiraciok.map(({ file: _file, ...meta }) => meta)));
             inspiraciok.forEach((kep, index) => body.append(`file_${index}`, kep.file, kep.file.name));
 
-            const { data, error } = await allapot.kliens.functions.invoke('upload-booking-inspirations', { body });
+            const { data, error } = await igeretIdokerettel(
+                allapot.kliens.functions.invoke('upload-booking-inspirations', { body }),
+                FOGLALASI_KULDES_IDOKERET_MS,
+                'A képek feltöltése túl sokáig tartott.'
+            );
 
             if (error || !data?.ok) {
                 console.warn('Inspirációs képek biztonságos feltöltése nem sikerült:', error || data);
@@ -915,8 +964,8 @@
         if (megjegyzes) sorok.push(`Elképzelés / megjegyzés: ${megjegyzes}`);
         if (kupon?.code) {
             sorok.push(`Kupon: ${kupon.code} (${kupon.title || kupon.discountLabel || 'kedvezmény'})`);
-            if (kupon.decorationOnly) {
-                sorok.push(`Kupon részlete: ${kupon.discountLabel}. A végösszeg a választott díszítés alapján kerül meghatározásra.`);
+            if (kupon.calculationPending) {
+                sorok.push(`Kupon részlete: ${kupon.discountLabel}. A végösszeg a választott díszítés pontos ára alapján kerül meghatározásra.`);
             } else {
                 if (kupon.baseLabel) sorok.push(`Alapár: ${kupon.baseLabel}`);
                 if (kupon.discountAmount > 0) sorok.push(`Kedvezmény: -${arFelirat(kupon.discountAmount, kupon.unit)}`);
@@ -1108,36 +1157,20 @@
 
     async function kuponokBetoltese(elemek) {
         if (!elemek.kuponBlokk || !allapot.kliens) return;
+        allapot.kuponok = [];
+        kuponMezoLathatosag(elemek, false);
 
-        try {
-            let { data, error } = await allapot.kliens
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens
                 .from('coupons')
-                .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
-                .eq('active', true)
-                .order('sort_order', { ascending: true })
-                .order('created_at', { ascending: true });
-
-            if (error && adatbazisOszlopHiany(error, ['service_category', 'customer_scope'])) {
-                ({ data, error } = await allapot.kliens
-                    .from('coupons')
-                    .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,valid_from,valid_until,active,show_on_home,sort_order')
-                    .eq('active', true)
-                    .order('sort_order', { ascending: true })
-                    .order('created_at', { ascending: true }));
-            }
-
-            if (error) {
-                kuponMezoLathatosag(elemek, false);
-                return;
-            }
-
-            allapot.kuponok = aktivKuponok(data || []);
-            kuponMezoLathatosag(elemek, allapot.kuponok.length > 0);
-            kuponUrlbolBetoltese(elemek);
-        } catch (_error) {
-            allapot.kuponok = [];
-            kuponMezoLathatosag(elemek, false);
-        }
+                .select('id,valid_from,valid_until,active')
+                .eq('active', true),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A kuponok ellenőrzése túl sokáig tartott.'
+        );
+        const vanAktivKupon = !error && aktivKuponok(Array.isArray(data) ? data : []).length > 0;
+        kuponMezoLathatosag(elemek, vanAktivKupon);
+        if (vanAktivKupon) kuponUrlbolBetoltese(elemek);
     }
 
     function aktivKuponok(kuponok) {
@@ -1170,6 +1203,58 @@
         }
     }
 
+    async function kuponKodAlapjanBetoltese(kod) {
+        if (!allapot.kliens) return null;
+        const teljesMezok = 'id,code,title,description,discount_type,discount_value,discount_basis,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order';
+        const elozoMezok = 'id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order';
+        const kompatibilisMezok = 'id,code,title,description,discount_type,discount_value,discount_text,service_id,valid_from,valid_until,active,show_on_home,sort_order';
+        let { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens
+                .from('coupons')
+                .select(teljesMezok)
+                .eq('active', true)
+                .eq('code', kod)
+                .maybeSingle(),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A kupon ellenőrzése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
+
+        if (error && adatbazisOszlopHiany(error, ['discount_basis'])) {
+            ({ data, error } = await supabaseValaszIdokerettel(
+                allapot.kliens
+                    .from('coupons')
+                    .select(elozoMezok)
+                    .eq('active', true)
+                    .eq('code', kod)
+                    .maybeSingle(),
+                FOGLALASI_LEKERES_IDOKERET_MS,
+                'A kupon ellenőrzése túl sokáig tartott. Kérlek, próbáld újra.'
+            ));
+        }
+
+        if (error && adatbazisOszlopHiany(error, ['service_category', 'customer_scope'])) {
+            ({ data, error } = await supabaseValaszIdokerettel(
+                allapot.kliens
+                    .from('coupons')
+                    .select(kompatibilisMezok)
+                    .eq('active', true)
+                    .eq('code', kod)
+                    .maybeSingle(),
+                FOGLALASI_LEKERES_IDOKERET_MS,
+                'A kupon ellenőrzése túl sokáig tartott. Kérlek, próbáld újra.'
+            ));
+        }
+        if (error) throw error;
+        const kupon = aktivKuponok(data ? [data] : [])[0] || null;
+        return kupon ? { ...kupon, discount_basis: kuponKedvezmenyAlapja(kupon) } : null;
+    }
+
+    function kuponGombAllapot(elemek, folyamatban) {
+        if (!elemek.kuponGomb) return;
+        elemek.kuponGomb.disabled = folyamatban;
+        elemek.kuponGomb.textContent = folyamatban ? 'Ellenőrzés…' : 'Érvényesítés';
+    }
+
     async function kuponEllenorzese(elemek, opciok = {}) {
         const kod = elemek.kuponInput?.value.trim().toUpperCase() || '';
         const ellenorzesAzonosito = allapot.kuponEllenorzesAzonosito + 1;
@@ -1182,9 +1267,23 @@
             return;
         }
 
+        if (elemek.kuponInput) elemek.kuponInput.value = kod;
+
         const szolgaltatasId = elemek.szolgaltatas.value;
         const szolgaltatasObj = allapot.szolgaltatasok.find(szolgaltatas => szolgaltatas.id === szolgaltatasId);
-        const kupon = allapot.kuponok.find(elem => String(elem.code || '').toUpperCase() === kod);
+        let kupon = allapot.kuponok.find(elem => String(elem.code || '').toUpperCase() === kod);
+        if (!kupon) {
+            kuponGombAllapot(elemek, true);
+            try {
+                kupon = await kuponKodAlapjanBetoltese(kod);
+                if (kupon) allapot.kuponok = [kupon];
+            } finally {
+                if (ellenorzesAzonosito === allapot.kuponEllenorzesAzonosito) {
+                    kuponGombAllapot(elemek, false);
+                }
+            }
+        }
+        if (ellenorzesAzonosito !== allapot.kuponEllenorzesAzonosito) return;
 
         if (!kupon) {
             kuponStatusz(elemek, kuponUzenet('nincsAktiv', 'Nem tal\u00e1ltam ilyen akt\u00edv kupont.'), true);
@@ -1193,7 +1292,7 @@
         }
 
         if (szolgaltatasId && !kuponSzolgaltatasraErvenyes(kupon, szolgaltatasObj, szolgaltatasId)) {
-            kuponStatusz(elemek, kuponDiszitesKiegeszito(kupon)
+            kuponStatusz(elemek, kuponhozDiszitesSzukseges(kupon)
                 ? 'Ez a kupon akkor \u00e9rv\u00e9nyes, ha a Fest\u00e9s / d\u00edsz\u00edt\u00e9s st\u00edlust v\u00e1lasztod.'
                 : kuponUzenet('masikSzolgaltatas', 'Ez a kupon nem ehhez a szolg\u00e1ltat\u00e1shoz vagy kateg\u00f3ri\u00e1hoz \u00e9rv\u00e9nyes.'), true);
             osszefoglaloFrissitese(elemek);
@@ -1239,7 +1338,7 @@
 
         allapot.aktivKupon = kupon;
         kuponStatusz(elemek, szolgaltatasId
-            ? (kuponDiszitesKiegeszito(kupon)
+            ? (kuponhozDiszitesSzukseges(kupon)
                 ? `${kupon.code} kupon \u00e9rv\u00e9nyes az extra d\u00edsz\u00edt\u00e9sre. A v\u00e9g\u00f6sszeget a v\u00e1lasztott minta alapj\u00e1n egyeztetj\u00fck.`
                 : kuponUzenet('ervenyes', '{kod} kupon \u00e9rv\u00e9nyes\u00edtve.', { kod: kupon.code }))
             : kuponUzenet('ervenyes', '{kod} kupon el\u0151k\u00e9sz\u00edtve. V\u00e1lassz szolg\u00e1ltat\u00e1st, \u00e9s ellen\u0151rz\u00f6m.', { kod: kupon.code }));
@@ -1253,7 +1352,7 @@
         const elozoKupon = allapot.aktivKupon;
         if (elozoKupon && !kuponSzolgaltatasraErvenyes(elozoKupon, szolgaltatasObj, szolgaltatasId)) {
             allapot.aktivKupon = null;
-            kuponStatusz(elemek, kuponDiszitesKiegeszito(elozoKupon)
+            kuponStatusz(elemek, kuponhozDiszitesSzukseges(elozoKupon)
                 ? 'A d\u00edsz\u00edt\u00e9skupon csak a Fest\u00e9s / d\u00edsz\u00edt\u00e9s st\u00edlus mellett \u00e9rv\u00e9nyes.'
                 : kuponUzenet('szolgaltatasValtozott', 'A v\u00e1lasztott kupon m\u00e1sik szolg\u00e1ltat\u00e1shoz vagy kateg\u00f3ri\u00e1hoz tartozik.'), true);
         } else if (elemek.kuponInput?.value.trim() && !allapot.aktivKupon) {
@@ -1268,15 +1367,29 @@
 
     function kuponSzolgaltatasraErvenyes(kupon, szolgaltatas, szolgaltatasId) {
         if (!kupon) return false;
-        if (kuponDiszitesKiegeszito(kupon)) return diszitettStilusKivalasztva();
+        if (kuponhozDiszitesSzukseges(kupon) && !diszitettStilusKivalasztva()) return false;
         if (!kupon.service_id && !kupon.service_category) return true;
         if (!szolgaltatasId) return true;
         if (kupon.service_id) return kupon.service_id === szolgaltatasId;
+        if (normalizaltKuponSzoveg(kupon.service_category) === 'diszites') return true;
         return szolgaltatasKuponKategoria(szolgaltatas) === kupon.service_category;
     }
 
-    function kuponDiszitesKiegeszito(kupon) {
-        return normalizaltKuponSzoveg(kupon?.service_category) === 'diszites';
+    function kuponhozDiszitesSzukseges(kupon) {
+        return kuponKedvezmenyAlapja(kupon) === 'decoration'
+            || normalizaltKuponSzoveg(kupon?.service_category) === 'diszites';
+    }
+
+    function kuponKedvezmenyAlapja(kupon) {
+        const alap = String(kupon?.discount_basis || '').trim().toLowerCase();
+        if (['total', 'service', 'decoration'].includes(alap)) return alap;
+        return normalizaltKuponSzoveg(kupon?.service_category) === 'diszites' ? 'decoration' : 'service';
+    }
+
+    function kuponKedvezmenyAlapFelirat(alap) {
+        if (alap === 'total') return 'a teljes árból';
+        if (alap === 'decoration') return 'a díszítések árából';
+        return 'az alapszolgáltatás árából';
     }
 
     function diszitettStilusKivalasztva() {
@@ -1300,9 +1413,13 @@
     async function ujVendegKuponEllenorzese(email) {
         if (!allapot.kliens?.rpc) return { ok: false };
 
-        const { data, error } = await allapot.kliens.rpc('lumi_customer_has_previous_booking', {
-            p_customer_email: email
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('lumi_customer_has_previous_booking', {
+                p_customer_email: email
+            }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'Az új vendég kupon ellenőrzése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
 
         if (error) {
             console.warn('\u00daj vend\u00e9g kupon ellen\u0151rz\u00e9si hiba:', error);
@@ -1345,13 +1462,16 @@
             return { baseAmount: amount, unit, baseLabel };
         }
 
-        const decorationOnly = kuponDiszitesKiegeszito(kupon);
+        const discountBasis = kuponKedvezmenyAlapja(kupon);
+        const diszitett = diszitettStilusKivalasztva();
+        const calculationPending = discountBasis === 'decoration' || (discountBasis === 'total' && diszitett);
         let discountLabel = kupon.discount_text || kuponKedvezmenyFelirat(kupon);
-        if (decorationOnly && !normalizaltKuponSzoveg(discountLabel).includes('diszit')) {
-            discountLabel = `${discountLabel} az extra d\u00edsz\u00edt\u00e9s \u00e1r\u00e1b\u00f3l`;
+        const basisLabel = kuponKedvezmenyAlapFelirat(discountBasis);
+        if (!normalizaltKuponSzoveg(discountLabel).includes(normalizaltKuponSzoveg(basisLabel).replace(/^a(z)?\s+/, ''))) {
+            discountLabel = `${discountLabel} ${basisLabel}`;
         }
-        const discountAmount = decorationOnly ? 0 : kuponKedvezmenyOsszeg(amount, kupon);
-        const finalAmount = decorationOnly ? 0 : (amount ? Math.max(0, amount - discountAmount) : 0);
+        const discountAmount = calculationPending ? 0 : kuponKedvezmenyOsszeg(amount, kupon);
+        const finalAmount = calculationPending ? 0 : (amount ? Math.max(0, amount - discountAmount) : 0);
 
         return {
             id: kupon.id,
@@ -1360,13 +1480,16 @@
             discountLabel,
             discountType: kupon.discount_type,
             discountValue: Number(kupon.discount_value) || 0,
+            discountBasis,
+            basisLabel,
             baseAmount: amount,
             unit,
             baseLabel,
             discountAmount,
             finalAmount,
-            finalLabel: !decorationOnly && amount && kupon.discount_type !== 'text' ? arFelirat(finalAmount, unit) : '',
-            decorationOnly
+            finalLabel: !calculationPending && amount && kupon.discount_type !== 'text' ? arFelirat(finalAmount, unit) : '',
+            calculationPending,
+            decorationOnly: discountBasis === 'decoration'
         };
     }
 
@@ -1477,9 +1600,9 @@
             ['Időpont', [datum, ido].filter(Boolean).join(' · ')],
             ['Alapár', kupon.baseLabel || (szolgaltatasObj ? szolgaltatasArFelirat(szolgaltatasObj) : '')],
             ['Kupon', kupon.code ? `${kupon.code} - ${kupon.discountLabel}` : ''],
-            ['Kedvezmény', !kupon.decorationOnly && kupon.discountAmount > 0 ? `-${arFelirat(kupon.discountAmount, kupon.unit)}` : ''],
-            ['Elszámolás', kupon.decorationOnly ? 'A kupon csak az extra díszítés árára vonatkozik; a végösszeg a választott minta alapján kerül meghatározásra.' : ''],
-            ['Végösszeg', kupon.decorationOnly ? '' : kupon.finalLabel || ''],
+            ['Kedvezmény', !kupon.calculationPending && kupon.discountAmount > 0 ? `-${arFelirat(kupon.discountAmount, kupon.unit)}` : ''],
+            ['Elszámolás', kupon.calculationPending ? `A kedvezmény ${kupon.basisLabel}; a végösszeg a választott díszítés pontos ára alapján kerül kiszámításra.` : ''],
+            ['Végösszeg', kupon.calculationPending ? '' : kupon.finalLabel || ''],
             ['Inspiráció', files.length ? `${files.length} kép kiválasztva` : ''],
             ['Megjegyzés', megjegyzes],
             ['Elérhetőség', [nev, telefon ? `+36 ${telefon}` : '', email].filter(Boolean).join(' · ')]
@@ -1725,7 +1848,11 @@
         elemek.input.value = kod;
         elemek.input.disabled = true;
         foglalasKezeloUzenet(elemek.statusz, 'Foglalás lekérése...');
-        const { data, error } = await allapot.kliens.rpc('get_booking_status', { p_reference: kod });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_booking_status', { p_reference: kod }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A foglalás lekérése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
         elemek.input.disabled = false;
 
         if (error) {
@@ -1812,10 +1939,14 @@
         if (!window.confirm('Biztosan lemondod ezt a foglalást? Ez a művelet nem vonható vissza.')) return;
         elemek.lemondas.disabled = true;
         elemek.lemondas.textContent = 'Lemondás folyamatban...';
-        const { data, error } = await allapot.kliens.rpc('cancel_booking_by_reference', {
-            p_reference: kod,
-            p_note: megjegyzes
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('cancel_booking_by_reference', {
+                p_reference: kod,
+                p_note: megjegyzes
+            }),
+            FOGLALASI_KULDES_IDOKERET_MS,
+            'A lemondás túl sokáig tartott. Kérlek, próbáld újra.'
+        );
         const valasz = Array.isArray(data) ? data[0] : data;
         if (error || !valasz?.success) {
             console.warn('Foglalás lemondási hiba:', error || valasz);

@@ -48,7 +48,11 @@
         elemek.input.value = kod;
         elemek.input.disabled = true;
         foglalasKezeloUzenet(elemek.statusz, 'Foglalás lekérése...');
-        const { data, error } = await allapot.kliens.rpc('get_booking_status', { p_reference: kod });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_booking_status', { p_reference: kod }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A foglalás lekérése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
         elemek.input.disabled = false;
 
         if (error) {
@@ -135,10 +139,14 @@
         if (!window.confirm('Biztosan lemondod ezt a foglalást? Ez a művelet nem vonható vissza.')) return;
         elemek.lemondas.disabled = true;
         elemek.lemondas.textContent = 'Lemondás folyamatban...';
-        const { data, error } = await allapot.kliens.rpc('cancel_booking_by_reference', {
-            p_reference: kod,
-            p_note: megjegyzes
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('cancel_booking_by_reference', {
+                p_reference: kod,
+                p_note: megjegyzes
+            }),
+            FOGLALASI_KULDES_IDOKERET_MS,
+            'A lemondás túl sokáig tartott. Kérlek, próbáld újra.'
+        );
         const valasz = Array.isArray(data) ? data[0] : data;
         if (error || !valasz?.success) {
             console.warn('Foglalás lemondási hiba:', error || valasz);

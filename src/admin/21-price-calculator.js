@@ -1,6 +1,7 @@
     const arKalkulatorAllapot = {
         szolgaltatasId: '',
         alapAr: 0,
+        kuponId: '',
         extrak: new Map()
     };
 
@@ -39,6 +40,11 @@
         });
         panel.querySelector('#admin-arkalkulator-extra-lista')?.addEventListener('click', arKalkulatorExtraKattintas);
         panel.querySelector('#admin-arkalkulator-extra-lista')?.addEventListener('change', arKalkulatorExtraValtozas);
+        panel.querySelector('#admin-arkalkulator-kupon')?.addEventListener('change', event => {
+            arKalkulatorAllapot.kuponId = event.target.value;
+            arKalkulatorKedvezmenyRenderelese();
+            arKalkulatorOsszegzesRenderelese();
+        });
         panel.querySelector('#admin-arkalkulator-ujra')?.addEventListener('click', arKalkulatorUjrainditasa);
 
         arKalkulatorFrissitese();
@@ -73,6 +79,7 @@
         arKalkulatorAlaparRenderelese();
         arKalkulatorExtraValasztoRenderelese();
         arKalkulatorExtraListaRenderelese();
+        arKalkulatorKedvezmenyRenderelese();
         arKalkulatorOsszegzesRenderelese();
     }
 
@@ -174,18 +181,121 @@
         if (!vegosszeg || !bontas) return;
 
         let osszeg = arKalkulatorAllapot.alapAr || 0;
+        let diszitesOsszeg = 0;
         const szolgaltatas = arKalkulatorAktivSzolgaltatas();
         const sorok = szolgaltatas ? [{ nev: arKalkulatorSzolgaltatasNev(szolgaltatas), osszeg }] : [];
         arKalkulatorAllapot.extrak.forEach(extra => {
             const reszosszeg = extra.ar * extra.darab;
+            diszitesOsszeg += reszosszeg;
             osszeg += reszosszeg;
             sorok.push({ nev: `${arKalkulatorTetelNev(extra.szolgaltatas)} × ${extra.darab}`, osszeg: reszosszeg });
         });
 
+        const kupon = arKalkulatorKivalasztottKupon();
+        const kedvezmeny = arKalkulatorKuponKedvezmeny(kupon, {
+            service: arKalkulatorAllapot.alapAr,
+            decoration: diszitesOsszeg,
+            total: osszeg
+        });
+        if (kedvezmeny.osszeg > 0) {
+            osszeg = Math.max(0, osszeg - kedvezmeny.osszeg);
+            sorok.push({ nev: `Kedvezmény – ${kuponKedvezmenyAlapFelirat(kedvezmeny.alap)} (${kupon.code})`, osszeg: -kedvezmeny.osszeg });
+        } else if (kupon?.discount_type === 'text') {
+            sorok.push({ nev: `Kupon (${kupon.code})`, szoveg: 'Kézi egyeztetés' });
+        }
+
         vegosszeg.textContent = arKalkulatorArSzoveg(osszeg);
         bontas.innerHTML = sorok.length
-            ? sorok.map(sor => `<div><span>${html(sor.nev)}</span><strong>${arKalkulatorArSzoveg(sor.osszeg)}</strong></div>`).join('')
+            ? sorok.map(sor => `<div><span>${html(sor.nev)}</span><strong>${sor.szoveg ? html(sor.szoveg) : arKalkulatorArSzoveg(sor.osszeg)}</strong></div>`).join('')
             : '<p>Az összeghez válassz szolgáltatást.</p>';
+    }
+
+    function arKalkulatorKedvezmenyRenderelese() {
+        const select = document.getElementById('admin-arkalkulator-kupon');
+        const segedlet = document.getElementById('admin-arkalkulator-kupon-segedlet');
+        if (!select || !segedlet) return;
+
+        const kuponok = arKalkulatorAktivKuponok();
+        if (!kuponok.some(kupon => String(kupon.id) === arKalkulatorAllapot.kuponId)) {
+            arKalkulatorAllapot.kuponId = '';
+        }
+
+        select.innerHTML = [
+            '<option value="">Nincs kuponkedvezmény</option>',
+            ...kuponok.map(kupon => `<option value="${attr(String(kupon.id))}" ${String(kupon.id) === arKalkulatorAllapot.kuponId ? 'selected' : ''}>${html(`${kupon.code} – ${arKalkulatorKuponFelirat(kupon)}`)}</option>`)
+        ].join('');
+        select.disabled = kuponok.length === 0;
+
+        const kupon = arKalkulatorKivalasztottKupon();
+        if (!kupon) {
+            segedlet.textContent = kuponok.length
+                ? 'A számításhoz válassz kupont, ha a vendég használ egyet.'
+                : 'Ehhez a szolgáltatáshoz jelenleg nincs aktív, érvényes kupon.';
+            return;
+        }
+
+        if (kupon.discount_type === 'text') {
+            segedlet.textContent = `${kupon.code}: szöveges kedvezmény, ezért a végleges összeget kézzel kell egyeztetni.`;
+            return;
+        }
+
+        const diszitesOsszeg = Array.from(arKalkulatorAllapot.extrak.values())
+            .reduce((osszeg, extra) => osszeg + extra.ar * extra.darab, 0);
+        const kedvezmeny = arKalkulatorKuponKedvezmeny(kupon, {
+            service: arKalkulatorAllapot.alapAr,
+            decoration: diszitesOsszeg,
+            total: arKalkulatorAllapot.alapAr + diszitesOsszeg
+        });
+        if (kedvezmeny.alap === 'decoration' && !diszitesOsszeg) {
+            segedlet.textContent = `${kupon.code}: ${arKalkulatorKuponFelirat(kupon)} a díszítések árából. A számításhoz adj hozzá legalább egy díszítést.`;
+            return;
+        }
+        segedlet.textContent = `${kupon.code}: ${arKalkulatorKuponFelirat(kupon)} – ${kuponKedvezmenyAlapFelirat(kedvezmeny.alap).toLocaleLowerCase('hu-HU')}. Mostani levonás: ${arKalkulatorArSzoveg(kedvezmeny.osszeg)}.`;
+    }
+
+    function arKalkulatorAktivKuponok() {
+        const ma = maiDatum();
+        const szolgaltatas = arKalkulatorAktivSzolgaltatas();
+        return (allapot.kuponok || [])
+            .filter(kupon => kupon.active !== false)
+            .filter(kupon => !kupon.valid_from || kupon.valid_from <= ma)
+            .filter(kupon => !kupon.valid_until || kupon.valid_until >= ma)
+            .filter(kupon => arKalkulatorKuponSzolgaltatasraErvenyes(kupon, szolgaltatas));
+    }
+
+    function arKalkulatorKivalasztottKupon() {
+        return arKalkulatorAktivKuponok()
+            .find(kupon => String(kupon.id) === arKalkulatorAllapot.kuponId) || null;
+    }
+
+    function arKalkulatorKuponSzolgaltatasraErvenyes(kupon, szolgaltatas) {
+        if (!szolgaltatas) return false;
+        if (kupon.service_id && String(kupon.service_id) !== String(szolgaltatas.id)) return false;
+        if (!kupon.service_category) return true;
+        if (arKalkulatorKulcs(kupon.service_category) === 'diszites') return true;
+        const szolgaltatasKategoria = String(szolgaltatas.category || szolgaltatas.name || '').split(/\s+-\s+/)[0];
+        return arKalkulatorKulcs(kupon.service_category) === arKalkulatorKulcs(szolgaltatasKategoria);
+    }
+
+    function arKalkulatorKuponKedvezmeny(kupon, osszegek) {
+        const alap = kuponKedvezmenyAlapja(kupon);
+        const ar = Math.max(0, Number(osszegek?.[alap]) || 0);
+        const ertek = Math.max(0, Number(kupon?.discount_value) || 0);
+        if (!kupon || !ar) return { osszeg: 0, alap };
+        if (kupon.discount_type === 'percent') {
+            return { osszeg: Math.min(ar, Math.round(ar * ertek / 100)), alap };
+        }
+        if (kupon.discount_type === 'fixed') {
+            return { osszeg: Math.min(ar, ertek), alap };
+        }
+        return { osszeg: 0, alap };
+    }
+
+    function arKalkulatorKuponFelirat(kupon) {
+        const ertek = Math.max(0, Number(kupon?.discount_value) || 0);
+        if (kupon?.discount_type === 'percent') return `${ertek}% kedvezmény`;
+        if (kupon?.discount_type === 'fixed') return `${arKalkulatorArSzoveg(ertek)} kedvezmény`;
+        return kupon?.discount_text || kupon?.title || 'Egyedi kedvezmény';
     }
 
     function arKalkulatorExtraKattintas(event) {
@@ -218,11 +328,17 @@
 
     function arKalkulatorUjrainditasa() {
         arKalkulatorAllapot.extrak.clear();
+        arKalkulatorAllapot.kuponId = '';
         const elso = arKalkulatorAlapszolgaltatasok()[0];
         arKalkulatorAllapot.szolgaltatasId = String(elso?.id || '');
         arKalkulatorAllapot.alapAr = arKalkulatorElsoAr(elso);
         arKalkulatorRenderelese();
         document.getElementById('admin-arkalkulator-szolgaltatas')?.focus({ preventScroll: true });
+    }
+
+    function arKalkulatorKuponokFrissitese() {
+        arKalkulatorKedvezmenyRenderelese();
+        arKalkulatorOsszegzesRenderelese();
     }
 
     function arKalkulatorAlapszolgaltatasok() {

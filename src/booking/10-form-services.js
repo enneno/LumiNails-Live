@@ -167,20 +167,28 @@
         kartyaUzenet(elemek.idoKartyak, 'Előbb válassz dátumot.');
         statuszKiirasa(elemek.statusz, '');
 
-        let { data, error } = await allapot.kliens
-            .from('services')
-            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes')
-            .eq('active', true)
-            .eq('booking_enabled', true)
-            .order('sort_order', { ascending: true });
-
-        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-            ({ data, error } = await allapot.kliens
+        let { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens
                 .from('services')
-                .select('id,name,description,price_text,duration_minutes')
+                .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes')
                 .eq('active', true)
                 .eq('booking_enabled', true)
-                .order('sort_order', { ascending: true }));
+                .order('sort_order', { ascending: true }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szolgáltatások betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
+
+        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
+            ({ data, error } = await supabaseValaszIdokerettel(
+                allapot.kliens
+                    .from('services')
+                    .select('id,name,description,price_text,duration_minutes')
+                    .eq('active', true)
+                    .eq('booking_enabled', true)
+                    .order('sort_order', { ascending: true }),
+                FOGLALASI_LEKERES_IDOKERET_MS,
+                'A szolgáltatások betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+            ));
         }
 
         if (error) {
@@ -345,12 +353,16 @@
         kartyaUzenet(elemek.datumKartyak, 'Szabad dátumok betöltése...');
         statuszKiirasa(elemek.statusz, '');
 
-        const { data, error } = await allapot.kliens.rpc('get_available_dates_for_style', {
-            p_service_id: szolgaltatasId,
-            p_start_date: maiDatum(),
-            p_days: 90,
-            p_nail_style: koromStilus
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_available_dates_for_style', {
+                p_service_id: szolgaltatasId,
+                p_start_date: maiDatum(),
+                p_days: 90,
+                p_nail_style: koromStilus
+            }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szabad dátumok betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
 
         if (
             keresAzonosito !== allapot.datumKeresAzonosito
@@ -413,11 +425,15 @@
         kartyaUzenet(elemek.idoKartyak, 'Szabad időpontok betöltése...');
         statuszKiirasa(elemek.statusz, '');
 
-        const { data, error } = await allapot.kliens.rpc('get_available_slots_for_style', {
-            p_service_id: szolgaltatasId,
-            p_date: datum,
-            p_nail_style: koromStilus
-        });
+        const { data, error } = await supabaseValaszIdokerettel(
+            allapot.kliens.rpc('get_available_slots_for_style', {
+                p_service_id: szolgaltatasId,
+                p_date: datum,
+                p_nail_style: koromStilus
+            }),
+            FOGLALASI_LEKERES_IDOKERET_MS,
+            'A szabad időpontok betöltése túl sokáig tartott. Kérlek, próbáld újra.'
+        );
 
         if (
             keresAzonosito !== allapot.idoKeresAzonosito
@@ -573,19 +589,23 @@
         const requestKey = foglalasKeresKulcsa(adatok);
 
         try {
-            const { data, error } = await allapot.kliens.functions.invoke('create-booking-with-email', {
-                body: {
-                    request_key: requestKey,
-                    service_id: adatok.szolgaltatasId,
-                    customer_name: adatok.nev,
-                    customer_phone: adatok.telefon,
-                    customer_email: adatok.email,
-                    note: adatok.megjegyzes,
-                    starts_at: adatok.startsAt,
-                    coupon_id: adatok.kupon?.id || null,
-                    coupon_code: adatok.kupon?.code || null
-                }
-            });
+            const { data, error } = await igeretIdokerettel(
+                allapot.kliens.functions.invoke('create-booking-with-email', {
+                    body: {
+                        request_key: requestKey,
+                        service_id: adatok.szolgaltatasId,
+                        customer_name: adatok.nev,
+                        customer_phone: adatok.telefon,
+                        customer_email: adatok.email,
+                        note: adatok.megjegyzes,
+                        starts_at: adatok.startsAt,
+                        coupon_id: adatok.kupon?.id || null,
+                        coupon_code: adatok.kupon?.code || null
+                    }
+                }),
+                FOGLALASI_KULDES_IDOKERET_MS,
+                'A foglalás elküldése túl sokáig tartott. Kérlek, próbáld újra; ugyanaz a kérés nem hoz létre dupla foglalást.'
+            );
 
             if (!error && data?.ok && data?.booking_id) {
                 console.info('Lumi Nails booking function result:', data);
@@ -697,7 +717,11 @@
             body.append('metadata', JSON.stringify(inspiraciok.map(({ file: _file, ...meta }) => meta)));
             inspiraciok.forEach((kep, index) => body.append(`file_${index}`, kep.file, kep.file.name));
 
-            const { data, error } = await allapot.kliens.functions.invoke('upload-booking-inspirations', { body });
+            const { data, error } = await igeretIdokerettel(
+                allapot.kliens.functions.invoke('upload-booking-inspirations', { body }),
+                FOGLALASI_KULDES_IDOKERET_MS,
+                'A képek feltöltése túl sokáig tartott.'
+            );
 
             if (error || !data?.ok) {
                 console.warn('Inspirációs képek biztonságos feltöltése nem sikerült:', error || data);
@@ -740,8 +764,8 @@
         if (megjegyzes) sorok.push(`Elképzelés / megjegyzés: ${megjegyzes}`);
         if (kupon?.code) {
             sorok.push(`Kupon: ${kupon.code} (${kupon.title || kupon.discountLabel || 'kedvezmény'})`);
-            if (kupon.decorationOnly) {
-                sorok.push(`Kupon részlete: ${kupon.discountLabel}. A végösszeg a választott díszítés alapján kerül meghatározásra.`);
+            if (kupon.calculationPending) {
+                sorok.push(`Kupon részlete: ${kupon.discountLabel}. A végösszeg a választott díszítés pontos ára alapján kerül meghatározásra.`);
             } else {
                 if (kupon.baseLabel) sorok.push(`Alapár: ${kupon.baseLabel}`);
                 if (kupon.discountAmount > 0) sorok.push(`Kedvezmény: -${arFelirat(kupon.discountAmount, kupon.unit)}`);

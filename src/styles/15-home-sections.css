@@ -144,26 +144,6 @@
     z-index: 1;
 }
 
-.szolgaltatas-kartya--epites {
-    --service-image: url("/kepek/szolgaltatas-epites.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--diszites {
-    --service-image: url("/kepek/szolgaltatas-diszites.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--gel-lakk {
-    --service-image: url("/kepek/szolgaltatas-gel-lakk.jpg");
-    --service-position: center;
-}
-
-.szolgaltatas-kartya--manikur {
-    --service-image: url("/kepek/szolgaltatas-manikur.jpg");
-    --service-position: center;
-}
-
 .szolgaltatas-kartya-fej {
     display: flex;
     width: 100%;

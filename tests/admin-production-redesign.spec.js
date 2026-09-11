@@ -208,10 +208,33 @@ function fixtures() {
                 description: '10% kedvezmeny elso alkalommal.',
                 discount_type: 'percent',
                 discount_value: 10,
+                discount_basis: 'total',
                 active: true,
                 starts_at: isoAt(-30, 0),
                 ends_at: isoAt(30, 23),
                 sort_order: 1
+            },
+            {
+                id: 'coupon-2',
+                code: 'SZOLG1000',
+                title: 'Szolgáltatás kedvezmény',
+                description: '1 000 Ft kedvezmény az alapszolgáltatásból.',
+                discount_type: 'fixed',
+                discount_value: 1000,
+                discount_basis: 'service',
+                active: true,
+                sort_order: 2
+            },
+            {
+                id: 'coupon-3',
+                code: 'DISZ50',
+                title: 'Díszítés kedvezmény',
+                description: '50% kedvezmény a díszítésekből.',
+                discount_type: 'percent',
+                discount_value: 50,
+                discount_basis: 'decoration',
+                active: true,
+                sort_order: 3
             }
         ],
         availability_windows: [
@@ -464,6 +487,85 @@ test.describe('production admin redesign', () => {
 
         await expect(page.locator('#admin-v2-stat-horizon')).toHaveText('2');
         await expect(page.locator('#admin-v2-stat-horizon-meta')).toContainText('Legutolsó:');
+        expect(browserErrors).toEqual([]);
+    });
+
+    test('coupon editor explains homepage visibility and blocks an expired activation', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 1440, height: 1000 });
+
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await page.locator('#admin-panel-szovegek [data-admin-v2-panel="kuponok"]').click();
+        const panel = page.locator('#admin-panel-kuponok');
+        await expect(panel).toHaveClass(/aktiv/);
+        await expect(panel.locator('.admin-panel-segedlet')).toContainText('csak az Aktív és a mai napon érvényes kupon');
+
+        const coupon = panel.locator('.admin-kupon-kartya').first();
+        await coupon.locator('[data-admin-kartya-toggle]').click();
+        await expect(coupon.locator('.admin-kupon-szekcio')).toHaveCount(4);
+        await expect(coupon.locator('[data-mezo="discount_basis"] option')).toHaveText([
+            'Teljes árból (szolgáltatás + díszítések)',
+            'Csak az alapszolgáltatás árából',
+            'Csak a díszítések árából'
+        ]);
+        await expect(coupon.locator('[data-kupon-szamitas-segedlet]')).toContainText('Teljes árból');
+        const calculationLayout = await coupon.locator('.admin-kupon-szekcio--kedvezmeny').evaluate(section => {
+            const description = section.querySelector('.admin-kupon-szekcio-leiras').getBoundingClientRect();
+            const fields = section.querySelector('.admin-kupon-mezo-racs').getBoundingClientRect();
+            const example = section.querySelector('[data-kupon-szamitas-segedlet]').getBoundingClientRect();
+            return {
+                descriptionBottom: description.bottom,
+                fieldsTop: fields.top,
+                fieldsBottom: fields.bottom,
+                exampleTop: example.top
+            };
+        });
+        expect(calculationLayout.fieldsTop).toBeGreaterThanOrEqual(calculationLayout.descriptionBottom);
+        expect(calculationLayout.exampleTop).toBeGreaterThanOrEqual(calculationLayout.fieldsBottom);
+        await coupon.locator('[data-mezo="valid_until"]').fill('2000-01-01');
+        await panel.getByRole('button', { name: 'Kuponok mentése' }).click();
+        await expect(page.locator('#admin-online-status')).toContainText('lejárt dátummal nem aktiválható');
+        await expect(coupon.locator('[data-mezo="valid_until"]')).toBeFocused();
+
+        for (const viewport of [
+            { width: 375, height: 812 },
+            { width: 844, height: 390 },
+            { width: 1440, height: 1000 }
+        ]) {
+            await page.setViewportSize(viewport);
+            expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth))
+                .toBeLessThanOrEqual(1);
+            const responsiveCalculationLayout = await coupon.locator('.admin-kupon-szekcio--kedvezmeny').evaluate(section => {
+                const description = section.querySelector('.admin-kupon-szekcio-leiras').getBoundingClientRect();
+                const fields = section.querySelector('.admin-kupon-mezo-racs').getBoundingClientRect();
+                const example = section.querySelector('[data-kupon-szamitas-segedlet]').getBoundingClientRect();
+                return {
+                    descriptionBottom: description.bottom,
+                    fieldsTop: fields.top,
+                    fieldsBottom: fields.bottom,
+                    exampleTop: example.top
+                };
+            });
+            expect(responsiveCalculationLayout.fieldsTop).toBeGreaterThanOrEqual(responsiveCalculationLayout.descriptionBottom);
+            expect(responsiveCalculationLayout.exampleTop).toBeGreaterThanOrEqual(responsiveCalculationLayout.fieldsBottom);
+            if (viewport.width === 375 && process.env.LUMI_CAPTURE_ADMIN_REDESIGN === '1') {
+                await page.screenshot({ path: 'test-results/admin-coupon-editor-mobile.png', fullPage: true });
+            }
+        }
+        expect(browserErrors).toEqual([]);
+    });
+
+    test('homepage service card backgrounds are editable in the content editor', async ({ page }) => {
+        const browserErrors = await openAdmin(page, { width: 1440, height: 1000 });
+
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        const contentPanel = page.locator('#admin-panel-szovegek');
+        await expect(contentPanel).toHaveClass(/aktiv/);
+        await contentPanel.locator('[data-cms-section="3"]').click();
+
+        const cardImageInputs = contentPanel.locator('[data-cms-upload^="fooldal.szolgaltatasok.kartyak."]');
+        await expect(cardImageInputs).toHaveCount(4);
+        await contentPanel.locator('.cms-fieldset').filter({ hasText: '1. szolgáltatáskártya' }).locator('summary').click();
+        await expect(contentPanel.getByText('1. kártya háttérképe', { exact: true })).toBeVisible();
         expect(browserErrors).toEqual([]);
     });
 
@@ -753,6 +855,21 @@ test.describe('production admin redesign', () => {
         await expect(kovek.locator('[data-ar-kalkulator-extra-price] option')).toHaveText(['500 Ft', '550 Ft', '600 Ft', '650 Ft', '700 Ft', '750 Ft', '800 Ft']);
         await kovek.locator('[data-ar-kalkulator-extra-price]').selectOption('800');
         await expect(panel.locator('#admin-arkalkulator-vegosszeg')).toHaveText('9 300 Ft');
+
+        const kuponSelect = panel.locator('#admin-arkalkulator-kupon');
+        await expect(kuponSelect.locator('option')).toHaveCount(4);
+        await kuponSelect.selectOption('coupon-1');
+        await expect(panel.locator('#admin-arkalkulator-vegosszeg')).toHaveText('8 370 Ft');
+        await expect(panel.locator('#admin-arkalkulator-bontas')).toContainText('Teljes árból');
+        await expect(panel.locator('#admin-arkalkulator-kupon-segedlet')).toContainText('Mostani levonás: 930 Ft');
+
+        await kuponSelect.selectOption('coupon-2');
+        await expect(panel.locator('#admin-arkalkulator-vegosszeg')).toHaveText('8 300 Ft');
+        await expect(panel.locator('#admin-arkalkulator-bontas')).toContainText('Szolgáltatás árából');
+
+        await kuponSelect.selectOption('coupon-3');
+        await expect(panel.locator('#admin-arkalkulator-vegosszeg')).toHaveText('7 900 Ft');
+        await expect(panel.locator('#admin-arkalkulator-bontas')).toContainText('Díszítések árából');
 
         const metrics = await panel.evaluate(element => ({
             overflow: document.documentElement.scrollWidth - window.innerWidth,

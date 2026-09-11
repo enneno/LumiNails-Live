@@ -22,7 +22,7 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="/admin-v2.css?v=576c3f51558b">
+    <link rel="stylesheet" href="/admin-v2.css?v=7077040a4d48">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
@@ -231,6 +231,16 @@
                             </fieldset>
 
                             <div id="admin-arkalkulator-extra-lista" class="admin-arkalkulator-extra-lista" aria-live="polite"></div>
+
+                            <fieldset class="admin-arkalkulator-kedvezmeny">
+                                <legend>Kuponkedvezmény</legend>
+                                <p>Az aktív, érvényes kuponok közül választhatsz. A számítás a kuponnál beállított teljes árra, szolgáltatásra vagy díszítésekre vonatkozik.</p>
+                                <label class="admin-mezo" for="admin-arkalkulator-kupon">
+                                    Kupon
+                                    <select id="admin-arkalkulator-kupon"></select>
+                                </label>
+                                <p id="admin-arkalkulator-kupon-segedlet" class="admin-arkalkulator-kupon-segedlet" aria-live="polite"></p>
+                            </fieldset>
                         </section>
 
                         <aside class="admin-arkalkulator-osszegzes" aria-labelledby="admin-arkalkulator-osszegzes-cim">
@@ -246,6 +256,7 @@
                     <div class="admin-panel-akciok">
                         <button type="button" id="admin-kupon-hozzaadas" class="admin-hozzaadas">Új kupon</button>
                     </div>
+                    <p class="admin-panel-segedlet">A főoldalon csak az Aktív és a mai napon érvényes kupon jelenik meg. A módosításokat a Mentés gomb véglegesíti.</p>
                     <div id="admin-kupon-lista" class="admin-db-lista admin-db-lista--sorok"></div>
                 </div>
 
@@ -395,10 +406,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
     <script src="/supabase-config.js?v=334baddf6f93"></script>
-    <script src="/script.js?v=03b9c3bde819"></script>
-    <script src="/admin-supabase.js?v=05a03413b679"></script>
+    <script src="/script.js?v=833fdaac4348"></script>
+    <script src="/admin-supabase.js?v=ccd94cc5afde"></script>
     <script src="/admin-export.js?v=7f5a873b8293"></script>
-    <script src="/admin-content.js?v=d20c181831af"></script>
+    <script src="/admin-content.js?v=bdf97cf27a10"></script>
 </body>
 
 </html>

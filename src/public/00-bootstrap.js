@@ -12,14 +12,17 @@ let galeriaElozoFokusz = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     tisztaUrlBeallitasa();
-    Promise.all([fejlecBetoltese(), lablecBetoltese()])
-        .then(() => adatokBetoltese())
-        .then(async adatok => {
+    oldalTartalomMegjelenitese();
+    const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
+    Promise.all([oldalvaz, adatokBetoltese()])
+        .then(([, adatok]) => {
             oldalAdatokAlkalmazasa(adatok);
-            await onlineTelefonLathatosagAlkalmazasa();
-            await onlineArlistaBetoltese();
-            await onlineKuponokBetolteseEsMegjelenitese();
             galeriaBekotese();
+            Promise.allSettled([
+                onlineTelefonLathatosagAlkalmazasa(),
+                onlineArlistaBetoltese(),
+                onlineKuponokBetolteseEsMegjelenitese()
+            ]);
         })
         .catch(error => {
             console.warn('Lumi Nails tartalom betöltési hiba:', error);

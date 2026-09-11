@@ -76,10 +76,10 @@ function lumiAlapOldalAdatok() {
                 cim: 'SZOLGÁLTATÁSOK',
                 leiras: 'Letisztult alapoktól az egyedi díszítésig — minden szett személyre szabva, nyugodt tempóban készül.',
                 kartyak: [
-                    { cim: 'Körömépítés & Töltés', leiras: 'S, M és L méretű zselés vagy porcelán műkörmök\nprecíz felhelyezése és rendszeres karbantartása.', linkSzoveg: 'Részletek és árak' },
-                    { cim: 'Díszítés / Nail Art', leiras: 'Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.', linkSzoveg: 'Részletek' },
-                    { cim: 'Gél Lakk', leiras: 'Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.', linkSzoveg: 'Részletek és árak' },
-                    { cim: 'Manikűr', leiras: 'Klasszikus körömápolás, gél lakk szakszerű eltávolítása\nés a kezek kényeztető felfrissítése.', linkSzoveg: 'Részletek és árak' }
+                    { cim: 'Körömépítés & Töltés', leiras: 'S, M és L méretű zselés vagy porcelán műkörmök\nprecíz felhelyezése és rendszeres karbantartása.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-epites.jpg' },
+                    { cim: 'Díszítés / Nail Art', leiras: 'Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.', linkSzoveg: 'Részletek', kep: '/kepek/szolgaltatas-diszites.jpg' },
+                    { cim: 'Gél Lakk', leiras: 'Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-gel-lakk.jpg' },
+                    { cim: 'Manikűr', leiras: 'Klasszikus körömápolás, gél lakk szakszerű eltávolítása\nés a kezek kényeztető felfrissítése.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-manikur.jpg' }
                 ]
             },
             galeriaAtvezeto: {

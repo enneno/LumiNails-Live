@@ -416,6 +416,13 @@ body.admin-body [hidden] {
   color: var(--szoveg);
 }
 
+.admin-body .admin-panel-segedlet {
+  margin: 0 0 14px;
+  color: var(--admin-v2-muted);
+  font-size: var(--lumi-font-caption);
+  line-height: 1.45;
+}
+
 .admin-body .admin-statusz,
 .admin-body .admin-pill,
 .admin-body .admin-allapot-jelzes,
@@ -5336,6 +5343,38 @@ body.cms-image-lightbox-open { overflow: hidden; }
   gap: 7px;
 }
 
+.admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-kedvezmeny {
+  min-width: 0;
+  margin: 14px 0 0;
+  padding: 14px;
+  border: 1px solid var(--admin-v2-border);
+  border-radius: 12px;
+  background: var(--admin-v2-surface-soft);
+}
+
+.admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-kedvezmeny legend {
+  padding-inline: 4px;
+  color: var(--admin-v2-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-kedvezmeny > p {
+  margin: 0 0 9px;
+  color: var(--admin-v2-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-kedvezmeny .admin-mezo {
+  margin: 0;
+}
+
+.admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-kedvezmeny .admin-arkalkulator-kupon-segedlet {
+  min-height: 17px;
+  margin: 7px 0 0;
+}
+
 .admin-body.admin-v2 #admin-panel-arkalkulator .admin-arkalkulator-ures {
   margin: 0;
   padding: 15px;
@@ -5535,94 +5574,154 @@ body.cms-image-lightbox-open { overflow: hidden; }
   }
 }
 
-.admin-body.admin-v2 #admin-panel-kuponok > .admin-panel-akciok { margin: 0 0 11px; }
-.admin-body.admin-v2 #admin-panel-kuponok > .admin-panel-akciok .admin-hozzaadas { margin: 0; }
+.admin-body.admin-v2 #admin-panel-kuponok > .admin-panel-akciok {
+  margin: 0 0 12px;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok > .admin-panel-akciok .admin-hozzaadas {
+  margin: 0;
+}
 
 .admin-body.admin-v2 #admin-kupon-lista {
   gap: 0;
   border-top: 1px solid var(--admin-line);
 }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-db-grid-kupon {
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szerkeszto-racs,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-mezo-racs {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: end;
-  gap: 9px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
 }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-kod { grid-column: 1 / 4; grid-row: 1; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-cim { grid-column: 4 / 10; grid-row: 1; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-sorrend { grid-column: 10 / 13; grid-row: 1; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-leiras { grid-column: 1 / 13; grid-row: 2; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-tipus { grid-column: 1 / 4; grid-row: 3; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-ertek { grid-column: 4 / 6; grid-row: 3; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szoveg { grid-column: 6 / 10; grid-row: 3; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szolgaltatas { grid-column: 10 / 13; grid-row: 3; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-celkozonseg { grid-column: 1 / 4; grid-row: 4; }
-.admin-body.admin-v2 #admin-panel-kuponok label:has([data-mezo="valid_from"]) { grid-column: 4 / 7; grid-row: 4; }
-.admin-body.admin-v2 #admin-panel-kuponok label:has([data-mezo="valid_until"]) { grid-column: 7 / 10; grid-row: 4; }
-.admin-body.admin-v2 #admin-panel-kuponok label:has([data-mezo="active"]) { grid-column: 10 / 11; grid-row: 4; }
-.admin-body.admin-v2 #admin-panel-kuponok label:has([data-mezo="show_on_home"]) { grid-column: 11 / 13; grid-row: 4; }
-.admin-body.admin-v2 #admin-panel-kuponok .admin-db-grid-kupon textarea {
-  min-height: 58px;
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szekcio {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--admin-v2-border);
+  border-radius: 12px;
+  background: var(--admin-v2-surface-soft);
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szekcio legend {
+  max-width: 100%;
+  padding-inline: 5px;
+  color: var(--admin-v2-ink);
+  font-size: var(--lumi-font-label);
+  font-weight: 700;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szekcio-leiras,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szamitas-pelda {
+  margin: 0 0 10px;
+  color: var(--admin-v2-muted);
+  font-size: var(--lumi-font-caption);
+  line-height: 1.45;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szamitas-pelda {
+  margin: 10px 0 0;
+  padding: 9px 10px;
+  border-left: 3px solid var(--admin-v2-brand);
+  border-radius: 0 7px 7px 0;
+  background: var(--admin-v2-surface);
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-leiras,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szoveg,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-alap,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szolgaltatas,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-celkozonseg {
+  grid-column: 1 / -1;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-leiras textarea {
+  min-height: 76px;
   padding-block: 9px;
 }
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-kapcsolok {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox {
-  align-self: end;
-  min-height: 38px;
-  padding: 4px 6px;
-  border-radius: 7px;
-  background: var(--admin-v2-surface-soft);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-height: var(--admin-ui-touch-target);
+  padding: 10px;
+  border: 1px solid var(--admin-v2-border);
+  border-radius: 9px;
+  background: var(--admin-v2-surface);
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox input {
+  margin-top: 2px;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox span,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox strong,
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox small {
+  display: block;
+  min-width: 0;
+}
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox strong {
+  color: var(--admin-v2-ink);
   font-size: var(--lumi-font-label);
 }
+
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-checkbox small {
+  margin-top: 2px;
+  color: var(--admin-v2-muted);
+  font-size: var(--lumi-font-caption);
+  line-height: 1.35;
+}
+
 .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-akciok {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 12px;
 }
 
-@container admin-workspace (max-width: 700px) {
-  .admin-body.admin-v2 #admin-panel-kuponok .admin-db-grid-kupon { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-body.admin-v2 #admin-panel-kuponok :is(
-    .admin-kupon-kod,
-    .admin-kupon-cim,
-    .admin-kupon-leiras,
-    .admin-kupon-tipus,
-    .admin-kupon-ertek,
-    .admin-kupon-szoveg,
-    .admin-kupon-szolgaltatas,
-    .admin-kupon-celkozonseg,
-    .admin-kupon-sorrend,
-    label:has([data-mezo="valid_from"]),
-    label:has([data-mezo="valid_until"]),
-    label:has([data-mezo="active"]),
-    label:has([data-mezo="show_on_home"])
-  ) {
-    grid-row: auto;
-    grid-column: auto;
-  }
-  .admin-body.admin-v2 #admin-panel-kuponok :is(
-    .admin-kupon-cim,
-    .admin-kupon-leiras,
-    .admin-kupon-szoveg,
-    .admin-kupon-szolgaltatas,
-    .admin-kupon-celkozonseg
-  ) { grid-column: 1 / -1; }
+.admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-akciok .admin-kis-gomb {
+  min-width: 0;
 }
 
-@container admin-workspace (max-width: 480px) {
-  .admin-body.admin-v2 #admin-panel-kuponok .admin-db-grid-kupon { gap: 8px; }
-  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-kod,
-  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-sorrend { grid-column: auto; }
-  .admin-body.admin-v2 #admin-panel-kuponok :is(
-    .admin-kupon-cim,
-    .admin-kupon-leiras,
-    .admin-kupon-szoveg,
-    .admin-kupon-szolgaltatas,
-    .admin-kupon-celkozonseg
-  ) { grid-column: 1 / -1; }
+@container admin-workspace (min-width: 701px) {
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szerkeszto-racs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szekcio--alapadatok,
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-szekcio--megjelenes {
+    grid-column: 1 / -1;
+  }
+
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-mezo-racs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-mezo-racs--alapadatok {
+    grid-template-columns: minmax(160px, 0.75fr) minmax(0, 1.25fr);
+  }
+
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-kapcsolok {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-sorrend {
+    max-width: 240px;
+  }
+
   .admin-body.admin-v2 #admin-panel-kuponok .admin-kupon-akciok {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    justify-content: flex-end;
   }
 }
 

@@ -64,4 +64,8 @@ A böngészőben csak a Supabase nyilvános publishable kulcsa szerepelhet. Serv
 
 A vendég továbbra is regisztráció nélkül tölthet fel inspirációs képet. A böngésző azonban nem kap közvetlen Storage-írási jogot: az Edge Function ellenőrzi a foglaláshoz tartozó egyszer használatos műveleti kulcsot, majd a képet privát bucketbe menti.
 
+## Kuponkedvezmény számítási alapjának telepítése
+
+A kuponoknál beállítható teljes ár / alapszolgáltatás / díszítések számítási alaphoz futtasd a `supabase-coupon-discount-basis.sql` fájlt a `supabase-coupons.sql`, `supabase-booking-style-duration.sql` és `supabase-decoration-coupon.sql` után. A migráció a meglévő díszítéskuponok jelentését megőrzi, korábbi foglalást nem ír át.
+
 Az 1–2. külön auditpont (admin jogosultsági modell és a rövid önkiszolgáló kód próbálkozáskorlátozása) szándékosan nincs ebben a migrációban.

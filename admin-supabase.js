@@ -112,6 +112,7 @@
         });
         elemek.szolgaltatasLista?.addEventListener('click', szolgaltatasListaKattintas);
         elemek.kuponLista?.addEventListener('click', kuponListaKattintas);
+        elemek.kuponLista?.addEventListener('change', kuponListaValtozas);
         elemek.esemenynaploLapozo?.addEventListener('click', esemenynaploLapozoKattintas);
         elemek.esemenynaploLapozo?.addEventListener('change', esemenynaploLapozoKattintas);
         elemek.esemenynaploLapozoFelso?.addEventListener('click', esemenynaploLapozoKattintas);
@@ -4289,6 +4290,7 @@ function arlistaFeliratokFrissitese() {
     const arKalkulatorAllapot = {
         szolgaltatasId: '',
         alapAr: 0,
+        kuponId: '',
         extrak: new Map()
     };
 
@@ -4327,6 +4329,11 @@ function arlistaFeliratokFrissitese() {
         });
         panel.querySelector('#admin-arkalkulator-extra-lista')?.addEventListener('click', arKalkulatorExtraKattintas);
         panel.querySelector('#admin-arkalkulator-extra-lista')?.addEventListener('change', arKalkulatorExtraValtozas);
+        panel.querySelector('#admin-arkalkulator-kupon')?.addEventListener('change', event => {
+            arKalkulatorAllapot.kuponId = event.target.value;
+            arKalkulatorKedvezmenyRenderelese();
+            arKalkulatorOsszegzesRenderelese();
+        });
         panel.querySelector('#admin-arkalkulator-ujra')?.addEventListener('click', arKalkulatorUjrainditasa);
 
         arKalkulatorFrissitese();
@@ -4361,6 +4368,7 @@ function arlistaFeliratokFrissitese() {
         arKalkulatorAlaparRenderelese();
         arKalkulatorExtraValasztoRenderelese();
         arKalkulatorExtraListaRenderelese();
+        arKalkulatorKedvezmenyRenderelese();
         arKalkulatorOsszegzesRenderelese();
     }
 
@@ -4462,18 +4470,121 @@ function arlistaFeliratokFrissitese() {
         if (!vegosszeg || !bontas) return;
 
         let osszeg = arKalkulatorAllapot.alapAr || 0;
+        let diszitesOsszeg = 0;
         const szolgaltatas = arKalkulatorAktivSzolgaltatas();
         const sorok = szolgaltatas ? [{ nev: arKalkulatorSzolgaltatasNev(szolgaltatas), osszeg }] : [];
         arKalkulatorAllapot.extrak.forEach(extra => {
             const reszosszeg = extra.ar * extra.darab;
+            diszitesOsszeg += reszosszeg;
             osszeg += reszosszeg;
             sorok.push({ nev: `${arKalkulatorTetelNev(extra.szolgaltatas)} × ${extra.darab}`, osszeg: reszosszeg });
         });
 
+        const kupon = arKalkulatorKivalasztottKupon();
+        const kedvezmeny = arKalkulatorKuponKedvezmeny(kupon, {
+            service: arKalkulatorAllapot.alapAr,
+            decoration: diszitesOsszeg,
+            total: osszeg
+        });
+        if (kedvezmeny.osszeg > 0) {
+            osszeg = Math.max(0, osszeg - kedvezmeny.osszeg);
+            sorok.push({ nev: `Kedvezmény – ${kuponKedvezmenyAlapFelirat(kedvezmeny.alap)} (${kupon.code})`, osszeg: -kedvezmeny.osszeg });
+        } else if (kupon?.discount_type === 'text') {
+            sorok.push({ nev: `Kupon (${kupon.code})`, szoveg: 'Kézi egyeztetés' });
+        }
+
         vegosszeg.textContent = arKalkulatorArSzoveg(osszeg);
         bontas.innerHTML = sorok.length
-            ? sorok.map(sor => `<div><span>${html(sor.nev)}</span><strong>${arKalkulatorArSzoveg(sor.osszeg)}</strong></div>`).join('')
+            ? sorok.map(sor => `<div><span>${html(sor.nev)}</span><strong>${sor.szoveg ? html(sor.szoveg) : arKalkulatorArSzoveg(sor.osszeg)}</strong></div>`).join('')
             : '<p>Az összeghez válassz szolgáltatást.</p>';
+    }
+
+    function arKalkulatorKedvezmenyRenderelese() {
+        const select = document.getElementById('admin-arkalkulator-kupon');
+        const segedlet = document.getElementById('admin-arkalkulator-kupon-segedlet');
+        if (!select || !segedlet) return;
+
+        const kuponok = arKalkulatorAktivKuponok();
+        if (!kuponok.some(kupon => String(kupon.id) === arKalkulatorAllapot.kuponId)) {
+            arKalkulatorAllapot.kuponId = '';
+        }
+
+        select.innerHTML = [
+            '<option value="">Nincs kuponkedvezmény</option>',
+            ...kuponok.map(kupon => `<option value="${attr(String(kupon.id))}" ${String(kupon.id) === arKalkulatorAllapot.kuponId ? 'selected' : ''}>${html(`${kupon.code} – ${arKalkulatorKuponFelirat(kupon)}`)}</option>`)
+        ].join('');
+        select.disabled = kuponok.length === 0;
+
+        const kupon = arKalkulatorKivalasztottKupon();
+        if (!kupon) {
+            segedlet.textContent = kuponok.length
+                ? 'A számításhoz válassz kupont, ha a vendég használ egyet.'
+                : 'Ehhez a szolgáltatáshoz jelenleg nincs aktív, érvényes kupon.';
+            return;
+        }
+
+        if (kupon.discount_type === 'text') {
+            segedlet.textContent = `${kupon.code}: szöveges kedvezmény, ezért a végleges összeget kézzel kell egyeztetni.`;
+            return;
+        }
+
+        const diszitesOsszeg = Array.from(arKalkulatorAllapot.extrak.values())
+            .reduce((osszeg, extra) => osszeg + extra.ar * extra.darab, 0);
+        const kedvezmeny = arKalkulatorKuponKedvezmeny(kupon, {
+            service: arKalkulatorAllapot.alapAr,
+            decoration: diszitesOsszeg,
+            total: arKalkulatorAllapot.alapAr + diszitesOsszeg
+        });
+        if (kedvezmeny.alap === 'decoration' && !diszitesOsszeg) {
+            segedlet.textContent = `${kupon.code}: ${arKalkulatorKuponFelirat(kupon)} a díszítések árából. A számításhoz adj hozzá legalább egy díszítést.`;
+            return;
+        }
+        segedlet.textContent = `${kupon.code}: ${arKalkulatorKuponFelirat(kupon)} – ${kuponKedvezmenyAlapFelirat(kedvezmeny.alap).toLocaleLowerCase('hu-HU')}. Mostani levonás: ${arKalkulatorArSzoveg(kedvezmeny.osszeg)}.`;
+    }
+
+    function arKalkulatorAktivKuponok() {
+        const ma = maiDatum();
+        const szolgaltatas = arKalkulatorAktivSzolgaltatas();
+        return (allapot.kuponok || [])
+            .filter(kupon => kupon.active !== false)
+            .filter(kupon => !kupon.valid_from || kupon.valid_from <= ma)
+            .filter(kupon => !kupon.valid_until || kupon.valid_until >= ma)
+            .filter(kupon => arKalkulatorKuponSzolgaltatasraErvenyes(kupon, szolgaltatas));
+    }
+
+    function arKalkulatorKivalasztottKupon() {
+        return arKalkulatorAktivKuponok()
+            .find(kupon => String(kupon.id) === arKalkulatorAllapot.kuponId) || null;
+    }
+
+    function arKalkulatorKuponSzolgaltatasraErvenyes(kupon, szolgaltatas) {
+        if (!szolgaltatas) return false;
+        if (kupon.service_id && String(kupon.service_id) !== String(szolgaltatas.id)) return false;
+        if (!kupon.service_category) return true;
+        if (arKalkulatorKulcs(kupon.service_category) === 'diszites') return true;
+        const szolgaltatasKategoria = String(szolgaltatas.category || szolgaltatas.name || '').split(/\s+-\s+/)[0];
+        return arKalkulatorKulcs(kupon.service_category) === arKalkulatorKulcs(szolgaltatasKategoria);
+    }
+
+    function arKalkulatorKuponKedvezmeny(kupon, osszegek) {
+        const alap = kuponKedvezmenyAlapja(kupon);
+        const ar = Math.max(0, Number(osszegek?.[alap]) || 0);
+        const ertek = Math.max(0, Number(kupon?.discount_value) || 0);
+        if (!kupon || !ar) return { osszeg: 0, alap };
+        if (kupon.discount_type === 'percent') {
+            return { osszeg: Math.min(ar, Math.round(ar * ertek / 100)), alap };
+        }
+        if (kupon.discount_type === 'fixed') {
+            return { osszeg: Math.min(ar, ertek), alap };
+        }
+        return { osszeg: 0, alap };
+    }
+
+    function arKalkulatorKuponFelirat(kupon) {
+        const ertek = Math.max(0, Number(kupon?.discount_value) || 0);
+        if (kupon?.discount_type === 'percent') return `${ertek}% kedvezmény`;
+        if (kupon?.discount_type === 'fixed') return `${arKalkulatorArSzoveg(ertek)} kedvezmény`;
+        return kupon?.discount_text || kupon?.title || 'Egyedi kedvezmény';
     }
 
     function arKalkulatorExtraKattintas(event) {
@@ -4506,11 +4617,17 @@ function arlistaFeliratokFrissitese() {
 
     function arKalkulatorUjrainditasa() {
         arKalkulatorAllapot.extrak.clear();
+        arKalkulatorAllapot.kuponId = '';
         const elso = arKalkulatorAlapszolgaltatasok()[0];
         arKalkulatorAllapot.szolgaltatasId = String(elso?.id || '');
         arKalkulatorAllapot.alapAr = arKalkulatorElsoAr(elso);
         arKalkulatorRenderelese();
         document.getElementById('admin-arkalkulator-szolgaltatas')?.focus({ preventScroll: true });
+    }
+
+    function arKalkulatorKuponokFrissitese() {
+        arKalkulatorKedvezmenyRenderelese();
+        arKalkulatorOsszegzesRenderelese();
     }
 
     function arKalkulatorAlapszolgaltatasok() {
@@ -4579,9 +4696,17 @@ function arlistaFeliratokFrissitese() {
 
         let { data, error } = await allapot.kliens
             .from('coupons')
-            .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
+            .select('id,code,title,description,discount_type,discount_value,discount_basis,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: true });
+
+        if (error && adatbazisOszlopHiany(error, ['discount_basis'])) {
+            ({ data, error } = await allapot.kliens
+                .from('coupons')
+                .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
+                .order('sort_order', { ascending: true })
+                .order('created_at', { ascending: true }));
+        }
 
         if (error && adatbazisOszlopHiany(error, ['service_category', 'customer_scope'])) {
             ({ data, error } = await allapot.kliens
@@ -4593,12 +4718,17 @@ function arlistaFeliratokFrissitese() {
 
         if (error) {
             allapot.kuponok = [];
+            arKalkulatorKuponokFrissitese();
             elemek.kuponLista.innerHTML = `<p class="admin-ures">A kuponkezel\u00e9shez futtasd a <code>supabase-coupons.sql</code> f\u00e1jlt Supabase-ben.</p>`;
             if (!hianyzoKuponTabla(error)) onlineStatusz('Nem siker\u00fclt bet\u00f6lteni a kuponokat.', true);
             return;
         }
 
-        allapot.kuponok = data || [];
+        allapot.kuponok = (data || []).map(kupon => ({
+            ...kupon,
+            discount_basis: kuponKedvezmenyAlapja(kupon)
+        }));
+        arKalkulatorKuponokFrissitese();
         elemek.kuponLista.innerHTML = '';
 
         if (!allapot.kuponok.length) {
@@ -4612,6 +4742,8 @@ function arlistaFeliratokFrissitese() {
     function kuponKartya(kupon) {
         const ujKupon = String(kupon.title || '').trim().toLowerCase() === 'új kupon';
         const ervenyesseg = [kupon.valid_from, kupon.valid_until].filter(Boolean).join(' – ') || 'Nincs dátumkorlát';
+        const aktualisAllapot = kuponAktualisAllapota(kupon);
+        const kedvezmenyAlap = kuponKedvezmenyAlapFelirat(kuponKedvezmenyAlapja(kupon));
         const kartya = document.createElement('article');
         kartya.className = `admin-db-kartya admin-kupon-kartya admin-szerkesztheto-kartya${ujKupon ? ' szerkeszt' : ''}`;
         kartya.dataset.id = kupon.id;
@@ -4621,29 +4753,55 @@ function arlistaFeliratokFrissitese() {
                 <div class="admin-kompakt-kartya-osszefoglalo">
                     <span class="admin-kartya-tipus">Kupon</span>
                     <h3>${html(kupon.code || 'Kód nélkül')}</h3>
-                    <p>${html(kupon.title || 'Névtelen kupon')} · ${html(kupon.discount_text || `${Number(kupon.discount_value) || 0}`)} · ${html(ervenyesseg)}</p>
+                    <p>${html(kupon.title || 'Névtelen kupon')} · ${html(kupon.discount_text || `${Number(kupon.discount_value) || 0}`)} · ${html(kedvezmenyAlap)} · ${html(ervenyesseg)}</p>
                 </div>
                 <div class="admin-kompakt-kartya-vezerlok">
-                    <span class="admin-allapot-jelzo${kupon.active ? '' : ' inaktiv'}">${kupon.active ? 'Aktív' : 'Inaktív'}</span>
-                    ${kupon.show_on_home ? '<span class="admin-allapot-jelzo">Főoldalon</span>' : ''}
+                    <span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${html(aktualisAllapot.cimke)}</span>
+                    ${kupon.show_on_home ? `<span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${aktualisAllapot.aktiv ? 'Főoldalon' : 'Főoldalra jelölve'}</span>` : ''}
                     <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-admin-kartya-toggle aria-expanded="${String(ujKupon)}">${adminV2Ikon(ujKupon ? 'close' : 'edit')}<span>${ujKupon ? 'Bezárás' : 'Szerkesztés'}</span></button>
                 </div>
             </div>
             <div class="admin-kompakt-szerkeszto">
-                <div class="admin-db-grid admin-db-grid-kupon">
-                    <label class="admin-mezo admin-kupon-kod">Kuponkód<input type="text" data-mezo="code" value="${attr(kupon.code || '')}"></label>
-                    <label class="admin-mezo admin-kupon-cim">Cím<input type="text" data-mezo="title" value="${attr(kupon.title || '')}"></label>
-                    <label class="admin-mezo admin-kupon-leiras">Leírás<textarea data-mezo="description" rows="3">${html(kupon.description || '')}</textarea></label>
-                    <label class="admin-mezo admin-kupon-tipus">Kedvezmény típusa<select data-mezo="discount_type">${kuponTipusOptions(kupon.discount_type)}</select></label>
-                    <label class="admin-mezo admin-kupon-ertek">Érték<input type="number" min="0" step="1" data-mezo="discount_value" value="${Number(kupon.discount_value) || 0}"></label>
-                    <label class="admin-mezo admin-kupon-szoveg">Megjelenő szöveg<input type="text" data-mezo="discount_text" value="${attr(kupon.discount_text || '')}"></label>
-                    <label class="admin-mezo admin-kupon-szolgaltatas">Érvényesség<select data-mezo="service_scope">${kuponSzolgaltatasOptions(kupon)}</select></label>
-                    <label class="admin-mezo admin-kupon-celkozonseg">Kinek érvényes?<select data-mezo="customer_scope">${kuponKozonsegOptions(kupon.customer_scope)}</select></label>
-                    <label class="admin-mezo admin-kupon-datum">Érvényes ettől<input type="date" data-mezo="valid_from" value="${attr(kupon.valid_from || '')}"></label>
-                    <label class="admin-mezo admin-kupon-datum">Érvényes eddig<input type="date" data-mezo="valid_until" value="${attr(kupon.valid_until || '')}"></label>
-                    <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="active" ${kupon.active ? 'checked' : ''}> Aktív</label>
-                    <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="show_on_home" ${kupon.show_on_home ? 'checked' : ''}> Főoldali kártya</label>
-                    <label class="admin-mezo admin-kupon-sorrend">Sorrend<input type="number" step="1" data-mezo="sort_order" value="${Number(kupon.sort_order) || 0}"></label>
+                <div class="admin-kupon-szerkeszto-racs">
+                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--alapadatok">
+                        <legend>Kupon adatai</legend>
+                        <div class="admin-kupon-mezo-racs admin-kupon-mezo-racs--alapadatok">
+                            <label class="admin-mezo admin-kupon-kod">Kuponkód<input type="text" data-mezo="code" value="${attr(kupon.code || '')}" autocomplete="off"></label>
+                            <label class="admin-mezo admin-kupon-cim">Belső név<input type="text" data-mezo="title" value="${attr(kupon.title || '')}"></label>
+                            <label class="admin-mezo admin-kupon-leiras">Vendégnek szóló leírás<textarea data-mezo="description" rows="3">${html(kupon.description || '')}</textarea></label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--kedvezmeny">
+                        <legend>Kedvezmény számítása</legend>
+                        <p class="admin-kupon-szekcio-leiras">Válaszd ki a kedvezmény formáját és azt az összeget, amelyből le kell vonni.</p>
+                        <div class="admin-kupon-mezo-racs">
+                            <label class="admin-mezo admin-kupon-tipus">Kedvezmény típusa<select data-mezo="discount_type">${kuponTipusOptions(kupon.discount_type)}</select></label>
+                            <label class="admin-mezo admin-kupon-ertek">Érték<input type="number" min="0" step="1" inputmode="numeric" data-mezo="discount_value" value="${Number(kupon.discount_value) || 0}"></label>
+                            <label class="admin-mezo admin-kupon-alap">Miből vonja le?<select data-mezo="discount_basis">${kuponKedvezmenyAlapOptions(kuponKedvezmenyAlapja(kupon))}</select></label>
+                            <label class="admin-mezo admin-kupon-szoveg">Megjelenő kedvezményszöveg<input type="text" data-mezo="discount_text" value="${attr(kupon.discount_text || '')}"></label>
+                        </div>
+                        <p class="admin-kupon-szamitas-pelda" data-kupon-szamitas-segedlet></p>
+                    </fieldset>
+
+                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--feltetelek">
+                        <legend>Felhasználási feltételek</legend>
+                        <div class="admin-kupon-mezo-racs">
+                            <label class="admin-mezo admin-kupon-szolgaltatas">Mire érvényes?<select data-mezo="service_scope">${kuponSzolgaltatasOptions(kupon)}</select></label>
+                            <label class="admin-mezo admin-kupon-celkozonseg">Ki használhatja?<select data-mezo="customer_scope">${kuponKozonsegOptions(kupon.customer_scope)}</select></label>
+                            <label class="admin-mezo admin-kupon-datum">Érvényes ettől<input type="date" data-mezo="valid_from" value="${attr(kupon.valid_from || '')}"></label>
+                            <label class="admin-mezo admin-kupon-datum">Érvényes eddig<input type="date" data-mezo="valid_until" value="${attr(kupon.valid_until || '')}"></label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--megjelenes">
+                        <legend>Megjelenés és állapot</legend>
+                        <div class="admin-kupon-kapcsolok">
+                            <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="active" ${kupon.active ? 'checked' : ''}> <span><strong>Aktív kupon</strong><small>Csak aktív és dátum szerint érvényes kupon használható.</small></span></label>
+                            <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="show_on_home" ${kupon.show_on_home ? 'checked' : ''}> <span><strong>Főoldali kártya</strong><small>Az ajánlat a főoldalon is megjelenhet.</small></span></label>
+                        </div>
+                        <label class="admin-mezo admin-kupon-sorrend">Megjelenési sorrend<input type="number" step="1" inputmode="numeric" data-mezo="sort_order" value="${Number(kupon.sort_order) || 0}"></label>
+                    </fieldset>
                 </div>
                 <div class="admin-db-akciok admin-kupon-akciok">
                     <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-kupon-mozgat="fel">${adminV2Ikon('up')}<span>Feljebb</span></button>
@@ -4652,7 +4810,16 @@ function arlistaFeliratokFrissitese() {
                 </div>
             </div>
         `;
+        kuponSzerkesztoMezoAllapotFrissitese(kartya);
         return kartya;
+    }
+
+    function kuponAktualisAllapota(kupon) {
+        const ma = maiDatum();
+        if (!kupon.active) return { aktiv: false, cimke: 'Inaktív' };
+        if (kupon.valid_until && kupon.valid_until < ma) return { aktiv: false, cimke: 'Lejárt' };
+        if (kupon.valid_from && kupon.valid_from > ma) return { aktiv: false, cimke: 'Időzítve' };
+        return { aktiv: true, cimke: 'Aktív' };
     }
 
     function kuponTipusOptions(aktiv) {
@@ -4661,6 +4828,54 @@ function arlistaFeliratokFrissitese() {
             ['fixed', 'Fix \u00f6sszeg (Ft)'],
             ['text', 'Csak sz\u00f6veges akci\u00f3']
         ].map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`).join('');
+    }
+
+    function kuponKedvezmenyAlapja(kupon = {}) {
+        const alap = String(kupon?.discount_basis || '').trim().toLowerCase();
+        if (['total', 'service', 'decoration'].includes(alap)) return alap;
+        return normalizaltAdminKuponSzoveg(kupon?.service_category) === 'diszites' ? 'decoration' : 'service';
+    }
+
+    function kuponKedvezmenyAlapOptions(aktiv = 'service') {
+        return [
+            ['total', 'Teljes árból (szolgáltatás + díszítések)'],
+            ['service', 'Csak az alapszolgáltatás árából'],
+            ['decoration', 'Csak a díszítések árából']
+        ].map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`).join('');
+    }
+
+    function kuponKedvezmenyAlapFelirat(alap) {
+        if (alap === 'total') return 'Teljes árból';
+        if (alap === 'decoration') return 'Díszítések árából';
+        return 'Szolgáltatás árából';
+    }
+
+    function normalizaltAdminKuponSzoveg(ertek) {
+        return String(ertek || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase('hu-HU')
+            .trim();
+    }
+
+    function kuponSzerkesztoMezoAllapotFrissitese(kartya) {
+        const tipus = mezo(kartya, 'discount_type')?.value || 'percent';
+        const ertek = mezo(kartya, 'discount_value');
+        const alap = mezo(kartya, 'discount_basis');
+        const segedlet = kartya.querySelector('[data-kupon-szamitas-segedlet]');
+        const szoveges = tipus === 'text';
+
+        if (ertek) ertek.disabled = szoveges;
+        if (alap) alap.disabled = szoveges;
+        if (!segedlet) return;
+
+        if (szoveges) {
+            segedlet.textContent = 'A szöveges akció nem számol automatikus végösszeget; a részleteket a megjelenő szövegben add meg.';
+            return;
+        }
+
+        const tipusFelirat = tipus === 'fixed' ? 'fix összeget' : 'százalékot';
+        segedlet.textContent = `A kalkulátor a megadott ${tipusFelirat} a(z) „${kuponKedvezmenyAlapFelirat(alap?.value)}” összegből vonja le.`;
     }
 
     function kuponKozonsegOptions(aktiv = 'all') {
@@ -4748,18 +4963,21 @@ function arlistaFeliratokFrissitese() {
             description: 'R\u00f6vid akci\u00f3s le\u00edr\u00e1s, ami a f\u0151oldalon is megjelenhet.',
             discount_type: 'percent',
             discount_value: 10,
+            discount_basis: 'service',
             discount_text: '10% kedvezm\u00e9ny',
             customer_scope: 'all',
+            valid_from: maiDatum(),
             active: false,
-            show_on_home: true,
+            show_on_home: false,
             sort_order: 999
         };
 
         let { error } = await allapot.kliens.from('coupons').insert(ujKupon);
 
-        if (error && adatbazisOszlopHiany(error, ['customer_scope'])) {
+        if (error && adatbazisOszlopHiany(error, ['discount_basis', 'customer_scope'])) {
             const kompatibilisKupon = { ...ujKupon };
-            delete kompatibilisKupon.customer_scope;
+            if (adatbazisOszlopHiany(error, ['discount_basis'])) delete kompatibilisKupon.discount_basis;
+            if (adatbazisOszlopHiany(error, ['customer_scope'])) delete kompatibilisKupon.customer_scope;
             ({ error } = await allapot.kliens.from('coupons').insert(kompatibilisKupon));
             if (!error) {
                 onlineStatusz('\u00daj kupon l\u00e9trehozva, de az \u00faj vend\u00e9g kuponmez\u0151h\u00f6z futtasd a friss Supabase SQL-t.', true);
@@ -4797,6 +5015,12 @@ function arlistaFeliratokFrissitese() {
             if (!window.confirm('Biztosan törlöd ezt a kupont? Törlés előtt automatikusan inaktiválom, hogy ne maradjon kint a főoldalon.')) return;
             await kuponTorlese(kartya.dataset.id);
         }
+    }
+
+    function kuponListaValtozas(event) {
+        const kartya = event.target.closest('.admin-kupon-kartya');
+        if (!kartya || !event.target.matches('[data-mezo="discount_type"], [data-mezo="discount_basis"]')) return;
+        kuponSzerkesztoMezoAllapotFrissitese(kartya);
     }
 
     async function kuponTorlese(id) {
@@ -4859,19 +5083,45 @@ function arlistaFeliratokFrissitese() {
                 return;
             }
 
+            const kezdetMezo = mezo(kartya, 'valid_from');
+            const vegeMezo = mezo(kartya, 'valid_until');
+            const aktivMezo = mezo(kartya, 'active');
+            const fooldalMezo = mezo(kartya, 'show_on_home');
+            const kezdet = kezdetMezo.value || null;
+            const vege = vegeMezo.value || null;
+            const aktiv = aktivMezo.checked;
+            const fooldalon = fooldalMezo.checked;
+
+            if (kezdet && vege && kezdet > vege) {
+                onlineStatusz(`${kod}: az érvényesség vége nem lehet korábbi a kezdőnapnál.`, true);
+                vegeMezo.focus();
+                return;
+            }
+            if (aktiv && vege && vege < maiDatum()) {
+                onlineStatusz(`${kod}: lejárt dátummal nem aktiválható. Töröld vagy módosítsd az érvényesség végét.`, true);
+                vegeMezo.focus();
+                return;
+            }
+            if (fooldalon && !aktiv) {
+                onlineStatusz(`${kod}: a főoldali megjelenéshez az Aktív jelölést is kapcsold be.`, true);
+                aktivMezo.focus();
+                return;
+            }
+
             const payload = {
                 code: kod,
                 title: mezo(kartya, 'title').value.trim(),
                 description: mezo(kartya, 'description').value.trim(),
                 discount_type: mezo(kartya, 'discount_type').value,
                 discount_value: szamMezo(kartya, 'discount_value'),
+                discount_basis: mezo(kartya, 'discount_basis')?.value || 'service',
                 discount_text: mezo(kartya, 'discount_text').value.trim(),
                 customer_scope: mezo(kartya, 'customer_scope')?.value === 'new_customer' ? 'new_customer' : 'all',
                 ...kuponScopePayload(mezo(kartya, 'service_scope')?.value),
-                valid_from: mezo(kartya, 'valid_from').value || null,
-                valid_until: mezo(kartya, 'valid_until').value || null,
-                active: mezo(kartya, 'active').checked,
-                show_on_home: mezo(kartya, 'show_on_home').checked,
+                valid_from: kezdet,
+                valid_until: vege,
+                active: aktiv,
+                show_on_home: fooldalon,
                 sort_order: szamMezo(kartya, 'sort_order')
             };
 
@@ -4880,8 +5130,15 @@ function arlistaFeliratokFrissitese() {
                 .update(payload)
                 .eq('id', kartya.dataset.id);
 
-            if (error && adatbazisOszlopHiany(error, ['service_category', 'customer_scope'])) {
+            if (error && adatbazisOszlopHiany(error, ['discount_basis', 'service_category', 'customer_scope'])) {
                 const kompatibilisPayload = { ...payload };
+                const kedvezmenyAlapHianyzik = adatbazisOszlopHiany(error, ['discount_basis']);
+                if (kedvezmenyAlapHianyzik && payload.discount_basis !== 'service') {
+                    onlineStatusz(`${kod}: az új kedvezményalap mentéséhez előbb futtasd a supabase-coupon-discount-basis.sql frissítést.`, true);
+                    mezo(kartya, 'discount_basis')?.focus();
+                    return;
+                }
+                if (kedvezmenyAlapHianyzik) delete kompatibilisPayload.discount_basis;
                 if (adatbazisOszlopHiany(error, ['service_category'])) delete kompatibilisPayload.service_category;
                 if (adatbazisOszlopHiany(error, ['customer_scope'])) delete kompatibilisPayload.customer_scope;
                 ({ error } = await allapot.kliens
@@ -4889,7 +5146,7 @@ function arlistaFeliratokFrissitese() {
                     .update(kompatibilisPayload)
                     .eq('id', kartya.dataset.id));
                 if (!error) {
-                    onlineStatusz('Kuponok mentve, de az \u00faj vend\u00e9g / kateg\u00f3ri\u00e1s kuponmez\u0151kh\u00f6z futtasd a friss supabase-coupons.sql-t.', true);
+                    onlineStatusz('Kuponok mentve, de minden új kuponbeállításhoz futtasd a friss Supabase SQL-eket.', true);
                 }
             }
 

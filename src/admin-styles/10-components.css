@@ -147,6 +147,13 @@
   color: var(--szoveg);
 }
 
+.admin-body .admin-panel-segedlet {
+  margin: 0 0 14px;
+  color: var(--admin-v2-muted);
+  font-size: var(--lumi-font-caption);
+  line-height: 1.45;
+}
+
 .admin-body .admin-statusz,
 .admin-body .admin-pill,
 .admin-body .admin-allapot-jelzes,

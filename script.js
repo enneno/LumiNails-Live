@@ -14,14 +14,17 @@ let galeriaElozoFokusz = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     tisztaUrlBeallitasa();
-    Promise.all([fejlecBetoltese(), lablecBetoltese()])
-        .then(() => adatokBetoltese())
-        .then(async adatok => {
+    oldalTartalomMegjelenitese();
+    const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
+    Promise.all([oldalvaz, adatokBetoltese()])
+        .then(([, adatok]) => {
             oldalAdatokAlkalmazasa(adatok);
-            await onlineTelefonLathatosagAlkalmazasa();
-            await onlineArlistaBetoltese();
-            await onlineKuponokBetolteseEsMegjelenitese();
             galeriaBekotese();
+            Promise.allSettled([
+                onlineTelefonLathatosagAlkalmazasa(),
+                onlineArlistaBetoltese(),
+                onlineKuponokBetolteseEsMegjelenitese()
+            ]);
         })
         .catch(error => {
             console.warn('Lumi Nails tartalom betöltési hiba:', error);
@@ -135,10 +138,10 @@ function lumiAlapOldalAdatok() {
                 cim: 'SZOLGÁLTATÁSOK',
                 leiras: 'Letisztult alapoktól az egyedi díszítésig — minden szett személyre szabva, nyugodt tempóban készül.',
                 kartyak: [
-                    { cim: 'Körömépítés & Töltés', leiras: 'S, M és L méretű zselés vagy porcelán műkörmök\nprecíz felhelyezése és rendszeres karbantartása.', linkSzoveg: 'Részletek és árak' },
-                    { cim: 'Díszítés / Nail Art', leiras: 'Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.', linkSzoveg: 'Részletek' },
-                    { cim: 'Gél Lakk', leiras: 'Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.', linkSzoveg: 'Részletek és árak' },
-                    { cim: 'Manikűr', leiras: 'Klasszikus körömápolás, gél lakk szakszerű eltávolítása\nés a kezek kényeztető felfrissítése.', linkSzoveg: 'Részletek és árak' }
+                    { cim: 'Körömépítés & Töltés', leiras: 'S, M és L méretű zselés vagy porcelán műkörmök\nprecíz felhelyezése és rendszeres karbantartása.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-epites.jpg' },
+                    { cim: 'Díszítés / Nail Art', leiras: 'Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.', linkSzoveg: 'Részletek', kep: '/kepek/szolgaltatas-diszites.jpg' },
+                    { cim: 'Gél Lakk', leiras: 'Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-gel-lakk.jpg' },
+                    { cim: 'Manikűr', leiras: 'Klasszikus körömápolás, gél lakk szakszerű eltávolítása\nés a kezek kényeztető felfrissítése.', linkSzoveg: 'Részletek és árak', kep: '/kepek/szolgaltatas-manikur.jpg' }
                 ]
             },
             galeriaAtvezeto: {
@@ -1295,6 +1298,14 @@ function oldalAdatokNormalizalasa(adatok, alap) {
         adatok.fooldal.hero.kep = alap?.fooldal?.hero?.kep || '/kepek/hero-turkiz.jpg';
     }
 
+    const alapKartyak = alap?.fooldal?.szolgaltatasok?.kartyak || [];
+    const taroltKartyak = Array.isArray(adatok.fooldal.szolgaltatasok.kartyak)
+        ? adatok.fooldal.szolgaltatasok.kartyak
+        : [];
+    adatok.fooldal.szolgaltatasok.kartyak = Array.from({ length: 4 }, (_elem, index) =>
+        melyOsszefesules(alapKartyak[index] || {}, taroltKartyak[index] || {})
+    );
+
     const kivalasztottKepek = Array.isArray(adatok.fooldal.galeriaAtvezeto.kivalasztottKepek)
         ? adatok.fooldal.galeriaAtvezeto.kivalasztottKepek
         : [];
@@ -1521,11 +1532,11 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
         const heroKepSrc = heroAdatok.kep;
 
         if (heroKep) {
-            heroKep.src = heroKepSrc;
-            heroKep.alt = heroAdatok.kepAlt || 'Lumi Nails nyitókép';
             heroKep.loading = 'eager';
             heroKep.decoding = 'async';
             if ('fetchPriority' in heroKep) heroKep.fetchPriority = 'high';
+            heroKep.alt = heroAdatok.kepAlt || 'Lumi Nails nyitókép';
+            heroKep.src = heroKepSrc;
             hero.style.backgroundImage = 'none';
             hero.removeAttribute('role');
         } else {
@@ -1546,12 +1557,12 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     }
     szovegBeallitasa('.bemutatkozas-kep-jelveny > span', bemutatkozas.jelvenyCim);
     szovegBeallitasa('.bemutatkozas-kep-jelveny > small', bemutatkozas.jelvenyAlcim);
-    kepBeallitasa('.bemutatkozas-kep img', bemutatkozas.kep, bemutatkozas.kepAlt);
     const bemutatkozasKep = document.querySelector('.bemutatkozas-kep img');
     if (bemutatkozasKep) {
-        bemutatkozasKep.loading = 'eager';
+        bemutatkozasKep.loading = 'lazy';
         bemutatkozasKep.decoding = 'async';
     }
+    kepBeallitasa('.bemutatkozas-kep img', bemutatkozas.kep, bemutatkozas.kepAlt);
 
     szolgaltatasKartyakRenderelese(fooldal.szolgaltatasok);
     galeriaAtvezetoAlkalmazasa(fooldal.galeriaAtvezeto, teljesGaleria);
@@ -1623,6 +1634,12 @@ function szolgaltatasOldalAdatokAlkalmazasa(oldalak, galeria) {
     szovegBeallitasa('.seo-szolgaltatas-hero .szekcio-kicker', oldal.kicker, gyoker);
     szovegBeallitasa('.seo-szolgaltatas-hero h1', oldal.cim, gyoker);
     szovegBeallitasa('.seo-szolgaltatas-hero-szoveg > p', oldal.leiras, gyoker);
+    const heroKep = gyoker.querySelector('.seo-szolgaltatas-hero-kep img');
+    if (heroKep) {
+        heroKep.loading = 'eager';
+        heroKep.decoding = 'async';
+        if ('fetchPriority' in heroKep) heroKep.fetchPriority = 'high';
+    }
     kepBeallitasa('.seo-szolgaltatas-hero-kep img', oldal.kep, oldal.kepAlt);
 
     const bevezeto = gyoker.querySelector('.seo-szolgaltatas-bevezeto');
@@ -1745,6 +1762,8 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
             || megjelenesek[index % megjelenesek.length];
         const doboz = document.createElement('article');
         doboz.className = `szolgaltatas-kartya szolgaltatas-kartya--${megjelenes.valtozat}`;
+        const kepUrl = biztonsagosKepUrl(kartya.kep);
+        if (kepUrl) doboz.style.setProperty('--service-image', `url("${kepUrl}")`);
 
         const fej = document.createElement('div');
         fej.className = 'szolgaltatas-kartya-fej';
@@ -1771,6 +1790,17 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
         doboz.append(fej, cim, leiras, link);
         racs.appendChild(doboz);
     });
+}
+
+function biztonsagosKepUrl(ertek) {
+    if (!ertek) return '';
+    try {
+        const url = new URL(String(ertek), window.location.origin);
+        if (!['http:', 'https:'].includes(url.protocol)) return '';
+        return url.href.replace(/["'()\\\s]/g, karakter => encodeURIComponent(karakter));
+    } catch (_error) {
+        return '';
+    }
 }
 
 function szolgaltatasKartyaLinkje(valtozat) {
@@ -1829,10 +1859,10 @@ function galeriaAtvezetoAlkalmazasa(galeria, teljesGaleria) {
             return;
         }
 
-        if (kep.src) kepek[index].src = kep.src;
-        if (kep.alt) kepek[index].alt = kep.alt;
         kepek[index].loading = index < 2 ? 'eager' : 'lazy';
         kepek[index].decoding = 'async';
+        if (kep.alt) kepek[index].alt = kep.alt;
+        if (kep.src) kepek[index].src = kep.src;
     });
 }
 

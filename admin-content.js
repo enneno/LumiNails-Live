@@ -7,6 +7,9 @@
     const IMAGE_UPLOAD_PREVIEW_MAX_BYTES = 110 * 1024;
     const IMAGE_UPLOAD_PREVIEW_QUALITY = 0.76;
     const IMAGE_UPLOAD_MIN_QUALITY = 0.56;
+    const SERVICE_CARD_IMAGE_MAX_SIDE = 1200;
+    const SERVICE_CARD_IMAGE_MAX_BYTES = 220 * 1024;
+    const SERVICE_CARD_IMAGE_QUALITY = 0.8;
     const BUCKET = window.LUMI_MEDIA_BUCKET || 'site-media';
     const GALLERY_SELECTIONS = {
         home: {
@@ -91,7 +94,7 @@
         },
         {
             title: 'Főoldal – szolgáltatások',
-            description: 'A főoldalon látható négy rövid szolgáltatásleírás. Az árak és időtartamok az Árlista menüben kezelhetők.',
+            description: 'A főoldalon látható négy szolgáltatáskártya szövege és háttérképe. A feltöltött képeket a rendszer automatikusan webes méretre tömöríti.',
             fields: [
                 field('fooldal.szolgaltatasok.kicker', 'Kis felső szöveg'),
                 field('fooldal.szolgaltatasok.cim', 'Szekció címe'),
@@ -402,10 +405,10 @@
         ],
         3: [
             ['Szekció bevezetője', 0, 2],
-            ['1. szolgáltatáskártya', 3, 5],
-            ['2. szolgáltatáskártya', 6, 8],
-            ['3. szolgáltatáskártya', 9, 11],
-            ['4. szolgáltatáskártya', 12, 14]
+            ['1. szolgáltatáskártya', 3, 6],
+            ['2. szolgáltatáskártya', 7, 10],
+            ['3. szolgáltatáskártya', 11, 14],
+            ['4. szolgáltatáskártya', 15, 18]
         ],
         8: [
             ['Oldal bevezetője', 0, 2],
@@ -482,7 +485,8 @@
         return [
             field(`${base}.${index}.cim`, `${label} címe`),
             field(`${base}.${index}.leiras`, `${label} szövege`, 'textarea'),
-            field(`${base}.${index}.linkSzoveg`, `${label} linkjének szövege`)
+            field(`${base}.${index}.linkSzoveg`, `${label} linkjének szövege`),
+            image(`${base}.${index}.kep`, `${label} háttérképe`)
         ];
     }
 
@@ -1006,7 +1010,10 @@
 
         try {
             status(`Kép optimalizálása: ${file.name}...`);
-            const valtozatok = await optimizeImageFile(file, { includePreview: galeriaKep });
+            const valtozatok = await optimizeImageFile(file, {
+                includePreview: galeriaKep,
+                ...imageOptimizationProfile(path)
+            });
             const alapUtvonal = `uploads/${new Date().toISOString().slice(0, 10)}/${Date.now()}-${randomId()}`;
 
             status(`Optimalizált kép feltöltése: ${file.name}...`);
@@ -1287,7 +1294,22 @@
         return normalized;
     }
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
-    async function optimizeImageFile(file, { includePreview = false } = {}) {
+    function imageOptimizationProfile(path) {
+        if (/^fooldal\.szolgaltatasok\.kartyak\.\d+\.kep$/.test(path)) {
+            return {
+                fullMaxSide: SERVICE_CARD_IMAGE_MAX_SIDE,
+                fullMaxBytes: SERVICE_CARD_IMAGE_MAX_BYTES,
+                fullQuality: SERVICE_CARD_IMAGE_QUALITY
+            };
+        }
+        return {};
+    }
+    async function optimizeImageFile(file, {
+        includePreview = false,
+        fullMaxSide = IMAGE_UPLOAD_FULL_MAX_SIDE,
+        fullMaxBytes = IMAGE_UPLOAD_FULL_MAX_BYTES,
+        fullQuality = IMAGE_UPLOAD_FULL_QUALITY
+    } = {}) {
         const tamogatottTipusok = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
         if (!tamogatottTipusok.has(String(file.type || '').toLowerCase())) {
             throw new Error('Ez a képformátum nem alakítható át biztonságosan.');
@@ -1298,9 +1320,9 @@
             image = await loadImageFile(file);
             const outputFormat = await preferredCanvasOutputFormat();
             const full = await createOptimizedVariant(image, file.name, {
-                maxSide: IMAGE_UPLOAD_FULL_MAX_SIDE,
-                maxBytes: IMAGE_UPLOAD_FULL_MAX_BYTES,
-                quality: IMAGE_UPLOAD_FULL_QUALITY,
+                maxSide: fullMaxSide,
+                maxBytes: fullMaxBytes,
+                quality: fullQuality,
                 suffix: 'full',
                 outputFormat
             });
