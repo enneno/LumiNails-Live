@@ -1115,7 +1115,11 @@
 
         state.dirty = false;
         updateSaveLabel();
-        status('Minden tartalom elmentve. A publikus oldalon frissítés után látható.');
+        status('Minden tartalom elmentve. A keresőbarát HTML frissítése indul...');
+        const htmlFrissites = await window.lumiPublikusHtmlFrissitesKerese?.('site_content_mentve');
+        status(htmlFrissites?.ok
+            ? 'Minden tartalom elmentve. A publikus HTML néhány percen belül frissül.'
+            : 'Minden tartalom elmentve. A publikus HTML a következő kiadáskor frissül.');
     }
 
     function markDirtyAndRenderGallery() {

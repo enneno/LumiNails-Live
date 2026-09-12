@@ -12,3 +12,4 @@ preview-*.png
 playwright-report/
 test-results/
 output/playwright/
+supabase/.temp/

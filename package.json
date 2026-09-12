@@ -5,6 +5,7 @@
   "description": "Lumi Nails statikus weboldal helyi ellenőrző és kiadási eszközökkel",
   "scripts": {
     "serve": "node scripts/static-server.js --port 8101",
+    "prerender": "node scripts/prerender-public.js",
     "build": "node scripts/build-assets.js",
     "build:check": "node scripts/build-assets.js --check",
     "assets:version": "node scripts/update-asset-versions.js",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "lighthouse": "^13.4.1",
+    "linkedom": "^0.18.13",
     "playwright": "^1.61.1",
     "prettier": "^3.9.6",
     "sharp": "^0.35.4",

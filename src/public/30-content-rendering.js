@@ -886,7 +886,6 @@ function foglalasAtvezetoAlkalmazasa(foglalasAtvezeto) {
 }
 function arlistaAdatokAlkalmazasa(arlista) {
     const szekcio = document.querySelector('.arlista-oldal');
-    const panel = szekcio?.querySelector('.arlista-panel');
 
     if (!szekcio || !arlista) {
         return;
@@ -894,69 +893,6 @@ function arlistaAdatokAlkalmazasa(arlista) {
 
     szovegBeallitasa('h1', arlista.cim, szekcio);
     szovegBeallitasa('.szekcio-leiras', arlista.leiras, szekcio);
-
-    if (!panel || !Array.isArray(arlista.csoportok)) {
-        return;
-    }
-
-    panel.innerHTML = '';
-
-    const felsoCsoportok = arlista.csoportok.slice(0, 2);
-    const alsoCsoportok = arlista.csoportok.slice(2);
-
-    if (felsoCsoportok.length) {
-        const ketOszlop = document.createElement('div');
-        ketOszlop.className = 'arlista-ket-oszlop';
-        felsoCsoportok.forEach(csoport => ketOszlop.appendChild(arlistaCsoportLetrehozasa(csoport)));
-        panel.appendChild(ketOszlop);
-    }
-
-    alsoCsoportok.forEach(csoport => panel.appendChild(arlistaCsoportLetrehozasa(csoport)));
-
-    if (arlista.megjegyzes) {
-        const megjegyzes = document.createElement('p');
-        megjegyzes.className = 'arlista-megjegyzes';
-        megjegyzes.textContent = arlista.megjegyzes;
-        panel.appendChild(megjegyzes);
-    }
-}
-
-function arlistaCsoportLetrehozasa(csoport) {
-    const doboz = document.createElement('div');
-    doboz.className = 'arlista-csoport';
-
-    const cim = document.createElement('h3');
-    cim.textContent = csoport.cim || '';
-    doboz.appendChild(cim);
-
-    (csoport.tetelek || []).forEach(tetel => {
-        const sor = document.createElement('div');
-        sor.className = 'arlista-sor';
-
-        const nev = document.createElement('span');
-        nev.textContent = tetel.nev || '';
-
-        const reszlet = document.createElement('strong');
-        const ar = document.createElement('span');
-        ar.className = 'arlista-ar';
-        ar.textContent = tetel.ar || '';
-
-        reszlet.appendChild(ar);
-
-        const idoSzoveg = idoMegjelenitese(tetel);
-
-        if (idoSzoveg) {
-            const ido = document.createElement('span');
-            ido.className = 'arlista-ido';
-            ido.textContent = idoSzoveg;
-            reszlet.appendChild(ido);
-        }
-
-        sor.append(nev, reszlet);
-        doboz.appendChild(sor);
-    });
-
-    return doboz;
 }
 
 function foglalasAdatokAlkalmazasa(foglalas, arlista) {
@@ -1195,7 +1131,14 @@ async function onlineArlistaBetoltese() {
     const config = window.LUMI_SUPABASE;
     const supabaseLib = window.supabase;
 
-    if (!panel || !config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
+    if (!panel) {
+        return;
+    }
+
+    if (!config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
+        if (!panel.querySelector('.arlista-sor')) {
+            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
+        }
         return;
     }
 
@@ -1215,7 +1158,15 @@ async function onlineArlistaBetoltese() {
                 .order('sort_order', { ascending: true }));
         }
 
-        if (error || !Array.isArray(data) || data.length === 0) {
+        if (error) {
+            if (!panel.querySelector('.arlista-sor')) {
+                arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
+            }
+            return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+            arlistaAllapotMegjelenitese('Jelenleg nincs megjeleníthető szolgáltatás az árlistában.');
             return;
         }
 
@@ -1232,8 +1183,27 @@ async function onlineArlistaBetoltese() {
             ervenyesseg?.value?.effective_since || ervenyesseg?.updated_at
         );
     } catch (_error) {
-        // Ha a Supabase nem elerheto, a statikus arlista marad lathato.
+        if (!panel.querySelector('.arlista-sor')) {
+            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
+        }
     }
+}
+
+function arlistaAllapotMegjelenitese(uzenet, hiba = false) {
+    const panel = document.querySelector('.arlista-oldal .arlista-panel');
+
+    if (!panel) {
+        return;
+    }
+
+    const allapot = document.createElement('p');
+    allapot.className = `arlista-allapot${hiba ? ' arlista-allapot--hiba' : ''}`;
+    allapot.setAttribute('role', hiba ? 'alert' : 'status');
+    allapot.textContent = uzenet;
+
+    panel.innerHTML = '';
+    panel.setAttribute('aria-busy', 'false');
+    panel.appendChild(allapot);
 }
 
 function arlistaErvenyessegMegjelenitese(idopont) {
@@ -1299,6 +1269,8 @@ function arlistaSzolgaltatasokRenderelese(szolgaltatasok) {
     alsoCsoportNevek.forEach(csoportNev => {
         panel.appendChild(onlineArlistaCsoportLetrehozasa(csoportNev, csoportok.get(csoportNev)));
     });
+
+    panel.setAttribute('aria-busy', 'false');
 }
 
 function arlistaNevBontasa(teljesNev) {

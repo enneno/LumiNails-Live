@@ -3967,6 +3967,30 @@ function arlistaFeliratokFrissitese() {
         }
     }
 
+    async function publikusHtmlFrissitesKerese(ok = 'tartalom') {
+        if (!allapot.kliens || !allapot.session) {
+            return { ok: false, reason: 'nincs_admin_munkamenet' };
+        }
+
+        try {
+            const { data, error } = await allapot.kliens.functions.invoke('request-live-site-rebuild', {
+                body: { reason: String(ok || 'tartalom').slice(0, 80) }
+            });
+
+            if (error || data?.ok !== true) {
+                console.warn('A publikus HTML frissítése nem indult el:', error || data);
+                return { ok: false, reason: data?.error || error?.message || 'ismeretlen_hiba' };
+            }
+
+            return { ok: true };
+        } catch (error) {
+            console.warn('A publikus HTML frissítése nem indult el:', error);
+            return { ok: false, reason: error?.message || 'ismeretlen_hiba' };
+        }
+    }
+
+    window.lumiPublikusHtmlFrissitesKerese = publikusHtmlFrissitesKerese;
+
     async function szolgaltatasokBetoltese() {
         const elemek = adminElemek();
         let { data, error } = await allapot.kliens
@@ -4141,7 +4165,7 @@ function arlistaFeliratokFrissitese() {
             return;
         }
 
-        onlineStatusz('Új árlista tétel létrehozva.');
+        onlineStatusz('Új árlista tétel létrehozva. Töltsd ki, majd mentsd az árlistát.');
         szolgaltatasokBetoltese();
     }
 
@@ -4166,7 +4190,8 @@ function arlistaFeliratokFrissitese() {
 
         if (event.target.closest('[data-szolgaltatas-torles]')) {
             if (!window.confirm('Biztosan törlöd ezt az árlista tételt? A hozzá tartozó korábbi foglalások miatt a törlés sikertelen lehet.')) return;
-            await rekordTorlese('services', kartya.dataset.id, szolgaltatasokBetoltese);
+            const torolve = await rekordTorlese('services', kartya.dataset.id, szolgaltatasokBetoltese);
+            if (torolve) await publikusHtmlFrissitesKerese('szolgaltatas_torolve');
         }
     }
 
@@ -4217,9 +4242,12 @@ function arlistaFeliratokFrissitese() {
             }
         }
 
-        onlineStatusz('Árlista mentve.');
         await szolgaltatasokBetoltese();
         kuponokBetoltese();
+        const htmlFrissites = await publikusHtmlFrissitesKerese('arlista_mentve');
+        onlineStatusz(htmlFrissites.ok
+            ? 'Árlista mentve. A publikus HTML frissítése elindult.'
+            : 'Árlista mentve. A publikus HTML a következő kiadáskor frissül.');
     }
 
     function szolgaltatasPayload(kartya) {
@@ -5648,7 +5676,7 @@ function arlistaFeliratokFrissitese() {
     }
     async function rekordTorlese(tabla, id, frissites) {
         if (!id) {
-            return;
+            return false;
         }
 
         onlineStatusz('Törlés...');
@@ -5660,11 +5688,12 @@ function arlistaFeliratokFrissitese() {
 
         if (error) {
             onlineStatusz('Nem sikerült törölni. Lehet, hogy más adat még hivatkozik rá.', true);
-            return;
+            return false;
         }
 
         onlineStatusz('Törölve.');
-        frissites();
+        await frissites();
+        return true;
     }
 
     function adminTabValtas(tab) {

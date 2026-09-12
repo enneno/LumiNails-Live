@@ -7,6 +7,11 @@ on:
         description: "Írd be: UJRATELEPITES"
         required: true
         type: string
+  repository_dispatch:
+    types:
+      - live-site-content-updated
+  schedule:
+    - cron: "17,47 * * * *"
 
 concurrency:
   group: pages
@@ -24,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Confirm recovery redeploy
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         env:
           CONFIRMATION: ${{ inputs.confirmation }}
@@ -40,7 +46,37 @@ jobs:
         shell: bash
         run: grep -qx 'luminails.hu' CNAME
 
-      - name: Prepare current Pages artifact
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Prepare current public HTML
+        shell: bash
+        run: |
+          npm ci
+          npm run prerender
+          npm run build
+          npm run assets:version
+
+      - name: Check whether scheduled content changed
+        if: github.event_name == 'schedule'
+        id: freshness
+        shell: bash
+        run: |
+          local_fingerprint="$(sed -n 's/.*data-lumi-content-fingerprint="\([a-f0-9]*\)".*/\1/p' index.html | head -n 1)"
+          deployed_fingerprint="$(curl --fail --silent --show-error --max-time 20 https://luminails.hu/ | sed -n 's/.*data-lumi-content-fingerprint="\([a-f0-9]*\)".*/\1/p' | head -n 1 || true)"
+          if [[ -n "$local_fingerprint" && "$local_fingerprint" == "$deployed_fingerprint" ]]; then
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "A publikus tartalom nem változott; nincs szükség új éles deployra."
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "A publikus tartalom változott; indul az éles deploy."
+          fi
+
+      - name: Prepare live Pages artifact
+        if: github.event_name != 'schedule' || steps.freshness.outputs.deploy == 'true'
         shell: bash
         run: |
           artifact_dir="${RUNNER_TEMP}/live-site"
@@ -54,14 +90,16 @@ jobs:
             ./ "$artifact_dir/"
 
       - name: Setup Pages
+        if: github.event_name != 'schedule' || steps.freshness.outputs.deploy == 'true'
         uses: actions/configure-pages@v5
 
       - name: Upload static files
+        if: github.event_name != 'schedule' || steps.freshness.outputs.deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: ${{ runner.temp }}/live-site
-          include-hidden-files: true
 
       - name: Deploy to GitHub Pages
+        if: github.event_name != 'schedule' || steps.freshness.outputs.deploy == 'true'
         id: deployment
         uses: actions/deploy-pages@v4

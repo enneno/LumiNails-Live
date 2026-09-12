@@ -13,6 +13,7 @@ let galeriaElozoFokusz = null;
 document.addEventListener('DOMContentLoaded', function () {
     tisztaUrlBeallitasa();
     oldalTartalomMegjelenitese();
+    const arlistaBetoltes = onlineArlistaBetoltese();
     const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
     Promise.all([oldalvaz, adatokBetoltese()])
         .then(([, adatok]) => {
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
             galeriaBekotese();
             Promise.allSettled([
                 onlineTelefonLathatosagAlkalmazasa(),
-                onlineArlistaBetoltese(),
+                arlistaBetoltes,
                 onlineKuponokBetolteseEsMegjelenitese()
             ]);
         })

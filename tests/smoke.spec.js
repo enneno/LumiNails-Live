@@ -4,6 +4,51 @@ const fs = require('node:fs');
 
 const publicPages = ['/', '/arlista/', '/galeria/', '/foglalas/', '/fiokom/', '/adatkezeles/'];
 
+test('a publikus alapadatok JavaScript nélkül is benne vannak a HTML-ben', () => {
+    const arlistaHtml = fs.readFileSync(path.resolve(__dirname, '..', 'arlista', 'index.html'), 'utf8');
+    expect(arlistaHtml).not.toContain('1 óra 00 perc');
+    expect(arlistaHtml).toContain('class="arlista-sor"');
+    expect(arlistaHtml).toContain('aria-busy="false"');
+    expect(arlistaHtml).toContain('id="lumi-price-list-data"');
+    expect(arlistaHtml).not.toContain('Árlista betöltése…');
+
+    const root = path.resolve(__dirname, '..');
+    const pages = [
+        'index.html',
+        'arlista/index.html',
+        'galeria/index.html',
+        'foglalas/index.html',
+        'gel-lakk-tatabanya/index.html',
+        'korom-diszites-nail-art-tatabanya/index.html',
+        'manikur-tatabanya/index.html',
+        'mukorom-epites-toltes/index.html'
+    ];
+    for (const page of pages) {
+        const html = fs.readFileSync(path.join(root, page), 'utf8');
+        expect(html).toContain('<header class="site-header">');
+        expect(html).toContain('<footer class="site-footer">');
+        expect(html).toContain('data-lumi-content-updated-at=');
+        expect(html).toMatch(/data-lumi-content-fingerprint="[a-f0-9]{20}"/);
+    }
+
+    const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
+    for (const route of [
+        '/mukorom-epites-toltes/',
+        '/gel-lakk-tatabanya/',
+        '/manikur-tatabanya/',
+        '/korom-diszites-nail-art-tatabanya/'
+    ]) {
+        expect(sitemap).toContain(`https://luminails.hu${route}`);
+    }
+});
+
+test('az előrenderelt árlista átmeneti adatkapcsolati hibánál is megmarad', async ({ page }) => {
+    await page.route('**/rest/v1/services*', route => route.abort('failed'));
+    await page.goto('/arlista/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.arlista-sor')).toHaveCount(18);
+    await expect(page.locator('.arlista-allapot--hiba')).toHaveCount(0);
+});
+
 function adminStyles() {
     const directory = path.resolve(__dirname, '..', 'src', 'admin-styles');
     return fs.readdirSync(directory)

@@ -172,7 +172,7 @@
             return;
         }
 
-        onlineStatusz('Új árlista tétel létrehozva.');
+        onlineStatusz('Új árlista tétel létrehozva. Töltsd ki, majd mentsd az árlistát.');
         szolgaltatasokBetoltese();
     }
 
@@ -197,7 +197,8 @@
 
         if (event.target.closest('[data-szolgaltatas-torles]')) {
             if (!window.confirm('Biztosan törlöd ezt az árlista tételt? A hozzá tartozó korábbi foglalások miatt a törlés sikertelen lehet.')) return;
-            await rekordTorlese('services', kartya.dataset.id, szolgaltatasokBetoltese);
+            const torolve = await rekordTorlese('services', kartya.dataset.id, szolgaltatasokBetoltese);
+            if (torolve) await publikusHtmlFrissitesKerese('szolgaltatas_torolve');
         }
     }
 
@@ -248,9 +249,12 @@
             }
         }
 
-        onlineStatusz('Árlista mentve.');
         await szolgaltatasokBetoltese();
         kuponokBetoltese();
+        const htmlFrissites = await publikusHtmlFrissitesKerese('arlista_mentve');
+        onlineStatusz(htmlFrissites.ok
+            ? 'Árlista mentve. A publikus HTML frissítése elindult.'
+            : 'Árlista mentve. A publikus HTML a következő kiadáskor frissül.');
     }
 
     function szolgaltatasPayload(kartya) {

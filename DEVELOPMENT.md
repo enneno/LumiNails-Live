@@ -11,7 +11,7 @@ Az éles `luminails.hu` GitHub-tároló az `enneno/LumiNails-Live`. Ebben normá
 
 1. A módosítás a `LumiNails_test` mappában készül el.
 2. A módosítást helyileg, az `AGENTS.md` kockázatalapú szabályai szerint kell ellenőrizni. Kis vizuális változásnál nem kell teljes tesztcsomag.
-3. Az `enneno/enneno.github.io` `main` ágára kerülő commit automatikusan a tesztoldalra települ, GitHubon futó alkalmazásteszt nélkül.
+3. Az `enneno/LumiNails-Live` `main` ágára kerülő, helyileg ellenőrzött commit automatikusan a `luminails.hu` oldalra települ, GitHubon futó alkalmazásteszt nélkül.
 4. A tesztoldalon manuálisan csak a változás által érintett fontos működéseket és nézeteket kell ellenőrizni.
 5. Élesítéshez az `enneno/LumiNails-Live` tárolóban kézzel kell elindítani a `Promote tested site to luminails.hu` workflow-t, megadni az ellenőrzött TEST commitot vagy ágat, majd beírni az `ELESITES` megerősítést.
 6. A workflow ellenőrzi, hogy a kiválasztott TEST commit sikeresen kikerült-e a tesztoldalra, megőrzi az éles `CNAME` és `.github` fájlokat, majd ugyanazt az ellenőrzött tartalmat új GitHub-teszt futtatása nélkül menti és telepíti a `luminails.hu` oldalra.
@@ -34,6 +34,7 @@ Az önálló `admin-content.js`, `supabase-config.js` és a HTML-fájlok tovább
 ## Parancsok
 
 - `npm run build` – összeállítja a böngészőnek szánt CSS/JS fájlokat.
+- `npm run prerender` – lekéri a nyilvános Supabase-tartalmat, majd valódi HTML-be írja a fejlécet, láblécet, képeket, galériát, szolgáltatásoldalakat és az aktuális árlistát. Hibás adatlekérésnél nem ír felül oldalt.
 - `npm run assets:version` – a fájlok tartalmából frissíti a cache-verziókat a HTML-ben.
 - `npm run lint:css` – gyors, helyi Stylelint-ellenőrzés a forrás-CSS fájlokra; CSS-módosítás után futtatandó.
 - `npm run check` – statikus ellenőrzések, szintaxis, hivatkozások, Supabase-kliens, CSS-szabályok és forrás/bundle egyezés.
@@ -45,6 +46,20 @@ Az önálló `admin-content.js`, `supabase-config.js` és a HTML-fájlok tovább
 - `npm run serve` – helyi szerver a 8101-es porton.
 
 Commit vagy push előtt a módosítás kockázatához illeszkedő legkisebb elegendő helyi ellenőrzést kell sikeresen elvégezni. A teljes `verify` nem általános előfeltétel.
+
+## Keresőbarát HTML és admin tartalomfrissítés
+
+A publikus oldal alapja előrenderelt HTML. A böngészőben futó JavaScript ezt az aktuális Supabase-adatokkal újraellenőrzi és szükség esetén frissíti, de a fő tartalom, a szolgáltatásoldalak, a galéria, az árlista és a belső navigáció JavaScript nélkül is olvasható.
+
+A tartalom- vagy árlistamentés után az admin a `request-live-site-rebuild` Supabase Edge Functionön keresztül `live-site-content-updated` eseményt küldhet a LIVE GitHub-tárolónak. Ettől függetlenül a deploy workflow 30 percenként összehasonlítja a nyilvános tartalom ujjlenyomatát, és csak változás esetén ad ki új oldalt. Így az adminból mentett adat legkésőbb a következő kiadási körben bekerül a HTML-be akkor is, ha a gyors értesítő Edge Function még nincs beállítva. A workflow nem futtat tesztet. Ha az előrenderelés adatlekérése hibázik, a workflow leáll, és a korábbi működő oldal marad kint.
+
+Az automatikus indításhoz egyszer kell:
+
+1. a `request-live-site-rebuild` Edge Functiont telepíteni;
+2. a Supabase Function Secretjei közé felvenni a csak az `enneno/LumiNails-Live` tárolóra, `Contents: Read and write` jogosultságra korlátozott `GITHUB_LIVE_DISPATCH_TOKEN` értéket;
+3. az admin azonosításához az `ADMIN_EMAIL` vagy a már használt `OWNER_EMAIL` secretet használni. A LIVE célrepo és az eseménytípus a funkcióban rögzített, így a TEST tároló nem érintett.
+
+A GitHub token kizárólag szerveroldali secret lehet; HTML-be, JavaScriptbe vagy naplóba nem kerülhet.
 
 A vizuális alapelvek és a CSS-felelősségek rövid forrása a `docs/design-system.md`. A bizonyított hibák, következetlenségek és külön jóváhagyást igénylő ötletek a `docs/visual-audit.md` fájlban vannak. Az új UI-munka előtt mindkettőt át kell nézni.
 

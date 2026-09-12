@@ -150,13 +150,17 @@ test.describe('célzott elrendezési és olvashatósági ellenőrzés', () => {
 
     test('az árlista a típust és a szolgáltatást hangsúlyozza az idő helyett', async ({ page }) => {
         await page.setViewportSize({ width: 1440, height: 1000 });
-        await page.goto('/arlista/', { waitUntil: 'domcontentloaded' });
+        await page.goto('/arlista/', { waitUntil: 'commit' });
 
-        const sizes = await page.evaluate(() => ({
-            category: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-csoport h3')).fontSize),
-            service: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-sor > span')).fontSize),
-            time: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-ido')).fontSize)
-        }));
+        const sizes = await page.evaluate(() => {
+            const panel = document.querySelector('.arlista-panel');
+            panel.innerHTML = '<div class="arlista-csoport"><h3>Próba</h3><div class="arlista-sor"><span>Szolgáltatás</span><strong><span class="arlista-ar">9999 Ft</span><span class="arlista-ido">1 óra</span></strong></div></div>';
+            return {
+                category: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-csoport h3')).fontSize),
+                service: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-sor > span')).fontSize),
+                time: Number.parseFloat(getComputedStyle(document.querySelector('.arlista-ido')).fontSize)
+            };
+        });
 
         expect(sizes.category).toBeGreaterThanOrEqual(28);
         expect(sizes.service).toBeGreaterThanOrEqual(20);

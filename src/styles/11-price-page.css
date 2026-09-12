@@ -40,6 +40,26 @@
     display: contents;
 }
 
+.arlista-allapot {
+    display: grid;
+    grid-column: 1 / -1;
+    place-items: center;
+    min-height: clamp(180px, 30vh, 320px);
+    margin: 0;
+    padding: 32px;
+    border: 1px solid var(--ui-line);
+    border-radius: var(--lumi-radius-card);
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+    font-size: var(--lumi-font-body);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.arlista-allapot--hiba {
+    color: var(--ui-ink);
+}
+
 .arlista-csoport,
 .arlista-ket-oszlop .arlista-csoport {
     margin: 0;

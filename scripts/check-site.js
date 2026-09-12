@@ -34,7 +34,8 @@ const EDGE_FUNCTION_FILES = [
     'supabase/functions/upload-booking-inspirations/index.ts',
     'supabase/functions/send-booking-email/index.ts',
     'supabase/functions/send-booking-update-email/index.ts',
-    'supabase/functions/process-booking-notifications/index.ts'
+    'supabase/functions/process-booking-notifications/index.ts',
+    'supabase/functions/request-live-site-rebuild/index.ts'
 ];
 const VERSIONED_ASSETS = CSS_FILES.concat(JS_FILES);
 const errors = [];
@@ -70,6 +71,16 @@ for (const htmlFile of HTML_FILES) {
     const filePath = path.join(ROOT, htmlFile);
     const html = fs.readFileSync(filePath, 'utf8');
 
+    if (!html.includes('data-lumi-content-updated-at=')) {
+        fail(htmlFile + ': hiányzik az előrenderelt tartalom időbélyege. Futtasd az npm run prerender parancsot.');
+    }
+    if (!/data-lumi-content-fingerprint="[a-f0-9]{20}"/.test(html)) {
+        fail(htmlFile + ': hiányzik az előrenderelt tartalom ujjlenyomata.');
+    }
+    if (!html.includes('<header class="site-header">') || !html.includes('<footer class="site-footer">')) {
+        fail(htmlFile + ': a közös fejléc vagy lábléc nincs benne a statikus HTML-ben.');
+    }
+
     if (!html.includes('@supabase/supabase-js@2.110.7')) {
         fail(htmlFile + ': a Supabase CDN nincs 2.110.7 verzióra rögzítve.');
     }
@@ -98,6 +109,26 @@ for (const htmlFile of HTML_FILES) {
         if (!fs.existsSync(path.join(ROOT, relative))) {
             fail(htmlFile + ': hiányzó helyi hivatkozás: ' + match[1]);
         }
+    }
+}
+
+const priceHtml = fs.readFileSync(path.join(ROOT, 'arlista/index.html'), 'utf8');
+if (!priceHtml.includes('class="arlista-sor"') || priceHtml.includes('Árlista betöltése…')) {
+    fail('Árlista: az aktuális szolgáltatások nincsenek előrenderelve a HTML-be.');
+}
+if (!priceHtml.includes('id="lumi-price-list-data"') || !priceHtml.includes('aria-busy="false"')) {
+    fail('Árlista: hiányzik a statikus strukturált adat vagy a kész állapot.');
+}
+
+const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+for (const route of [
+    '/mukorom-epites-toltes/',
+    '/gel-lakk-tatabanya/',
+    '/manikur-tatabanya/',
+    '/korom-diszites-nail-art-tatabanya/'
+]) {
+    if (!sitemap.includes(`<loc>https://luminails.hu${route}</loc>`)) {
+        fail('Sitemap: hiányzó szolgáltatásoldal: ' + route);
     }
 }
 

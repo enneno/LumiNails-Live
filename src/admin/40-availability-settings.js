@@ -486,7 +486,7 @@
     }
     async function rekordTorlese(tabla, id, frissites) {
         if (!id) {
-            return;
+            return false;
         }
 
         onlineStatusz('Törlés...');
@@ -498,11 +498,12 @@
 
         if (error) {
             onlineStatusz('Nem sikerült törölni. Lehet, hogy más adat még hivatkozik rá.', true);
-            return;
+            return false;
         }
 
         onlineStatusz('Törölve.');
-        frissites();
+        await frissites();
+        return true;
     }
 
     function adminTabValtas(tab) {
