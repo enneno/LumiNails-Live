@@ -26,4 +26,9 @@ test('a fontos publikus tartalom JavaScript nélkül is olvasható', async ({ pa
     await page.goto('/galeria/', { waitUntil: 'domcontentloaded' });
     expect(await page.locator('.galeria-racs img').count()).toBeGreaterThan(0);
     await expect(page.locator('.galeria-racs img').first()).toHaveAttribute('alt', /.+/);
+
+    const notFound = await page.goto('/nem-letezo-oldal-20260912/', { waitUntil: 'domcontentloaded' });
+    expect(notFound?.status()).toBe(404);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
+    await expect(page.locator('#hibas-oldal-cim')).toHaveText('Ezt az oldalt nem találjuk.');
 });

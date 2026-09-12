@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "..");
 const SITE_ORIGIN = "https://luminails.hu";
 const PAGE_PATHS = [
   ["index.html", "/"],
+  ["404.html", "/404.html"],
   ["adatkezeles/index.html", "/adatkezeles/"],
   ["admin/index.html", "/admin/"],
   ["arlista/index.html", "/arlista/"],
@@ -21,6 +22,16 @@ const PAGE_PATHS = [
   ],
   ["manikur-tatabanya/index.html", "/manikur-tatabanya/"],
   ["mukorom-epites-toltes/index.html", "/mukorom-epites-toltes/"],
+];
+const SITEMAP_PATHS = [
+  "/",
+  "/mukorom-epites-toltes/",
+  "/gel-lakk-tatabanya/",
+  "/manikur-tatabanya/",
+  "/korom-diszites-nail-art-tatabanya/",
+  "/arlista/",
+  "/galeria/",
+  "/foglalas/",
 ];
 const RENDER_SOURCES = [
   "src/public/10-default-content.js",
@@ -51,10 +62,20 @@ async function main() {
   for (const [relativePath, content] of renderedFiles) {
     fs.writeFileSync(path.join(ROOT, relativePath), content, "utf8");
   }
+  writeSitemap();
 
   console.log(
     `PRERENDERED ${PAGE_PATHS.length} HTML oldal, ${snapshot.services.length} aktív szolgáltatás.`,
   );
+}
+
+function writeSitemap() {
+  const lastmod = new Date().toISOString().slice(0, 10);
+  const urls = SITEMAP_PATHS.map(
+    (pathname) => `    <url>\n        <loc>${SITE_ORIGIN}${pathname}</loc>\n        <lastmod>${lastmod}</lastmod>\n    </url>`,
+  ).join("\n");
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  fs.writeFileSync(path.join(ROOT, "sitemap.xml"), sitemap, "utf8");
 }
 
 function renderPage({
@@ -224,12 +245,23 @@ function addPriceListStructuredData(document, services) {
           "@type": "Service",
           name: service.name,
           description: [
+            service.description,
             service.price_text,
             durationLabel(service.duration_minutes),
           ]
             .filter(Boolean)
             .join(" · "),
           provider: { "@id": `${SITE_ORIGIN}/#lumi-nails` },
+          ...(buildServiceOffer(service) ? {
+            offers: buildServiceOffer(service),
+          } : {}),
+          ...(Number(service.duration_minutes) > 0 ? {
+            additionalProperty: [{
+              "@type": "PropertyValue",
+              name: "Időtartam",
+              value: durationLabel(service.duration_minutes),
+            }],
+          } : {}),
         },
       })),
     },
@@ -237,6 +269,32 @@ function addPriceListStructuredData(document, services) {
     2,
   );
   document.head.appendChild(script);
+}
+
+function buildServiceOffer(service) {
+  const amount = Number(service.price_amount);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  const unit = String(service.price_unit || "").trim();
+  const isUnitPrice = /^Ft\//i.test(unit);
+  const offer = {
+    "@type": "Offer",
+    availability: "https://schema.org/InStock",
+  };
+
+  if (isUnitPrice) {
+    offer.priceSpecification = {
+      "@type": "UnitPriceSpecification",
+      price: amount,
+      priceCurrency: "HUF",
+      unitText: unit.replace(/^Ft\//i, ""),
+    };
+  } else {
+    offer.price = amount;
+    offer.priceCurrency = "HUF";
+  }
+
+  return offer;
 }
 
 function durationLabel(value) {

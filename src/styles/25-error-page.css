@@ -1,0 +1,52 @@
+body.hibas-oldal {
+    background: var(--ui-bg);
+}
+
+.hibas-oldal-tartalom {
+    display: grid;
+    min-height: min(620px, calc(100dvh - var(--ui-header-height) - 280px));
+    place-items: center;
+    padding: clamp(56px, 9vw, 112px) var(--lumi-section-padding-inline);
+}
+
+.hibas-oldal-kartya {
+    width: min(100%, 680px);
+    padding: clamp(28px, 5vw, 56px);
+    border: 1px solid var(--ui-line-strong);
+    border-radius: var(--lumi-radius-card);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow);
+    text-align: center;
+}
+
+.hibas-oldal-kartya h1 {
+    margin: 12px 0 20px;
+    color: var(--ui-ink);
+    font-size: clamp(42px, 6vw, 76px);
+    line-height: 0.98;
+    text-align: center;
+    text-transform: none;
+}
+
+.hibas-oldal-kartya p:not(.szekcio-kicker) {
+    max-width: 520px;
+    margin: 0 auto 30px;
+    color: var(--ui-muted);
+    font-size: var(--lumi-font-body);
+    line-height: 1.65;
+}
+
+.hibas-oldal-kartya .gomb {
+    margin-inline: auto;
+}
+
+@media screen and (max-width: 768px) {
+    .hibas-oldal-tartalom {
+        min-height: 520px;
+        padding-block: 48px 64px;
+    }
+
+    .hibas-oldal-kartya {
+        padding: 28px 20px 32px;
+    }
+}

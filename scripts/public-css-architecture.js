@@ -19,6 +19,7 @@ const expectedFiles = [
   '18-hero-inner-pages.css',
   '19-service-detail.css',
   '25-customer-account.css',
+  '25-error-page.css',
   '30-booking.css',
   '99-unified-design.css'
 ];

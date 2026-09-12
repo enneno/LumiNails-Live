@@ -27,6 +27,7 @@ const MIME = {
 
 const PUBLIC_ROOT_FILES = new Set([
     'index.html',
+    '404.html',
     'adatkezeles.html',
     'admin.html',
     'arlista.html',
@@ -97,12 +98,24 @@ const server = http.createServer((request, response) => {
             filePath = path.join(filePath, 'index.html');
         }
         if (!isPublicFile(filePath)) {
-            response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
+            filePath = path.join(ROOT, '404.html');
+            response.writeHead(404, {
+                'Content-Type': MIME['.html'],
+                'Cache-Control': 'no-store',
+                'X-Content-Type-Options': 'nosniff'
+            });
+            fs.createReadStream(filePath).pipe(response);
             return;
         }
 
         if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-            response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
+            filePath = path.join(ROOT, '404.html');
+            response.writeHead(404, {
+                'Content-Type': MIME['.html'],
+                'Cache-Control': 'no-store',
+                'X-Content-Type-Options': 'nosniff'
+            });
+            fs.createReadStream(filePath).pipe(response);
             return;
         }
 

@@ -19,6 +19,7 @@ const HTML_FILES = [
     'fiokom/index.html',
     'adatkezeles/index.html'
 ];
+const NOT_FOUND_FILE = '404.html';
 const JS_FILES = [
     'supabase-config.js',
     'script.js',
@@ -66,6 +67,9 @@ for (const relativePath of EDGE_FUNCTION_FILES.concat(['supabase-booking-reliabi
     if (!fs.existsSync(path.join(ROOT, relativePath))) {
         fail('Hiányzó foglalási megbízhatósági fájl: ' + relativePath);
     }
+}
+if (!fs.existsSync(path.join(ROOT, NOT_FOUND_FILE))) {
+    fail('Hiányzik a GitHub Pages egyedi 404 oldala: ' + NOT_FOUND_FILE);
 }
 for (const htmlFile of HTML_FILES) {
     const filePath = path.join(ROOT, htmlFile);
@@ -130,6 +134,27 @@ for (const route of [
     if (!sitemap.includes(`<loc>https://luminails.hu${route}</loc>`)) {
         fail('Sitemap: hiányzó szolgáltatásoldal: ' + route);
     }
+}
+for (const route of [
+    '/',
+    '/mukorom-epites-toltes/',
+    '/gel-lakk-tatabanya/',
+    '/manikur-tatabanya/',
+    '/korom-diszites-nail-art-tatabanya/',
+    '/arlista/',
+    '/galeria/',
+    '/foglalas/'
+]) {
+    const escapedRoute = escapeRegExp('https://luminails.hu' + route);
+    const sitemapEntry = new RegExp(`<loc>${escapedRoute}<\\/loc>\\s*<lastmod>\\d{4}-\\d{2}-\\d{2}<\\/lastmod>`);
+    if (!sitemapEntry.test(sitemap)) {
+        fail('Sitemap: hiányzó vagy hibás lastmod: ' + route);
+    }
+}
+const notFoundHtml = fs.readFileSync(path.join(ROOT, NOT_FOUND_FILE), 'utf8');
+if (!notFoundHtml.includes('name="robots" content="noindex, follow"')
+    || !notFoundHtml.includes('id="hibas-oldal-cim"')) {
+    fail('404 oldal: hiányzik a noindex jelzés vagy a felhasználói hibaüzenet.');
 }
 
 for (const relativePath of HTML_FILES.concat(JS_FILES, CSS_FILES)) {

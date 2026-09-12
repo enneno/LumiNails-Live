@@ -7,6 +7,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const HTML_FILES = [
     'index.html',
+    '404.html',
     'admin/index.html',
     'arlista/index.html',
     'mukorom-epites-toltes/index.html',
