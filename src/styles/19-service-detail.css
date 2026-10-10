@@ -24,84 +24,60 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 }
 
 .seo-szolgaltatas-hero {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    align-items: flex-end;
-    width: 100vw;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: 48px;
+    width: 100%;
     max-width: none;
-    min-height: clamp(500px, 64vh, 680px);
-    margin-right: calc(50% - 50vw);
-    margin-left: calc(50% - 50vw);
-    padding: 0;
-    overflow: hidden;
-    border-bottom: 1px solid var(--ui-line-strong);
-}
-
-.seo-szolgaltatas-hero-szoveg {
-    width: min(1180px, calc(100% - 48px));
-    min-width: 0;
-    margin: 0 auto;
-    padding: clamp(130px, 18vh, 210px) 0 clamp(70px, 9vh, 108px);
-    color: var(--ui-off-white);
-}
-
-.seo-szolgaltatas-hero h1 {
-    max-width: 920px;
-    margin: 18px 0 26px;
-    color: var(--ui-off-white);
-    font-family: "Playfair Display", serif;
-    font-size: clamp(62px, 7.5vw, 104px);
-    font-weight: 600;
-    letter-spacing: -0.052em;
-    line-height: 0.9;
-}
-
-.seo-szolgaltatas-hero-szoveg > p {
-    max-width: 760px;
+    min-height: 0;
     margin: 0;
-    color: color-mix(in srgb, var(--ui-off-white) 88%, transparent);
-    font-size: var(--lumi-font-lead);
+    padding: 64px 0 40px;
+}
+.seo-szolgaltatas-hero-szoveg {
+    min-width: 0;
+    padding: 0;
+    color: var(--ui-ink);
+}
+.seo-szolgaltatas-hero h1 {
+    margin: 0 0 24px;
+    color: var(--ui-ink);
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    text-align: left;
+}
+.seo-szolgaltatas-hero-szoveg > p {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: var(--lumi-font-body-small);
     line-height: 1.8;
 }
-
+.seo-szolgaltatas-hero-kep {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--lumi-radius-card);
+    background: var(--ui-soft);
+}
+.seo-szolgaltatas-hero-kep img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: contain;
+}
+.seo-szolgaltatas-hero .szekcio-kicker {
+    color: var(--ui-accent-text);
+}
 .seo-szolgaltatas-zaras-akciok {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 22px;
-    margin-top: 0;
 }
-
-.seo-szolgaltatas-hero-kep {
-    position: absolute;
-    z-index: -2;
-    inset: 0;
-    margin: 0;
-    overflow: hidden;
-    background: var(--ui-soft);
-}
-
-.seo-szolgaltatas-hero-kep::after {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--ui-off-black) 86%, transparent) 0%, color-mix(in srgb, var(--ui-off-black) 58%, transparent) 52%, color-mix(in srgb, var(--ui-off-black) 18%, transparent) 100%);
-    content: "";
-}
-
-.seo-szolgaltatas-hero-kep img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-.seo-szolgaltatas-hero .szekcio-kicker {
-    color: color-mix(in srgb, var(--ui-off-white) 82%, var(--ui-primary));
-}
-
 .seo-szolgaltatas-ugras {
     display: flex;
     flex-wrap: wrap;
@@ -135,9 +111,9 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 .seo-szolgaltatas-kiemeles h2,
 .seo-gyik h2,
 .seo-szolgaltatas-zaras h2 {
-    margin: 14px 0 0;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(42px, 5vw, 66px);
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3.4vw, 42px);
     font-weight: 600;
     letter-spacing: -0.035em;
     line-height: 1;
@@ -194,7 +170,7 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
     margin: var(--seo-tartalmi-terkoz) 0;
     padding: clamp(34px, 5vw, 58px);
     border-left: 3px solid var(--ui-primary);
-    background: color-mix(in srgb, var(--ui-accent) 38%, transparent);
+    background: var(--ui-soft);
 }
 
 .seo-szolgaltatas-kiemeles > p {
@@ -229,8 +205,8 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 .seo-szolgaltatas-kepek h2 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: clamp(42px, 5vw, 66px);
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3.4vw, 42px);
     font-weight: 600;
     letter-spacing: -0.035em;
     line-height: 1;
@@ -299,8 +275,8 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 .seo-gyik-lista h3 {
     margin: 0 0 14px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: 28px;
+    font-family: var(--font-display);
+    font-size: 22px;
     font-weight: 600;
     line-height: 1.15;
 }
@@ -313,7 +289,7 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 }
 
 .seo-szolgaltatas-zaras {
-    --ui-accent-text: var(--ui-primary);
+    --ui-accent-text: var(--ui-on-dark);
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
     align-items: end;
@@ -345,23 +321,17 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 
 @media screen and (min-width: 769px) {
     .seo-szolgaltatas-bevezeto {
-        grid-template-rows: auto 1fr;
         align-items: start;
-    }
-
-    .seo-szolgaltatas-bevezeto > .szekcio-kicker {
-        grid-column: 1;
-        grid-row: 1;
     }
 
     .seo-szolgaltatas-bevezeto > h2 {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 1;
     }
 
     .seo-szolgaltatas-bevezeto > p {
         grid-column: 2;
-        grid-row: 1 / span 2;
+        grid-row: 1;
     }
 
     .seo-szolgaltatas-szekcio > .seo-szolgaltatas-szekcio-szoveg {
@@ -372,15 +342,9 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
         max-width: none;
     }
 
-    .seo-szolgaltatas-szekcio-szoveg > .szekcio-kicker {
-        grid-column: 1;
-        grid-row: 1;
-        margin-bottom: 14px;
-    }
-
     .seo-szolgaltatas-szekcio-szoveg > h2 {
         grid-column: 1;
-        grid-row: 2 / span 20;
+        grid-row: 1 / span 20;
         min-width: 0;
         margin-top: 0;
     }
@@ -422,63 +386,20 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
     }
 
     .seo-szolgaltatas-hero {
-        display: grid;
-        min-height: 0;
-        align-items: stretch;
-        background: var(--ui-surface);
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+        padding: 32px 0;
     }
-
-    .seo-szolgaltatas-hero-szoveg {
-        position: relative;
-        z-index: 1;
-        width: calc(100% - 32px);
-        padding: 24px 0 28px;
-        color: var(--ui-ink);
-    }
-
     .seo-szolgaltatas-hero h1 {
-        margin: 10px 0 14px;
-        color: var(--ui-ink);
-        font-size: clamp(40px, 11vw, 54px);
-        line-height: 0.96;
+        font-size: clamp(30px, 8vw, 38px);
     }
-
-    .seo-szolgaltatas-hero-szoveg > p {
-        color: var(--ui-muted);
-        font-size: var(--lumi-font-body-small);
-        line-height: 1.65;
-    }
-
     .seo-szolgaltatas-bevezeto h2,
     .seo-szolgaltatas-szekcio h2,
     .seo-szolgaltatas-kiemeles h2,
     .seo-gyik h2,
     .seo-szolgaltatas-zaras h2 {
-        min-width: 0;
-        font-size: clamp(34px, 9vw, 42px);
+        font-size: clamp(28px, 7vw, 34px);
     }
-
-    .seo-szolgaltatas-hero-kep::after {
-        display: none;
-    }
-
-    .seo-szolgaltatas-hero-kep {
-        position: relative;
-        z-index: 0;
-        inset: auto;
-        aspect-ratio: 3 / 2;
-    }
-
-    .seo-szolgaltatas-hero-kep img {
-        height: auto;
-        aspect-ratio: 3 / 2;
-        object-fit: contain;
-    }
-
-    .seo-szolgaltatas-hero .szekcio-kicker {
-        color: var(--ui-accent-text);
-    }
-
     .seo-szolgaltatas-ugras {
         gap: 10px 18px;
     }

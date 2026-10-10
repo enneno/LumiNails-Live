@@ -11,7 +11,7 @@ Az éles `luminails.hu` GitHub-tároló az `enneno/LumiNails-Live`. Ebben normá
 
 1. A módosítás a `LumiNails_test` mappában készül el.
 2. A módosítást helyileg, az `AGENTS.md` kockázatalapú szabályai szerint kell ellenőrizni. Kis vizuális változásnál nem kell teljes tesztcsomag.
-3. Az `enneno/LumiNails-Live` `main` ágára kerülő, helyileg ellenőrzött commit automatikusan a `luminails.hu` oldalra települ, GitHubon futó alkalmazásteszt nélkül.
+3. Az `enneno/enneno.github.io` `main` ágára kerülő commit automatikusan a tesztoldalra települ, GitHubon futó alkalmazásteszt nélkül.
 4. A tesztoldalon manuálisan csak a változás által érintett fontos működéseket és nézeteket kell ellenőrizni.
 5. Élesítéshez az `enneno/LumiNails-Live` tárolóban kézzel kell elindítani a `Promote tested site to luminails.hu` workflow-t, megadni az ellenőrzött TEST commitot vagy ágat, majd beírni az `ELESITES` megerősítést.
 6. A workflow ellenőrzi, hogy a kiválasztott TEST commit sikeresen kikerült-e a tesztoldalra, megőrzi az éles `CNAME` és `.github` fájlokat, majd ugyanazt az ellenőrzött tartalmat új GitHub-teszt futtatása nélkül menti és telepíti a `luminails.hu` oldalra.
@@ -51,15 +51,17 @@ Commit vagy push előtt a módosítás kockázatához illeszkedő legkisebb eleg
 
 A publikus oldal alapja előrenderelt HTML. A böngészőben futó JavaScript ezt az aktuális Supabase-adatokkal újraellenőrzi és szükség esetén frissíti, de a fő tartalom, a szolgáltatásoldalak, a galéria, az árlista és a belső navigáció JavaScript nélkül is olvasható.
 
-A tartalom- vagy árlistamentés után az admin a `request-live-site-rebuild` Supabase Edge Functionön keresztül `live-site-content-updated` eseményt küldhet a LIVE GitHub-tárolónak. Ettől függetlenül a deploy workflow 30 percenként összehasonlítja a nyilvános tartalom ujjlenyomatát, és csak változás esetén ad ki új oldalt. Így az adminból mentett adat legkésőbb a következő kiadási körben bekerül a HTML-be akkor is, ha a gyors értesítő Edge Function még nincs beállítva. A workflow nem futtat tesztet. Ha az előrenderelés adatlekérése hibázik, a workflow leáll, és a korábbi működő oldal marad kint.
+A tartalom- vagy árlistamentés után az admin a `request-site-rebuild` Supabase Edge Functionön keresztül `site-content-updated` eseményt küldhet a TEST GitHub-tárolónak. Ettől függetlenül a deploy workflow 30 percenként összehasonlítja a nyilvános tartalom ujjlenyomatát, és csak változás esetén ad ki új oldalt. Így az adminból mentett adat legkésőbb a következő kiadási körben bekerül a HTML-be akkor is, ha a gyors értesítő Edge Function még nincs beállítva. A workflow nem futtat tesztet. Ha az előrenderelés adatlekérése hibázik, a workflow leáll, és a korábbi működő oldal marad kint.
 
 Az automatikus indításhoz egyszer kell:
 
-1. a `request-live-site-rebuild` Edge Functiont telepíteni;
-2. a Supabase Function Secretjei közé felvenni a csak az `enneno/LumiNails-Live` tárolóra, `Contents: Read and write` jogosultságra korlátozott `GITHUB_LIVE_DISPATCH_TOKEN` értéket;
-3. az admin azonosításához az `ADMIN_EMAIL` vagy a már használt `OWNER_EMAIL` secretet használni. A LIVE célrepo és az eseménytípus a funkcióban rögzített, így a TEST tároló nem érintett.
+1. a `request-site-rebuild` Edge Functiont telepíteni;
+2. a Supabase Function Secretjei közé felvenni a csak az `enneno/enneno.github.io` tárolóra, `Contents: Read and write` jogosultságra korlátozott `GITHUB_DISPATCH_TOKEN` értéket;
+3. az admin azonosításához az `ADMIN_EMAIL` vagy a már használt `OWNER_EMAIL` secretet, a cél felülírásához pedig szükség esetén a `GITHUB_REPOSITORY=enneno/enneno.github.io` értéket beállítani.
 
 A GitHub token kizárólag szerveroldali secret lehet; HTML-be, JavaScriptbe vagy naplóba nem kerülhet.
+
+Az admin a `luminails.hu` és `www.luminails.hu` domaineken a meglévő `request-live-site-rebuild` függvényt hívja; TEST-en és localhoston a `request-site-rebuild` függvényt. Mindkét forrás megmarad a TEST repositoryban, ezért a promóció nem törli az éles frissítő forrását. A domainválasztás nem jogosultságellenőrzés: az admin hitelesítése továbbra is szerveroldalon történik. A két függvény nem települ automatikusan az oldal élesítésekor.
 
 A vizuális alapelvek és a CSS-felelősségek rövid forrása a `docs/design-system.md`. A bizonyított hibák, következetlenségek és külön jóváhagyást igénylő ötletek a `docs/visual-audit.md` fájlban vannak. Az új UI-munka előtt mindkettőt át kell nézni.
 

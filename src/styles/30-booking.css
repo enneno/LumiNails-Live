@@ -28,7 +28,7 @@
 .foglalas-lepes-fej h3 {
     margin: 0 0 6px;
     color: var(--barna);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: 28px;
     line-height: 1.05;
 }
@@ -80,7 +80,7 @@
 .foglalas-stilus-kartya {
     box-sizing: border-box;
     color: var(--tinta);
-    border: 1px solid rgba(185, 133, 143, 0.22);
+    border: 1px solid var(--ui-line);
     font-family: "DM Sans", sans-serif;
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -163,7 +163,7 @@
     align-items: center;
     gap: 14px;
     padding: 17px;
-    border: 1px dashed rgba(185, 133, 143, 0.45);
+    border: 1px dashed var(--ui-line-strong);
     cursor: pointer;
 }
 
@@ -256,7 +256,7 @@
 .foglalas-osszefoglalo h3 {
     margin: 0 0 10px;
     color: var(--barna);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: 26px;
     line-height: 1;
 }
@@ -555,11 +555,11 @@
 
 /* Booking — végleges megjelenés (99-ből migrálva) */
 .foglalas-oldal {
-    --booking-panel-bg: color-mix(in srgb, var(--ui-accent) 15%, var(--ui-surface));
+    --booking-panel-bg: var(--ui-soft);
     --booking-card-bg: var(--ui-surface);
-    --booking-choice-bg: color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface));
-    --booking-choice-hover-bg: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
-    --booking-summary-bg: color-mix(in srgb, var(--ui-warm) 7%, var(--ui-surface));
+    --booking-choice-bg: var(--ui-surface);
+    --booking-choice-hover-bg: var(--ui-soft);
+    --booking-summary-bg: var(--ui-bg);
     width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
     padding: clamp(72px, 8vw, 116px) 0 0;
@@ -590,11 +590,11 @@
 .foglalas-asszisztens-fej h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    max-width: 12ch;
-    font-size: clamp(52px, 5.7vw, 76px);
+    font-family: var(--font-display);
+    max-width: 24ch;
+    font-size: clamp(36px, 4.5vw, 60px);
     font-weight: 600;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.04em;
     line-height: 0.96;
     text-align: left;
     text-wrap: balance;
@@ -607,6 +607,10 @@
     color: var(--ui-muted);
     font-size: var(--lumi-font-body-small);
     line-height: 1.8;
+}
+
+.foglalas-nyito-szoveg .foglalasi-idorend {
+    margin-top: 16px;
 }
 
 .foglalas-utak {
@@ -624,7 +628,7 @@
     grid-template-rows: auto auto 1fr auto;
     align-content: start;
     gap: 14px;
-    min-height: 228px;
+    min-height: 190px;
     padding: 26px;
     border: 1px solid var(--ui-line);
     border-radius: var(--lumi-radius-card);
@@ -659,7 +663,7 @@
 .foglalas-ut-cim {
     display: block;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: 28px;
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -741,7 +745,7 @@
     position: relative;
     overflow: visible;
     margin: 0;
-    padding: clamp(44px, 6vw, 72px);
+    padding: clamp(24px, 3vw, 40px);
     border: 1px solid var(--ui-line);
     border-radius: var(--lumi-radius-card);
     background: var(--booking-panel-bg);
@@ -756,7 +760,7 @@
 
 .foglalas-asszisztens-fej {
     max-width: 720px;
-    margin: 0 0 54px;
+    margin: 0 0 32px;
     text-align: left;
 }
 
@@ -810,9 +814,9 @@
     height: 44px;
     justify-content: center;
     border: 1px solid var(--ui-line-strong);
-    border-radius: 50%;
-    background: var(--ui-surface);
-    color: var(--ui-ink);
+    border-radius: var(--lumi-radius-control);
+    background: var(--ui-soft);
+    color: var(--ui-accent-text);
     font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
     letter-spacing: 0.12em;
@@ -993,7 +997,7 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: 20px;
 }
 
@@ -1263,7 +1267,7 @@
 .foglalas-kezelo-bevezeto h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: clamp(46px, 5vw, 68px);
     font-weight: 600;
     letter-spacing: -0.04em;

@@ -23,7 +23,7 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/kepek/favicon-96.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/kepek/favicon-192.png">
     <link rel="apple-touch-icon" href="/kepek/apple-touch-icon.png">
-    <link rel="stylesheet" href="/style.css?v=9ad47e31d5de">
+    <link rel="stylesheet" href="/style.css?v=bbe85088824f">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
   "name": "Lumi Nails",
   "url": "https://luminails.hu/",
   "image": "https://luminails.hu/kepek/social-preview.jpg",
-  "description": "Lumi Nails Tatabányán: körmös, műkörmös, manikűr, gél lakk, körömépítés, töltés és díszítés online időpontfoglalással.",
+  "description": "Lumi Nails Tatabányán: körmös, műkörmös, manikűr, gél lakk, körömépítés, töltés és díszítés online időpontfoglalással. Foglalható időpontok: hétfő–vasárnap 09:00–19:00. Nem minden nap van szabad időpont; az aktuális lehetőségeket az online foglalási naptárban találod.",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Tatabánya Kós Károly",
@@ -101,7 +101,21 @@
   "sameAs": [
     "https://www.instagram.com/luminails.xx/",
     "https://www.facebook.com/profile.php?id=61576508698202"
-  ]
+  ],
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "opens": "09:00",
+    "closes": "19:00"
+  }
 }</script>
 
 </head>
@@ -298,6 +312,23 @@ Fontos számomra az igényes, szép munka, a folyamatos fejlődés és az, hogy 
                 </a>
             </div>
         </div>
+        <nav class="footer-navigacio" aria-label="Lábléc navigáció">
+            <div class="footer-oldalak">
+                <a href="/">Kezdőlap</a>
+                <a href="/#szolgaltatasok">Szolgáltatások</a>
+                <a href="/arlista/">Árlista</a>
+                <a href="/galeria/">Galéria</a>
+                <a href="/fiokom/">Fiókom</a>
+                <a href="/foglalas/">Foglalás</a>
+            </div>
+            <div class="footer-szolgaltatasok">
+                <a href="/mukorom-epites-toltes/">Műköröm építés és töltés</a>
+                <a href="/gel-lakk-tatabanya/">Gél lakk</a>
+                <a href="/korom-diszites-nail-art-tatabanya/">Körömdíszítés / Nail Art</a>
+                <a href="/manikur-tatabanya/">Manikűr</a>
+            </div>
+        </nav>
+        <p class="foglalasi-idorend footer-idorend" data-foglalasi-idorend=""><strong>Foglalható időpontok: hétfő–vasárnap 09:00–19:00.</strong> <span>Nem minden nap van szabad időpont; az aktuális lehetőségeket az online foglalási naptárban találod.</span></p>
         <div class="footer-meta">
             <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
             <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
@@ -307,7 +338,7 @@ Fontos számomra az igényes, szép munka, a folyamatos fejlődés és az, hogy 
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
     <script src="/supabase-config.js?v=334baddf6f93"></script>
-    <script src="/script.js?v=50f009339ed0"></script>
+    <script src="/script.js?v=ff90c537047e"></script>
 </body>
 
 </html>

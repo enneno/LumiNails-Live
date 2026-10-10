@@ -86,6 +86,11 @@ function lumiAlapOldalAdatok() {
         },
         kapcsolat: {
             cimke: 'Elérhetőség',
+            nyitvatartas: {
+                kezdes: '09:00',
+                vege: '19:00',
+                megjegyzes: 'Nem minden nap van szabad időpont; az aktuális lehetőségeket az online foglalási naptárban találod.'
+            },
             cim: '2800 Tatabánya, Kós Károly út',
             terkepUrl: 'https://www.google.com/maps/search/?api=1&query=2800%20Tatab%C3%A1nya%2C%20K%C3%B3s%20K%C3%A1roly%20%C3%BAt',
             googleErtekelesUrl: 'https://www.google.com/search?q=Lumi+Nails+Tatab%C3%A1nya+Google+%C3%A9rt%C3%A9kel%C3%A9s',
@@ -1452,7 +1457,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
             hero.style.backgroundImage = 'none';
             hero.removeAttribute('role');
         } else {
-            hero.style.backgroundImage = `linear-gradient(90deg, rgba(253, 244, 226, 0.12) 0%, rgba(253, 244, 226, 0.02) 44%, rgba(43, 37, 33, 0.05) 100%), url("${heroKepSrc}")`;
+            hero.style.backgroundImage = `linear-gradient(90deg, rgba(19, 32, 39, 0.82) 0%, rgba(19, 32, 39, 0.04) 72%), url("${heroKepSrc}")`;
             hero.setAttribute('role', 'img');
         }
 
@@ -2245,6 +2250,10 @@ function idotartamSzoveg(percek) {
     return reszek.join(' ');
 }
 
+function foglalasiIdorendSzovege(nyitvatartas) {
+    return `Foglalható időpontok: hétfő–vasárnap ${nyitvatartas.kezdes}–${nyitvatartas.vege}.`;
+}
+
 function lablecAdatokAlkalmazasa(adatok) {
     const kapcsolat = adatok.kapcsolat;
     const marka = adatok.marka;
@@ -2258,6 +2267,13 @@ function lablecAdatokAlkalmazasa(adatok) {
     szovegBeallitasa('.footer-kapcsolat h3', kapcsolat?.cimke);
     szovegBeallitasa('.footer-jogi-link', adatok.lablec?.jogiLink);
     szovegBeallitasa('.footer-jogok', adatok.lablec?.jogok);
+
+    if (kapcsolat?.nyitvatartas) {
+        document.querySelectorAll('[data-foglalasi-idorend]').forEach((elem) => {
+            elem.querySelector('strong').textContent = foglalasiIdorendSzovege(kapcsolat.nyitvatartas);
+            elem.querySelector('span').textContent = kapcsolat.nyitvatartas.megjegyzes;
+        });
+    }
 
     const cimLink = document.querySelector('[data-footer-address]');
     const telefonLink = document.querySelector('[data-footer-phone]');

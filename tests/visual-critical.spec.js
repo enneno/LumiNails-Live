@@ -81,6 +81,9 @@ test.describe('kritikus vizuális nézetek', () => {
             const benefits = hero.querySelector('.hero-bizalom');
             const actions = hero.querySelector('.hero-actions');
             const notice = document.querySelector('#vendegertesito');
+            const bookingHeading = document.querySelector('#kapcsolat h2');
+            const bookingHeadingRange = document.createRange();
+            bookingHeadingRange.selectNodeContents(bookingHeading);
             const imageRect = image.getBoundingClientRect();
             const labelRect = label.getBoundingClientRect();
             const copyRect = copy.getBoundingClientRect();
@@ -106,6 +109,7 @@ test.describe('kritikus vizuális nézetek', () => {
                 ),
                 readabilityLayer: getComputedStyle(card, '::after').backgroundImage,
                 noticeHeight: notice.getBoundingClientRect().height,
+                bookingHeadingLineCount: bookingHeadingRange.getClientRects().length,
                 accountRecommendationAbsent: !document.querySelector('#fiok-ajanlo'),
                 overflow: document.documentElement.scrollWidth - window.innerWidth
             };
@@ -124,6 +128,7 @@ test.describe('kritikus vizuális nézetek', () => {
         expect(metrics.copyUsesSeparateBlocks).toBe(false);
         expect(metrics.readabilityLayer).toContain('linear-gradient');
         expect(metrics.noticeHeight).toBeLessThanOrEqual(100);
+        expect(metrics.bookingHeadingLineCount).toBeLessThanOrEqual(2);
         expect(metrics.accountRecommendationAbsent).toBe(true);
         expect(metrics.overflow).toBeLessThanOrEqual(1);
     });
@@ -182,8 +187,10 @@ test.describe('kritikus vizuális nézetek', () => {
                 heroRadius: Number.parseFloat(getComputedStyle(hero).borderRadius),
                 visualInsideHero: visualRect.top >= heroRect.top - 1
                     && visualRect.bottom <= heroRect.bottom + 1,
-                introIsFullWidth: Math.round(introRect.width) === window.innerWidth,
-                introMatchesTextHeight: Math.abs(introRect.height - introTextRect.height) <= 1,
+                introSharesContentWidth: Math.abs(introRect.width - services.getBoundingClientRect().width) <= 1,
+                introFitsContentHeight: Math.abs(introRect.height - Math.max(introTextRect.height, introImage.getBoundingClientRect().height)) <= 1,
+                serviceColumns: getComputedStyle(document.querySelector('.szolgaltatas-lista')).gridTemplateColumns.split(' ').length,
+                headingIsSans: getComputedStyle(hero.querySelector('h1')).fontFamily.includes('DM Sans'),
                 introImageShowsFullFrame: getComputedStyle(introImage).objectFit === 'contain',
                 introTextHasBreathingRoom: introTextRect.left > introRect.left + 40,
                 sharedContentLeftEdges: Math.abs(
@@ -197,8 +204,10 @@ test.describe('kritikus vizuális nézetek', () => {
         expect(desktop.heroWidth).toBe(1440);
         expect(desktop.heroRadius).toBe(0);
         expect(desktop.visualInsideHero).toBe(true);
-        expect(desktop.introIsFullWidth).toBe(true);
-        expect(desktop.introMatchesTextHeight).toBe(true);
+        expect(desktop.introSharesContentWidth).toBe(true);
+        expect(desktop.introFitsContentHeight).toBe(true);
+        expect(desktop.serviceColumns).toBe(4);
+        expect(desktop.headingIsSans).toBe(true);
         expect(desktop.introImageShowsFullFrame).toBe(true);
         expect(desktop.introTextHasBreathingRoom).toBe(true);
         expect(desktop.sharedContentLeftEdges).toBe(true);
@@ -225,10 +234,10 @@ test.describe('kritikus vizuális nézetek', () => {
             };
         });
 
-        expect(mobile.heroBackground).toBe('rgb(245, 241, 235)');
-        expect(mobile.surfaceToken).toBe('#f5f1eb');
-        expect(mobile.hamburgerColor).toBe('rgb(49, 56, 63)');
-        expect(mobile.inkToken).toBe('#31383f');
+        expect(mobile.heroBackground).toBe('rgb(255, 255, 255)');
+        expect(mobile.surfaceToken).toBe('#ffffff');
+        expect(mobile.hamburgerColor).toBe('rgb(24, 33, 44)');
+        expect(mobile.inkToken).toBe('#18212c');
         expect(mobile.introImageShowsFullFrame).toBe(true);
         expect(mobile.linesVisible).toBe(true);
         expect(mobile.documentWidth).toBe(390);
@@ -269,7 +278,7 @@ test.describe('kritikus vizuális nézetek', () => {
                     heroHeight: heroRect.height,
                     imageRatio: imageRect.width / imageRect.height,
                     imageFit: getComputedStyle(heroImage).objectFit,
-                    mobileTintRemoved: getComputedStyle(hero.querySelector('.seo-szolgaltatas-hero-kep'), '::after').display === 'none',
+                    mobileTintRemoved: getComputedStyle(hero.querySelector('.seo-szolgaltatas-hero-kep'), '::after').content === 'none',
                     paragraphsAreJustified: paragraphs.every(paragraph => getComputedStyle(paragraph).textAlign === 'justify'),
                     paragraphsDoNotHyphenate: paragraphs.every(paragraph => getComputedStyle(paragraph).hyphens === 'none'),
                     contentFits
@@ -279,8 +288,8 @@ test.describe('kritikus vizuális nézetek', () => {
             expect(metrics.documentWidth, path).toBe(390);
             expect(metrics.mainLeft, path).toBe(16);
             expect(metrics.mainRight, path).toBe(374);
-            expect(metrics.heroLeft, path).toBe(0);
-            expect(metrics.heroRight, path).toBe(390);
+            expect(metrics.heroLeft, path).toBe(16);
+            expect(metrics.heroRight, path).toBe(374);
             expect(metrics.heroHeight, path).toBeLessThan(650);
             expect(metrics.imageRatio, path).toBeCloseTo(3 / 2, 2);
             expect(metrics.imageFit, path).toBe('contain');
@@ -291,7 +300,7 @@ test.describe('kritikus vizuális nézetek', () => {
         }
     });
 
-    test('homepage CTA stays readable and the shared footer stays compact', async ({ page }) => {
+    test('homepage CTA stays readable and the shared footer stays compact', async ({ page }, testInfo) => {
         await page.setViewportSize({ width: 390, height: 844 });
         await page.goto('/', { waitUntil: 'domcontentloaded' });
         await expect(page.locator('body')).not.toHaveClass(/tartalom-toltes/);
@@ -320,10 +329,28 @@ test.describe('kritikus vizuális nézetek', () => {
         });
 
         expect(metrics.ctaText).not.toBe('');
-        expect(metrics.ctaBackground).toBe('rgb(223, 231, 227)');
-        expect(metrics.bookingSectionBackground).toBe('rgb(201, 212, 207)');
+        expect(metrics.ctaBackground).toBe('rgb(49, 85, 198)');
+        expect(metrics.bookingSectionBackground).toBe('rgb(237, 241, 247)');
         expect(metrics.ctaColor).not.toBe(metrics.ctaBackground);
-        expect(metrics.footerHeight).toBeLessThan(160);
+        // The shared hours note adds useful content without a separate padded section.
+        await expect(page.locator('.footer-idorend')).toContainText('Nem minden nap van szabad időpont');
+        // Navigation adds four compact link rows without separate padded sections.
+        expect(metrics.footerHeight).toBeLessThan(430);
+        const footerNav = page.getByRole('navigation', { name: 'Lábléc navigáció' });
+        const expectedLinks = [
+            ['Kezdőlap', '/'], ['Szolgáltatások', '/#szolgaltatasok'],
+            ['Árlista', '/arlista/'], ['Galéria', '/galeria/'],
+            ['Fiókom', '/fiokom/'], ['Foglalás', '/foglalas/'],
+            ['Műköröm építés és töltés', '/mukorom-epites-toltes/'],
+            ['Gél lakk', '/gel-lakk-tatabanya/'],
+            ['Körömdíszítés / Nail Art', '/korom-diszites-nail-art-tatabanya/'],
+            ['Manikűr', '/manikur-tatabanya/']
+        ];
+        for (const [name, href] of expectedLinks) {
+            await expect(footerNav.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+        }
+        await page.evaluate(() => document.fonts.ready);
+        await page.locator('.site-footer').screenshot({ path: testInfo.outputPath('footer-mobile.png') });
         expect(metrics.activeGalleryShadow).toBe('none');
         expect(metrics.galleryControlsShadow).toBe('none');
         expect(metrics.galleryGlowVisible).toBe(false);
@@ -335,7 +362,19 @@ test.describe('kritikus vizuális nézetek', () => {
         const desktopFooterHeight = await page.locator('.site-footer').evaluate(
             footer => footer.getBoundingClientRect().height
         );
-        expect(desktopFooterHeight).toBeLessThan(150);
+        expect(desktopFooterHeight).toBeLessThan(260);
+        await page.locator('.site-footer').screenshot({ path: testInfo.outputPath('footer-desktop.png') });
+
+        await page.setViewportSize({ width: 320, height: 844 });
+        await expect(footerNav).toBeVisible();
+        const navigationFits = await footerNav.evaluate(nav => {
+            const rect = nav.getBoundingClientRect();
+            return [...nav.querySelectorAll('a')].every(link => {
+                const box = link.getBoundingClientRect();
+                return box.height >= 44 && box.left >= rect.left && box.right <= rect.right + 1;
+            });
+        });
+        expect(navigationFits).toBe(true);
     });
 
     test('desktop account and booking verification retain desktop proportions', async ({ page }) => {
@@ -373,7 +412,7 @@ test.describe('kritikus vizuális nézetek', () => {
                 documentWidth: document.documentElement.scrollWidth
             };
         });
-        expect(booking.cardBackground).toBe('rgb(245, 241, 235)');
+        expect(booking.cardBackground).toBe('rgb(255, 255, 255)');
         expect(booking.surfacesAreDistinct).toBe(true);
         expect(booking.inputWidth).toBeGreaterThanOrEqual(280);
         expect(booking.placeholderFits).toBe(true);

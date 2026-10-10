@@ -23,6 +23,11 @@ function lumiAlapOldalAdatok() {
         },
         kapcsolat: {
             cimke: 'Elérhetőség',
+            nyitvatartas: {
+                kezdes: '09:00',
+                vege: '19:00',
+                megjegyzes: 'Nem minden nap van szabad időpont; az aktuális lehetőségeket az online foglalási naptárban találod.'
+            },
             cim: '2800 Tatabánya, Kós Károly út',
             terkepUrl: 'https://www.google.com/maps/search/?api=1&query=2800%20Tatab%C3%A1nya%2C%20K%C3%B3s%20K%C3%A1roly%20%C3%BAt',
             googleErtekelesUrl: 'https://www.google.com/search?q=Lumi+Nails+Tatab%C3%A1nya+Google+%C3%A9rt%C3%A9kel%C3%A9s',

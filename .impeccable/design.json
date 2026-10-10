@@ -1,0 +1,836 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-10T00:00:00+02:00",
+  "title": "Design System: LumiNails",
+  "extensions": {
+    "colorMeta": {
+      "ui-primary": {
+        "role": "primary",
+        "displayName": "Cobalt action",
+        "tonalRamp": [
+          "oklch(15% 0.1811 266.29)",
+          "oklch(27% 0.1811 266.29)",
+          "oklch(38% 0.1811 266.29)",
+          "oklch(49% 0.1811 266.29)",
+          "oklch(61% 0.1811 266.29)",
+          "oklch(72% 0.1811 266.29)",
+          "oklch(84% 0.1811 266.29)",
+          "oklch(95% 0.1811 266.29)"
+        ]
+      },
+      "ui-accent-text": {
+        "role": "primary",
+        "displayName": "Dark cobalt text and hover",
+        "tonalRamp": [
+          "oklch(15% 0.1601 266.32)",
+          "oklch(27% 0.1601 266.32)",
+          "oklch(38% 0.1601 266.32)",
+          "oklch(49% 0.1601 266.32)",
+          "oklch(61% 0.1601 266.32)",
+          "oklch(72% 0.1601 266.32)",
+          "oklch(84% 0.1601 266.32)",
+          "oklch(95% 0.1601 266.32)"
+        ]
+      },
+      "ui-highlight": {
+        "role": "primary",
+        "displayName": "Pale blue selection",
+        "tonalRamp": [
+          "oklch(15% 0.0212 268.43)",
+          "oklch(27% 0.0212 268.43)",
+          "oklch(38% 0.0212 268.43)",
+          "oklch(49% 0.0212 268.43)",
+          "oklch(61% 0.0212 268.43)",
+          "oklch(72% 0.0212 268.43)",
+          "oklch(84% 0.0212 268.43)",
+          "oklch(95% 0.0212 268.43)"
+        ]
+      },
+      "ui-bg": {
+        "role": "neutral",
+        "displayName": "Cool page canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0041 271.37)",
+          "oklch(27% 0.0041 271.37)",
+          "oklch(38% 0.0041 271.37)",
+          "oklch(49% 0.0041 271.37)",
+          "oklch(61% 0.0041 271.37)",
+          "oklch(72% 0.0041 271.37)",
+          "oklch(84% 0.0041 271.37)",
+          "oklch(95% 0.0041 271.37)"
+        ]
+      },
+      "ui-surface": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(27% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "ui-soft": {
+        "role": "neutral",
+        "displayName": "Gray-blue support surface",
+        "tonalRamp": [
+          "oklch(15% 0.0091 258.34)",
+          "oklch(27% 0.0091 258.34)",
+          "oklch(38% 0.0091 258.34)",
+          "oklch(49% 0.0091 258.34)",
+          "oklch(61% 0.0091 258.34)",
+          "oklch(72% 0.0091 258.34)",
+          "oklch(84% 0.0091 258.34)",
+          "oklch(95% 0.0091 258.34)"
+        ]
+      },
+      "ui-ink": {
+        "role": "neutral",
+        "displayName": "Dark ink",
+        "tonalRamp": [
+          "oklch(15% 0.0248 253.76)",
+          "oklch(27% 0.0248 253.76)",
+          "oklch(38% 0.0248 253.76)",
+          "oklch(49% 0.0248 253.76)",
+          "oklch(61% 0.0248 253.76)",
+          "oklch(72% 0.0248 253.76)",
+          "oklch(84% 0.0248 253.76)",
+          "oklch(95% 0.0248 253.76)"
+        ]
+      },
+      "ui-muted": {
+        "role": "neutral",
+        "displayName": "Muted slate text",
+        "tonalRamp": [
+          "oklch(15% 0.0290 257.68)",
+          "oklch(27% 0.0290 257.68)",
+          "oklch(38% 0.0290 257.68)",
+          "oklch(49% 0.0290 257.68)",
+          "oklch(61% 0.0290 257.68)",
+          "oklch(72% 0.0290 257.68)",
+          "oklch(84% 0.0290 257.68)",
+          "oklch(95% 0.0290 257.68)"
+        ]
+      },
+      "ui-line": {
+        "role": "neutral",
+        "displayName": "Fine alpha border",
+        "tonalRamp": [
+          "oklch(15% 0.0248 253.76 / 0.16)",
+          "oklch(27% 0.0248 253.76 / 0.16)",
+          "oklch(38% 0.0248 253.76 / 0.16)",
+          "oklch(49% 0.0248 253.76 / 0.16)",
+          "oklch(61% 0.0248 253.76 / 0.16)",
+          "oklch(72% 0.0248 253.76 / 0.16)",
+          "oklch(84% 0.0248 253.76 / 0.16)",
+          "oklch(95% 0.0248 253.76 / 0.16)"
+        ]
+      },
+      "ui-line-strong": {
+        "role": "neutral",
+        "displayName": "Strong alpha border",
+        "tonalRamp": [
+          "oklch(15% 0.0248 253.76 / 0.34)",
+          "oklch(27% 0.0248 253.76 / 0.34)",
+          "oklch(38% 0.0248 253.76 / 0.34)",
+          "oklch(49% 0.0248 253.76 / 0.34)",
+          "oklch(61% 0.0248 253.76 / 0.34)",
+          "oklch(72% 0.0248 253.76 / 0.34)",
+          "oklch(84% 0.0248 253.76 / 0.34)",
+          "oklch(95% 0.0248 253.76 / 0.34)"
+        ]
+      },
+      "admin-dark-brand": {
+        "role": "primary",
+        "displayName": "Dark theme light-blue action",
+        "tonalRamp": [
+          "oklch(15% 0.0952 270.36)",
+          "oklch(27% 0.0952 270.36)",
+          "oklch(38% 0.0952 270.36)",
+          "oklch(49% 0.0952 270.36)",
+          "oklch(61% 0.0952 270.36)",
+          "oklch(72% 0.0952 270.36)",
+          "oklch(84% 0.0952 270.36)",
+          "oklch(95% 0.0952 270.36)"
+        ]
+      },
+      "admin-dark-brand-hover": {
+        "role": "primary",
+        "displayName": "Dark theme light-blue hover",
+        "tonalRamp": [
+          "oklch(15% 0.0588 270.34)",
+          "oklch(27% 0.0588 270.34)",
+          "oklch(38% 0.0588 270.34)",
+          "oklch(49% 0.0588 270.34)",
+          "oklch(61% 0.0588 270.34)",
+          "oklch(72% 0.0588 270.34)",
+          "oklch(84% 0.0588 270.34)",
+          "oklch(95% 0.0588 270.34)"
+        ]
+      },
+      "admin-dark-bg": {
+        "role": "neutral",
+        "displayName": "Dark navy canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0302 261.27)",
+          "oklch(27% 0.0302 261.27)",
+          "oklch(38% 0.0302 261.27)",
+          "oklch(49% 0.0302 261.27)",
+          "oklch(61% 0.0302 261.27)",
+          "oklch(72% 0.0302 261.27)",
+          "oklch(84% 0.0302 261.27)",
+          "oklch(95% 0.0302 261.27)"
+        ]
+      },
+      "admin-dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark navy surface",
+        "tonalRamp": [
+          "oklch(15% 0.0372 260.00)",
+          "oklch(27% 0.0372 260.00)",
+          "oklch(38% 0.0372 260.00)",
+          "oklch(49% 0.0372 260.00)",
+          "oklch(61% 0.0372 260.00)",
+          "oklch(72% 0.0372 260.00)",
+          "oklch(84% 0.0372 260.00)",
+          "oklch(95% 0.0372 260.00)"
+        ]
+      },
+      "admin-dark-soft": {
+        "role": "neutral",
+        "displayName": "Dark navy support surface",
+        "tonalRamp": [
+          "oklch(15% 0.0456 258.74)",
+          "oklch(27% 0.0456 258.74)",
+          "oklch(38% 0.0456 258.74)",
+          "oklch(49% 0.0456 258.74)",
+          "oklch(61% 0.0456 258.74)",
+          "oklch(72% 0.0456 258.74)",
+          "oklch(84% 0.0456 258.74)",
+          "oklch(95% 0.0456 258.74)"
+        ]
+      },
+      "admin-dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark theme bright text",
+        "tonalRamp": [
+          "oklch(15% 0.0083 271.33)",
+          "oklch(27% 0.0083 271.33)",
+          "oklch(38% 0.0083 271.33)",
+          "oklch(49% 0.0083 271.33)",
+          "oklch(61% 0.0083 271.33)",
+          "oklch(72% 0.0083 271.33)",
+          "oklch(84% 0.0083 271.33)",
+          "oklch(95% 0.0083 271.33)"
+        ]
+      },
+      "admin-dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark theme muted text",
+        "tonalRamp": [
+          "oklch(15% 0.0218 259.19)",
+          "oklch(27% 0.0218 259.19)",
+          "oklch(38% 0.0218 259.19)",
+          "oklch(49% 0.0218 259.19)",
+          "oklch(61% 0.0218 259.19)",
+          "oklch(72% 0.0218 259.19)",
+          "oklch(84% 0.0218 259.19)",
+          "oklch(95% 0.0218 259.19)"
+        ]
+      },
+      "admin-dark-subtle": {
+        "role": "neutral",
+        "displayName": "Dark theme subtle text",
+        "tonalRamp": [
+          "oklch(15% 0.0275 257.04)",
+          "oklch(27% 0.0275 257.04)",
+          "oklch(38% 0.0275 257.04)",
+          "oklch(49% 0.0275 257.04)",
+          "oklch(61% 0.0275 257.04)",
+          "oklch(72% 0.0275 257.04)",
+          "oklch(84% 0.0275 257.04)",
+          "oklch(95% 0.0275 257.04)"
+        ]
+      },
+      "admin-dark-border": {
+        "role": "neutral",
+        "displayName": "Dark theme border",
+        "tonalRamp": [
+          "oklch(15% 0.0320 226.38)",
+          "oklch(27% 0.0320 226.38)",
+          "oklch(38% 0.0320 226.38)",
+          "oklch(49% 0.0320 226.38)",
+          "oklch(61% 0.0320 226.38)",
+          "oklch(72% 0.0320 226.38)",
+          "oklch(84% 0.0320 226.38)",
+          "oklch(95% 0.0320 226.38)"
+        ]
+      },
+      "admin-dark-border-strong": {
+        "role": "neutral",
+        "displayName": "Dark theme strong border",
+        "tonalRamp": [
+          "oklch(15% 0.0291 214.59)",
+          "oklch(27% 0.0291 214.59)",
+          "oklch(38% 0.0291 214.59)",
+          "oklch(49% 0.0291 214.59)",
+          "oklch(61% 0.0291 214.59)",
+          "oklch(72% 0.0291 214.59)",
+          "oklch(84% 0.0291 214.59)",
+          "oklch(95% 0.0291 214.59)"
+        ]
+      },
+      "admin-success": {
+        "role": "semantic",
+        "displayName": "Light theme success",
+        "tonalRamp": [
+          "oklch(15% 0.0608 159.80)",
+          "oklch(27% 0.0608 159.80)",
+          "oklch(38% 0.0608 159.80)",
+          "oklch(49% 0.0608 159.80)",
+          "oklch(61% 0.0608 159.80)",
+          "oklch(72% 0.0608 159.80)",
+          "oklch(84% 0.0608 159.80)",
+          "oklch(95% 0.0608 159.80)"
+        ]
+      },
+      "admin-success-soft": {
+        "role": "semantic",
+        "displayName": "Light theme success surface",
+        "tonalRamp": [
+          "oklch(15% 0.0124 157.00)",
+          "oklch(27% 0.0124 157.00)",
+          "oklch(38% 0.0124 157.00)",
+          "oklch(49% 0.0124 157.00)",
+          "oklch(61% 0.0124 157.00)",
+          "oklch(72% 0.0124 157.00)",
+          "oklch(84% 0.0124 157.00)",
+          "oklch(95% 0.0124 157.00)"
+        ]
+      },
+      "admin-warning": {
+        "role": "semantic",
+        "displayName": "Light theme warning",
+        "tonalRamp": [
+          "oklch(15% 0.0945 69.39)",
+          "oklch(27% 0.0945 69.39)",
+          "oklch(38% 0.0945 69.39)",
+          "oklch(49% 0.0945 69.39)",
+          "oklch(61% 0.0945 69.39)",
+          "oklch(72% 0.0945 69.39)",
+          "oklch(84% 0.0945 69.39)",
+          "oklch(95% 0.0945 69.39)"
+        ]
+      },
+      "admin-warning-soft": {
+        "role": "semantic",
+        "displayName": "Light theme warning surface",
+        "tonalRamp": [
+          "oklch(15% 0.0290 82.60)",
+          "oklch(27% 0.0290 82.60)",
+          "oklch(38% 0.0290 82.60)",
+          "oklch(49% 0.0290 82.60)",
+          "oklch(61% 0.0290 82.60)",
+          "oklch(72% 0.0290 82.60)",
+          "oklch(84% 0.0290 82.60)",
+          "oklch(95% 0.0290 82.60)"
+        ]
+      },
+      "admin-danger": {
+        "role": "semantic",
+        "displayName": "Light theme danger",
+        "tonalRamp": [
+          "oklch(15% 0.1054 19.06)",
+          "oklch(27% 0.1054 19.06)",
+          "oklch(38% 0.1054 19.06)",
+          "oklch(49% 0.1054 19.06)",
+          "oklch(61% 0.1054 19.06)",
+          "oklch(72% 0.1054 19.06)",
+          "oklch(84% 0.1054 19.06)",
+          "oklch(95% 0.1054 19.06)"
+        ]
+      },
+      "admin-danger-soft": {
+        "role": "semantic",
+        "displayName": "Light theme danger surface",
+        "tonalRamp": [
+          "oklch(15% 0.0175 17.47)",
+          "oklch(27% 0.0175 17.47)",
+          "oklch(38% 0.0175 17.47)",
+          "oklch(49% 0.0175 17.47)",
+          "oklch(61% 0.0175 17.47)",
+          "oklch(72% 0.0175 17.47)",
+          "oklch(84% 0.0175 17.47)",
+          "oklch(95% 0.0175 17.47)"
+        ]
+      },
+      "admin-info": {
+        "role": "semantic",
+        "displayName": "Light theme information",
+        "tonalRamp": [
+          "oklch(15% 0.0442 245.26)",
+          "oklch(27% 0.0442 245.26)",
+          "oklch(38% 0.0442 245.26)",
+          "oklch(49% 0.0442 245.26)",
+          "oklch(61% 0.0442 245.26)",
+          "oklch(72% 0.0442 245.26)",
+          "oklch(84% 0.0442 245.26)",
+          "oklch(95% 0.0442 245.26)"
+        ]
+      },
+      "admin-info-soft": {
+        "role": "semantic",
+        "displayName": "Light theme information surface",
+        "tonalRamp": [
+          "oklch(15% 0.0093 242.84)",
+          "oklch(27% 0.0093 242.84)",
+          "oklch(38% 0.0093 242.84)",
+          "oklch(49% 0.0093 242.84)",
+          "oklch(61% 0.0093 242.84)",
+          "oklch(72% 0.0093 242.84)",
+          "oklch(84% 0.0093 242.84)",
+          "oklch(95% 0.0093 242.84)"
+        ]
+      },
+      "admin-dark-success": {
+        "role": "semantic",
+        "displayName": "Dark theme success",
+        "tonalRamp": [
+          "oklch(15% 0.0613 154.55)",
+          "oklch(27% 0.0613 154.55)",
+          "oklch(38% 0.0613 154.55)",
+          "oklch(49% 0.0613 154.55)",
+          "oklch(61% 0.0613 154.55)",
+          "oklch(72% 0.0613 154.55)",
+          "oklch(84% 0.0613 154.55)",
+          "oklch(95% 0.0613 154.55)"
+        ]
+      },
+      "admin-dark-success-soft": {
+        "role": "semantic",
+        "displayName": "Dark theme success surface",
+        "tonalRamp": [
+          "oklch(15% 0.0347 157.03)",
+          "oklch(27% 0.0347 157.03)",
+          "oklch(38% 0.0347 157.03)",
+          "oklch(49% 0.0347 157.03)",
+          "oklch(61% 0.0347 157.03)",
+          "oklch(72% 0.0347 157.03)",
+          "oklch(84% 0.0347 157.03)",
+          "oklch(95% 0.0347 157.03)"
+        ]
+      },
+      "admin-dark-warning": {
+        "role": "semantic",
+        "displayName": "Dark theme warning",
+        "tonalRamp": [
+          "oklch(15% 0.0892 72.55)",
+          "oklch(27% 0.0892 72.55)",
+          "oklch(38% 0.0892 72.55)",
+          "oklch(49% 0.0892 72.55)",
+          "oklch(61% 0.0892 72.55)",
+          "oklch(72% 0.0892 72.55)",
+          "oklch(84% 0.0892 72.55)",
+          "oklch(95% 0.0892 72.55)"
+        ]
+      },
+      "admin-dark-warning-soft": {
+        "role": "semantic",
+        "displayName": "Dark theme warning surface",
+        "tonalRamp": [
+          "oklch(15% 0.0325 70.28)",
+          "oklch(27% 0.0325 70.28)",
+          "oklch(38% 0.0325 70.28)",
+          "oklch(49% 0.0325 70.28)",
+          "oklch(61% 0.0325 70.28)",
+          "oklch(72% 0.0325 70.28)",
+          "oklch(84% 0.0325 70.28)",
+          "oklch(95% 0.0325 70.28)"
+        ]
+      },
+      "admin-dark-danger": {
+        "role": "semantic",
+        "displayName": "Dark theme danger",
+        "tonalRamp": [
+          "oklch(15% 0.0868 12.94)",
+          "oklch(27% 0.0868 12.94)",
+          "oklch(38% 0.0868 12.94)",
+          "oklch(49% 0.0868 12.94)",
+          "oklch(61% 0.0868 12.94)",
+          "oklch(72% 0.0868 12.94)",
+          "oklch(84% 0.0868 12.94)",
+          "oklch(95% 0.0868 12.94)"
+        ]
+      },
+      "admin-dark-danger-soft": {
+        "role": "semantic",
+        "displayName": "Dark theme danger surface",
+        "tonalRamp": [
+          "oklch(15% 0.0409 9.92)",
+          "oklch(27% 0.0409 9.92)",
+          "oklch(38% 0.0409 9.92)",
+          "oklch(49% 0.0409 9.92)",
+          "oklch(61% 0.0409 9.92)",
+          "oklch(72% 0.0409 9.92)",
+          "oklch(84% 0.0409 9.92)",
+          "oklch(95% 0.0409 9.92)"
+        ]
+      },
+      "admin-dark-info": {
+        "role": "semantic",
+        "displayName": "Dark theme information",
+        "tonalRamp": [
+          "oklch(15% 0.0410 237.76)",
+          "oklch(27% 0.0410 237.76)",
+          "oklch(38% 0.0410 237.76)",
+          "oklch(49% 0.0410 237.76)",
+          "oklch(61% 0.0410 237.76)",
+          "oklch(72% 0.0410 237.76)",
+          "oklch(84% 0.0410 237.76)",
+          "oklch(95% 0.0410 237.76)"
+        ]
+      },
+      "admin-dark-info-soft": {
+        "role": "semantic",
+        "displayName": "Dark theme information surface",
+        "tonalRamp": [
+          "oklch(15% 0.0305 234.02)",
+          "oklch(27% 0.0305 234.02)",
+          "oklch(38% 0.0305 234.02)",
+          "oklch(49% 0.0305 234.02)",
+          "oklch(61% 0.0305 234.02)",
+          "oklch(72% 0.0305 234.02)",
+          "oklch(84% 0.0305 234.02)",
+          "oklch(95% 0.0305 234.02)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Homepage hero display",
+        "purpose": "Desktop homepage H1; mobile uses its own compact clamp."
+      },
+      "headline": {
+        "displayName": "Homepage section headline",
+        "purpose": "Services, introduction and gallery section titles."
+      },
+      "title": {
+        "displayName": "Service card title",
+        "purpose": "Image-top service cards on desktop."
+      },
+      "body": {
+        "displayName": "Public body",
+        "purpose": "Shared desktop body token; local paragraph leading belongs to the component."
+      },
+      "body-small": {
+        "displayName": "Public supporting body",
+        "purpose": "Supporting public paragraphs; mobile base token becomes smaller while fields retain a 16px floor."
+      },
+      "lead": {
+        "displayName": "Homepage hero lead",
+        "purpose": "Short descriptive hero copy."
+      },
+      "label": {
+        "displayName": "Public action label",
+        "purpose": "Canonical public button typography."
+      },
+      "admin-heading": {
+        "displayName": "Admin page heading",
+        "purpose": "Workspace headings, with a compact mobile variant."
+      },
+      "admin-body": {
+        "displayName": "Admin workspace body",
+        "purpose": "Workspace base text and rhythm."
+      },
+      "logo": {
+        "displayName": "Existing serif logo",
+        "purpose": "Identity detail only; content headings use DM Sans."
+      }
+    },
+    "shadows": [
+      {
+        "name": "public-subtle",
+        "value": "0 4px 20px rgba(24, 33, 44, 0.04)",
+        "purpose": "Existing --ui-shadow for selected utility surfaces."
+      },
+      {
+        "name": "public-soft",
+        "value": "none",
+        "purpose": "Current --lumi-soft-shadow and --lumi-button-shadow on public surfaces."
+      },
+      {
+        "name": "admin-workspace-light",
+        "value": "none",
+        "purpose": "Light --admin-v2-shadow on workspace cards."
+      },
+      {
+        "name": "admin-workspace-dark",
+        "value": "0 10px 30px rgba(0, 0, 0, 0.24)",
+        "purpose": "Dark --admin-v2-shadow on workspace cards."
+      },
+      {
+        "name": "admin-foundation-dark",
+        "value": "0 14px 34px rgba(0, 0, 0, 0.28)",
+        "purpose": "Existing dark --lumi-soft-shadow in the admin foundation."
+      },
+      {
+        "name": "account-tab-active",
+        "value": "0 5px 14px rgba(70, 48, 42, 0.08)",
+        "purpose": "Preserved active account-authentication tab depth."
+      },
+      {
+        "name": "booking-path",
+        "value": "0 12px 34px rgba(44, 33, 30, 0.06)",
+        "purpose": "Preserved booking account/guest path cards."
+      },
+      {
+        "name": "booking-path-hover",
+        "value": "0 18px 38px rgba(44, 33, 30, 0.1)",
+        "purpose": "Preserved booking path hover state."
+      },
+      {
+        "name": "notification-panel",
+        "value": "0 18px 48px rgba(52, 41, 37, 0.18)",
+        "purpose": "Admin notification popover."
+      },
+      {
+        "name": "gallery-lightbox",
+        "value": "0 24px 70px rgba(0, 0, 0, 0.38)",
+        "purpose": "Expanded gallery image over its modal backdrop."
+      },
+      {
+        "name": "control-focus-light",
+        "value": "0 0 0 3px rgba(49, 94, 92, 0.25)",
+        "purpose": "Existing shared focus-shadow token; its legacy tint is retained."
+      },
+      {
+        "name": "control-focus-admin-dark",
+        "value": "0 0 0 3px rgba(169, 200, 196, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
+        "purpose": "Existing dark admin focus-shadow token."
+      }
+    ],
+    "motion": [
+      {
+        "name": "public-action",
+        "value": "200ms ease",
+        "purpose": "Public button color states."
+      },
+      {
+        "name": "service-border",
+        "value": "180ms ease",
+        "purpose": "Service card border color."
+      },
+      {
+        "name": "gallery-rail",
+        "value": "350ms ease",
+        "purpose": "Homepage rail transform and opacity."
+      },
+      {
+        "name": "gallery-image",
+        "value": "450ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Gallery-page image transform."
+      },
+      {
+        "name": "admin-state",
+        "value": "160ms ease",
+        "purpose": "Admin navigation, button and toast states."
+      },
+      {
+        "name": "admin-drawer",
+        "value": "190ms ease",
+        "purpose": "Mobile drawer transform and backdrop visibility/opacity."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "public affected transitions: none; admin durations: 0.01ms and one animation iteration",
+        "purpose": "Existing prefers-reduced-motion behavior; do not add motion outside it."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "public-primary",
+        "value": "768px",
+        "purpose": "Homepage stacking, mobile header/menu, public field floor and main type-role changes."
+      },
+      {
+        "name": "service-grid-tablet",
+        "value": "900px",
+        "purpose": "Four service cards become two before the 768px single-column layout."
+      },
+      {
+        "name": "gallery-page-mobile",
+        "value": "640px",
+        "purpose": "Gallery-page grid becomes one column."
+      },
+      {
+        "name": "admin-drawer",
+        "value": "900px",
+        "purpose": "Sidebar becomes drawer; dashboard grid stacks; metrics become two per row."
+      },
+      {
+        "name": "admin-compact",
+        "value": "640px",
+        "purpose": "Compact workspace spacing, heading and stacked toolbar rows."
+      },
+      {
+        "name": "admin-field-mobile",
+        "value": "768px",
+        "purpose": "Existing mobile admin optical text geometry and single-column forms."
+      },
+      {
+        "name": "narrow-actions",
+        "value": "480px",
+        "purpose": "Existing component-specific action stacking."
+      }
+    ],
+    "provenance": {
+      "authority": "Implemented TEST source and review captures; no approved new comp.",
+      "tokenOwners": [
+        "src/styles/00-base.css",
+        "src/admin-styles/00-foundation.css",
+        "src/admin-styles/20-workspace.css"
+      ],
+      "componentOwners": [
+        "src/styles/13-gallery-footer-navigation.css",
+        "src/styles/15-home-sections.css",
+        "src/styles/16-home-gallery.css",
+        "src/styles/18-hero-inner-pages.css",
+        "src/styles/25-customer-account.css",
+        "src/styles/30-booking.css",
+        "src/admin-styles/10-components.css"
+      ],
+      "previewPolicy": "Previews use live CSS custom properties. Admin-scoped variables fall back to current public tokens when the panel is outside the admin body. Local geometry fallbacks match implemented components. Previews contain no runtime workflow or user records.",
+      "tonalRampPolicy": "Eight-step OKLCH ramps are generated display metadata using the source color's hue/chroma (alpha preserved where present); they are not new runtime tokens or approved palette additions."
+    }
+  },
+  "components": [
+    {
+      "name": "Public Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Canonical cobalt public action; sentence case, stable hover position.",
+      "html": "<button class=\"ds-public-primary\" type=\"button\">Időpontot foglalok</button>",
+      "css": ".ds-public-primary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border:1px solid transparent;border-radius:var(--lumi-radius-control);background:var(--ui-primary);color:var(--ui-on-dark);font-family:var(--lumi-button-font);font-size:14px;font-weight:600;line-height:1.3;letter-spacing:0;text-decoration:none;cursor:pointer;transition:background-color .2s ease,color .2s ease}.ds-public-primary:hover{background:var(--ui-accent-text);color:var(--ui-on-primary)}.ds-public-primary:focus-visible{outline:3px solid var(--ui-rose-dark, var(--ui-accent-text));outline-offset:3px;}.ds-public-primary:disabled{cursor:default;opacity:.6}"
+    },
+    {
+      "name": "Public Outlined Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Compact outlined gallery action.",
+      "html": "<button class=\"ds-public-secondary\" type=\"button\">Galéria megnyitása <span class=\"ds-public-secondary-arrow\" aria-hidden=\"true\">↗</span></button>",
+      "css": ".ds-public-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--ui-line-strong);border-radius:var(--lumi-radius-control);background:transparent;color:var(--ui-ink);font-family:var(--lumi-button-font);font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;transition:background-color .2s ease,color .2s ease}.ds-public-secondary-arrow{margin-left:14px}.ds-public-secondary:hover{border-color:var(--ui-primary);background:var(--ui-soft);color:var(--ui-accent-text)}.ds-public-secondary:focus-visible{outline:3px solid var(--ui-rose-dark, var(--ui-accent-text));outline-offset:3px;}"
+    },
+    {
+      "name": "Account Text Field",
+      "kind": "input",
+      "refersTo": "account-field",
+      "description": "A visible label and the existing account field geometry; public mobile text keeps its 16px floor.",
+      "html": "<label class=\"ds-account-label\" for=\"ds-account-email\">E-mail-cím<input class=\"ds-account-input\" id=\"ds-account-email\" type=\"email\" autocomplete=\"email\"></label>",
+      "css": ".ds-account-label{display:grid;gap:8px;color:var(--ui-ink);font-family:var(--lumi-button-font);font-size:var(--lumi-font-caption);font-weight:700}.ds-account-input{width:100%;min-width:0;min-height:46px;padding:10px 13px;border:1px solid var(--lumi-control-border);border-radius:var(--lumi-radius-control);background:var(--lumi-control-bg);color:var(--ui-off-black);font-family:var(--lumi-button-font);font-size:max(16px,var(--lumi-font-body-small));font-weight:400;cursor:text}.ds-account-input:focus-visible{border-color:var(--lumi-control-border-strong);box-shadow:var(--lumi-control-focus);outline:none}.ds-account-input:disabled{opacity:.68}@media(max-width:768px){.ds-account-input{font-size-adjust:none;text-size-adjust:100%;-webkit-text-size-adjust:100%}}"
+    },
+    {
+      "name": "Public Navigation",
+      "kind": "nav",
+      "description": "Desktop text links and a cobalt booking destination; mobile menu is documented separately in DESIGN.md.",
+      "html": "<nav class=\"ds-public-nav\" aria-label=\"Főmenü\"><a class=\"ds-public-nav-link ds-public-nav-active\" href=\"#ds-home\" aria-current=\"page\">Kezdőlap</a><a class=\"ds-public-nav-link\" href=\"#ds-services\">Szolgáltatások</a><a class=\"ds-public-nav-booking\" href=\"#ds-booking\">Foglalás</a></nav>",
+      "css": ".ds-public-nav{display:flex;align-items:center;flex-wrap:wrap;gap:22px;font-family:var(--lumi-button-font)}.ds-public-nav-link,.ds-public-nav-booking{display:inline-flex;align-items:center;justify-content:center;min-height:40px;color:var(--ui-off-black);font-size:14px;font-weight:500;text-decoration:none}.ds-public-nav-link:hover,.ds-public-nav-active{box-shadow:inset 0 -2px 0 var(--ui-rose)}.ds-public-nav-booking{padding:0 18px;border-radius:var(--lumi-radius-control);background:var(--ui-primary);color:var(--ui-on-primary)}.ds-public-nav-booking:hover{background:var(--ui-rose-dark);box-shadow:inset 0 -3px 0 var(--ui-warm)}.ds-public-nav-link:focus-visible,.ds-public-nav-booking:focus-visible{outline:3px solid var(--ui-rose-dark, var(--ui-accent-text));outline-offset:3px;}"
+    },
+    {
+      "name": "Admin Primary Button",
+      "kind": "button",
+      "refersTo": "admin-button-primary",
+      "description": "Compact visual control with the existing expanded 44px hit area.",
+      "html": "<button class=\"ds-admin-primary\" type=\"button\">Kieső idő</button>",
+      "css": ".ds-admin-primary{position:relative;display:inline-flex;align-items:center;justify-content:center;height:var(--admin-ui-button-height,34px);min-height:var(--admin-ui-button-height,34px);padding:0 var(--admin-ui-button-padding-x,13px);border:1px solid var(--admin-v2-border-strong,var(--ui-line-strong));border-radius:var(--admin-ui-control-radius,11px);font-family:var(--lumi-button-font);font-size:var(--admin-ui-action-font-size,14px);font-weight:600;line-height:1.15;cursor:pointer;transition:color 160ms ease,border-color 160ms ease,background-color 160ms ease}.ds-admin-primary::after{position:absolute;top:calc((var(--admin-ui-touch-target,44px) - var(--admin-ui-button-height,34px)) / -2);right:0;bottom:calc((var(--admin-ui-touch-target,44px) - var(--admin-ui-button-height,34px)) / -2);left:0;content:\"\"}.ds-admin-primary:focus-visible{outline:3px solid var(--admin-v2-brand, var(--ui-primary));outline-offset:2px;}.ds-admin-primary{border-color:var(--admin-v2-brand,var(--ui-primary));color:var(--admin-v2-on-brand,var(--ui-on-primary));background:var(--admin-v2-brand,var(--ui-primary))}.ds-admin-primary:hover{border-color:var(--admin-v2-brand-dark,var(--ui-accent-text));color:var(--admin-v2-on-brand-dark,var(--ui-on-primary));background:var(--admin-v2-brand-dark,var(--ui-accent-text))}"
+    },
+    {
+      "name": "Admin Secondary Button",
+      "kind": "button",
+      "refersTo": "admin-button-secondary",
+      "description": "White/tonal compact workspace action with accent hover text and border.",
+      "html": "<button class=\"ds-admin-secondary\" type=\"button\">Naptár</button>",
+      "css": ".ds-admin-secondary{position:relative;display:inline-flex;align-items:center;justify-content:center;height:var(--admin-ui-button-height,34px);min-height:var(--admin-ui-button-height,34px);padding:0 var(--admin-ui-button-padding-x,13px);border:1px solid var(--admin-v2-border-strong,var(--ui-line-strong));border-radius:var(--admin-ui-control-radius,11px);font-family:var(--lumi-button-font);font-size:var(--admin-ui-action-font-size,14px);font-weight:600;line-height:1.15;cursor:pointer;transition:color 160ms ease,border-color 160ms ease,background-color 160ms ease}.ds-admin-secondary::after{position:absolute;top:calc((var(--admin-ui-touch-target,44px) - var(--admin-ui-button-height,34px)) / -2);right:0;bottom:calc((var(--admin-ui-touch-target,44px) - var(--admin-ui-button-height,34px)) / -2);left:0;content:\"\"}.ds-admin-secondary:focus-visible{outline:3px solid var(--admin-v2-brand, var(--ui-primary));outline-offset:2px;}.ds-admin-secondary{color:var(--admin-v2-ink,var(--ui-ink));background:var(--admin-v2-surface,var(--ui-surface));box-shadow:0 1px 2px rgba(48,30,26,.04)}.ds-admin-secondary:hover{border-color:var(--admin-v2-brand,var(--ui-primary));color:var(--admin-v2-brand-dark,var(--ui-accent-text))}"
+    },
+    {
+      "name": "Admin Navigation",
+      "kind": "nav",
+      "refersTo": "admin-navigation-active",
+      "description": "Current item uses a pale surface, dark accent and edge marker.",
+      "html": "<nav class=\"ds-admin-nav\" aria-label=\"Munkaterület\"><button class=\"ds-admin-nav-item\" type=\"button\" aria-current=\"page\"><svg class=\"ds-admin-nav-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"6\" height=\"6\" rx=\"1\"></rect><rect x=\"15\" y=\"3\" width=\"6\" height=\"6\" rx=\"1\"></rect><rect x=\"3\" y=\"15\" width=\"6\" height=\"6\" rx=\"1\"></rect><rect x=\"15\" y=\"15\" width=\"6\" height=\"6\" rx=\"1\"></rect></svg>Áttekintés</button><button class=\"ds-admin-nav-item\" type=\"button\">Időpontok</button></nav>",
+      "css": ".ds-admin-nav{display:grid;gap:4px;padding-left:14px;font-family:var(--lumi-button-font)}.ds-admin-nav-item{position:relative;display:flex;align-items:center;width:100%;min-height:40px;padding:9px 10px;gap:10px;border:0;border-radius:9px;color:var(--admin-v2-muted,var(--ui-muted));background:transparent;font-family:var(--lumi-button-font);font-size:14px;font-weight:600;text-align:left;cursor:pointer;transition:color 160ms ease,background-color 160ms ease}.ds-admin-nav-item:hover{color:var(--admin-v2-ink,var(--ui-ink));background:var(--admin-v2-surface-soft,var(--ui-soft))}.ds-admin-nav-item[aria-current=\"page\"]{color:var(--admin-v2-brand-dark,var(--ui-accent-text));background:var(--admin-v2-brand-soft,var(--ui-highlight))}.ds-admin-nav-item[aria-current=\"page\"]::before{position:absolute;inset:8px auto 8px -14px;width:3px;border-radius:0 4px 4px 0;background:var(--admin-v2-brand,var(--ui-primary));content:\"\"}.ds-admin-nav-icon{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ds-admin-nav-item:focus-visible{outline:3px solid var(--admin-v2-brand, var(--ui-primary));outline-offset:2px;}@media(max-width:900px){.ds-admin-nav-item{min-height:44px}}"
+    },
+    {
+      "name": "Admin Information Status",
+      "kind": "chip",
+      "refersTo": "admin-status-info",
+      "description": "Text-bearing functional state chip, preserving its compact visual size.",
+      "html": "<button class=\"ds-admin-status\" type=\"button\">Foglalt</button>",
+      "css": ".ds-admin-status{min-height:26px;padding:4px 8px;border:0;border-radius:var(--lumi-radius-pill);color:var(--admin-v2-info,#4e667b);background:var(--admin-v2-info-soft,#e9eff4);font-family:var(--lumi-button-font);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer}.ds-admin-status:focus-visible{outline:3px solid var(--admin-v2-brand, var(--ui-primary));outline-offset:2px;}"
+    },
+    {
+      "name": "Admin Panel Card",
+      "kind": "card",
+      "refersTo": "admin-card",
+      "description": "Bordered workspace panel with a distinct header; uses dark theme depth only when its scoped token applies.",
+      "html": "<section class=\"ds-admin-card\"><header class=\"ds-admin-card-header\"><h2 class=\"ds-admin-card-title\">Mai nap</h2><button class=\"ds-admin-card-action\" type=\"button\">Teljes lista <span class=\"ds-admin-card-arrow\" aria-hidden=\"true\">›</span></button></header><div class=\"ds-admin-card-body\"><p class=\"ds-admin-card-copy\">Időpontok és teendők</p></div></section>",
+      "css": ".ds-admin-card{width:100%;min-width:0;overflow:hidden;border:1px solid var(--admin-v2-border,var(--ui-line));border-radius:var(--lumi-radius-card);color:var(--admin-v2-ink,var(--ui-ink));background:var(--admin-v2-surface,var(--ui-surface));box-shadow:var(--admin-v2-shadow,none);font-family:var(--lumi-button-font)}.ds-admin-card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--admin-v2-border,var(--ui-line))}.ds-admin-card-title{margin:0;font-family:var(--font-display);font-size:16px;font-weight:600}.ds-admin-card-action{border:0;background:transparent;color:var(--admin-v2-brand-dark,var(--ui-accent-text));font-family:var(--lumi-button-font);font-size:12px;font-weight:600;cursor:pointer}.ds-admin-card-action:hover{text-decoration:underline}.ds-admin-card-action:focus-visible{outline:3px solid var(--admin-v2-brand, var(--ui-primary));outline-offset:2px;}.ds-admin-card-arrow{margin-left:6px}.ds-admin-card-body{padding:13px 15px}.ds-admin-card-copy{margin:0;color:var(--admin-v2-muted,var(--ui-muted));font-size:13px}"
+    },
+    {
+      "name": "Grouped Admin Metrics",
+      "kind": "custom",
+      "description": "One bordered container with internal dividers rather than separate floating metric cards. Dashes indicate preview values, not product data.",
+      "html": "<section class=\"ds-admin-metrics\" aria-label=\"Áttekintés\"><div class=\"ds-admin-metric\"><p class=\"ds-admin-metric-label\">Mai időpontok</p><strong class=\"ds-admin-metric-value\">—</strong></div><div class=\"ds-admin-metric\"><p class=\"ds-admin-metric-label\">Megerősítésre vár</p><strong class=\"ds-admin-metric-value\">—</strong></div><div class=\"ds-admin-metric\"><p class=\"ds-admin-metric-label\">Email problémák</p><strong class=\"ds-admin-metric-value\">—</strong></div><div class=\"ds-admin-metric\"><p class=\"ds-admin-metric-label\">Foglalható napok</p><strong class=\"ds-admin-metric-value\">—</strong></div></section>",
+      "css": ".ds-admin-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:8px;border:1px solid var(--admin-v2-border,var(--ui-line));border-radius:var(--lumi-radius-card);background:var(--admin-v2-surface,var(--ui-surface));font-family:var(--lumi-button-font)}.ds-admin-metric{min-width:0;min-height:116px;padding:16px 20px;color:var(--admin-v2-ink,var(--ui-ink))}.ds-admin-metric+.ds-admin-metric{border-left:1px solid var(--admin-v2-border,var(--ui-line))}.ds-admin-metric-label{margin:0;color:var(--admin-v2-muted,var(--ui-muted));font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}.ds-admin-metric-value{display:block;margin-top:10px;font-family:var(--font-display);font-size:36px;font-weight:600;line-height:1;letter-spacing:-.02em}@media(max-width:900px){.ds-admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ds-admin-metric:nth-child(3){border-left:0}.ds-admin-metric:nth-child(n+3){border-top:1px solid var(--admin-v2-border,var(--ui-line))}}@media(max-width:640px){.ds-admin-metric{min-height:108px;padding:12px}.ds-admin-metric-label{font-size:11px}.ds-admin-metric-value{font-size:23px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Minimal studio",
+    "overview": "“Minimal studio” is a descriptive working name for the implemented 2026-10-10 TEST redesign, not an additional approved brand promise. The user's confirmed direction is minimalist, with a visibly different layout and colors across public and admin surfaces and a large, full-width homepage photograph. This document records code and rendered evidence; there is no approved new design comp.\n\nThe current system uses DM Sans headings and body text, cobalt actions, white and cool gray surfaces, dark ink, fine borders, and authentic photographs. Public sections have open spacing; the admin groups information densely for daily work. The existing serif logo remains an identity detail. Earlier Figma, pink, cacao, sage, and mist-teal treatments are historical references, not current visual authority.",
+    "keyCharacteristics": [
+      "Sans headings and body text, with the existing serif logo retained.",
+      "Cobalt actions on white and cool gray surfaces.",
+      "Photographs and section layout provide the public site's hierarchy.",
+      "Flat public sections and grouped admin information, with selective depth for overlays and existing utility components."
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Color Rule",
+        "body": "Use the owning surface's semantic tokens for actions, text, borders, and states; do not infer a color from a legacy token name.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sans Heading Rule",
+        "body": "Use the display token for content headings; reserve the existing Playfair treatment for the logo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Section Rule",
+        "body": "Keep homepage sections and the gallery rail flat; retain depth where an existing overlay, utility component, or dark admin surface requires it.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Radius Ownership Rule",
+        "body": "One component owns each outer shape; nested fields and images must not create competing corners.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do use the current semantic tokens and the owning source stylesheet when extending a component.",
+      "Do use DM Sans for content headings and body text, preserving the existing serif logo.",
+      "Do preserve the mobile hero's uncropped 16:9 framing and actions below the image.",
+      "Do keep focus, state labels, public mobile field text of at least 16px, and existing control hit areas visible and usable.",
+      "Do preserve real photographs, prices, availability, and booking/account/admin workflows."
+    ],
+    "donts": [
+      "Don't treat historical Figma, pink, cacao, sage, or mist-teal decisions as the current TEST direction.",
+      "Don't create a new global radius tier from an existing local component exception.",
+      "Don't add shadows or positional depth to the flat homepage gallery rail.",
+      "Don't modify generated bundles directly, add duplicate override layers, or use !important.",
+      "Don't transfer these TEST changes to LIVE or alter the standalone admin zoom policy without separate explicit authorization."
+    ]
+  }
+}

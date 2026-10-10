@@ -1,38 +1,39 @@
 :root {
-    --akcentus: #c9d4cf;
-    --akcentus-vilagos: #a8bbb3;
-    --tinta: #31383f;
-    --barna: #596067;
-    --krem: #e3dcd2;
-    --kartya: #f5f1eb;
-    --szoveg: #555d64;
-    --rozsa-halvany: #dfe7e3;
-    --zsalyaszurke: #aeb8af;
+    --akcentus: #3155c6;
+    --akcentus-vilagos: #eaf0ff;
+    --tinta: #18212c;
+    --barna: #596474;
+    --krem: #f5f6f9;
+    --kartya: #ffffff;
+    --szoveg: #596474;
+    --rozsa-halvany: #eaf0ff;
+    --zsalyaszurke: #3155c6;
 
     /* Public semantic design tokens. */
-    --ui-primary: #c9d4cf;
-    --ui-on-primary: #31383f;
-    --ui-accent: #c9d4cf;
-    --ui-on-accent: #31383f;
-    --ui-bg: #e3dcd2;
-    --ui-surface: #f5f1eb;
-    --ui-soft: #e4e9e6;
-    --ui-highlight: #dfe7e3;
-    --ui-warm: #8ba198;
-    --ui-accent-text: #4b625a;
-    --ui-off-black: #31383f;
-    --ui-off-white: #f5f1eb;
-    --ui-on-dark: #f5f1eb;
+    --ui-primary: #3155c6;
+    --ui-on-primary: #ffffff;
+    --ui-accent: #eaf0ff;
+    --ui-on-accent: #18212c;
+    --ui-bg: #f5f6f9;
+    --ui-surface: #ffffff;
+    --ui-soft: #edf1f7;
+    --ui-highlight: #eaf0ff;
+    --ui-warm: #3155c6;
+    --ui-accent-text: #2948a9;
+    --ui-off-black: #18212c;
+    --ui-off-white: #ffffff;
+    --ui-on-dark: #ffffff;
     --ui-header-bg: var(--ui-bg);
     --ui-ink: var(--ui-off-black);
-    --ui-muted: #555d64;
+    --ui-muted: #596474;
     --ui-rose: var(--ui-accent);
-    --ui-rose-dark: #465d55;
-    --ui-line: rgba(201, 212, 207, 0.3);
-    --ui-line-strong: rgba(49, 56, 63, 0.28);
-    --ui-shadow: 0 18px 40px rgba(49, 56, 63, 0.1);
+    --ui-rose-dark: #2948a9;
+    --ui-line: rgba(24, 33, 44, 0.16);
+    --ui-line-strong: rgba(24, 33, 44, 0.34);
+    --ui-shadow: 0 4px 20px rgba(24, 33, 44, 0.04);
     --ui-gutter: clamp(20px, 4.3vw, 80px);
-    --ui-header-height: 88px;
+    --ui-header-height: 76px;
+    --font-display: 'DM Sans', sans-serif;
     --lumi-content-width: 1200px;
     --lumi-section-padding-inline: var(--ui-gutter);
     --lumi-section-padding-block: clamp(72px, 8vw, 112px);
@@ -43,8 +44,8 @@
     --lumi-price-heading-content-gap: 18px;
     --lumi-container-width: min(1400px, calc(100% - 40px));
     --lumi-radius-pill: 999px;
-    --lumi-radius-card: 4px;
-    --lumi-radius-control: 3px;
+    --lumi-radius-card: 16px;
+    --lumi-radius-control: 8px;
     --lumi-button-height: 44px;
     --lumi-button-width: min(calc(100% - 16px), 360px);
     --lumi-button-padding: 30px;
@@ -61,12 +62,12 @@
     --lumi-font-control: 18px;
     --lumi-font-calendar: 11px;
     --lumi-button-shadow: none;
-    --lumi-control-bg: #fbf8f3;
-    --lumi-control-border: rgba(49, 56, 63, 0.19);
-    --lumi-control-border-strong: rgba(49, 56, 63, 0.38);
-    --lumi-control-focus: 0 0 0 3px rgba(70, 93, 85, 0.24);
-    --lumi-soft-shadow: 0 16px 38px rgba(49, 56, 63, 0.1);
-    --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23465d55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --lumi-control-bg: #ffffff;
+    --lumi-control-border: rgba(24, 33, 44, 0.22);
+    --lumi-control-border-strong: rgba(24, 33, 44, 0.42);
+    --lumi-control-focus: 0 0 0 3px rgba(49, 94, 92, 0.25);
+    --lumi-soft-shadow: none;
+    --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%232948a9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 * {
@@ -116,6 +117,20 @@ select:focus-visible,
 textarea:focus-visible {
     outline: 3px solid var(--ui-rose-dark);
     outline-offset: 3px;
+}
+
+/* Shared booking-hours note in the public footer and booking introduction. */
+.foglalasi-idorend {
+    min-width: 0;
+    margin: 0;
+    font-size: var(--lumi-font-body-small);
+    line-height: 1.5;
+    text-align: left;
+}
+
+.foglalasi-idorend strong {
+    display: block;
+    font-weight: 600;
 }
 
 /* ===================================
@@ -208,11 +223,11 @@ textarea:focus-visible {
     box-shadow: none;
     color: var(--ui-off-black, #211b19);
     font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-button-compact);
-    font-weight: 700;
-    letter-spacing: 0.07em;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
     text-decoration: none;
-    text-transform: uppercase;
+    text-transform: none;
     transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -227,26 +242,7 @@ textarea:focus-visible {
 .menu-pontok a:last-child {
     min-height: 40px;
     padding: 0 18px;
-    border-radius: 2px;
-    background: var(--ui-ink, #91766e);
-    color: var(--ui-on-dark, #f2e9eb);
-}
-
-body:not(.fooldal):not(.admin-body) .site-header {
-    --ui-header-bg: #31383f;
-    border-bottom-color: rgba(201, 212, 207, 0.28);
-}
-
-body:not(.fooldal):not(.admin-body) .site-header :is(.logo, .menu-pontok a) {
-    color: var(--ui-on-dark);
-}
-
-body:not(.fooldal):not(.admin-body) .site-header .menu-pontok a:hover,
-body:not(.fooldal):not(.admin-body) .site-header .menu-pontok a.aktiv {
-    color: var(--ui-on-dark);
-}
-
-body:not(.fooldal):not(.admin-body) .site-header .menu-pontok a:last-child {
+    border-radius: var(--lumi-radius-control);
     background: var(--ui-primary);
     color: var(--ui-on-primary);
 }
@@ -340,31 +336,33 @@ body.fooldal #fo-tartalom > section[hidden] {
 
 /* FŐCÍM STÍLUSA */
 h1 {
-    font-family: 'Playfair Display', serif;
-    color: #ffffff;
-    font-size: 6.5em;
-    margin-bottom: 10px;
-    font-weight: 700;
-    text-align: center;
+    font-family: var(--font-display);
+    color: var(--ui-ink);
+    font-size: clamp(40px, 5vw, 72px);
+    margin-bottom: 16px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    text-align: left;
 }
 
 /* SZOLGÁLTATÁSOK STÍLUSA */
 h2 {
-    font-family: 'Playfair Display', serif;
-    color: var(--akcentus);
-    font-size: 2.45em;
-    font-weight: 700;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: var(--lumi-heading-description-gap);
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+    font-family: var(--font-display);
+    color: var(--ui-ink);
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 600;
+    line-height: 1.12;
+    text-align: left;
+    margin: 0 0 var(--lumi-heading-description-gap);
+    letter-spacing: -0.035em;
+    text-transform: none;
 }
 
 .szekcio-leiras {
     max-width: 620px;
     margin: 0 auto 34px;
-    color: rgba(23, 19, 13, 0.62);
+    color: var(--ui-muted);
     font-size: var(--lumi-font-lead);
     font-weight: 400;
     line-height: 1.7;
@@ -372,8 +370,11 @@ h2 {
 }
 
 .szekcio-kicker,
-.hero-kicker,
 .foglalas-kicker {
+    display: none;
+}
+
+.hero-kicker {
     color: var(--ui-accent-text);
     font-family: "DM Sans", sans-serif;
     font-size: var(--lumi-font-caption);
@@ -421,7 +422,7 @@ h2 {
 }
 
 .urlap-mezo::placeholder {
-    color: rgba(43, 37, 33, 0.52);
+    color: var(--ui-muted);
     opacity: 1;
 }
 
@@ -486,24 +487,24 @@ select.urlap-mezo:invalid {
     margin: 0;
     padding: 0 22px;
     border: 1px solid transparent;
-    border-radius: 2px;
-    background: var(--ui-off-black);
+    border-radius: var(--lumi-radius-control);
+    background: var(--ui-primary);
     box-shadow: var(--lumi-button-shadow);
     color: var(--ui-on-dark, #f2e9eb);
     font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-button);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: 0.04em;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0;
     text-align: center;
     text-decoration: none;
-    text-transform: uppercase;
+    text-transform: none;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .gomb:hover {
-    background: var(--ui-primary);
+    background: var(--ui-accent-text);
     color: var(--ui-on-primary, #31383f);
     transform: none;
     box-shadow: none;
@@ -573,8 +574,8 @@ select.urlap-mezo:invalid {
 
 @media screen and (max-width: 768px) {
     :root {
-        --ui-header-height: 72px;
-        --ui-mobile-type-scale: 80%;
+        --ui-header-height: 68px;
+        --ui-mobile-type-scale: 100%;
     }
 
     body:not(.admin-body) {

@@ -140,7 +140,7 @@ function renderPage({
 
   syncSerializableImageAttributes(document);
   syncPortableAssetUrls(document);
-  syncStructuredData(document, content);
+  syncStructuredData(document, content, context.foglalasiIdorendSzovege);
   document.documentElement.dataset.lumiContentUpdatedAt =
     snapshot.contentUpdatedAt;
   document.documentElement.dataset.lumiContentFingerprint =
@@ -170,7 +170,7 @@ function syncSerializableImageAttributes(document) {
   });
 }
 
-function syncStructuredData(document, content) {
+function syncStructuredData(document, content, hoursLabel) {
   const serviceKey = document.body?.dataset.szolgaltatasOldal;
   const serviceContent = serviceKey
     ? content.szolgaltatasOldalak?.[serviceKey]
@@ -215,6 +215,19 @@ function syncStructuredData(document, content) {
         content.seo?.fooldalLeiras ||
         content.marka?.rovidLeiras ||
         data.description;
+      const hours = content.kapcsolat?.nyitvatartas;
+      if (hours) {
+        data.openingHoursSpecification = {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: [
+            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+          ],
+          opens: hours.kezdes,
+          closes: hours.vege,
+        };
+        data.description = [data.description, hoursLabel(hours), hours.megjegyzes]
+          .filter(Boolean).join(" ");
+      }
       if (content.seo?.megosztasiKep)
         data.image = new URL(content.seo.megosztasiKep, SITE_ORIGIN).href;
       if (data.address && content.kapcsolat?.cim)

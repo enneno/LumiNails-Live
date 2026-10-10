@@ -3,7 +3,11 @@
   "project": {
     "name": "LumiNails",
     "productType": "beauty salon service and booking website",
-    "stack": ["static HTML", "CSS", "vanilla JavaScript"]
+    "stack": [
+      "static HTML",
+      "CSS",
+      "vanilla JavaScript"
+    ]
   },
   "sources": {
     "tokens": [
@@ -12,55 +16,113 @@
       "src/admin-styles/20-workspace.css"
     ],
     "components": [
+      "src/styles/13-gallery-footer-navigation.css",
+      "src/styles/15-home-sections.css",
+      "src/styles/16-home-gallery.css",
       "src/styles/18-hero-inner-pages.css",
+      "src/styles/19-service-detail.css",
+      "src/styles/25-customer-account.css",
       "src/styles/30-booking.css",
-      "src/admin-styles/10-components.css"
+      "src/admin-styles/10-components.css",
+      "src/admin-styles/20-workspace.css"
     ],
-    "assets": ["kepek/"],
-    "instructions": ["AGENTS.md", "DEVELOPMENT.md", "docs/design-system.md"]
+    "assets": [
+      "kepek/"
+    ],
+    "instructions": [
+      "AGENTS.md",
+      "DEVELOPMENT.md",
+      "PRODUCT.md",
+      "DESIGN.md",
+      "docs/design-system.md"
+    ]
   },
   "design": {
     "colorMode": "light public UI; light and dark admin UI",
     "colors": {
-      "primary": "#C9D4CF",
-      "onPrimary": "#31383f",
-      "accent": "#8BA198",
-      "background": "#e3dcd2",
-      "surface": "#F5F1EB",
-      "foreground": "#31383f",
-      "mutedForeground": "#555d64",
-      "accentForeground": "#4B625A",
-      "highlight": "#DFE7E3",
-      "adminPrimary": "#FFD1DC"
+      "primary": "#3155c6",
+      "onPrimary": "#ffffff",
+      "accent": "#eaf0ff",
+      "background": "#f5f6f9",
+      "surface": "#ffffff",
+      "supportSurface": "#edf1f7",
+      "foreground": "#18212c",
+      "mutedForeground": "#596474",
+      "accentForeground": "#2948a9",
+      "highlight": "#eaf0ff",
+      "border": "rgba(24, 33, 44, 0.16)",
+      "strongBorder": "rgba(24, 33, 44, 0.34)",
+      "adminPrimary": "#3155c6",
+      "adminDarkPrimary": "#a9beff",
+      "adminDarkHover": "#c8d6ff",
+      "adminDarkBackground": "#121a28",
+      "adminDarkSurface": "#1b2638",
+      "adminDarkSupportSurface": "#27364d",
+      "adminDarkForeground": "#f7f9ff",
+      "adminDarkMutedForeground": "#c5cedc"
     },
     "typography": {
-      "display": "Playfair Display",
+      "display": "DM Sans",
       "body": "DM Sans",
-      "character": "editorial serif with clear functional sans-serif UI"
+      "logo": "Playfair Display",
+      "character": "sans headings and functional body; existing serif identity detail"
     },
     "spacing": {
-      "base": "4px",
-      "component": ["8px", "12px", "16px", "24px", "32px"],
-      "section": ["48px", "64px", "72px", "96px", "112px"],
+      "base": "4px (observed spacing rhythm, not a separate runtime scale)",
+      "component": [
+        "8px",
+        "12px",
+        "16px",
+        "24px",
+        "32px"
+      ],
+      "section": [
+        "52px",
+        "58px",
+        "64px",
+        "72px",
+        "96px",
+        "112px"
+      ],
       "contentWidth": "1200px",
-      "sectionInline": "var(--ui-gutter), 20px on mobile",
-      "sectionBlock": "clamp(72px, 8vw, 112px), 58px on mobile"
+      "gutter": "clamp(20px, 4.3vw, 80px)",
+      "sectionInline": "var(--ui-gutter); 20px at 768px and below",
+      "sectionBlock": "clamp(72px, 8vw, 112px); 58px at 768px and below",
+      "adminWorkspace": "28px top / 42px inline / 50px bottom; responsive local variants"
     },
     "radius": {
-      "control": "3px",
-      "card": "4px",
-      "hero": "desktop split; uncropped 16:9 mobile image with one directional scrim, compact left text and a unified bottom benefit strip; actions below",
-      "pill": "999px only for semantic pills"
+      "control": "8px",
+      "card": "16px",
+      "pill": "999px for chips and circular controls",
+      "localExceptions": {
+        "bookingField": "14px radius, not font size",
+        "accountButton": "10px",
+        "accountPhone": "11px",
+        "adminControl": "11px",
+        "adminAuthentication": "12px",
+        "adminNavigation": "9px"
+      },
+      "hero": "full-width desktop photo; uncropped 16:9 mobile image with copy left, benefits at bottom, gallery row and separate actions below; section boundaries have no outer radius"
     },
     "shadows": {
-      "soft": "0 16px 38px rgba(49, 56, 63, 0.10)",
-      "elevated": "0 24px 64px rgba(49, 56, 63, 0.10)"
+      "soft": "none",
+      "button": "none",
+      "adminLight": "none",
+      "publicUtility": "0 4px 20px rgba(24, 33, 44, 0.04)",
+      "adminDark": "0 10px 30px rgba(0, 0, 0, 0.24)",
+      "exceptions": "Existing booking path, account tab, compact admin control, focus and overlay shadows are retained locally; detailed vocabulary is in .impeccable/design.json."
     },
     "motion": {
       "level": "subtle",
-      "rule": "transform and opacity only; respect prefers-reduced-motion"
+      "publicAction": "200ms ease",
+      "galleryRail": "350ms ease for transform/opacity",
+      "adminState": "160ms ease",
+      "adminDrawer": "190ms ease",
+      "rule": "Use implemented component-specific transitions and respect prefers-reduced-motion."
     },
-    "density": "spacious public UI; compact admin workspace"
+    "density": "open public sections; compact admin workspace with grouped metrics",
+    "authority": "Implemented TEST source and review captures; no approved new comp",
+    "directionName": "Minimal studio (descriptive working name, not an additional brand commitment)"
   },
   "components": {
     "installed": [],
@@ -71,12 +133,18 @@
       "existing admin v2 controls"
     ],
     "patterns": [
-      "full-bleed split editorial hero",
-      "dark service showcase with pearl-sage highlights",
-      "consistent gallery caption overlays",
-      "single shared public footer",
-      "progressive booking step cards",
-      "split branded admin authentication"
+      "full-width photographic hero with DM Sans title and factual location below it",
+      "contained portrait/text introduction",
+      "four image-top service cards; two at 900px, one at 768px",
+      "flat three-image desktop gallery rail with retained arrows, swipe and keyboard logic",
+      "two-column gallery page with consistent caption overlays; one column at 640px",
+      "contained service text and untinted 3:2 contain image",
+      "single compact white public footer",
+      "retained progressive booking and account/guest paths",
+      "contained account authentication",
+      "centered admin authentication panel",
+      "white admin navigation, one grouped metric container and divided task panels",
+      "navy admin dark theme and mobile drawer at 900px"
     ]
   },
   "constraints": {
@@ -84,9 +152,10 @@
       "Edit source CSS and rebuild generated bundles",
       "Keep public and admin CSS ownership separate",
       "Use semantic tokens and visible focus states",
-      "Keep mobile controls at least 44x44px and fields at least 16px",
+      "Keep public mobile fields at least 16px, visible focus and existing touch areas; retain compact admin geometry and its 44px expanded button hit areas",
       "Use risk-proportionate local checks",
-      "Read docs/design-system.md and docs/visual-audit.md before UI changes"
+      "Read docs/design-system.md and docs/visual-audit.md before UI changes",
+      "Use root DESIGN.md for detailed extracted tokens and docs/design-system.md for ownership and bounded checks"
     ],
     "avoid": [
       "Do not edit style.css or admin-v2.css directly",
@@ -94,76 +163,142 @@
       "Do not enable zoom in standalone admin PWA",
       "Do not run tests in GitHub Actions",
       "Do not use decorative glass or gradients without a functional reason",
-      "Do not introduce a new font family or radius tier"
+      "Do not treat preserved local radius exceptions as new global tiers"
     ]
   },
   "decisions": [
     {
+      "id": "2026-10-10-cobalt-minimal-layout",
+      "date": "2026-10-10",
+      "status": "implemented",
+      "decision": "Replace the prior visual direction with cobalt actions, white/cool-gray surfaces and DM Sans content headings across public and admin UI. Use a full-width desktop hero, contained introduction, four image-top service cards, a flat gallery rail, a compact white footer, and grouped admin metrics with white navigation and a navy dark theme.",
+      "reason": "The user requested a genuinely different minimalist layout and colors for both surfaces, a large full-width hero, and allowed copy changes. The implementation keeps real photos, prices, data sources and workflows, plus the existing mobile 16:9 contain framing and admin PWA zoom policy. This is code-led implemented evidence, not a new approved comp."
+    },
+    {
+      "date": "2026-10-10",
+      "decision": "Use limestone, ivory, mist teal and deep ink consistently across public and admin light/dark UI, and make the desktop homepage hero a full-width photographic canvas.",
+      "reason": "The user requested a new minimal palette and full-page hero. Existing CMS imagery and site typography stay intact; semantic tokens and directional scrims preserve legibility and mobile 16:9 composition.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
+    },
+    {
       "date": "2026-09-08",
       "decision": "Compress the homepage gallery transitions and shared footer, remove the redundant inner gallery title, and present service-detail heroes as an untinted 3:2 image plus neutral copy on mobile.",
-      "reason": "The previous transition, footer and service heroes consumed disproportionate screen space. The new treatment keeps 44px targets, full imagery and readable hierarchy without adding a component dependency; a 21st.dev search only informed the understated arrow CTA styling."
+      "reason": "The previous transition, footer and service heroes consumed disproportionate screen space. The new treatment keeps 44px targets, full imagery and readable hierarchy without adding a component dependency; a 21st.dev search only informed the understated arrow CTA styling.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-08",
       "decision": "Keep the homepage notice, gallery transition and shared footer compact; center the mobile hero benefits and use a balanced two-column action row. Preserve public page zoom while keeping form controls large enough to prevent iOS focus zoom.",
-      "reason": "The previous vertical rhythm consumed too much of a phone screen, while narrow footer columns harmed readability. Compact spacing must come from layout and redundant copy, not from shrinking touch targets or form text."
+      "reason": "The previous vertical rhythm consumed too much of a phone screen, while narrow footer columns harmed readability. Compact spacing must come from layout and redundant copy, not from shrinking touch targets or form text.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-08",
       "decision": "Replace the public pink primary and pink-tinted surfaces with pearl sage and neutral ivory, simplify the mobile hero into one image composition, and remove the homepage carousel glow and card shadows.",
-      "reason": "The user rejected the visible pink and the fragmented hero, while the clipped carousel shadow created an obvious edge artifact. Slate-on-sage and slate-on-ivory keep strong contrast without changing public flows or the admin theme."
+      "reason": "The user rejected the visible pink and the fragmented hero, while the clipped carousel shadow created an obvious edge artifact. Slate-on-sage and slate-on-ivory keep strong contrast without changing public flows or the admin theme.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-08",
       "decision": "Keep the mobile hero image exactly 16:9 without cropping or zoom, place all three benefit labels on the photo, and replace the broad overlay with text-local translucent backgrounds.",
-      "reason": "The user plans to upload 16:9 images and needs predictable framing. Compact mobile typography fits the fixed image height; desktop layout remains unchanged."
+      "reason": "The user plans to upload 16:9 images and needs predictable framing. Compact mobile typography fits the fixed image height; desktop layout remains unchanged.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-08",
       "decision": "Use an edge-to-edge mobile hero photo with left-aligned slate text over a light readability scrim and account actions below the image.",
-      "reason": "The user requested a desktop-inspired mobile hero and removal of brown hero text. Preserve the CMS image and copy, desktop split layout, and existing action links."
+      "reason": "The user requested a desktop-inspired mobile hero and removal of brown hero text. Preserve the CMS image and copy, desktop split layout, and existing action links.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-01",
       "decision": "Adopt a quiet-luxury editorial redesign for the TEST critical views.",
-      "reason": "The user explicitly approved a redesign; the direction preserves LumiNails imagery and typography while improving hierarchy, booking clarity, contrast and responsive behavior."
+      "reason": "The user explicitly approved a redesign; the direction preserves LumiNails imagery and typography while improving hierarchy, booking clarity, contrast and responsive behavior.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-01",
       "decision": "Use deep cacao as the primary action and dark showcase color, with warm ivory surfaces and muted blush accents.",
-      "reason": "This keeps the beauty-studio character while providing stronger text and control contrast than the previous dusty rose primary."
+      "reason": "This keeps the beauty-studio character while providing stronger text and control contrast than the previous dusty rose primary.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-02",
       "decision": "Treat the mobile hero image and gallery label as one framed card, and suppress the account recommendation when the hero already includes an account action.",
-      "reason": "A single radius owner prevents broken nested corners, while removing the adjacent duplicate account promotion restores a clear homepage action hierarchy."
+      "reason": "A single radius owner prevents broken nested corners, while removing the adjacent duplicate account promotion restores a clear homepage action hierarchy.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-02",
       "decision": "Restore the original quiet-luxury public and admin color systems while retaining the later layout and responsive fixes.",
-      "reason": "The five-color earth-tone experiment flattened the interface hierarchy; the approved original semantic tokens provide clearer surfaces, states and readable contrast."
+      "reason": "The five-color earth-tone experiment flattened the interface hierarchy; the approved original semantic tokens provide clearer surfaces, states and readable contrast.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-02",
       "decision": "Use one shared 1200px content width and responsive section padding, while keeping the desktop home hero full-bleed.",
-      "reason": "Introduction, services and gallery align to the same gutters; the hero no longer clips its visual, and account and booking utility layouts retain desktop proportions."
+      "reason": "Introduction, services and gallery align to the same gutters; the hero no longer clips its visual, and account and booking utility layouts retain desktop proportions.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-02",
       "decision": "Implement the supplied Figma system with Playfair Display, DM Sans, a slate/pink/greige palette, sharp component radii, consistent gallery captions, and one shared public footer.",
-      "reason": "The user supplied an editable Figma source and explicitly requested implementation across desktop, mobile, public pages, and admin while preserving the current homepage gallery imagery."
+      "reason": "The user supplied an editable Figma source and explicitly requested implementation across desktop, mobile, public pages, and admin while preserving the current homepage gallery imagery.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     },
     {
       "date": "2026-09-03",
       "decision": "Use #FFD1DC as the shared public and admin primary pink.",
-      "reason": "The user explicitly selected the lighter pink for every component using the primary brand color."
+      "reason": "The user explicitly selected the lighter pink for every component using the primary brand color.",
+      "status": "historical",
+      "supersededBy": "2026-10-10-cobalt-minimal-layout"
     }
   ],
   "evidence": [
-    { "fact": "project.instructions", "source": "AGENTS.md" },
-    { "fact": "design.system", "source": "docs/design-system.md" },
-    { "fact": "visual.audit", "source": "docs/visual-audit.md" },
-    { "fact": "implemented.critical.views", "source": "index.html, foglalas/index.html, admin/index.html" }
+    {
+      "fact": "project.instructions",
+      "source": "AGENTS.md"
+    },
+    {
+      "fact": "product.truth",
+      "source": "PRODUCT.md"
+    },
+    {
+      "fact": "design.tokens.and.patterns",
+      "source": "DESIGN.md"
+    },
+    {
+      "fact": "design.extensions.and.previews",
+      "source": ".impeccable/design.json"
+    },
+    {
+      "fact": "design.ownership.and.checks",
+      "source": "docs/design-system.md"
+    },
+    {
+      "fact": "redesign.validation.scope",
+      "source": "docs/redesign-checks.md"
+    },
+    {
+      "fact": "implemented.critical.views",
+      "source": "index.html, foglalas/index.html, fiokom/index.html, admin/index.html"
+    },
+    {
+      "fact": "visual.implementation.reference",
+      "source": ".impeccable/review/desktop.png, .impeccable/review/mobile.png, .impeccable/review/admin-desktop.png"
+    }
   ],
-  "generatedAt": "2026-09-01T00:00:00+02:00"
+  "generatedAt": "2026-10-10T00:00:00+02:00"
 }

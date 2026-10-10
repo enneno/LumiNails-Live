@@ -12,4 +12,5 @@ preview-*.png
 playwright-report/
 test-results/
 output/playwright/
+.impeccable/review/
 supabase/.temp/

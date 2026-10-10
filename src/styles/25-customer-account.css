@@ -29,13 +29,13 @@
 .fiok-auth-bevezeto h2 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-weight: 600;
     line-height: 1.02;
 }
 
 .fiok-hero h1 {
-    font-size: clamp(48px, 6vw, 76px);
+    font-size: clamp(36px, 4.5vw, 60px);
 }
 
 .fiok-hero > p,
@@ -51,14 +51,7 @@
 }
 
 .fiok-kicker {
-    margin: 0 0 12px;
-    color: var(--ui-accent-text);
-    font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-micro);
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    line-height: 1.4;
-    text-transform: uppercase;
+    display: none;
 }
 
 .fiok-statuszuzenet {
@@ -97,7 +90,7 @@
 
 .fiok-auth-bevezeto h2 {
     max-width: 460px;
-    font-size: clamp(40px, 5vw, 58px);
+    font-size: clamp(32px, 4vw, 48px);
 }
 
 .fiok-auth-bevezeto > p:not(.fiok-kicker) {
@@ -416,7 +409,7 @@
 }
 
 .fiok-dashboard-fej h2 {
-    font-size: clamp(40px, 5vw, 58px);
+    font-size: clamp(32px, 4vw, 48px);
 }
 
 .fiok-dashboard-fej .fiok-akciosor {
@@ -479,7 +472,7 @@
 .fiok-foglalas-fej h3 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: "Playfair Display", serif;
+    font-family: var(--font-display);
     font-size: 25px;
     font-weight: 600;
     line-height: 1.1;

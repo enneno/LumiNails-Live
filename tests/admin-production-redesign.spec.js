@@ -600,8 +600,8 @@ test.describe('production admin redesign', () => {
             };
         });
 
-        expect(desktopMetrics.bodyFont).toBe(14);
-        expect(desktopMetrics.headingFont).toBeLessThanOrEqual(32);
+        expect(desktopMetrics.bodyFont).toBe(16);
+        expect(desktopMetrics.headingFont).toBeLessThanOrEqual(38);
         expect(desktopMetrics.sidebarWidth).toBeGreaterThanOrEqual(220);
         expect(desktopMetrics.overflow).toBeLessThanOrEqual(1);
 
@@ -613,7 +613,7 @@ test.describe('production admin redesign', () => {
         const bookingHeadingSize = await page.locator('#admin-panel-foglalasok .admin-v2-page-heading h1').evaluate(
             element => Number.parseFloat(getComputedStyle(element).fontSize)
         );
-        expect(bookingHeadingSize).toBeLessThanOrEqual(32);
+        expect(bookingHeadingSize).toBeLessThanOrEqual(38);
         if (process.env.LUMI_CAPTURE_ADMIN_REDESIGN === '1') {
             await page.screenshot({ path: 'test-results/admin-redesign-bookings-desktop.png', fullPage: true });
         }
@@ -1044,7 +1044,7 @@ test.describe('production admin redesign', () => {
         });
 
         expect(mobileMetrics.headingFont).toBeLessThanOrEqual(24);
-        expect(mobileMetrics.cardTitleFont).toBe(14);
+        expect(mobileMetrics.cardTitleFont).toBe(16);
         expect(Math.max(...mobileMetrics.controlHeights)).toBeLessThanOrEqual(36.1);
         expect(mobileMetrics.viewSwitchWidth).toBeLessThanOrEqual(180);
         expect(mobileMetrics.viewButtonHeight).toBeLessThanOrEqual(36);

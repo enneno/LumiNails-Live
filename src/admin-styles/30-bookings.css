@@ -3,17 +3,17 @@
 
 .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-status-width: 150px;
-  --booking-calendar-header-bg: #f4efeb;
---booking-calendar-cell-bg: #fff9f5;
---booking-calendar-empty-bg: #f7f3ef;
---booking-calendar-hover-bg: #faf6f2;
---booking-calendar-selected-bg: #f8ecef;
---booking-calendar-count-bg: #eee7e2;
---booking-calendar-event-bg: #f3eeea;
---booking-calendar-event-border: #a99488;
+  --booking-calendar-header-bg: #e4eceb;
+--booking-calendar-cell-bg: #f8f7f3;
+--booking-calendar-empty-bg: #eceae4;
+--booking-calendar-hover-bg: #edf3f1;
+--booking-calendar-selected-bg: #d6e5e2;
+--booking-calendar-count-bg: #d6e5e2;
+--booking-calendar-event-bg: #e4eceb;
+--booking-calendar-event-border: #729b95;
 --booking-calendar-event-text: var(--admin-ink);
---booking-calendar-pending-border: #783e53;
---booking-calendar-pending-bg: #f4e4e9;
+--booking-calendar-pending-border: #315e5c;
+--booking-calendar-pending-bg: #e4eceb;
 --booking-calendar-confirmed-border: #31566c;
 --booking-calendar-confirmed-bg: #e4eef4;
 --booking-calendar-done-border: #2f603f;
@@ -22,8 +22,8 @@
 --booking-calendar-cancelled-bg: #2e2927;
 --booking-calendar-cancelled-customer-border: #62404c;
 --booking-calendar-cancelled-customer-bg: #62404c;
---booking-calendar-day-row-bg: #fff9f5;
---booking-calendar-day-status-bg: rgba(255, 249, 245, .66);
+--booking-calendar-day-row-bg: #f8f7f3;
+--booking-calendar-day-status-bg: rgba(248, 247, 243, .72);
   --booking-icon-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/%3E%3Cpath d='m15 5 4 4'/%3E%3C/svg%3E");
   --booking-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
   --booking-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
@@ -34,17 +34,17 @@
 }
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-calendar-header-bg: #3a4249;
-  --booking-calendar-cell-bg: #31383f;
-  --booking-calendar-empty-bg: #293036;
-  --booking-calendar-hover-bg: #414a52;
-  --booking-calendar-selected-bg: #4d3942;
-  --booking-calendar-count-bg: #444c54;
-  --booking-calendar-event-bg: #3d454c;
-  --booking-calendar-event-border: #9aa3aa;
-  --booking-calendar-event-text: #f2e9eb;
-  --booking-calendar-pending-border: #ffd1dc;
-  --booking-calendar-pending-bg: #503440;
+  --booking-calendar-header-bg: #27364d;
+  --booking-calendar-cell-bg: #1b2638;
+  --booking-calendar-empty-bg: #162030;
+  --booking-calendar-hover-bg: #34465d;
+  --booking-calendar-selected-bg: #304777;
+  --booking-calendar-count-bg: #34465d;
+  --booking-calendar-event-bg: #27364d;
+  --booking-calendar-event-border: #b3bfd0;
+  --booking-calendar-event-text: #f7f9ff;
+  --booking-calendar-pending-border: #a9beff;
+  --booking-calendar-pending-bg: #27364d;
   --booking-calendar-confirmed-border: #8db5ca;
   --booking-calendar-confirmed-bg: #304853;
   --booking-calendar-done-border: #8fb99c;
@@ -53,8 +53,8 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-calendar-cancelled-bg: #414950;
   --booking-calendar-cancelled-customer-border: #d293a5;
   --booking-calendar-cancelled-customer-bg: #513a44;
-  --booking-calendar-day-row-bg: #31383f;
-  --booking-calendar-day-status-bg: #444c54;
+  --booking-calendar-day-row-bg: #1b2638;
+  --booking-calendar-day-status-bg: #34465d;
 }
 
 /* Toolbar and search */
@@ -318,7 +318,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:not(.szerkeszt):hover,
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:focus-visible { background: var(--admin-v2-surface-soft); }
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:focus-visible {
-  outline: 2px solid rgba(137, 88, 77, .34);
+  outline: 2px solid var(--admin-v2-brand-dark);
   outline-offset: -2px;
 }
 

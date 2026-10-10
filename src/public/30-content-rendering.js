@@ -545,7 +545,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
             hero.style.backgroundImage = 'none';
             hero.removeAttribute('role');
         } else {
-            hero.style.backgroundImage = `linear-gradient(90deg, rgba(253, 244, 226, 0.12) 0%, rgba(253, 244, 226, 0.02) 44%, rgba(43, 37, 33, 0.05) 100%), url("${heroKepSrc}")`;
+            hero.style.backgroundImage = `linear-gradient(90deg, rgba(19, 32, 39, 0.82) 0%, rgba(19, 32, 39, 0.04) 72%), url("${heroKepSrc}")`;
             hero.setAttribute('role', 'img');
         }
 

@@ -1,501 +1,206 @@
-/* Home gallery — végleges megjelenés (99-ből migrálva) */
+/* Flat photographic gallery rail. Existing swipe, arrows and keyboard logic remain. */
 #galeria-atvezeto {
     width: 100%;
     max-width: none;
-    margin-right: auto;
-    margin-bottom: 0;
-    margin-left: auto;
+    margin: 0;
     padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
+    background: var(--ui-surface);
 }
-
 .galeria-showcase-fej {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
-    gap: 50px;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 0.55fr);
     align-items: end;
+    gap: 40px;
     width: min(var(--lumi-content-width), 100%);
-    margin: 0 auto 36px;
+    margin: 0 auto 32px;
 }
-
 .galeria-showcase-fej h2 {
-    margin: 14px 0 0;
-    color: var(--ui-off-black);
-    font-family: "Playfair Display", serif;
-    font-size: clamp(48px, 5.7vw, 78px);
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 500;
     letter-spacing: -0.035em;
-    line-height: 0.92;
-    text-wrap: balance;
-    white-space: normal;
+    line-height: 1.12;
 }
-
 .galeria-showcase-fej h2 em {
-    color: var(--ui-off-black);
-    font-style: italic;
+    color: var(--ui-accent-text);
+    font-style: normal;
 }
-
+.galeria-showcase-meta p {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: var(--lumi-font-body-small);
+    line-height: 1.7;
+}
 .galeria-atvezeto-belso {
-    display: block;
-    grid-template-columns: minmax(720px, 1.04fr) minmax(340px, 0.48fr);
-    align-items: center;
-    gap: clamp(32px, 4vw, 62px);
     width: min(var(--lumi-content-width), 100%);
-    max-width: var(--lumi-content-width);
     margin-inline: auto;
 }
-
 .galeria-atvezeto-kepek {
     display: grid;
-    grid-template-columns: 1.35fr 0.9fr 0.9fr;
-    grid-template-rows: repeat(2, 260px);
-    gap: 10px;
-    width: 100%;
-    height: auto;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
 }
-
 .galeria-atvezeto-kepek img {
     display: block;
     width: 100%;
     height: 100%;
-    min-width: 0;
-    min-height: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 3px;
-    background: var(--ui-soft);
-    box-shadow: none;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--lumi-radius-card);
     object-fit: contain;
-    object-position: center center;
-    content-visibility: visible;
-    transform: none;
+    background: var(--ui-bg);
 }
-
-.galeria-atvezeto-kepek img:nth-child(n+6) {
-    display: none;
-}
-
 .galeria-atvezeto-szoveg {
-    align-self: center;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin: 20px auto 0;
-    padding-top: 20px;
-    border-top: 1px solid var(--ui-line);
+    justify-content: flex-end;
+    margin-top: 12px;
 }
-
-#galeria-atvezeto .szekcio-kicker {
-    color: var(--ui-off-black);
-}
-
 .galeria-atvezeto-szoveg .szekcio-kicker,
-.galeria-atvezeto-szoveg .szekcio-leiras {
+.galeria-atvezeto-szoveg p {
     display: none;
 }
-
 .galeria-atvezeto-szoveg .gomb {
-    min-height: 48px;
-    padding: 0 18px;
-    border-color: var(--ui-line-strong);
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--ui-line-strong);
     background: transparent;
-    box-shadow: none;
     color: var(--ui-ink);
 }
-
 .galeria-atvezeto-szoveg .gomb::after {
-    margin-left: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 1.1em;
-    font-weight: 400;
-    line-height: 1;
-    content: "→";
-    transition: transform 0.2s ease;
+    margin-left: 14px;
+    content: "↗";
 }
-
-.galeria-atvezeto-szoveg .gomb:hover,
-.galeria-atvezeto-szoveg .gomb:focus-visible {
+.galeria-atvezeto-szoveg .gomb:hover {
     border-color: var(--ui-primary);
-    background: var(--ui-highlight);
-    color: var(--ui-ink);
+    background: var(--ui-soft);
+    color: var(--ui-accent-text);
 }
-
-.galeria-atvezeto-szoveg .gomb:hover::after,
-.galeria-atvezeto-szoveg .gomb:focus-visible::after {
-    transform: translateX(3px);
-}
-
-.galeria-atvezeto-szoveg .szekcio-leiras {
-    margin-right: 0;
-    margin-bottom: 24px;
-    margin-left: 0;
-    text-align: left;
-}
-
-@media screen and (max-width: 768px) {
-    .galeria-showcase-fej {
-        grid-template-columns: 1fr;
-    }
-
-    .galeria-atvezeto-kepek {
-        grid-template-columns: 1.2fr 0.8fr;
-        grid-template-rows: repeat(3, clamp(150px, 37vw, 210px));
-        gap: 8px;
-    }
-
-    .galeria-atvezeto-kepek img:first-child {
-        grid-row: span 2;
-    }
-
-    .galeria-atvezeto-kepek img:nth-child(n+4) {
-        display: block;
-    }
-
-    .galeria-atvezeto-belso {
-        flex-direction: column;
-        align-items: center;
-        gap: 22px;
-    }
-
-    .galeria-atvezeto-szoveg {
-        align-self: stretch;
-        text-align: center;
-    }
-
-    .galeria-atvezeto-szoveg .szekcio-leiras {
-        max-width: 520px;
-        margin-right: auto;
-        margin-bottom: 18px;
-        margin-left: auto;
-        text-align: center;
-    }
-}
-
-/* Homepage gallery card carousel */
 .galeria-kartya-lapozo {
     position: relative;
-    display: block;
-    width: 100%;
-    height: clamp(520px, 45vw, 620px);
+    height: 500px;
     overflow: hidden;
-    isolation: isolate;
-    perspective: 1200px;
     touch-action: pan-y;
-    outline: none;
 }
-
 .galeria-kartya-lapozo::before {
     display: none;
 }
-
 .galeria-kartya-lapozo:focus-visible {
-    outline: 3px solid var(--ui-rose-dark);
+    outline: 3px solid var(--ui-primary);
     outline-offset: 4px;
 }
-
-.galeria-kartya-lapozo img,
-.galeria-kartya-lapozo img:nth-child(n+4) {
+.galeria-kartya-lapozo img {
     position: absolute;
-    grid-area: auto;
-    grid-row: auto;
-    grid-column: auto;
-    top: clamp(22px, 3vw, 38px);
+    top: 0;
     left: 50%;
-    display: block;
-    width: clamp(270px, 31vw, 410px);
-    height: clamp(380px, 40vw, 540px);
+    width: min(32%, 365px);
+    height: 430px;
     margin: 0;
-    padding: 8px;
-    border: 1px solid var(--ui-line-strong);
+    padding: 0;
+    border: 0;
     border-radius: var(--lumi-radius-card);
-    background: var(--ui-surface);
+    background: var(--ui-bg);
     box-shadow: none;
     object-fit: contain;
-    transform: translate3d(-50%, 0, 0);
-    opacity: 1;
-    cursor: pointer;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    will-change: transform, opacity;
-    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+    transform: translateX(-50%);
+    transition: transform 350ms ease, opacity 350ms ease;
+    will-change: transform;
 }
-
-.galeria-kartya-lapozo img.galeria-kartya-atfordulas {
-    transition: none;
-}
-
 .galeria-kartya-lapozo img[data-hely="-1"] {
-    transform: translate3d(calc(-50% - clamp(105px, 16vw, 220px)), 24px, 0) scale(0.91) rotate(-1.5deg);
-    opacity: 0.82;
+    transform: translateX(-156%);
 }
-
 .galeria-kartya-lapozo img[data-hely="1"] {
-    transform: translate3d(calc(-50% + clamp(105px, 16vw, 220px)), 24px, 0) scale(0.91) rotate(1.5deg);
-    opacity: 0.82;
+    transform: translateX(56%);
 }
-
 .galeria-kartya-lapozo img[data-hely="-2"] {
-    transform: translate3d(calc(-50% - clamp(185px, 27vw, 360px)), 50px, 0) scale(0.82) rotate(-2.7deg);
-    opacity: 0.52;
+    opacity: 0;
+    transform: translateX(-262%);
 }
-
 .galeria-kartya-lapozo img[data-hely="2"] {
-    transform: translate3d(calc(-50% + clamp(185px, 27vw, 360px)), 50px, 0) scale(0.82) rotate(2.7deg);
-    opacity: 0.52;
+    opacity: 0;
+    transform: translateX(162%);
 }
-
-.galeria-kartya-lapozo img[data-aktiv="true"] {
-    border-color: var(--ui-rose-dark);
-    cursor: default;
-    box-shadow: none;
-}
-
 .galeria-kartya-vezerlok {
     position: absolute;
-    z-index: 20;
-    bottom: 12px;
+    bottom: 4px;
     left: 50%;
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-height: 54px;
-    padding: 6px 8px;
-    border: 1px solid var(--ui-line-strong);
-    border-radius: var(--lumi-radius-card);
-    background: color-mix(in srgb, var(--ui-surface) 94%, transparent);
+    gap: 12px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     box-shadow: none;
     transform: translateX(-50%);
-    backdrop-filter: blur(16px);
 }
-
 .galeria-kartya-elozo,
-.galeria-kartya-kovetkezo {
-    display: inline-flex;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--ui-ink);
-    cursor: pointer;
-}
-
-.galeria-kartya-elozo > span,
-.galeria-kartya-kovetkezo > span {
-    display: inline-grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    border: 1px solid var(--ui-line-strong);
-    border-radius: var(--lumi-radius-control);
-    background: transparent;
-    font-size: 14px;
-    line-height: 1;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-}
-
-.galeria-kartya-elozo:hover > span,
-.galeria-kartya-kovetkezo:hover > span {
-    border-color: var(--ui-ink);
-    background: var(--ui-ink);
-    color: var(--ui-off-white);
-}
-
-.galeria-kartya-pontok {
-    display: flex;
-    align-items: center;
-    gap: 0;
-}
-
+.galeria-kartya-kovetkezo,
 .galeria-kartya-pont {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 44px;
     height: 44px;
-    flex: 0 0 44px;
     padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
+    border: 1px solid var(--ui-line-strong);
+    border-radius: 50%;
+    background: var(--ui-surface);
+    color: var(--ui-ink);
+    font-size: 20px;
     cursor: pointer;
 }
-
-.galeria-kartya-pont::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: rgba(67, 49, 43, 0.24);
-    content: "";
-    transform: translate(-50%, -50%);
-    transition: width 0.2s ease, border-radius 0.2s ease, background-color 0.2s ease;
+.galeria-kartya-elozo:hover,
+.galeria-kartya-kovetkezo:hover {
+    border-color: var(--ui-primary);
+    background: var(--ui-soft);
+    color: var(--ui-accent-text);
 }
-
-.galeria-kartya-pont[data-aktiv="true"]::before {
-    width: 22px;
-    border-radius: 999px;
-    background: var(--ui-rose-dark);
+.galeria-kartya-pontok {
+    display: none;
 }
-
 .galeria-kartya-allapot {
-    min-width: 34px;
+    min-width: 48px;
     color: var(--ui-muted);
-    font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-micro);
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: 13px;
     text-align: center;
+    font-variant-numeric: tabular-nums;
 }
-
 @media screen and (max-width: 768px) {
-    .galeria-kartya-lapozo {
-        height: clamp(340px, 88vw, 360px);
-    }
-
-    .galeria-kartya-lapozo img,
-    .galeria-kartya-lapozo img:nth-child(n+4) {
-        top: 8px;
-        width: min(72vw, 280px);
-        height: min(80vw, 312px);
-        padding: 6px;
-    }
-
-    .galeria-kartya-lapozo img[data-hely="-1"] {
-        transform: translate3d(calc(-50% - clamp(70px, 19vw, 96px)), 16px, 0) scale(0.91) rotate(-1.3deg);
-    }
-
-    .galeria-kartya-lapozo img[data-hely="1"] {
-        transform: translate3d(calc(-50% + clamp(70px, 19vw, 96px)), 16px, 0) scale(0.91) rotate(1.3deg);
-    }
-
-    .galeria-kartya-lapozo img[data-hely="-2"] {
-        transform: translate3d(calc(-50% - clamp(118px, 32vw, 156px)), 34px, 0) scale(0.82) rotate(-2.2deg);
-    }
-
-    .galeria-kartya-lapozo img[data-hely="2"] {
-        transform: translate3d(calc(-50% + clamp(118px, 32vw, 156px)), 34px, 0) scale(0.82) rotate(2.2deg);
-    }
-
-    .galeria-kartya-vezerlok {
-        bottom: 0;
-        gap: 6px;
-        min-height: 48px;
-        padding: 2px 4px;
-    }
-
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
-    .galeria-kartya-lapozo img,
-    .galeria-kartya-pont {
-        transition: none;
-    }
-
-
-}
-
-@media screen and (max-width: 768px) {
-    #galeria-atvezeto {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 0;
-        margin-left: 0;
-        padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
-        overflow: hidden;
-        background: var(--ui-surface);
-    }
-
     .galeria-showcase-fej {
-        width: 100%;
+        grid-template-columns: minmax(0, 1fr);
         gap: 16px;
-        margin: 0 auto 16px;
+        margin-bottom: 24px;
     }
-
     .galeria-showcase-fej h2 {
-        width: 100%;
-        max-width: 100%;
-        margin-top: 12px;
-        font-size: calc(clamp(36px, 10.5vw, 44px) + 2px);
-        letter-spacing: -0.04em;
-        line-height: 0.98;
-        overflow-wrap: normal;
-        white-space: normal;
-        word-break: normal;
+        font-size: clamp(30px, 8vw, 38px);
     }
-
-    .galeria-showcase-meta p {
-        max-width: 34ch;
-        margin: 0;
-        color: var(--ui-off-black);
-        font-size: var(--lumi-font-body-small);
-        line-height: 1.6;
+    .galeria-kartya-lapozo {
+        height: 380px;
+        margin-inline: calc(-1 * var(--lumi-section-padding-inline));
     }
-
-
+    .galeria-kartya-lapozo img {
+        width: 72%;
+        height: 320px;
+    }
+    .galeria-kartya-lapozo img[data-hely="-1"] {
+        opacity: 0.6;
+        transform: translateX(-157%);
+    }
+    .galeria-kartya-lapozo img[data-hely="1"] {
+        opacity: 0.6;
+        transform: translateX(57%);
+    }
+    .galeria-atvezeto-kepek:not(.galeria-kartya-lapozo) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .galeria-atvezeto-szoveg {
-        margin: 8px auto 0;
-        padding-top: 12px;
-    }
-
-    .galeria-atvezeto-szoveg .gomb {
-        min-height: 44px;
-        padding: 0 15px;
-        font-size: var(--lumi-font-button);
-        white-space: nowrap;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .galeria-showcase-fej > *,
-    .galeria-showcase-fej h2,
-    .galeria-showcase-meta {
-        width: auto;
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .galeria-showcase-fej h2 {
-        font-size: clamp(36px, 11.5vw, 48px);
-        letter-spacing: -0.045em;
-        overflow-wrap: normal;
-        white-space: normal;
-    }
-
-    .galeria-atvezeto-kepek {
-        grid-template-rows: repeat(3, 150px);
-    }
-
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .galeria-atvezeto-szoveg .gomb::after {
-        transition: none;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .galeria-kartya-vezerlok {
-        gap: 6px;
-        padding: 2px 4px;
-    }
-
-    .galeria-kartya-pontok {
-        display: none;
-    }
-
-    .galeria-kartya-allapot {
-        display: inline-flex;
-        min-width: 44px;
-        height: 44px;
-        align-items: center;
         justify-content: center;
-        font-size: var(--lumi-font-caption);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .galeria-kartya-lapozo img {
+        transition: none;
     }
 }

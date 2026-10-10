@@ -4,7 +4,9 @@
         }
 
         try {
-            const { data, error } = await allapot.kliens.functions.invoke('request-live-site-rebuild', {
+            const elesOldal = ['luminails.hu', 'www.luminails.hu'].includes(window.location.hostname.toLowerCase());
+            const frissitoFuggveny = elesOldal ? 'request-live-site-rebuild' : 'request-site-rebuild';
+            const { data, error } = await allapot.kliens.functions.invoke(frissitoFuggveny, {
                 body: { reason: String(ok || 'tartalom').slice(0, 80) }
             });
 

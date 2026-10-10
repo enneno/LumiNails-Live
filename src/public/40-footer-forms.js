@@ -1,3 +1,7 @@
+function foglalasiIdorendSzovege(nyitvatartas) {
+    return `Foglalható időpontok: hétfő–vasárnap ${nyitvatartas.kezdes}–${nyitvatartas.vege}.`;
+}
+
 function lablecAdatokAlkalmazasa(adatok) {
     const kapcsolat = adatok.kapcsolat;
     const marka = adatok.marka;
@@ -11,6 +15,13 @@ function lablecAdatokAlkalmazasa(adatok) {
     szovegBeallitasa('.footer-kapcsolat h3', kapcsolat?.cimke);
     szovegBeallitasa('.footer-jogi-link', adatok.lablec?.jogiLink);
     szovegBeallitasa('.footer-jogok', adatok.lablec?.jogok);
+
+    if (kapcsolat?.nyitvatartas) {
+        document.querySelectorAll('[data-foglalasi-idorend]').forEach((elem) => {
+            elem.querySelector('strong').textContent = foglalasiIdorendSzovege(kapcsolat.nyitvatartas);
+            elem.querySelector('span').textContent = kapcsolat.nyitvatartas.megjegyzes;
+        });
+    }
 
     const cimLink = document.querySelector('[data-footer-address]');
     const telefonLink = document.querySelector('[data-footer-phone]');

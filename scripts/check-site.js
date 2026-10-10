@@ -36,6 +36,7 @@ const EDGE_FUNCTION_FILES = [
     'supabase/functions/send-booking-email/index.ts',
     'supabase/functions/send-booking-update-email/index.ts',
     'supabase/functions/process-booking-notifications/index.ts',
+    'supabase/functions/request-site-rebuild/index.ts',
     'supabase/functions/request-live-site-rebuild/index.ts'
 ];
 const VERSIONED_ASSETS = CSS_FILES.concat(JS_FILES);
