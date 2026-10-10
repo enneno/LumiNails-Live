@@ -1,156 +1,94 @@
-function fooldalGaleriaLapozasBekotese() {
-    const szinpad = document.querySelector('#galeria-atvezeto .galeria-atvezeto-kepek');
-    if (!szinpad || szinpad.dataset.kartyaLapozo === 'true') {
-        return;
-    }
+/* Studio photographs. Page sections remain visible with and without JavaScript. */
+let lumiStudio = null;
 
-    const kartyak = Array.from(szinpad.querySelectorAll('img'));
-    if (kartyak.length < 2) {
-        return;
-    }
+function fooldalStudioBekotese() {
+    const heroImage = document.querySelector('#hero .hero-kep');
+    const hero = document.getElementById('hero');
+    const strip = document.querySelector('#galeria-atvezeto .galeria-atvezeto-kepek');
+    if (lumiStudio || !heroImage || !strip) return;
+    const thumbnails = Array.from(strip.querySelectorAll('img'));
+    let selectedImage = -1;
+    let imageRequest = 0;
+    let swipeStart = null;
+    let openingImage = { src: heroImage.src, alt: heroImage.alt };
+    const status = document.querySelector('[data-studio-image-status]');
 
-    let aktualisIndex = 0;
-    let huzasKezdoX = null;
-
-    szinpad.dataset.kartyaLapozo = 'true';
-    szinpad.classList.add('galeria-kartya-lapozo');
-    szinpad.tabIndex = 0;
-    szinpad.setAttribute('role', 'region');
-    szinpad.setAttribute('aria-roledescription', 'carousel');
-    szinpad.setAttribute('aria-label', 'Válogatott Lumi Nails munkák');
-
-    const vezerlok = document.createElement('div');
-    vezerlok.className = 'galeria-kartya-vezerlok';
-    vezerlok.innerHTML = `
-        <button type="button" class="galeria-kartya-elozo" aria-label="Előző kép">
-            <span aria-hidden="true">←</span>
-        </button>
-        <div class="galeria-kartya-pontok" aria-label="Kép kiválasztása"></div>
-        <span class="galeria-kartya-allapot" aria-live="polite"></span>
-        <button type="button" class="galeria-kartya-kovetkezo" aria-label="Következő kép">
-            <span aria-hidden="true">→</span>
-        </button>
-    `;
-    szinpad.appendChild(vezerlok);
-
-    const pontok = vezerlok.querySelector('.galeria-kartya-pontok');
-    const allapot = vezerlok.querySelector('.galeria-kartya-allapot');
-    const elozoGomb = vezerlok.querySelector('.galeria-kartya-elozo');
-    const kovetkezoGomb = vezerlok.querySelector('.galeria-kartya-kovetkezo');
-
-    kartyak.forEach((kartya, index) => {
-        kartya.setAttribute('role', 'group');
-        kartya.setAttribute('aria-roledescription', 'dia');
-        kartya.setAttribute('aria-label', `${index + 1}. kép, összesen ${kartyak.length}`);
-
-        kartya.addEventListener('click', () => {
-            if (index !== aktualisIndex) {
-                kartyaIndexValtasa(index);
-            }
-        });
-
-        const pont = document.createElement('button');
-        pont.type = 'button';
-        pont.className = 'galeria-kartya-pont';
-        pont.setAttribute('aria-label', `${index + 1}. kép megjelenítése`);
-        pont.addEventListener('click', () => {
-            kartyaIndexValtasa(index);
-        });
-        pontok.appendChild(pont);
+    const thumbnailButtons = thumbnails.map((image, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'studio-thumbnail';
+        button.setAttribute('aria-label', `${index + 1}. munka megjelenítése: ${image.alt}`);
+        button.setAttribute('aria-pressed', 'false');
+        image.before(button);
+        button.appendChild(image);
+        button.addEventListener('click', () => showImage(index));
+        return button;
     });
 
-    const pontGombok = Array.from(pontok.querySelectorAll('.galeria-kartya-pont'));
-
-    function kartyaAllapotFrissitese() {
-        const felTavolsag = Math.floor(kartyak.length / 2);
-        const atforduloKartyak = [];
-
-        kartyak.forEach((kartya, index) => {
-            let elteres = index - aktualisIndex;
-            if (elteres > felTavolsag) elteres -= kartyak.length;
-            if (elteres < -felTavolsag) elteres += kartyak.length;
-
-            const melyseg = Math.min(Math.abs(elteres), 2);
-            const aktiv = elteres === 0;
-            const elozoHely = Number(kartya.dataset.hely);
-            const atfordulas = Number.isFinite(elozoHely) && Math.abs(elozoHely - elteres) > 1;
-            kartya.classList.toggle('galeria-kartya-atfordulas', atfordulas);
-            if (atfordulas) atforduloKartyak.push(kartya);
-            kartya.style.setProperty('--kartya-eltolas', String(elteres));
-            kartya.style.setProperty('--kartya-melyseg', String(melyseg));
-            kartya.dataset.hely = String(elteres);
-            kartya.style.zIndex = String(kartyak.length - melyseg);
-            kartya.dataset.aktiv = String(aktiv);
-            kartya.tabIndex = aktiv ? 0 : -1;
-            kartya.setAttribute('aria-hidden', String(!aktiv));
-        });
-
-        if (atforduloKartyak.length) {
-            window.requestAnimationFrame(() => {
-                window.requestAnimationFrame(() => {
-                    atforduloKartyak.forEach(kartya => kartya.classList.remove('galeria-kartya-atfordulas'));
-                });
-            });
-        }
-
-        pontGombok.forEach((pont, index) => {
-            const aktiv = index === aktualisIndex;
-            pont.dataset.aktiv = String(aktiv);
-            pont.setAttribute('aria-current', aktiv ? 'true' : 'false');
-        });
-
-        allapot.textContent = `${aktualisIndex + 1} / ${kartyak.length}`;
+    function markImage(index) {
+        selectedImage = index;
+        hero.classList.toggle('studio-gallery-image', index >= 0);
+        thumbnailButtons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+        if (status) status.textContent = index < 0 ? 'Lumi Nails nyitókép' : `${index + 1}. munka, összesen ${thumbnails.length}`;
     }
 
-    function kartyaIndexValtasa(ujIndex) {
-        if (ujIndex === aktualisIndex) {
-            return;
+    async function showImage(index) {
+        const request = ++imageRequest;
+        const image = index < 0 ? openingImage : {
+            src: thumbnails[index].dataset.fullSrc || thumbnails[index].src,
+            alt: thumbnails[index].alt
+        };
+        let timer;
+        hero.setAttribute('aria-busy', 'true');
+        try {
+            const preload = new Image();
+            preload.src = image.src;
+            await Promise.race([
+                preload.decode(),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('image-timeout')), 8000); })
+            ]);
+            if (request !== imageRequest) return;
+            heroImage.src = image.src;
+            heroImage.alt = image.alt;
+            markImage(index);
+        } catch (_error) {
+            if (request === imageRequest && status) status.textContent = 'A kép nem tölthető be. Próbáld újra, vagy nyisd meg a galériát.';
+        } finally {
+            clearTimeout(timer);
+            if (request === imageRequest) hero.removeAttribute('aria-busy');
         }
-
-        aktualisIndex = ujIndex;
-        kartyaAllapotFrissitese();
     }
-    function kartyaLepes(irany) {
-        const ujIndex = (aktualisIndex + irany + kartyak.length) % kartyak.length;
-        kartyaIndexValtasa(ujIndex);
+
+    function step(direction) {
+        const next = ((selectedImage + 1 + direction + thumbnails.length + 1) % (thumbnails.length + 1)) - 1;
+        showImage(next);
     }
-
-    elozoGomb.addEventListener('click', () => kartyaLepes(-1));
-    kovetkezoGomb.addEventListener('click', () => kartyaLepes(1));
-
-    szinpad.addEventListener('keydown', event => {
-        if (event.key === 'ArrowLeft') {
-            event.preventDefault();
-            kartyaLepes(-1);
-        }
-        if (event.key === 'ArrowRight') {
-            event.preventDefault();
-            kartyaLepes(1);
-        }
+    document.querySelectorAll('[data-studio-image-step]').forEach(button => {
+        button.hidden = false;
+        button.addEventListener('click', () => step(Number(button.dataset.studioImageStep)));
     });
-
-    szinpad.addEventListener('pointerdown', event => {
-        if (event.button !== 0 || event.target.closest('button')) {
-            return;
-        }
-        huzasKezdoX = event.clientX;
+    const visual = hero.querySelector('.hero-visual');
+    visual.addEventListener('pointerdown', event => {
+        if (event.isPrimary && event.button === 0) swipeStart = event.clientX;
     });
-
-    szinpad.addEventListener('pointerup', event => {
-        if (huzasKezdoX === null) {
-            return;
-        }
-        const elmozdulas = event.clientX - huzasKezdoX;
-        huzasKezdoX = null;
-        if (Math.abs(elmozdulas) < 42) {
-            return;
-        }
-        kartyaLepes(elmozdulas > 0 ? -1 : 1);
+    visual.addEventListener('pointerup', event => {
+        if (swipeStart === null) return;
+        const distance = event.clientX - swipeStart;
+        swipeStart = null;
+        if (Math.abs(distance) > 42) step(distance > 0 ? -1 : 1);
     });
+    visual.addEventListener('pointercancel', () => { swipeStart = null; });
 
-    szinpad.addEventListener('pointercancel', () => {
-        huzasKezdoX = null;
-    });
+    lumiStudio = {
+        refreshOpening() {
+            openingImage = { src: heroImage.src, alt: heroImage.alt };
+            if (selectedImage >= 0) showImage(selectedImage);
+            thumbnailButtons.forEach((button, index) => button.setAttribute('aria-label', `${index + 1}. munka megjelenítése: ${thumbnails[index].alt}`));
+        }
+    };
+    document.body.classList.add('studio-enhanced');
+}
 
-    kartyaAllapotFrissitese();
+function fooldalStudioTartalomFrissitese() {
+    if (lumiStudio) lumiStudio.refreshOpening();
 }

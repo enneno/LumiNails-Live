@@ -27,7 +27,8 @@
       "src/admin-styles/20-workspace.css"
     ],
     "assets": [
-      "kepek/"
+      "kepek/",
+      "galeria/optimized/"
     ],
     "instructions": [
       "AGENTS.md",
@@ -40,32 +41,38 @@
   "design": {
     "colorMode": "light public UI; light and dark admin UI",
     "colors": {
-      "primary": "#3155c6",
-      "onPrimary": "#ffffff",
-      "accent": "#eaf0ff",
-      "background": "#f5f6f9",
-      "surface": "#ffffff",
-      "supportSurface": "#edf1f7",
-      "foreground": "#18212c",
-      "mutedForeground": "#596474",
-      "accentForeground": "#2948a9",
-      "highlight": "#eaf0ff",
-      "border": "rgba(24, 33, 44, 0.16)",
-      "strongBorder": "rgba(24, 33, 44, 0.34)",
-      "adminPrimary": "#3155c6",
-      "adminDarkPrimary": "#a9beff",
-      "adminDarkHover": "#c8d6ff",
-      "adminDarkBackground": "#121a28",
-      "adminDarkSurface": "#1b2638",
-      "adminDarkSupportSurface": "#27364d",
-      "adminDarkForeground": "#f7f9ff",
-      "adminDarkMutedForeground": "#c5cedc"
+      "primary": "#e2d9d0",
+      "onPrimary": "#3e3935",
+      "accent": "#e2d9d0",
+      "background": "#f6f3ee",
+      "surface": "#f6f3ee",
+      "supportSurface": "#e2d9d0",
+      "foreground": "#3e3935",
+      "mutedForeground": "#3e3935",
+      "accentForeground": "#3e3935",
+      "highlight": "#e2d9d0",
+      "taupe": "#b8a89b",
+      "clay": "#a08075",
+      "border": "rgba(62, 57, 53, 0.16)",
+      "strongBorder": "rgba(62, 57, 53, 0.34)",
+      "adminPrimary": "#e2d9d0",
+      "adminDarkPrimary": "#e2d9d0",
+      "adminDarkHover": "#f6f3ee",
+      "adminDarkBackground": "#3e3935",
+      "adminDarkSurface": "color-mix(in srgb, #3e3935 90%, #f6f3ee)",
+      "adminDarkSupportSurface": "color-mix(in srgb, #3e3935 84%, #f6f3ee)",
+      "adminDarkForeground": "#f6f3ee",
+      "adminDarkMutedForeground": "#e2d9d0",
+      "onPrimaryHover": "#f6f3ee",
+      "primaryBorder": "#3e3935"
     },
     "typography": {
       "display": "DM Sans",
       "body": "DM Sans",
       "logo": "Playfair Display",
-      "character": "sans headings and functional body; existing serif identity detail"
+      "studioTabs": "Reddit Sans Condensed",
+      "studioTabsWeight": 300,
+      "character": "Functional sans, retained serif wordmark, light condensed homepage view tabs"
     },
     "spacing": {
       "base": "4px (observed spacing rhythm, not a separate runtime scale)",
@@ -85,10 +92,12 @@
         "112px"
       ],
       "contentWidth": "1200px",
-      "gutter": "clamp(20px, 4.3vw, 80px)",
+      "gutter": "clamp(20px, 4.8vw, 80px)",
       "sectionInline": "var(--ui-gutter); 20px at 768px and below",
       "sectionBlock": "clamp(72px, 8vw, 112px); 58px at 768px and below",
-      "adminWorkspace": "28px top / 42px inline / 50px bottom; responsive local variants"
+      "adminWorkspace": "28px top / 42px inline / 50px bottom; responsive local variants",
+      "studioMobile": "24px top / 40px bottom / var(--lumi-section-padding-inline) inline (20px phone)",
+      "studioDesktop": "20px top / 48px bottom / var(--lumi-section-padding-inline) inline"
     },
     "radius": {
       "control": "8px",
@@ -102,27 +111,27 @@
         "adminAuthentication": "12px",
         "adminNavigation": "9px"
       },
-      "hero": "full-width desktop photo; uncropped 16:9 mobile image with copy left, benefits at bottom, gallery row and separate actions below; section boundaries have no outer radius"
+      "hero": "Unframed full-width photograph, uncropped16:9 phone opening; no text/scrim"
     },
     "shadows": {
       "soft": "none",
       "button": "none",
       "adminLight": "none",
-      "publicUtility": "0 4px 20px rgba(24, 33, 44, 0.04)",
+      "publicUtility": "0 4px 20px rgba(62, 57, 53, 0.04)",
       "adminDark": "0 10px 30px rgba(0, 0, 0, 0.24)",
       "exceptions": "Existing booking path, account tab, compact admin control, focus and overlay shadows are retained locally; detailed vocabulary is in .impeccable/design.json."
     },
     "motion": {
       "level": "subtle",
       "publicAction": "200ms ease",
-      "galleryRail": "350ms ease for transform/opacity",
+      "galleryRail": "180ms thumbnail outline; 240ms studio panel clip reveal",
       "adminState": "160ms ease",
       "adminDrawer": "190ms ease",
-      "rule": "Use implemented component-specific transitions and respect prefers-reduced-motion."
+      "rule": "Use short state transitions; studio reveal disabled for prefers-reduced-motion."
     },
-    "density": "open public sections; compact admin workspace with grouped metrics",
-    "authority": "Implemented TEST source and review captures; no approved new comp",
-    "directionName": "Minimal studio (descriptive working name, not an additional brand commitment)"
+    "density": "Compact photographic studio index and alternate views; familiar grouped admin metrics/tasks",
+    "authority": "User-approved first/A studio comp and own-photo confirmation; implemented sources and local captures. Numeric pixel diff is not a visual pass.",
+    "directionName": "Ivory & Taupe studio"
   },
   "components": {
     "installed": [],
@@ -133,18 +142,16 @@
       "existing admin v2 controls"
     ],
     "patterns": [
-      "full-width photographic hero with DM Sans title and factual location below it",
-      "contained portrait/text introduction",
-      "four image-top service cards; two at 900px, one at 768px",
-      "flat three-image desktop gallery rail with retained arrows, swipe and keyboard logic",
-      "two-column gallery page with consistent caption overlays; one column at 640px",
-      "contained service text and untinted 3:2 contain image",
-      "single compact white public footer",
-      "retained progressive booking and account/guest paths",
-      "contained account authentication",
-      "centered admin authentication panel",
-      "white admin navigation, one grouped metric container and divided task panels",
-      "navy admin dark theme and mobile drawer at 900px"
+      "Continuous homepage with Munkák / Szolgáltatások / Szofi in-page links",
+      "Compact header with prices/account/booking utilities; mobile full navigation",
+      "Broad own CMS opening photograph without overlay or embedded copy; uncropped16:9 phone framing",
+      "Five own image thumbnails with circular controls, keyboard/swipe and predecode/error recovery",
+      "Visible divided image/text service rows, complete portrait/introduction and existing CMS booking invitation",
+      "No-JS full factual content and ten footer navigation links",
+      "Shared compact ivory public footer; three-column desktop at900px, wrapping phone links",
+      "Retained gallery caption/lightbox, service detail, progressive booking and account/guest flow",
+      "Ivory/beige light admin and charcoal/ivory mixed dark cards with semantic independent appointment states",
+      "Retained grouped admin metrics/task panels, mobile drawer and functional controls"
     ]
   },
   "constraints": {
@@ -168,11 +175,33 @@
   },
   "decisions": [
     {
+      "id": "2026-10-10-continuous-studio-home",
+      "date": "2026-10-10",
+      "status": "local-preview",
+      "decision": "Preserve the approved Ivory & Taupe opening and own photographs, but replace hidden alternate views with a continuous page: works, services, Szofi and the existing CMS booking invitation. The three selectors become ordinary section links. Footer and booking workflows stay unchanged. No push or LIVE release.",
+      "reason": "The user likes the homepage style but says it is too short, like one block."
+    },
+    {
+      "id": "2026-10-10-ivory-taupe-studio",
+      "date": "2026-10-10",
+      "status": "local-preview",
+      "decision": "Implement the user-approved first/A studio comp with five pinned Ivory & Taupe colors, own CMS hero and five existing gallery photographs. Replace the stacked homepage with three accessible views and compact photo controls/shared footer. Preserve data, workflows, no-JS facts and independent semantic states. No commit, push or LIVE deployment.",
+      "reason": "The user selected the first comp and explicitly confirmed: Igen, a saját képekkel építsd meg."
+    },
+    {
+      "id": "2026-10-10-local-beige-palette-preview",
+      "status": "historical",
+      "decision": "The user rejected cobalt and dusty rose. Preview ivory/beige surfaces and champagne-beige actions with dark labels, dark taupe links and hover, and warm charcoal admin dark mode. Preserve the existing layout, data, workflow and semantic state colors. No commit, push or LIVE deployment.",
+      "date": "2026-10-10",
+      "supersededBy": "2026-10-10-ivory-taupe-studio"
+    },
+    {
       "id": "2026-10-10-cobalt-minimal-layout",
       "date": "2026-10-10",
-      "status": "implemented",
+      "status": "historical",
       "decision": "Replace the prior visual direction with cobalt actions, white/cool-gray surfaces and DM Sans content headings across public and admin UI. Use a full-width desktop hero, contained introduction, four image-top service cards, a flat gallery rail, a compact white footer, and grouped admin metrics with white navigation and a navy dark theme.",
-      "reason": "The user requested a genuinely different minimalist layout and colors for both surfaces, a large full-width hero, and allowed copy changes. The implementation keeps real photos, prices, data sources and workflows, plus the existing mobile 16:9 contain framing and admin PWA zoom policy. This is code-led implemented evidence, not a new approved comp."
+      "reason": "The user requested a genuinely different minimalist layout and colors for both surfaces, a large full-width hero, and allowed copy changes. The implementation keeps real photos, prices, data sources and workflows, plus the existing mobile 16:9 contain framing and admin PWA zoom policy. This is code-led implemented evidence, not a new approved comp.",
+      "supersededBy": "2026-10-10-ivory-taupe-studio"
     },
     {
       "date": "2026-10-10",
@@ -296,9 +325,17 @@
       "source": "index.html, foglalas/index.html, fiokom/index.html, admin/index.html"
     },
     {
+      "fact": "approved.comp",
+      "source": ".impeccable/mocks/studio-ivory-a.png"
+    },
+    {
+      "fact": "local.validation.scope",
+      "source": "docs/studio-preview.md"
+    },
+    {
       "fact": "visual.implementation.reference",
-      "source": ".impeccable/review/desktop.png, .impeccable/review/mobile.png, .impeccable/review/admin-desktop.png"
+      "source": ".impeccable/review/desktop.png, mobile.png, services-desktop.png, about-desktop.png, admin-desktop-light.png, admin-desktop-dark.png"
     }
   ],
-  "generatedAt": "2026-10-10T00:00:00+02:00"
+  "generatedAt": "2026-10-10T23:10:00+02:00"
 }

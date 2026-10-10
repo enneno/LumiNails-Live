@@ -1,34 +1,34 @@
 /* Generated from src/admin-styles by npm run build. Edit the source parts, not this file. */
 
 :root {
-  --akcentus: #3155c6;
-  --akcentus-vilagos: #eaf0ff;
-  --tinta: #18212c;
-  --barna: #596474;
-  --krem: #f5f6f9;
-  --kartya: #ffffff;
-  --szoveg: #596474;
-  --rozsa-halvany: #eaf0ff;
-  --zsalyaszurke: #3155c6;
+  --akcentus: #3e3935;
+  --akcentus-vilagos: #e2d9d0;
+  --tinta: #3e3935;
+  --barna: #3e3935;
+  --krem: #f6f3ee;
+  --kartya: #f6f3ee;
+  --szoveg: #3e3935;
+  --rozsa-halvany: #e2d9d0;
+  --zsalyaszurke: #e2d9d0;
 
-  --ui-primary: #3155c6;
-  --ui-on-primary: #ffffff;
-  --ui-accent: #eaf0ff;
-  --ui-on-accent: #18212c;
-  --ui-bg: #f5f6f9;
-  --ui-surface: #ffffff;
-  --ui-soft: #edf1f7;
-  --ui-highlight: #eaf0ff;
-  --ui-warm: #3155c6;
-  --ui-off-black: #18212c;
-  --ui-off-white: #ffffff;
-  --ui-on-dark: #ffffff;
+  --ui-primary: #e2d9d0;
+  --ui-on-primary: #3e3935;
+  --ui-accent: #e2d9d0;
+  --ui-on-accent: #3e3935;
+  --ui-bg: #f6f3ee;
+  --ui-surface: #f6f3ee;
+  --ui-soft: #e2d9d0;
+  --ui-highlight: #e2d9d0;
+  --ui-warm: #e2d9d0;
+  --ui-off-black: #3e3935;
+  --ui-off-white: #f6f3ee;
+  --ui-on-dark: #f6f3ee;
   --ui-ink: var(--tinta);
-  --ui-muted: #596474;
+  --ui-muted: #3e3935;
   --ui-rose: var(--ui-accent);
-  --ui-rose-dark: #2948a9;
-  --ui-line: rgba(24, 33, 44, 0.16);
-  --ui-line-strong: rgba(24, 33, 44, 0.34);
+  --ui-rose-dark: #3e3935;
+  --ui-line: rgba(62, 57, 53, 0.16);
+  --ui-line-strong: rgba(62, 57, 53, 0.34);
   --ui-header-height: 82px;
 
   --lumi-radius-pill: 999px;
@@ -46,12 +46,12 @@
   --lumi-font-button-compact: 12px;
   --lumi-font-control: 18px;
   --lumi-font-calendar: 11px;
-  --lumi-control-bg: #ffffff;
-  --lumi-control-border: rgba(24, 33, 44, 0.22);
-  --lumi-control-border-strong: rgba(24, 33, 44, 0.42);
-  --lumi-control-focus: 0 0 0 3px rgba(49, 94, 92, 0.25);
+  --lumi-control-bg: #f6f3ee;
+  --lumi-control-border: rgba(62, 57, 53, 0.22);
+  --lumi-control-border-strong: rgba(62, 57, 53, 0.42);
+  --lumi-control-focus: 0 0 0 3px rgba(62, 57, 53, 0.25);
   --lumi-soft-shadow: none;
-  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%232948a9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%233e3935' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   --font-display: 'DM Sans', sans-serif;
   --font-serif: 'DM Sans', sans-serif;
@@ -61,49 +61,49 @@
 }
 
 html[data-admin-theme="dark"] {
-  --akcentus: #a9beff;
-  --akcentus-vilagos: #eaf0ff;
-  --tinta: #f7f9ff;
-  --barna: #c5cedc;
-  --krem: #121a28;
-  --kartya: #1b2638;
-  --szoveg: #c5cedc;
-  --rozsa-halvany: #27364d;
-  --zsalyaszurke: #a9beff;
+  --akcentus: #e2d9d0;
+  --akcentus-vilagos: #e2d9d0;
+  --tinta: #f6f3ee;
+  --barna: #e2d9d0;
+  --krem: #3e3935;
+  --kartya: color-mix(in srgb, #3e3935 90%, #f6f3ee);
+  --szoveg: #e2d9d0;
+  --rozsa-halvany: color-mix(in srgb, #3e3935 84%, #f6f3ee);
+  --zsalyaszurke: #e2d9d0;
 
-  --ui-primary: #a9beff;
-  --ui-on-primary: #121a28;
-  --ui-accent: #27364d;
-  --ui-on-accent: #f7f9ff;
-  --ui-bg: #121a28;
-  --ui-surface: #1b2638;
-  --ui-soft: #27364d;
-  --ui-highlight: #eaf0ff;
-  --ui-warm: #a9beff;
-  --ui-off-black: #121a28;
-  --ui-off-white: #f7f9ff;
-  --ui-on-dark: #f7f9ff;
-  --ui-ink: #f7f9ff;
-  --ui-muted: #c5cedc;
-  --ui-rose: #a9beff;
-  --ui-rose-dark: #a9beff;
+  --ui-primary: #e2d9d0;
+  --ui-on-primary: #3e3935;
+  --ui-accent: #3e3935;
+  --ui-on-accent: #f6f3ee;
+  --ui-bg: #3e3935;
+  --ui-surface: var(--kartya);
+  --ui-soft: var(--rozsa-halvany);
+  --ui-highlight: #e2d9d0;
+  --ui-warm: #e2d9d0;
+  --ui-off-black: #3e3935;
+  --ui-off-white: #f6f3ee;
+  --ui-on-dark: #f6f3ee;
+  --ui-ink: #f6f3ee;
+  --ui-muted: #e2d9d0;
+  --ui-rose: #e2d9d0;
+  --ui-rose-dark: #e2d9d0;
   --ui-line: rgba(248, 247, 243, 0.14);
   --ui-line-strong: rgba(248, 247, 243, 0.3);
 
-  --lumi-control-bg: #27364d;
-  --lumi-control-border: rgba(169, 200, 196, 0.32);
-  --lumi-control-border-strong: rgba(169, 200, 196, 0.58);
-  --lumi-control-focus: 0 0 0 3px rgba(169, 200, 196, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --lumi-control-bg: var(--ui-soft);
+  --lumi-control-border: rgba(226, 217, 208, 0.32);
+  --lumi-control-border-strong: rgba(226, 217, 208, 0.58);
+  --lumi-control-focus: 0 0 0 3px rgba(226, 217, 208, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-soft-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23f7f9ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23f6f3ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-  --admin-page-bg: #121a28;
+  --admin-page-bg: #3e3935;
   --admin-native-color-scheme: dark;
 }
 
 html {
-  --admin-page-bg: #f5f6f9;
+  --admin-page-bg: #f6f3ee;
   --admin-native-color-scheme: light;
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   min-width: 100%;
@@ -207,7 +207,7 @@ body.admin-body [hidden] {
   padding: 0 22px;
   border: 1px solid transparent;
   border-radius: 3px;
-  color: var(--ui-on-primary);
+  color: var(--admin-v2-on-brand-dark);
   background: var(--ui-rose-dark);
   font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-button);
@@ -463,7 +463,7 @@ body.admin-body [hidden] {
 .admin-body .admin-hozzaadas:hover,
 .admin-body .admin-kis-gomb:hover {
   border-color: transparent;
-  color: var(--admin-v2-on-brand);
+  color: var(--admin-v2-on-brand-dark);
   background: var(--akcentus);
 }
 
@@ -1321,21 +1321,21 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-workspace-top-gap: 28px;
   --admin-v2-workspace-inline-gap: 42px;
   --admin-v2-workspace-bottom-gap: 50px;
-  --admin-v2-bg: #f5f6f9;
-  --admin-v2-surface: #ffffff;
-  --admin-v2-surface-soft: #edf1f7;
-  --admin-v2-border: rgba(24, 33, 44, 0.16);
-  --admin-v2-border-strong: rgba(24, 33, 44, 0.32);
-  --admin-v2-ink: #18212c;
-  --admin-v2-muted: #596474;
-  --admin-v2-subtle: #596474;
-  --admin-v2-brand: #3155c6;
-  --admin-v2-brand-dark: #2948a9;
-  --admin-v2-brand-soft: #eaf0ff;
-  --admin-v2-on-brand: #ffffff;
-  --admin-v2-on-brand-dark: #ffffff;
-  --admin-v2-nav-muted: #596474;
-  --admin-v2-navigation: #ffffff;
+  --admin-v2-bg: #f6f3ee;
+  --admin-v2-surface: #f6f3ee;
+  --admin-v2-surface-soft: #e2d9d0;
+  --admin-v2-border: rgba(62, 57, 53, 0.16);
+  --admin-v2-border-strong: rgba(62, 57, 53, 0.32);
+  --admin-v2-ink: #3e3935;
+  --admin-v2-muted: #3e3935;
+  --admin-v2-subtle: #3e3935;
+  --admin-v2-brand: #e2d9d0;
+  --admin-v2-brand-dark: #3e3935;
+  --admin-v2-brand-soft: #e2d9d0;
+  --admin-v2-on-brand: #3e3935;
+  --admin-v2-on-brand-dark: #f6f3ee;
+  --admin-v2-nav-muted: #3e3935;
+  --admin-v2-navigation: #f6f3ee;
   --admin-v2-success: #446f58;
   --admin-v2-success-soft: #e8f1eb;
   --admin-v2-warning: #916329;
@@ -1346,10 +1346,10 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-info-soft: #e9eff4;
   --admin-v2-shadow: none;
   --admin-v2-glass: rgba(255, 255, 255, 0.97);
-  --admin-v2-auth-glass: #ffffff;
-  --admin-v2-neutral-soft: #e1e5e2;
-  --admin-v2-divider-soft: #d9e0de;
-  --admin-v2-switch-knob: #ffffff;
+  --admin-v2-auth-glass: #f6f3ee;
+  --admin-v2-neutral-soft: #e2d9d0;
+  --admin-v2-divider-soft: #b8a89b;
+  --admin-v2-switch-knob: #f6f3ee;
   --lumi-font-body: 16px;
   --lumi-font-body-small: 14px;
   --lumi-font-control: 16px;
@@ -1366,20 +1366,20 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-bg: var(--admin-page-bg);
-  --admin-v2-surface: #1b2638;
-  --admin-v2-surface-soft: #27364d;
-  --admin-v2-border: #49606a;
-  --admin-v2-border-strong: #6c848a;
-  --admin-v2-ink: #f7f9ff;
-  --admin-v2-muted: #c5cedc;
-  --admin-v2-subtle: #b3bfd0;
-  --admin-v2-brand: #a9beff;
-  --admin-v2-brand-dark: #c8d6ff;
-  --admin-v2-brand-soft: #27364d;
-  --admin-v2-on-brand: #121a28;
-  --admin-v2-on-brand-dark: #121a28;
-  --admin-v2-navigation: #121a28;
-  --admin-v2-nav-muted: #b3bfd0;
+  --admin-v2-surface: var(--ui-surface);
+  --admin-v2-surface-soft: var(--ui-soft);
+  --admin-v2-border: #b8a89b;
+  --admin-v2-border-strong: #b8a89b;
+  --admin-v2-ink: #f6f3ee;
+  --admin-v2-muted: #e2d9d0;
+  --admin-v2-subtle: #e2d9d0;
+  --admin-v2-brand: #e2d9d0;
+  --admin-v2-brand-dark: #f6f3ee;
+  --admin-v2-brand-soft: var(--ui-soft);
+  --admin-v2-on-brand: #3e3935;
+  --admin-v2-on-brand-dark: #3e3935;
+  --admin-v2-navigation: #3e3935;
+  --admin-v2-nav-muted: #e2d9d0;
   --admin-v2-success: #8fb99c;
   --admin-v2-success-soft: #2f4437;
   --admin-v2-warning: #d6aa72;
@@ -1389,11 +1389,11 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-info: #9db9cc;
   --admin-v2-info-soft: #324550;
   --admin-v2-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
-  --admin-v2-glass: rgba(27, 38, 56, 0.94);
-  --admin-v2-auth-glass: rgba(27, 38, 56, 0.96);
-  --admin-v2-neutral-soft: #27364d;
-  --admin-v2-divider-soft: #34465d;
-  --admin-v2-switch-knob: #f7f9ff;
+  --admin-v2-glass: rgba(62, 57, 53, 0.94);
+  --admin-v2-auth-glass: rgba(62, 57, 53, 0.96);
+  --admin-v2-neutral-soft: var(--ui-soft);
+  --admin-v2-divider-soft: #b8a89b;
+  --admin-v2-switch-knob: #f6f3ee;
 }
 
 .admin-body.admin-v2 *,
@@ -2173,7 +2173,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 .admin-v2-button-primary {
-  border-color: var(--admin-v2-brand);
+  border-color: var(--admin-v2-brand-dark);
   color: var(--admin-v2-on-brand);
   background: var(--admin-v2-brand);
 }
@@ -2752,11 +2752,12 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 .admin-v2-setting-row input[type="checkbox"]:checked::after {
+  background: var(--admin-v2-on-brand);
   transform: translateX(18px);
 }
 
 .admin-body.admin-v2 .admin-v2-setting-row input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--admin-v2-brand);
+  outline: 2px solid var(--admin-v2-brand-dark);
   outline-offset: 3px;
 }
 
@@ -2853,7 +2854,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 :where(button, a, input, select, textarea):focus-visible {
-  outline: 3px solid var(--admin-v2-brand);
+  outline: 3px solid var(--admin-v2-brand-dark);
   outline-offset: 2px;
 }
 
@@ -3156,14 +3157,14 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 
 .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-status-width: 150px;
-  --booking-calendar-header-bg: #e4eceb;
---booking-calendar-cell-bg: #f8f7f3;
---booking-calendar-empty-bg: #eceae4;
---booking-calendar-hover-bg: #edf3f1;
---booking-calendar-selected-bg: #d6e5e2;
---booking-calendar-count-bg: #d6e5e2;
---booking-calendar-event-bg: #e4eceb;
---booking-calendar-event-border: #729b95;
+  --booking-calendar-header-bg: var(--admin-v2-surface-soft);
+--booking-calendar-cell-bg: var(--admin-v2-surface);
+--booking-calendar-empty-bg: var(--admin-v2-bg);
+--booking-calendar-hover-bg: var(--admin-v2-brand-soft);
+--booking-calendar-selected-bg: var(--admin-v2-brand-soft);
+--booking-calendar-count-bg: var(--admin-v2-brand-soft);
+--booking-calendar-event-bg: var(--admin-v2-surface-soft);
+--booking-calendar-event-border: var(--admin-v2-border-strong);
 --booking-calendar-event-text: var(--admin-ink);
 --booking-calendar-pending-border: #315e5c;
 --booking-calendar-pending-bg: #e4eceb;
@@ -3175,7 +3176,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 --booking-calendar-cancelled-bg: #2e2927;
 --booking-calendar-cancelled-customer-border: #62404c;
 --booking-calendar-cancelled-customer-bg: #62404c;
---booking-calendar-day-row-bg: #f8f7f3;
+--booking-calendar-day-row-bg: var(--admin-v2-surface);
 --booking-calendar-day-status-bg: rgba(248, 247, 243, .72);
   --booking-icon-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/%3E%3Cpath d='m15 5 4 4'/%3E%3C/svg%3E");
   --booking-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
@@ -3187,17 +3188,17 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-calendar-header-bg: #27364d;
-  --booking-calendar-cell-bg: #1b2638;
-  --booking-calendar-empty-bg: #162030;
-  --booking-calendar-hover-bg: #34465d;
-  --booking-calendar-selected-bg: #304777;
-  --booking-calendar-count-bg: #34465d;
-  --booking-calendar-event-bg: #27364d;
-  --booking-calendar-event-border: #b3bfd0;
-  --booking-calendar-event-text: #f7f9ff;
-  --booking-calendar-pending-border: #a9beff;
-  --booking-calendar-pending-bg: #27364d;
+  --booking-calendar-header-bg: #403c36;
+  --booking-calendar-cell-bg: #302e2b;
+  --booking-calendar-empty-bg: #292724;
+  --booking-calendar-hover-bg: #4d473f;
+  --booking-calendar-selected-bg: #605445;
+  --booking-calendar-count-bg: #4d473f;
+  --booking-calendar-event-bg: #403c36;
+  --booking-calendar-event-border: #c4b8a9;
+  --booking-calendar-event-text: #fff9f1;
+  --booking-calendar-pending-border: #dfcebc;
+  --booking-calendar-pending-bg: #403c36;
   --booking-calendar-confirmed-border: #8db5ca;
   --booking-calendar-confirmed-bg: #304853;
   --booking-calendar-done-border: #8fb99c;
@@ -3206,8 +3207,8 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-calendar-cancelled-bg: #414950;
   --booking-calendar-cancelled-customer-border: #d293a5;
   --booking-calendar-cancelled-customer-bg: #513a44;
-  --booking-calendar-day-row-bg: #1b2638;
-  --booking-calendar-day-status-bg: #34465d;
+  --booking-calendar-day-row-bg: #302e2b;
+  --booking-calendar-day-status-bg: #4d473f;
 }
 
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-panel-akciok-keresessel {

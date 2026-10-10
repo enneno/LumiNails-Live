@@ -3,14 +3,14 @@
 
 .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-status-width: 150px;
-  --booking-calendar-header-bg: #e4eceb;
---booking-calendar-cell-bg: #f8f7f3;
---booking-calendar-empty-bg: #eceae4;
---booking-calendar-hover-bg: #edf3f1;
---booking-calendar-selected-bg: #d6e5e2;
---booking-calendar-count-bg: #d6e5e2;
---booking-calendar-event-bg: #e4eceb;
---booking-calendar-event-border: #729b95;
+  --booking-calendar-header-bg: var(--admin-v2-surface-soft);
+--booking-calendar-cell-bg: var(--admin-v2-surface);
+--booking-calendar-empty-bg: var(--admin-v2-bg);
+--booking-calendar-hover-bg: var(--admin-v2-brand-soft);
+--booking-calendar-selected-bg: var(--admin-v2-brand-soft);
+--booking-calendar-count-bg: var(--admin-v2-brand-soft);
+--booking-calendar-event-bg: var(--admin-v2-surface-soft);
+--booking-calendar-event-border: var(--admin-v2-border-strong);
 --booking-calendar-event-text: var(--admin-ink);
 --booking-calendar-pending-border: #315e5c;
 --booking-calendar-pending-bg: #e4eceb;
@@ -22,7 +22,7 @@
 --booking-calendar-cancelled-bg: #2e2927;
 --booking-calendar-cancelled-customer-border: #62404c;
 --booking-calendar-cancelled-customer-bg: #62404c;
---booking-calendar-day-row-bg: #f8f7f3;
+--booking-calendar-day-row-bg: var(--admin-v2-surface);
 --booking-calendar-day-status-bg: rgba(248, 247, 243, .72);
   --booking-icon-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/%3E%3Cpath d='m15 5 4 4'/%3E%3C/svg%3E");
   --booking-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
@@ -34,17 +34,17 @@
 }
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-calendar-header-bg: #27364d;
-  --booking-calendar-cell-bg: #1b2638;
-  --booking-calendar-empty-bg: #162030;
-  --booking-calendar-hover-bg: #34465d;
-  --booking-calendar-selected-bg: #304777;
-  --booking-calendar-count-bg: #34465d;
-  --booking-calendar-event-bg: #27364d;
-  --booking-calendar-event-border: #b3bfd0;
-  --booking-calendar-event-text: #f7f9ff;
-  --booking-calendar-pending-border: #a9beff;
-  --booking-calendar-pending-bg: #27364d;
+  --booking-calendar-header-bg: #403c36;
+  --booking-calendar-cell-bg: #302e2b;
+  --booking-calendar-empty-bg: #292724;
+  --booking-calendar-hover-bg: #4d473f;
+  --booking-calendar-selected-bg: #605445;
+  --booking-calendar-count-bg: #4d473f;
+  --booking-calendar-event-bg: #403c36;
+  --booking-calendar-event-border: #c4b8a9;
+  --booking-calendar-event-text: #fff9f1;
+  --booking-calendar-pending-border: #dfcebc;
+  --booking-calendar-pending-bg: #403c36;
   --booking-calendar-confirmed-border: #8db5ca;
   --booking-calendar-confirmed-bg: #304853;
   --booking-calendar-done-border: #8fb99c;
@@ -53,8 +53,8 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
   --booking-calendar-cancelled-bg: #414950;
   --booking-calendar-cancelled-customer-border: #d293a5;
   --booking-calendar-cancelled-customer-bg: #513a44;
-  --booking-calendar-day-row-bg: #1b2638;
-  --booking-calendar-day-status-bg: #34465d;
+  --booking-calendar-day-row-bg: #302e2b;
+  --booking-calendar-day-status-bg: #4d473f;
 }
 
 /* Toolbar and search */

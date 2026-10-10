@@ -195,7 +195,7 @@
 .admin-body .admin-hozzaadas:hover,
 .admin-body .admin-kis-gomb:hover {
   border-color: transparent;
-  color: var(--admin-v2-on-brand);
+  color: var(--admin-v2-on-brand-dark);
   background: var(--akcentus);
 }
 

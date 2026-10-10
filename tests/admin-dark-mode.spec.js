@@ -81,7 +81,7 @@ test('dark theme changes the shared surfaces, controls, switch and PWA dock', as
   expect(metrics.cardBg).not.toBe('rgb(255, 255, 255)');
   expect(metrics.inputBg).not.toBe('rgb(255, 250, 244)');
   expect(metrics.inputColor).not.toBe('rgb(43, 37, 33)');
-  expect(metrics.toggleBg).toBe('rgb(169, 190, 255)');
+  expect(metrics.toggleBg).toBe('rgb(226, 217, 208)');
   expect(metrics.dockBg).not.toBe('rgba(255, 252, 249, 0.9)');
   expect(metrics.notificationBg).not.toBe('rgb(255, 255, 255)');
 });
@@ -107,13 +107,13 @@ test('booking calendar uses dark surfaces and dark status colors', async ({ page
     };
   });
 
-  expect(metrics.header).toBe('rgb(39, 54, 77)');
-  expect(metrics.cell).toBe('rgb(27, 38, 56)');
-  expect(metrics.empty).toBe('rgb(22, 32, 48)');
-  expect(metrics.selected).toBe('rgb(48, 71, 119)');
-  expect(metrics.count).toBe('rgb(52, 70, 93)');
+  expect(metrics.header).toBe('rgb(64, 60, 54)');
+  expect(metrics.cell).toBe('rgb(48, 46, 43)');
+  expect(metrics.empty).toBe('rgb(41, 39, 36)');
+  expect(metrics.selected).toBe('rgb(96, 84, 69)');
+  expect(metrics.count).toBe('rgb(77, 71, 63)');
   expect(metrics.done).toBe('rgb(47, 68, 55)');
-  expect(metrics.doneText).toBe('rgb(247, 249, 255)');
-  expect(metrics.dayRow).toBe('rgb(27, 38, 56)');
-  expect(metrics.dayStatus).toBe('rgb(52, 70, 93)');
+  expect(metrics.doneText).toBe('rgb(255, 249, 241)');
+  expect(metrics.dayRow).toBe('rgb(48, 46, 43)');
+  expect(metrics.dayStatus).toBe('rgb(77, 71, 63)');
 });

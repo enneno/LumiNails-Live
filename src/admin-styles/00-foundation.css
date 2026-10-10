@@ -1,33 +1,33 @@
 /* Admin foundation: tokens, reset and shared brand primitives only. */
 :root {
-  --akcentus: #3155c6;
-  --akcentus-vilagos: #eaf0ff;
-  --tinta: #18212c;
-  --barna: #596474;
-  --krem: #f5f6f9;
-  --kartya: #ffffff;
-  --szoveg: #596474;
-  --rozsa-halvany: #eaf0ff;
-  --zsalyaszurke: #3155c6;
+  --akcentus: #3e3935;
+  --akcentus-vilagos: #e2d9d0;
+  --tinta: #3e3935;
+  --barna: #3e3935;
+  --krem: #f6f3ee;
+  --kartya: #f6f3ee;
+  --szoveg: #3e3935;
+  --rozsa-halvany: #e2d9d0;
+  --zsalyaszurke: #e2d9d0;
 
-  --ui-primary: #3155c6;
-  --ui-on-primary: #ffffff;
-  --ui-accent: #eaf0ff;
-  --ui-on-accent: #18212c;
-  --ui-bg: #f5f6f9;
-  --ui-surface: #ffffff;
-  --ui-soft: #edf1f7;
-  --ui-highlight: #eaf0ff;
-  --ui-warm: #3155c6;
-  --ui-off-black: #18212c;
-  --ui-off-white: #ffffff;
-  --ui-on-dark: #ffffff;
+  --ui-primary: #e2d9d0;
+  --ui-on-primary: #3e3935;
+  --ui-accent: #e2d9d0;
+  --ui-on-accent: #3e3935;
+  --ui-bg: #f6f3ee;
+  --ui-surface: #f6f3ee;
+  --ui-soft: #e2d9d0;
+  --ui-highlight: #e2d9d0;
+  --ui-warm: #e2d9d0;
+  --ui-off-black: #3e3935;
+  --ui-off-white: #f6f3ee;
+  --ui-on-dark: #f6f3ee;
   --ui-ink: var(--tinta);
-  --ui-muted: #596474;
+  --ui-muted: #3e3935;
   --ui-rose: var(--ui-accent);
-  --ui-rose-dark: #2948a9;
-  --ui-line: rgba(24, 33, 44, 0.16);
-  --ui-line-strong: rgba(24, 33, 44, 0.34);
+  --ui-rose-dark: #3e3935;
+  --ui-line: rgba(62, 57, 53, 0.16);
+  --ui-line-strong: rgba(62, 57, 53, 0.34);
   --ui-header-height: 82px;
 
   --lumi-radius-pill: 999px;
@@ -45,12 +45,12 @@
   --lumi-font-button-compact: 12px;
   --lumi-font-control: 18px;
   --lumi-font-calendar: 11px;
-  --lumi-control-bg: #ffffff;
-  --lumi-control-border: rgba(24, 33, 44, 0.22);
-  --lumi-control-border-strong: rgba(24, 33, 44, 0.42);
-  --lumi-control-focus: 0 0 0 3px rgba(49, 94, 92, 0.25);
+  --lumi-control-bg: #f6f3ee;
+  --lumi-control-border: rgba(62, 57, 53, 0.22);
+  --lumi-control-border-strong: rgba(62, 57, 53, 0.42);
+  --lumi-control-focus: 0 0 0 3px rgba(62, 57, 53, 0.25);
   --lumi-soft-shadow: none;
-  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%232948a9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%233e3935' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   --font-display: 'DM Sans', sans-serif;
   --font-serif: 'DM Sans', sans-serif;
@@ -60,49 +60,49 @@
 }
 
 html[data-admin-theme="dark"] {
-  --akcentus: #a9beff;
-  --akcentus-vilagos: #eaf0ff;
-  --tinta: #f7f9ff;
-  --barna: #c5cedc;
-  --krem: #121a28;
-  --kartya: #1b2638;
-  --szoveg: #c5cedc;
-  --rozsa-halvany: #27364d;
-  --zsalyaszurke: #a9beff;
+  --akcentus: #e2d9d0;
+  --akcentus-vilagos: #e2d9d0;
+  --tinta: #f6f3ee;
+  --barna: #e2d9d0;
+  --krem: #3e3935;
+  --kartya: color-mix(in srgb, #3e3935 90%, #f6f3ee);
+  --szoveg: #e2d9d0;
+  --rozsa-halvany: color-mix(in srgb, #3e3935 84%, #f6f3ee);
+  --zsalyaszurke: #e2d9d0;
 
-  --ui-primary: #a9beff;
-  --ui-on-primary: #121a28;
-  --ui-accent: #27364d;
-  --ui-on-accent: #f7f9ff;
-  --ui-bg: #121a28;
-  --ui-surface: #1b2638;
-  --ui-soft: #27364d;
-  --ui-highlight: #eaf0ff;
-  --ui-warm: #a9beff;
-  --ui-off-black: #121a28;
-  --ui-off-white: #f7f9ff;
-  --ui-on-dark: #f7f9ff;
-  --ui-ink: #f7f9ff;
-  --ui-muted: #c5cedc;
-  --ui-rose: #a9beff;
-  --ui-rose-dark: #a9beff;
+  --ui-primary: #e2d9d0;
+  --ui-on-primary: #3e3935;
+  --ui-accent: #3e3935;
+  --ui-on-accent: #f6f3ee;
+  --ui-bg: #3e3935;
+  --ui-surface: var(--kartya);
+  --ui-soft: var(--rozsa-halvany);
+  --ui-highlight: #e2d9d0;
+  --ui-warm: #e2d9d0;
+  --ui-off-black: #3e3935;
+  --ui-off-white: #f6f3ee;
+  --ui-on-dark: #f6f3ee;
+  --ui-ink: #f6f3ee;
+  --ui-muted: #e2d9d0;
+  --ui-rose: #e2d9d0;
+  --ui-rose-dark: #e2d9d0;
   --ui-line: rgba(248, 247, 243, 0.14);
   --ui-line-strong: rgba(248, 247, 243, 0.3);
 
-  --lumi-control-bg: #27364d;
-  --lumi-control-border: rgba(169, 200, 196, 0.32);
-  --lumi-control-border-strong: rgba(169, 200, 196, 0.58);
-  --lumi-control-focus: 0 0 0 3px rgba(169, 200, 196, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --lumi-control-bg: var(--ui-soft);
+  --lumi-control-border: rgba(226, 217, 208, 0.32);
+  --lumi-control-border-strong: rgba(226, 217, 208, 0.58);
+  --lumi-control-focus: 0 0 0 3px rgba(226, 217, 208, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --lumi-soft-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23f7f9ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%23f6f3ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-  --admin-page-bg: #121a28;
+  --admin-page-bg: #3e3935;
   --admin-native-color-scheme: dark;
 }
 
 html {
-  --admin-page-bg: #f5f6f9;
+  --admin-page-bg: #f6f3ee;
   --admin-native-color-scheme: light;
   --lumi-control-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   min-width: 100%;
@@ -206,7 +206,7 @@ body.admin-body [hidden] {
   padding: 0 22px;
   border: 1px solid transparent;
   border-radius: 3px;
-  color: var(--ui-on-primary);
+  color: var(--admin-v2-on-brand-dark);
   background: var(--ui-rose-dark);
   font-family: 'DM Sans', sans-serif;
   font-size: var(--lumi-font-button);

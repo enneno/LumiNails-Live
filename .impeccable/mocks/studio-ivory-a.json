@@ -1,0 +1,19 @@
+{
+  "prompt": "Use case: ui-mockup. Edit the FIRST reference image, a Hungarian Lumi Nails three-view studio browser website, preserving its chosen topology, neutral grotesk UI typography, small existing serif wordmark, the Munkák / Szolgáltatások / Szofi horizontal view selector, full-width photographic workspace, and thumbnail control strip. The SECOND reference is ONLY the user's five color swatches, not a website and not content to insert. Set the UI palette strictly to sampled ivory #F6F3EE, pale beige #E2D9D0, taupe #B8A89B, muted clay #A08075 and dark warm charcoal #3E3935. Use ivory page/header/nav/footer, pale beige action surfaces, taupe selected borders, clay only for tiny non-text decoration, dark charcoal on all light UI surfaces for readable text. No blue, pink accent, gold, new shade or dark brown overlay. Keep the photograph's natural colors; do not recolor photographic pixels. Preserve all structure and visual proportions, except FIX the first image's fabricated footer: remove email, Általános Szerződési Feltételek and Sütibeállítások, replace that footer content with genuine navigation labels 'Kezdőlap', 'Árlista', 'Galéria', 'Foglalás', 'Fiókom', 'Adatkezelés', and existing public contact text 'Tatabánya Kós Károly', 'luminails.xx@gmail.com'. Do not invent any business claim. Remove all fictitious branding from depicted tools/bottle where possible; keep a generic nail polish bottle on silver satin with file and manicure tools, illustrative not a real client photograph. Core text must remain exactly 'Lumi Nails', 'Árlista', 'Saját fiókom', 'Időpontfoglalás', 'Munkák', 'Szolgáltatások', 'Szofi', 'Körmök, személyes figyelemmel. Tatabányán.', 'Galéria megnyitása'. No new sections, cards, eyebrows, captions, statistics, fake testimonials or prices. Do not change the chosen first layout into a conventional long landing page. High-fidelity sharp 1536x1024 desktop page comp, same composition as reference 1; reference 2 supplies ONLY colors. No device frame. This is the baseline layout A already chosen by the user, recolored in their palette.",
+  "approved": true,
+  "approvalEvidence": "igen az első kép tetszik — user approval, 2026-10-10",
+  "directionApproved": true,
+  "approvedDirection": "Váltható szalonfelület",
+  "userPalette": [
+    "#F6F3EE",
+    "#E2D9D0",
+    "#B8A89B",
+    "#A08075",
+    "#3E3935"
+  ],
+  "paletteSource": "JPEG swatch centers, approximate sampled values",
+  "provider": "built-in image_gen",
+  "kind": "ui-mockup",
+  "illustrative": true,
+  "productionAssets": "Use actual CMS hero and existing gallery photographs, not generated evidence."
+}

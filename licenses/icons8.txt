@@ -1,0 +1,32 @@
+Icons8 homepage service icons — free PNG use with visible attribution
+Retrieved: 2026-10-11. Raster size: 100 x 100 pixels, transparent PNG.
+Color #3E3935 supplied by Icons8's own image service, not locally redrawn.
+
+These assets are NOT MIT-licensed and must not be treated as project-owned
+artwork or redistributed as a standalone icon collection. The shared footer
+contains the required visible, clickable https://icons8.com attribution.
+Keep that credit on every page that uses these icons, including PWA views.
+Do not remove the credit without an appropriate paid license, use paid-size
+assets, trace to SVG or manually create derivatives under the free license.
+
+Official terms:
+https://icons8.com/license
+https://icons8.com/icons/pricing
+https://intercom.help/icons8-7fb7577e8170/en/articles/5534926-universal-multimedia-license-agreement-for-icons8
+
+epites.png — Nails, Icons8, iOS Glyph
+Source: https://icons8.com/icon/UyKqesAcRbex/nails
+Download: https://img.icons8.com/ios11/100/3e3935/nails.png
+
+diszites.png — Nail Polish, Design Circle, Glyph
+The user's selected solid nail-and-brush example.
+Source: https://icons8.com/icon/aAl8lwfLUI2v/nail-polish
+Download: https://img.icons8.com/external-glyph-design-circle/100/3e3935/external-Nail-Polish-fashion-and-beauty-solid-design-circle.png
+
+gel-lakk.png — Manicure (polish bottle), Icons8, iOS Filled
+Source: https://icons8.com/icon/61336/manicure
+Download: https://img.icons8.com/ios_filled/100/3e3935/manicure.png
+
+manikur.png — Nail File, Yogi Aprelliyanto, Glyph
+Source: https://icons8.com/icon/GXjy7VReqW3a/nail-file
+Download: https://img.icons8.com/external-yogi-aprelliyanto-glyph-yogi-aprelliyanto/100/3e3935/external-nail-file-beauty-and-cosmetic-yogi-aprelliyanto-glyph-yogi-aprelliyanto.png

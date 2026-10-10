@@ -9,21 +9,21 @@
   --admin-v2-workspace-top-gap: 28px;
   --admin-v2-workspace-inline-gap: 42px;
   --admin-v2-workspace-bottom-gap: 50px;
-  --admin-v2-bg: #f5f6f9;
-  --admin-v2-surface: #ffffff;
-  --admin-v2-surface-soft: #edf1f7;
-  --admin-v2-border: rgba(24, 33, 44, 0.16);
-  --admin-v2-border-strong: rgba(24, 33, 44, 0.32);
-  --admin-v2-ink: #18212c;
-  --admin-v2-muted: #596474;
-  --admin-v2-subtle: #596474;
-  --admin-v2-brand: #3155c6;
-  --admin-v2-brand-dark: #2948a9;
-  --admin-v2-brand-soft: #eaf0ff;
-  --admin-v2-on-brand: #ffffff;
-  --admin-v2-on-brand-dark: #ffffff;
-  --admin-v2-nav-muted: #596474;
-  --admin-v2-navigation: #ffffff;
+  --admin-v2-bg: #f6f3ee;
+  --admin-v2-surface: #f6f3ee;
+  --admin-v2-surface-soft: #e2d9d0;
+  --admin-v2-border: rgba(62, 57, 53, 0.16);
+  --admin-v2-border-strong: rgba(62, 57, 53, 0.32);
+  --admin-v2-ink: #3e3935;
+  --admin-v2-muted: #3e3935;
+  --admin-v2-subtle: #3e3935;
+  --admin-v2-brand: #e2d9d0;
+  --admin-v2-brand-dark: #3e3935;
+  --admin-v2-brand-soft: #e2d9d0;
+  --admin-v2-on-brand: #3e3935;
+  --admin-v2-on-brand-dark: #f6f3ee;
+  --admin-v2-nav-muted: #3e3935;
+  --admin-v2-navigation: #f6f3ee;
   --admin-v2-success: #446f58;
   --admin-v2-success-soft: #e8f1eb;
   --admin-v2-warning: #916329;
@@ -34,10 +34,10 @@
   --admin-v2-info-soft: #e9eff4;
   --admin-v2-shadow: none;
   --admin-v2-glass: rgba(255, 255, 255, 0.97);
-  --admin-v2-auth-glass: #ffffff;
-  --admin-v2-neutral-soft: #e1e5e2;
-  --admin-v2-divider-soft: #d9e0de;
-  --admin-v2-switch-knob: #ffffff;
+  --admin-v2-auth-glass: #f6f3ee;
+  --admin-v2-neutral-soft: #e2d9d0;
+  --admin-v2-divider-soft: #b8a89b;
+  --admin-v2-switch-knob: #f6f3ee;
   --lumi-font-body: 16px;
   --lumi-font-body-small: 14px;
   --lumi-font-control: 16px;
@@ -54,20 +54,20 @@
 
 html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-bg: var(--admin-page-bg);
-  --admin-v2-surface: #1b2638;
-  --admin-v2-surface-soft: #27364d;
-  --admin-v2-border: #49606a;
-  --admin-v2-border-strong: #6c848a;
-  --admin-v2-ink: #f7f9ff;
-  --admin-v2-muted: #c5cedc;
-  --admin-v2-subtle: #b3bfd0;
-  --admin-v2-brand: #a9beff;
-  --admin-v2-brand-dark: #c8d6ff;
-  --admin-v2-brand-soft: #27364d;
-  --admin-v2-on-brand: #121a28;
-  --admin-v2-on-brand-dark: #121a28;
-  --admin-v2-navigation: #121a28;
-  --admin-v2-nav-muted: #b3bfd0;
+  --admin-v2-surface: var(--ui-surface);
+  --admin-v2-surface-soft: var(--ui-soft);
+  --admin-v2-border: #b8a89b;
+  --admin-v2-border-strong: #b8a89b;
+  --admin-v2-ink: #f6f3ee;
+  --admin-v2-muted: #e2d9d0;
+  --admin-v2-subtle: #e2d9d0;
+  --admin-v2-brand: #e2d9d0;
+  --admin-v2-brand-dark: #f6f3ee;
+  --admin-v2-brand-soft: var(--ui-soft);
+  --admin-v2-on-brand: #3e3935;
+  --admin-v2-on-brand-dark: #3e3935;
+  --admin-v2-navigation: #3e3935;
+  --admin-v2-nav-muted: #e2d9d0;
   --admin-v2-success: #8fb99c;
   --admin-v2-success-soft: #2f4437;
   --admin-v2-warning: #d6aa72;
@@ -77,11 +77,11 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-v2-info: #9db9cc;
   --admin-v2-info-soft: #324550;
   --admin-v2-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
-  --admin-v2-glass: rgba(27, 38, 56, 0.94);
-  --admin-v2-auth-glass: rgba(27, 38, 56, 0.96);
-  --admin-v2-neutral-soft: #27364d;
-  --admin-v2-divider-soft: #34465d;
-  --admin-v2-switch-knob: #f7f9ff;
+  --admin-v2-glass: rgba(62, 57, 53, 0.94);
+  --admin-v2-auth-glass: rgba(62, 57, 53, 0.96);
+  --admin-v2-neutral-soft: var(--ui-soft);
+  --admin-v2-divider-soft: #b8a89b;
+  --admin-v2-switch-knob: #f6f3ee;
 }
 
 .admin-body.admin-v2 *,
@@ -862,7 +862,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 .admin-v2-button-primary {
-  border-color: var(--admin-v2-brand);
+  border-color: var(--admin-v2-brand-dark);
   color: var(--admin-v2-on-brand);
   background: var(--admin-v2-brand);
 }
@@ -1442,11 +1442,12 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 .admin-v2-setting-row input[type="checkbox"]:checked::after {
+  background: var(--admin-v2-on-brand);
   transform: translateX(18px);
 }
 
 .admin-body.admin-v2 .admin-v2-setting-row input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--admin-v2-brand);
+  outline: 2px solid var(--admin-v2-brand-dark);
   outline-offset: 3px;
 }
 
@@ -1544,7 +1545,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 :where(button, a, input, select, textarea):focus-visible {
-  outline: 3px solid var(--admin-v2-brand);
+  outline: 3px solid var(--admin-v2-brand-dark);
   outline-offset: 2px;
 }
 

@@ -60,6 +60,7 @@ window.lumiSupabaseClient = (() => {
 (() => {
     const isHomePath = location.pathname === '/' || location.pathname === '/index.html';
     if (!isHomePath) return;
+    if (document.querySelector('.studio-view-tabs')) return;
 
     if (!document.querySelector('link[data-lumi-home-account-strip]')) {
         const style = document.createElement('link');

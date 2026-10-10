@@ -30,7 +30,13 @@ A publikus oldal előrenderelt HTML-t és aktuális tartalomfrissítést haszná
 
 A Lumi Nails név és minimalista stílus megmarad. A felhasználó kifejezetten új elrendezést és színeket kér mind a publikus, mind az admin felületre, nagy, teljes szélességű hero fotóval.
 
+2026-10-10: a felhasználó a „Váltható szalonfelület” irány első/A tervét választotta: Munkák / Szolgáltatások / Szofi nézetek, hosszú kezdőlapi blokkfolyam helyett. A mellékelt Ivory & Taupe paletta kötelező brand irány; a JPEG-minta közepéből kiolvasott közelítő értékek: `#F6F3EE`, `#E2D9D0`, `#B8A89B`, `#A08075`, `#3E3935`. A sötét szín a világos felületek szövegéhez tartozik; az árnyalatok nem lehetnek olvashatatlan feliratok. A működő helyi megvalósítás ezt a tervet követi; nincs commit, push vagy élesítés.
+
+A felhasználó külön megerősítette: „Igen, a saját képekkel építsd meg”. A terv fotói szemléltetők; a jelenlegi CMS-hero és az öt autentikus galériakép marad. A fotóazonosság nem követelmény a látványtervvel szemben. Ez nem engedély a jóváhagyott felépítés vagy a rögzített paletta lecserélésére.
+
 ## Evidence on Hand
+
+2026-10-10 refinement: the user likes the homepage style but finds the page too short, like a single block. Preserve Ivory & Taupe, typography and authentic photographs; expose services and introduction as continuous sections after the opening, with the existing CMS booking introduction before the compact footer. This latest instruction supersedes the previous hidden alternate-view structure. Work locally in TEST; no new deployment approval.
 
 Valós tartalom az index.html-ben és a szolgáltatásoldalakon; meglévő fotók a kepek/ alatt és a publikus tartalomrekordokban. Új ügyfélvélemények vagy állítások nem készülnek.
 

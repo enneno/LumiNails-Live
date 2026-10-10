@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-lumi-content-fingerprint="17fa1729933e8efbea90" data-lumi-content-updated-at="2026-09-10T14:51:58.503+00:00" lang="hu">
+<html data-lumi-content-fingerprint="a0e5c302b29be32fcb3a" data-lumi-content-updated-at="2026-09-10T14:51:58.503+00:00" lang="hu">
 
 <head>
     <meta charset="UTF-8">
@@ -23,10 +23,10 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/kepek/favicon-96.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/kepek/favicon-192.png">
     <link rel="apple-touch-icon" href="/kepek/apple-touch-icon.png">
-    <link rel="stylesheet" href="/style.css?v=bbe85088824f">
+    <link rel="stylesheet" href="/style.css?v=3717b4b96489">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Reddit+Sans+Condensed:wght@300;400&display=swap" rel="stylesheet">
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": [
@@ -121,6 +121,19 @@
 </head>
 
 <body class="fooldal">
+    <div class="home-sticky-header">
+    <aside aria-label="Aktuális információ" id="vendegertesito" class="vendegertesito" tabindex="0">
+        <div class="vendegertesito-belso">
+            <svg class="vendegertesito-jel" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg>
+            <div class="vendegertesito-tartalom">
+                <p class="vendegertesito-cimke">Aktuális információ</p>
+                <p class="vendegertesito-szoveg">Kedves vendégeim.
+
+Ha online nincs elérhető időpont,
+Instagramon akkor is tudunk egyeztetni.</p>
+            </div>
+        </div>
+    </aside>
     <div data-prerendered-shell="true" id="fejlec-helye"><header class="site-header">
     <a href="/" class="logo" aria-label="Lumi Nails kezdőlap">
         <span class="logo-lumi">Lumi</span>
@@ -132,8 +145,8 @@
         <a href="/#szolgaltatasok">Szolgáltatások</a>
         <a href="/arlista/">Árlista</a>
         <a href="/galeria/">Galéria</a>
-        <a href="/fiokom/">Fiókom</a>
-        <a href="/foglalas/">Foglalás</a>
+        <a href="/fiokom/">Saját fiókom</a>
+        <a href="/foglalas/">Időpontfoglalás</a>
     </nav>
 
     <button type="button" class="hamburger" aria-label="Menü megnyitása">
@@ -151,50 +164,96 @@
     <a href="/fiokom/">Fiókom</a>
     <a href="/foglalas/">Foglalás</a>
 </nav></div>
+    </div>
 
     <main id="fo-tartalom">
-    <aside id="vendegertesito" class="vendegertesito" aria-live="polite" aria-label="Aktuális információ">
-        <div class="vendegertesito-belso">
-            <span class="vendegertesito-cimke">Aktuális információ</span>
-            <p class="vendegertesito-szoveg">Kedves vendégeim.
-
-Ha online nincs elérhető időpont,
-Instagramon akkor is tudunk egyeztetni.</p>
-        </div>
-    </aside>
-
-    <section aria-label="Lumi Nails nyitókép" style="background-image:none" id="hero" class="hero-preview-refresh">
-        <div class="hero-content">
+    <div class="studio-heading">
+        <div class="hero-content visually-hidden">
             <div class="hero-copy">
+                <h1><span class="hero-title-line">Lumi</span> <span class="hero-title-line">Nails</span></h1>
                 <span class="hero-kicker">Körmös Tatabánya</span>
-                <h1><span class="hero-title-line">Lumi</span><span class="hero-title-line">Nails</span></h1>
                 <p>Elegáns manikűr, gél lakk és körömépítés személyes figyelemmel.</p>
             </div>
-            <div class="hero-actions">
-                <a href="/foglalas/" class="gomb hero-primary">Belépés / Regisztráció</a>
-                <a href="/fiokom/" class="gomb hero-secondary">Saját fiókom</a>
-            </div>
-            <div class="hero-bizalom" aria-label="A Lumi Nails előnyei">
-            <span><strong>Személyes</strong> figyelem</span>
-
-            <span><strong>Precíz</strong> kivitelezés</span>
-
-            <span><strong>Online</strong> foglalás</span>
         </div>
-        </div>
+        <nav class="studio-view-tabs" aria-label="Fedezd fel a Lumi Nails szalont">
+            <a id="studio-tab-works" href="#hero">Munkák</a>
+            <a id="studio-tab-services" href="#szolgaltatasok">Szolgáltatások</a>
+            <a id="studio-tab-about" href="#bemutatkozas">Szofi</a>
+        </nav>
+        <p class="studio-intro">Körmök, személyes figyelemmel. Tatabányán.</p>
+    </div>
+
+    <section aria-label="Lumi Nails nyitókép" style="background-image:none" id="hero" class="studio-work-panel" tabindex="-1">
         <div class="hero-visual">
             <img src="https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-09-05/1788628618091-4ce48d0e-4cda-40a4-afc4-f15b78f8d0fe-full.jpg" class="hero-kep" alt="Lumi Nails nyitókép" width="1280" height="720" fetchpriority="high" decoding="async">
-            <div class="hero-monogram" aria-hidden="true"><span>L</span><span>N</span></div>
-            <div class="hero-visual-cimke">
-                <span>Aktuális munkák</span>
-                <a href="/galeria/">Galéria megnyitása <span aria-hidden="true">→</span></a>
-            </div>
         </div>
+        <div class="studio-controls">
+            <button class="studio-image-arrow" type="button" data-studio-image-step="-1" aria-label="Előző kép" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg></button>
+            <div id="galeria-atvezeto">
+                <div class="galeria-atvezeto-kepek">
+                    <img data-full-src="/galeria/optimized/large/image8.jpg" src="/galeria/optimized/thumbs/image8.jpg" alt="Rövid natúr nude körmök fényes tejes rózsaszín árnyalattal." loading="lazy" decoding="async">
+                    <img data-full-src="/galeria/optimized/large/image3.jpg" src="/galeria/optimized/thumbs/image3.jpg" alt="Sötét csillámos szögletes körmök fehér virágmintás díszítéssel." loading="lazy" decoding="async">
+                    <img data-full-src="/galeria/optimized/large/image6.jpg" src="/galeria/optimized/thumbs/image6.jpg" alt="Halvány rózsaszín csillámos szögletes körmök elegáns fényes felülettel." loading="lazy" decoding="async">
+                    <img data-full-src="/galeria/optimized/large/image0.jpg" src="/galeria/optimized/thumbs/image0.jpg" alt="Élénkpiros fényes szögletes körmök klasszikus egyszínű kivitelben." loading="lazy" decoding="async">
+                    <img data-full-src="/galeria/optimized/large/image1.jpg" src="/galeria/optimized/thumbs/image1.jpg" alt="Csokoládébarna fényes ovális körmök elegáns egyszínű kivitelben." loading="lazy" decoding="async">
+                </div>
+            </div>
+            <button class="studio-image-arrow" type="button" data-studio-image-step="1" aria-label="Következő kép" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg></button>
+            <a class="studio-gallery-link" href="/galeria/">Galéria megnyitása <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg></a>
+        </div>
+        <p class="visually-hidden" data-studio-image-status="" aria-live="polite"></p>
     </section>
 
     <section id="akcios-banner" class="akcios-banner" hidden aria-live="polite"></section>
 
-    <section id="bemutatkozas" class="bemutatkozas">
+    <section id="szolgaltatasok" aria-labelledby="szolgaltatasok-cim" tabindex="-1">
+        <div class="szolgaltatasok-belso">
+            <div class="szekcio-fej">
+                <div>
+                    <span class="szekcio-kicker">Amiben segíthetek</span>
+                    <h2 id="szolgaltatasok-cim">SZOLGÁLTATÁSOK</h2>
+                </div>
+                <div class="szolgaltatas-bevezeto">
+                    <p>Letisztult alapoktól az egyedi díszítésig — minden szett személyre szabva, nyugodt tempóban készül.</p>
+                    <a href="/arlista/" class="szoveges-link">Teljes árlista <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+
+            <div class="szolgaltatas-lista">
+                <article class="szolgaltatas-kartya szolgaltatas-kartya--epites">
+                    <img class="szolgaltatas-kartya-ikon" src="/kepek/ikonok/epites.png" width="100" height="100" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                    <h3>Körömépítés &amp; Töltés</h3>
+                    <p>S, M és L méretű zselés, acryl gel-es, porcelán műkörmök <br>precíz felhelyezése és rendszeres karbantartása.</p>
+                    <a href="/mukorom-epites-toltes/">Részletek <span aria-hidden="true">→</span></a>
+                </article>
+                <article class="szolgaltatas-kartya szolgaltatas-kartya--diszites">
+                    <img class="szolgaltatas-kartya-ikon" src="/kepek/ikonok/diszites.png" width="100" height="100" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                    <h3>Díszítés / Nail Art</h3>
+                    <p>Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.</p>
+                    <a href="/korom-diszites-nail-art-tatabanya/">Részletek <span aria-hidden="true">→</span></a>
+                </article>
+                <article class="szolgaltatas-kartya szolgaltatas-kartya--gel-lakk">
+                    <img class="szolgaltatas-kartya-ikon" src="/kepek/ikonok/gel-lakk.png" width="100" height="100" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                    <h3>Gél Lakk</h3>
+                    <p>Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.</p>
+                    <a href="/gel-lakk-tatabanya/">Részletek <span aria-hidden="true">→</span></a>
+                </article>
+                <article class="szolgaltatas-kartya szolgaltatas-kartya--manikur">
+                    <img class="szolgaltatas-kartya-ikon" src="/kepek/ikonok/manikur.png" width="100" height="100" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                    <h3>Manikűr</h3>
+                    <p>Klasszikus körömápolás, gél lakk szakszerű eltávolítása <br>és a kezek kényeztető felfrissítése.</p>
+                    <a href="/manikur-tatabanya/">Részletek <span aria-hidden="true">→</span></a>
+                </article>
+            </div>
+
+            <div class="szolgaltatas-zaras">
+                <p><strong>Nem tudod, melyik illik hozzád?</strong><span>Válassz időpontot, a részleteket pedig együtt pontosítjuk.</span></p>
+                <a href="/foglalas/" class="gomb">Időpontot foglalok</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="bemutatkozas" class="bemutatkozas" aria-labelledby="bemutatkozas-cim" tabindex="-1">
         <div class="bemutatkozas-belso">
             <div class="bemutatkozas-kep">
                 <img src="https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-07-28/1785272237422-0wb9mvzv7xi-migrated-full.jpg" alt="Lumi Nails Szofi" loading="lazy" decoding="async">
@@ -205,8 +264,7 @@ Instagramon akkor is tudunk egyeztetni.</p>
             </div>
             <div class="bemutatkozas-szoveg">
                 <span class="szekcio-kicker">A LumiNails mögött</span>
-                <h2>Bemutatkozás</h2>
-
+                <h2 id="bemutatkozas-cim">Bemutatkozás</h2>
 
             <p>Sziasztok!
 
@@ -216,66 +274,19 @@ Fontos számomra az igényes, szép munka, a folyamatos fejlődés és az, hogy 
         </div>
     </section>
 
-    <section id="szolgaltatasok">
-        <div class="szolgaltatasok-belso">
-            <div class="szekcio-fej">
-                <div>
-                    <span class="szekcio-kicker">Amiben segíthetek</span>
-                    <h2>SZOLGÁLTATÁSOK</h2>
-                </div>
-                <div class="szolgaltatas-bevezeto">
-                    <p>Letisztult alapoktól az egyedi díszítésig — minden szett személyre szabva, nyugodt tempóban készül.</p>
-                    <a href="/arlista/" class="szoveges-link">Teljes árlista <span aria-hidden="true">→</span></a>
-                </div>
+    <section id="kapcsolat" aria-labelledby="kapcsolat-cim" tabindex="-1">
+        <div class="kapcsolat-belso">
+            <div class="kapcsolat-tartalom">
+                <h2 id="kapcsolat-cim">Időpontfoglalás</h2>
+                <p class="szekcio-leiras">Válaszd ki a neked megfelelő szabad sávot online rendszerünkben vagy írj Instagramon vagy vedd fel a kapcsolatot telefonon.</p>
             </div>
-
-            <div class="szolgaltatas-lista"><article style="--service-image:url(&quot;/kepek/szolgaltatas-epites.jpg&quot;)" class="szolgaltatas-kartya szolgaltatas-kartya--epites"><div class="szolgaltatas-kartya-fej"><span class="szolgaltatas-tipus">Építés &amp; karbantartás</span></div><h3>Körömépítés &amp; Töltés</h3><p>S, M és L méretű zselés, acryl gel-es, porcelán műkörmök <br>precíz felhelyezése és rendszeres karbantartása.</p><a href="/mukorom-epites-toltes/">Részletek <span aria-hidden="true">→</span></a></article><article style="--service-image:url(&quot;/kepek/szolgaltatas-diszites.jpg&quot;)" class="szolgaltatas-kartya szolgaltatas-kartya--diszites"><div class="szolgaltatas-kartya-fej"><span class="szolgaltatas-tipus">Egyedi részletek</span></div><h3>Díszítés / Nail Art</h3><p>Francia, matricák, kövek és más visszafogott részletek a választott körömszetthez igazítva.</p><a href="/korom-diszites-nail-art-tatabanya/">Részletek <span aria-hidden="true">→</span></a></article><article style="--service-image:url(&quot;/kepek/szolgaltatas-gel-lakk.jpg&quot;)" class="szolgaltatas-kartya szolgaltatas-kartya--gel-lakk"><div class="szolgaltatas-kartya-fej"><span class="szolgaltatas-tipus">Tartós szín</span></div><h3>Gél Lakk</h3><p>Hagyományos és erősített technika a tartós, ragyogó színekért, amelyek hetekig hibátlanok maradnak.</p><a href="/gel-lakk-tatabanya/">Részletek <span aria-hidden="true">→</span></a></article><article style="--service-image:url(&quot;/kepek/szolgaltatas-manikur.jpg&quot;)" class="szolgaltatas-kartya szolgaltatas-kartya--manikur"><div class="szolgaltatas-kartya-fej"><span class="szolgaltatas-tipus">Ápolás &amp; eltávolítás</span></div><h3>Manikűr</h3><p>Klasszikus körömápolás, gél lakk szakszerű eltávolítása <br>és a kezek kényeztető felfrissítése.</p><a href="/manikur-tatabanya/">Részletek <span aria-hidden="true">→</span></a></article></div>
-
-            <div class="szolgaltatas-zaras">
-                <p><strong>Nem tudod, melyik illik hozzád?</strong><span>Válassz időpontot, a részleteket pedig együtt pontosítjuk.</span></p>
-                <a href="/foglalas/" class="gomb">Időpontot foglalok</a>
+            <div class="kapcsolat-akcio">
+                <a href="/foglalas/" class="gomb">Online Időpontfoglalás</a>
+                <span>Gyors, online visszaigazolással</span>
             </div>
         </div>
     </section>
 
-    <section id="galeria-atvezeto">
-        <div class="galeria-showcase-fej">
-            <div>
-                <span class="szekcio-kicker">Válogatott munkák</span>
-                <h2>Apró részletek.<br><em>Nagy hatás.</em></h2>
-            </div>
-            <div class="galeria-showcase-meta">
-                <p>Formák, színek és személyre szabott részletek a Lumi Nails világából.</p>
-            </div>
-        </div>
-        <div class="galeria-atvezeto-belso">
-            <div class="galeria-atvezeto-kepek">
-                <img src="/galeria/optimized/thumbs/image8.jpg" alt="Rövid natúr nude körmök fényes tejes rózsaszín árnyalattal." loading="lazy" decoding="async">
-                <img src="/galeria/optimized/thumbs/image3.jpg" alt="Sötét csillámos szögletes körmök fehér virágmintás díszítéssel." loading="lazy" decoding="async">
-                <img src="/galeria/optimized/thumbs/image6.jpg" alt="Halvány rózsaszín csillámos szögletes körmök elegáns fényes felülettel." loading="lazy" decoding="async">
-                <img src="/galeria/optimized/thumbs/image0.jpg" alt="Élénkpiros fényes szögletes körmök klasszikus egyszínű kivitelben." loading="lazy" decoding="async">
-                <img src="/galeria/optimized/thumbs/image1.jpg" alt="Csokoládébarna fényes ovális körmök elegáns egyszínű kivitelben." loading="lazy" decoding="async">
-            </div>
-
-            <div class="galeria-atvezeto-szoveg">
-                <span class="szekcio-kicker">Részletek, színek, formák</span>
-                <p class="szekcio-leiras">Nézd meg a korábbi munkákat, színeket és formákat inspirációként a következő időpontodhoz.</p>
-                <a href="/galeria/" class="gomb">Galéria megnyitása</a>
-            </div>
-        </div>
-    </section>
-
-    <section id="kapcsolat">
-        <div class="kapcsolat-tartalom">
-            <span class="szekcio-kicker">Következő lépés</span>
-            <h2>Időpontfoglalás</h2>
-            <p class="szekcio-leiras">Válaszd ki a neked megfelelő szabad sávot online rendszerünkben vagy írj Instagramon vagy vedd fel a kapcsolatot telefonon.</p>
-        </div>
-        <div class="kapcsolat-akcio">
-            <a href="/foglalas/" class="gomb">Online Időpontfoglalás</a>
-            <span>Gyors, online visszaigazolással</span>
-        </div>
-    </section>
     </main>
 
     <div data-prerendered-shell="true" id="lablec-helye"><footer class="site-footer">
@@ -315,30 +326,30 @@ Fontos számomra az igényes, szép munka, a folyamatos fejlődés és az, hogy 
         <nav class="footer-navigacio" aria-label="Lábléc navigáció">
             <div class="footer-oldalak">
                 <a href="/">Kezdőlap</a>
-                <a href="/#szolgaltatasok">Szolgáltatások</a>
                 <a href="/arlista/">Árlista</a>
                 <a href="/galeria/">Galéria</a>
-                <a href="/fiokom/">Fiókom</a>
                 <a href="/foglalas/">Foglalás</a>
+                <a href="/fiokom/">Fiókom</a>
+                <a href="/adatkezeles/">Adatkezelés</a>
             </div>
             <div class="footer-szolgaltatasok">
-                <a href="/mukorom-epites-toltes/">Műköröm építés és töltés</a>
+                <a href="/mukorom-epites-toltes/" aria-label="Műköröm építés és töltés">Műköröm</a>
                 <a href="/gel-lakk-tatabanya/">Gél lakk</a>
-                <a href="/korom-diszites-nail-art-tatabanya/">Körömdíszítés / Nail Art</a>
+                <a href="/korom-diszites-nail-art-tatabanya/" aria-label="Körömdíszítés / Nail Art">Nail Art</a>
                 <a href="/manikur-tatabanya/">Manikűr</a>
             </div>
         </nav>
         <p class="foglalasi-idorend footer-idorend" data-foglalasi-idorend=""><strong>Foglalható időpontok: hétfő–vasárnap 09:00–19:00.</strong> <span>Nem minden nap van szabad időpont; az aktuális lehetőségeket az online foglalási naptárban találod.</span></p>
         <div class="footer-meta">
-            <a class="footer-jogi-link" href="/adatkezeles/">Adatkezelési tájékoztató</a>
             <p class="footer-jogok">© Lumi Nails. Minden jog fenntartva.</p>
+            <a class="footer-ikon-forras" href="https://icons8.com" target="_blank" rel="noopener">Ikonok: Icons8</a>
         </div>
     </div>
 </footer></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
-    <script src="/supabase-config.js?v=334baddf6f93"></script>
-    <script src="/script.js?v=ff90c537047e"></script>
+    <script src="/supabase-config.js?v=c1e1227c60cb"></script>
+    <script src="/script.js?v=0385891715b5"></script>
 </body>
 
 </html>

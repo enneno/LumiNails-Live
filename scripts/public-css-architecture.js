@@ -227,7 +227,7 @@ const ownership = [
   { pattern: '#szolgaltatasok', owner: '15-home-sections.css' },
   { pattern: '#galeria-atvezeto', owner: '16-home-gallery.css' },
   { pattern: '.lebego-foglalas-gomb', owner: '17-floating-cta.css' },
-  { pattern: '#hero.hero-preview-refresh', owner: '18-hero-inner-pages.css' },
+  { pattern: '#hero.studio-work-panel', owner: '18-hero-inner-pages.css' },
   { pattern: '.seo-szolgaltatas-oldal', owner: '19-service-detail.css' },
   { pattern: '.fiok-dashboard', owner: '25-customer-account.css' },
   { pattern: '.foglalas-asszisztens', owner: '30-booking.css' }
@@ -238,7 +238,9 @@ for (const rule of ownership) {
     fail(`${rule.pattern} is missing from its owner: ${rule.owner}`);
   }
 
-  const offenders = actualFiles.filter(name => name !== rule.owner && cssByFile.get(name).includes(rule.pattern));
+  // A route in an attribute selector is not ownership of the element with that ID.
+  const offenders = actualFiles.filter(name => name !== rule.owner
+    && cssByFile.get(name).replace(/\[[^\]]*\]/g, '').includes(rule.pattern));
   if (offenders.length) {
     fail(`${rule.pattern} has non-owner CSS: ${offenders.join(', ')}; owner: ${rule.owner}`);
   }

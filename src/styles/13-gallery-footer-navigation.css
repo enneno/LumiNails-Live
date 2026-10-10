@@ -72,7 +72,7 @@
     inset: 0;
     border: 1px solid rgba(255, 253, 249, 0.42);
     border-radius: inherit;
-    box-shadow: inset 0 -120px 100px -90px rgba(24, 33, 44, 0.46);
+    box-shadow: inset 0 -120px 100px -90px rgba(48, 45, 42, 0.46);
     content: "";
     pointer-events: none;
 }
@@ -88,7 +88,7 @@
     padding: 14px 16px;
     border: 1px solid rgba(248, 247, 243, 0.42);
     border-radius: 3px;
-    background: rgba(24, 33, 44, 0.8);
+    background: rgba(48, 45, 42, 0.8);
     color: var(--ui-on-dark);
     text-align: left;
     backdrop-filter: blur(10px);
@@ -303,50 +303,41 @@
     transform: translateY(calc(-50% - 1px));
 }
 
-.site-footer,
-.fooldal .site-footer {
+.site-footer {
     width: 100%;
-    max-width: none;
     margin: 0;
-    padding: 20px var(--lumi-section-padding-inline) 8px;
+    padding: 12px var(--lumi-section-padding-inline);
     border-top: 1px solid var(--ui-line);
-    background: var(--ui-surface);
-    color: var(--ui-muted);
+    background: var(--ui-bg);
+    color: var(--ui-ink);
 }
 .footer-belso {
     display: grid;
-    grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.45fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 8px 24px;
-    width: min(var(--lumi-content-width), 100%);
+    gap: 4px 16px;
+    width: min(1400px, 100%);
     margin-inline: auto;
 }
-.footer-brand {
-    grid-column: 1;
-}
+.footer-brand { grid-area: 1 / 1; }
 .footer-logo {
     display: inline-block;
     color: var(--ui-ink);
-    font-family: var(--font-display);
+    font-family: 'Playfair Display', serif;
     font-size: 26px;
     font-weight: 500;
-    letter-spacing: -0.04em;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
     white-space: nowrap;
     text-decoration: none;
 }
-.footer-brand p {
-    display: none;
-}
-.footer-kapcsolat {
-    grid-column: 2;
-}
-.footer-kapcsolat h3 {
-    display: none;
-}
+.footer-brand p,
+.footer-kapcsolat h3 { display: none; }
+.footer-kapcsolat { grid-column: 1 / -1; }
 .footer-kapcsolat address {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 20px;
+    gap: 0 16px;
     margin: 0;
     font-size: 13px;
     font-style: normal;
@@ -354,34 +345,24 @@
 }
 .footer-kapcsolat a,
 .footer-navigacio a,
-.footer-jogi-link {
+.footer-ikon-forras {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
     max-width: 100%;
+    color: var(--ui-ink);
+    font-size: 13px;
     text-decoration: none;
     overflow-wrap: anywhere;
 }
-.footer-kapcsolat a,
-.footer-jogi-link {
-    color: var(--ui-muted);
-    font-size: 13px;
-}
 .footer-kapcsolat a:hover,
 .footer-navigacio a:hover,
-.footer-jogi-link:hover,
-.footer-logo:hover {
-    color: var(--ui-accent-text);
+.footer-ikon-forras:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
-.footer-social {
-    grid-column: 3;
-    grid-row: 1;
-    justify-self: end;
-}
-.social-linkek {
-    display: flex;
-    gap: 8px;
-}
+.footer-social { grid-area: 1 / 2; justify-self: end; }
+.social-linkek { display: flex; gap: 8px; }
 .social-gomb {
     display: inline-flex;
     align-items: center;
@@ -394,11 +375,7 @@
     color: var(--ui-ink);
     text-decoration: none;
 }
-.social-gomb:hover {
-    border-color: var(--ui-primary);
-    background: var(--ui-soft);
-    color: var(--ui-accent-text);
-}
+.social-gomb:hover { background: var(--ui-soft); }
 .social-gomb svg {
     width: 20px;
     height: 20px;
@@ -408,69 +385,65 @@
     stroke-linecap: round;
     stroke-linejoin: round;
 }
-.social-gomb[href*="facebook"] svg {
-    fill: currentColor;
-    stroke: none;
-}
+.social-gomb[href*="facebook"] svg { fill: currentColor; stroke: none; }
 .footer-navigacio {
     grid-column: 1 / -1;
     display: flex;
-    flex-direction: column;
-    gap: 0 24px;
-    padding-top: 4px;
-    border-top: 1px solid var(--ui-line);
-}
-.footer-oldalak {
-    display: grid;
-    grid-template-columns: repeat(3, max-content);
+    flex-wrap: wrap;
     gap: 0 16px;
 }
+.footer-oldalak,
 .footer-szolgaltatasok {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 16px;
+    display: contents;
 }
-.footer-navigacio a {
-    color: var(--ui-ink);
-    font-size: var(--lumi-font-caption);
-    line-height: 1.4;
-}
-@media (min-width: 769px) {
-    .footer-navigacio {
-        flex-flow: row wrap;
-        justify-content: space-between;
-    }
-    .footer-oldalak,
-    .footer-szolgaltatasok {
-        display: flex;
-        flex-wrap: wrap;
-    }
-}
+.footer-szolgaltatasok a { font-size: 12px; }
 .footer-idorend {
     grid-column: 1 / -1;
     margin: 0;
-    color: var(--ui-muted);
+    color: var(--ui-ink);
     font-size: 12px;
     line-height: 1.5;
 }
-.footer-idorend strong {
-    color: var(--ui-ink);
-    font-weight: 500;
-}
+.footer-idorend strong { color: inherit; font-weight: 500; }
 .footer-meta {
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    min-height: 44px;
-    border-top: 1px solid var(--ui-line);
+    gap: 0 16px;
 }
 .footer-jogok {
+    min-width: 0;
     margin: 0;
-    color: var(--ui-muted);
+    color: var(--ui-ink);
     font-size: 12px;
     line-height: 1.5;
+}
+.footer-ikon-forras {
+    flex-shrink: 0;
+    font-size: 12px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+@media (min-width: 900px) {
+    .footer-belso {
+        grid-template-columns: 210px minmax(0, 1fr) 245px;
+        gap: 4px 24px;
+    }
+    .footer-brand { grid-area: 1 / 1; align-self: start; padding-top: 5px; }
+    .footer-navigacio {
+        grid-area: 1 / 2;
+        padding-inline: 24px;
+        border-inline: 1px solid var(--ui-taupe);
+    }
+    .footer-navigacio a,
+    .footer-ikon-forras { min-height: 30px; }
+    .footer-kapcsolat { grid-area: 1 / 3; align-self: start; }
+    .footer-kapcsolat address { display: grid; gap: 0; }
+    .footer-kapcsolat a { min-height: 30px; }
+    .footer-social { grid-area: 2 / 1; justify-self: start; }
+    .footer-idorend { grid-area: 2 / 2 / 3 / 4; }
+    .footer-meta { grid-area: 3 / 1 / 4 / 4; }
 }
 /* Mobil navigáció */
 .hamburger {
@@ -642,44 +615,5 @@
     }
     .galeria-lightbox-kovetkezo {
         right: 12px;
-    }
-    .site-footer,
-    .fooldal .site-footer {
-        padding: 12px var(--lumi-section-padding-inline) calc(4px + env(safe-area-inset-bottom));
-    }
-    .footer-belso {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 4px 12px;
-    }
-    .footer-brand {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    .footer-logo {
-        font-size: 24px;
-    }
-    .footer-social {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    .footer-kapcsolat {
-        grid-column: 1 / -1;
-        grid-row: 2;
-    }
-    .footer-kapcsolat address {
-        gap: 0 12px;
-    }
-    .footer-kapcsolat a {
-        font-size: 12px;
-    }
-    .footer-meta {
-        gap: 8px;
-    }
-    .footer-jogi-link {
-        font-size: 11px;
-    }
-    .footer-jogok {
-        max-width: 18ch;
-        font-size: 11px;
     }
 }

@@ -119,7 +119,9 @@ function navigaciosLinkKattintas(event) {
 
     event.preventDefault();
     const menuNyitva = Boolean(document.getElementById('mobil-nav')?.classList.contains('open'));
-    const gordites = () => horgonyhozGordites(horgony);
+    const gordites = () => {
+        horgonyhozGordites(horgony);
+    };
 
     if (menuNyitva) {
         document.addEventListener(LUMI_MENU_BEZARVA_ESEMENY, gordites, { once: true });
@@ -171,6 +173,9 @@ function horgonyhozGordites({ cel, url }) {
         behavior: csokkentettMozgas ? 'auto' : 'smooth',
         block: 'start'
     });
+    if (cel.closest('.fooldal') && cel.hasAttribute('tabindex')) {
+        cel.focus({ preventScroll: true });
+    }
     aktivMenuJelolese();
 }
 
@@ -199,7 +204,7 @@ function aktivMenuJelolese() {
     const aktualis = normalizaltUtvonal(window.location.pathname);
     const hash = window.location.hash;
 
-    document.querySelectorAll('.site-header nav a, #mobil-nav a').forEach(link => {
+    document.querySelectorAll('.site-header nav a, #mobil-nav a, .studio-view-tabs a').forEach(link => {
         const linkUtvonal = normalizaltUtvonal(new URL(link.href).pathname);
         const azonosUtvonal = linkUtvonal === aktualis;
         const aktiv = link.hash
@@ -207,6 +212,10 @@ function aktivMenuJelolese() {
             : azonosUtvonal && !hash;
 
         link.classList.toggle('aktiv', aktiv);
+        if (link.closest('.studio-view-tabs')) {
+            if (aktiv) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+        }
     });
 }
 
@@ -403,6 +412,9 @@ function fejlecAdatokAlkalmazasa(adatok) {
         if (!gyoker) return;
         linkek.forEach(([selector, felirat]) => szovegBeallitasa(selector, felirat, gyoker));
     });
+    if (document.querySelector('.studio-view-tabs')) {
+        szovegBeallitasa('.site-header a[href="/foglalas/"]', 'Időpontfoglalás');
+    }
 }
 
 function galeriaAdatokAlkalmazasa(galeria) {
@@ -505,7 +517,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     if (heroCim && heroAdatok.cim !== undefined) {
         const cimReszek = String(heroAdatok.cim || '').trim().split(/\s+/).filter(Boolean);
         heroCim.innerHTML = cimReszek.length > 1
-            ? `<span class="hero-title-line">${html(cimReszek.slice(0, -1).join(' '))}</span><span class="hero-title-line">${html(cimReszek.at(-1))}</span>`
+            ? `<span class="hero-title-line">${html(cimReszek.slice(0, -1).join(' '))}</span> <span class="hero-title-line">${html(cimReszek.at(-1))}</span>`
             : `<span class="hero-title-line">${html(cimReszek[0] || '')}</span>`;
     }
     szovegBeallitasa('.hero-copy > p', heroAdatok.leiras);
@@ -572,6 +584,26 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     szolgaltatasKartyakRenderelese(fooldal.szolgaltatasok);
     galeriaAtvezetoAlkalmazasa(fooldal.galeriaAtvezeto, teljesGaleria);
     foglalasAtvezetoAlkalmazasa(fooldal.foglalasAtvezeto);
+    if (typeof fooldalStudioTartalomFrissitese === 'function') fooldalStudioTartalomFrissitese();
+}
+
+function fooldalFejlecMeretFrissitese() {
+    const fejlec = document.querySelector('.home-sticky-header');
+    // The prerender DOM has no layout API; its HTML stays useful without JS.
+    if (!fejlec || typeof fejlec.getBoundingClientRect !== 'function') return;
+    document.documentElement.style.setProperty('--ui-header-clearance', `${Math.ceil(fejlec.getBoundingClientRect().height)}px`);
+}
+
+function fooldalFejlecMeretBekotese() {
+    const fejlec = document.querySelector('.home-sticky-header');
+    if (!fejlec) return;
+    fooldalFejlecMeretFrissitese();
+    if (typeof ResizeObserver === 'function') {
+        const figyelo = new ResizeObserver(fooldalFejlecMeretFrissitese);
+        figyelo.observe(fejlec);
+    } else {
+        window.addEventListener('resize', fooldalFejlecMeretFrissitese);
+    }
 }
 
 function vendegertesitoAlkalmazasa(ertesito) {
@@ -581,12 +613,16 @@ function vendegertesitoAlkalmazasa(ertesito) {
     const szoveg = String(ertesito?.szoveg || '').trim();
     const aktiv = ertesito?.aktiv === true && Boolean(szoveg);
     sav.hidden = !aktiv;
-    if (!aktiv) return;
+    if (!aktiv) {
+        fooldalFejlecMeretFrissitese();
+        return;
+    }
 
     const cimke = String(ertesito?.cimke || '').trim() || 'Aktuális információ';
     szovegBeallitasa('.vendegertesito-cimke', cimke, sav);
     szovegBeallitasa('.vendegertesito-szoveg', szoveg, sav);
     sav.setAttribute('aria-label', cimke);
+    fooldalFejlecMeretFrissitese();
 }
 
 function bekezdesekRenderelese(selector, bekezdesek) {
@@ -754,10 +790,10 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
 
     racs.innerHTML = '';
     const megjelenesek = [
-        { valtozat: 'epites', tipus: 'Építés & karbantartás', minta: /epit|tolt/ },
-        { valtozat: 'diszites', tipus: 'Egyedi részletek', minta: /diszit|nail art/ },
-        { valtozat: 'gel-lakk', tipus: 'Tartós szín', minta: /gel lakk/ },
-        { valtozat: 'manikur', tipus: 'Ápolás & eltávolítás', minta: /manikur|apolas|eltavolit/ }
+        { valtozat: 'epites', minta: /epit|tolt/ },
+        { valtozat: 'diszites', minta: /diszit|nail art/ },
+        { valtozat: 'gel-lakk', minta: /gel lakk/ },
+        { valtozat: 'manikur', minta: /manikur|apolas|eltavolit/ }
     ];
 
 
@@ -767,18 +803,8 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
             || megjelenesek[index % megjelenesek.length];
         const doboz = document.createElement('article');
         doboz.className = `szolgaltatas-kartya szolgaltatas-kartya--${megjelenes.valtozat}`;
-        const kepUrl = biztonsagosKepUrl(kartya.kep);
-        if (kepUrl) doboz.style.setProperty('--service-image', `url("${kepUrl}")`);
-
-        const fej = document.createElement('div');
-        fej.className = 'szolgaltatas-kartya-fej';
-
-
-        const tipus = document.createElement('span');
-        tipus.className = 'szolgaltatas-tipus';
-        tipus.textContent = megjelenes.tipus;
-
-        fej.append(tipus);
+        // Decorative service icons; CMS photographs stay on detail pages.
+        const ikon = szolgaltatasIkon(megjelenes.valtozat);
 
         const cim = document.createElement('h3');
         cim.textContent = kartya.cim || '';
@@ -792,20 +818,24 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
         link.href = szolgaltatasKartyaLinkje(megjelenes.valtozat);
         link.innerHTML = `${html(linkSzoveg)} <span aria-hidden="true">→</span>`;
 
-        doboz.append(fej, cim, leiras, link);
+        doboz.append(ikon, cim, leiras, link);
         racs.appendChild(doboz);
     });
 }
 
-function biztonsagosKepUrl(ertek) {
-    if (!ertek) return '';
-    try {
-        const url = new URL(String(ertek), window.location.origin);
-        if (!['http:', 'https:'].includes(url.protocol)) return '';
-        return url.href.replace(/["'()\\\s]/g, karakter => encodeURIComponent(karakter));
-    } catch (_error) {
-        return '';
-    }
+function szolgaltatasIkon(valtozat) {
+    // Free Icons8 PNGs, stored locally; source and attribution rules in licenses/icons8.txt.
+    const valtozatok = new Set(['epites', 'diszites', 'gel-lakk', 'manikur']);
+    const ikon = document.createElement('img');
+    ikon.className = 'szolgaltatas-kartya-ikon';
+    ikon.src = `/kepek/ikonok/${valtozatok.has(valtozat) ? valtozat : 'manikur'}.png`;
+    ikon.width = 100;
+    ikon.height = 100;
+    ikon.alt = '';
+    ikon.setAttribute('aria-hidden', 'true');
+    ikon.loading = 'lazy';
+    ikon.decoding = 'async';
+    return ikon;
 }
 
 function szolgaltatasKartyaLinkje(valtozat) {
@@ -855,6 +885,7 @@ function galeriaAtvezetoAlkalmazasa(galeria, teljesGaleria) {
     const atvezetoKepek = kivalasztottElemek.length
         ? kivalasztottElemek.slice(0, 5).map(elem => ({
             src: elem.eloKep || elem.kep,
+            fullSrc: elem.kep,
             alt: elem.kepAlt || 'Lumi Nails köröm munka'
         }))
         : (galeria.kepek || []);
@@ -868,6 +899,7 @@ function galeriaAtvezetoAlkalmazasa(galeria, teljesGaleria) {
         kepek[index].decoding = 'async';
         if (kep.alt) kepek[index].alt = kep.alt;
         if (kep.src) kepek[index].src = kep.src;
+        if (kep.fullSrc || kep.src) kepek[index].dataset.fullSrc = kep.fullSrc || kep.src;
     });
 }
 
