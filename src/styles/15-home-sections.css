@@ -47,7 +47,7 @@
 .szolgaltatas-kartya {
     position: relative;
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 52px minmax(0, 1fr);
     align-items: start;
     column-gap: 16px;
     padding-block: 20px;
@@ -56,9 +56,12 @@
 .szolgaltatas-kartya-ikon {
     grid-area: 1 / 1 / 4 / 2;
     display: block;
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     max-width: 100%;
+    padding: 12px;
+    border-radius: var(--lumi-radius-card);
+    background: var(--ui-soft);
     object-fit: contain;
 }
 .szolgaltatas-kartya h3 {
@@ -193,6 +196,14 @@ body.fooldal { padding-top: 0; }
     flex-shrink: 0;
 }
 .home-sticky-header .site-header { position: static; }
+html.oldal-gorgetes-zarolva .home-sticky-header {
+    position: fixed;
+    right: 0;
+    left: 0;
+}
+html.oldal-gorgetes-zarolva body.fooldal {
+    padding-top: var(--ui-header-clearance);
+}
 .home-sticky-header .mobile-menu {
     top: var(--ui-header-clearance, var(--ui-header-height));
 }
@@ -203,27 +214,27 @@ html:has(.home-sticky-header) {
 .vendegertesito {
     width: 100%;
     max-height: 25svh;
-    padding: 12px var(--lumi-section-padding-inline);
+    padding: 8px var(--lumi-section-padding-inline);
     overflow-y: auto;
-    background: var(--ui-ink);
-    color: var(--ui-on-dark);
-    scrollbar-color: var(--ui-taupe) var(--ui-ink);
+    background: var(--ui-soft);
+    color: var(--ui-ink);
+    scrollbar-color: var(--ui-taupe) var(--ui-soft);
 }
 .vendegertesito:focus-visible {
-    outline: 2px solid var(--ui-on-dark);
+    outline: 2px solid var(--ui-ink);
     outline-offset: -4px;
 }
 .vendegertesito-belso {
     display: grid;
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 18px minmax(0, 1fr);
     align-items: start;
     gap: 12px;
     width: min(1400px, 100%);
     margin-inline: auto;
 }
 .vendegertesito-jel {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.5;
@@ -236,14 +247,14 @@ html:has(.home-sticky-header) {
 }
 .vendegertesito-cimke {
     margin: 0;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
 .vendegertesito-szoveg {
     margin: 0;
-    font-size: var(--lumi-font-body-small);
+    font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
@@ -254,15 +265,16 @@ html:has(.home-sticky-header) {
         gap: 24px;
     }
     .szolgaltatas-kartya {
-        grid-template-columns: 56px minmax(0, 0.8fr) minmax(0, 1fr) 100px;
+        grid-template-columns: 64px minmax(0, 0.8fr) minmax(0, 1fr) 100px;
         align-items: center;
         gap: 28px;
-        padding-block: 16px;
+        padding-block: 24px;
     }
     .szolgaltatas-kartya-ikon {
         grid-area: auto;
-        width: 48px;
-        height: 48px;
+        width: 64px;
+        height: 64px;
+        padding: 16px;
     }
     .szolgaltatas-kartya h3 { grid-column: 2; margin: 0; font-size: 28px; }
     .szolgaltatas-kartya p { grid-column: 3; font-size: 15px; }

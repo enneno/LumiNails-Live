@@ -2,7 +2,7 @@
     width: min(1360px, 100%);
     min-height: 70vh;
     margin: 0 auto;
-    padding: 58px var(--lumi-section-padding-inline) 96px;
+    padding: var(--lumi-section-padding-block) var(--lumi-section-padding-inline);
 }
 
 .fiok-main [hidden] {
@@ -667,7 +667,7 @@
 @media screen and (max-width: 768px) {
     .fiok-main {
         width: min(100%, 680px);
-        padding: 24px 14px 64px;
+        padding: 24px 14px 28px;
     }
 
     .fiok-hero,

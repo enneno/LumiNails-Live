@@ -17,6 +17,12 @@ function menuEsemenyekBekotese() {
 
     if (!belsoHorgonyNavigacioBekotve) {
         document.addEventListener('click', navigaciosLinkKattintas);
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && document.getElementById('mobil-nav')?.classList.contains('open')) menuBezarasa();
+        });
+        window.matchMedia('(max-width: 768px)').addEventListener('change', event => {
+            if (!event.matches) menuBezarasa();
+        });
         kezdetiHorgonyPontositasaBekotese();
         belsoHorgonyNavigacioBekotve = true;
     }
@@ -45,6 +51,7 @@ function menuToggle() {
     }
 
     document.body.classList.add('mobil-menu-nyitva');
+    oldalGorgetesZarolasa('mobil-menu', true);
 }
 
 function menuBezarasa() {
@@ -85,6 +92,7 @@ function menuBezarasa() {
     }
 
     document.body.classList.remove('mobil-menu-nyitva');
+    oldalGorgetesZarolasa('mobil-menu', false);
 
     if (!atmenetAktiv) {
         befejezes();
@@ -540,7 +548,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     szovegBeallitasa('.hero-visual-cimke > span', heroAdatok.galeriaCimke);
     const heroGaleriaLink = document.querySelector('.hero-visual-cimke > a');
     if (heroGaleriaLink && heroAdatok.galeriaLink !== undefined) {
-        heroGaleriaLink.innerHTML = `${html(heroAdatok.galeriaLink)} <span aria-hidden="true">→</span>`;
+        heroGaleriaLink.innerHTML = `${html(heroAdatok.galeriaLink)}`;
     }
 
     const hero = document.getElementById('hero');
@@ -570,7 +578,7 @@ function fooldalAdatokAlkalmazasa(fooldal, teljesGaleria) {
     bekezdesekRenderelese('.bemutatkozas-szoveg', bemutatkozas.bekezdesek);
     const bemutatkozasLink = document.querySelector('.bemutatkozas-szoveg > .szoveges-link');
     if (bemutatkozasLink && bemutatkozas.linkSzoveg !== undefined) {
-        bemutatkozasLink.innerHTML = `${html(bemutatkozas.linkSzoveg)} <span aria-hidden="true">→</span>`;
+        bemutatkozasLink.innerHTML = `${html(bemutatkozas.linkSzoveg)}`;
     }
     szovegBeallitasa('.bemutatkozas-kep-jelveny > span', bemutatkozas.jelvenyCim);
     szovegBeallitasa('.bemutatkozas-kep-jelveny > small', bemutatkozas.jelvenyAlcim);
@@ -740,7 +748,7 @@ function szolgaltatasOldalAdatokAlkalmazasa(oldalak, galeria) {
         szovegBeallitasa('.seo-szolgaltatas-zaras-akciok .gomb', oldal.zaras.foglalasGomb, zaras);
         const masodlagosGomb = zaras.querySelector('.seo-szolgaltatas-zaras-akciok .szoveges-link');
         if (masodlagosGomb && oldal.zaras.masodlagosGomb !== undefined) {
-            masodlagosGomb.innerHTML = `${html(oldal.zaras.masodlagosGomb)} <span aria-hidden="true">→</span>`;
+            masodlagosGomb.innerHTML = `${html(oldal.zaras.masodlagosGomb)}`;
         }
     }
 }
@@ -816,7 +824,7 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
         const galeriaKartya = megjelenes.valtozat === 'diszites';
         const linkSzoveg = kartya.linkSzoveg || (galeriaKartya ? 'Inspirációk' : 'Részletek és árak');
         link.href = szolgaltatasKartyaLinkje(megjelenes.valtozat);
-        link.innerHTML = `${html(linkSzoveg)} <span aria-hidden="true">→</span>`;
+        link.innerHTML = `${html(linkSzoveg)}`;
 
         doboz.append(ikon, cim, leiras, link);
         racs.appendChild(doboz);
@@ -824,13 +832,13 @@ function szolgaltatasKartyakRenderelese(szolgaltatasok) {
 }
 
 function szolgaltatasIkon(valtozat) {
-    // Free Icons8 PNGs, stored locally; source and attribution rules in licenses/icons8.txt.
+    // Local Phosphor icons (MIT) and the IconPark nail-polish icon (Apache-2.0).
     const valtozatok = new Set(['epites', 'diszites', 'gel-lakk', 'manikur']);
     const ikon = document.createElement('img');
     ikon.className = 'szolgaltatas-kartya-ikon';
-    ikon.src = `/kepek/ikonok/${valtozatok.has(valtozat) ? valtozat : 'manikur'}.png`;
-    ikon.width = 100;
-    ikon.height = 100;
+    ikon.src = `/kepek/ikonok/${valtozatok.has(valtozat) ? valtozat : 'manikur'}.svg`;
+    ikon.width = 64;
+    ikon.height = 64;
     ikon.alt = '';
     ikon.setAttribute('aria-hidden', 'true');
     ikon.loading = 'lazy';

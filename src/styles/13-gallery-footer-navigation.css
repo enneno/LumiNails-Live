@@ -2,7 +2,7 @@
 .galeria-oldal {
     width: min(1200px, calc(100% - 48px));
     margin: 0 auto;
-    padding: clamp(62px, 7vw, 104px) 0 clamp(68px, 8vw, 112px);
+    padding: var(--lumi-section-padding-block) 0;
 }
 
 .galeria-oldal-fej {
@@ -10,7 +10,7 @@
     grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.55fr);
     align-items: end;
     gap: clamp(32px, 6vw, 96px);
-    padding: 0 clamp(4px, 1vw, 14px) clamp(34px, 5vw, 62px);
+    padding: 0 4px 24px;
     border-bottom: 1px solid var(--ui-line);
 }
 
@@ -44,16 +44,15 @@
 
 .galeria-racs {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    margin: 24px 0 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 20px 0 0;
 }
 
-.galeria-kep-gomb,
-.galeria-kep-gomb.magas {
+.galeria-kep-gomb {
     position: relative;
-    aspect-ratio: 1 / 1.12;
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-width: 0;
     min-height: 0;
@@ -67,62 +66,41 @@
     cursor: zoom-in;
 }
 
-.galeria-kep-gomb::after {
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(255, 253, 249, 0.42);
-    border-radius: inherit;
-    box-shadow: inset 0 -120px 100px -90px rgba(48, 45, 42, 0.46);
-    content: "";
-    pointer-events: none;
-}
-
 .galeria-kep-felirat {
-    position: absolute;
-    z-index: 1;
-    right: 18px;
-    bottom: 18px;
-    left: 18px;
     display: grid;
+    width: 100%;
     gap: 3px;
-    padding: 14px 16px;
-    border: 1px solid rgba(248, 247, 243, 0.42);
-    border-radius: 3px;
-    background: rgba(48, 45, 42, 0.8);
-    color: var(--ui-on-dark);
+    padding: 10px 12px;
+    color: var(--ui-ink);
     text-align: left;
-    backdrop-filter: blur(10px);
 }
 
 .galeria-kep-felirat strong {
     font-family: var(--font-display);
-    font-size: clamp(19px, 2vw, 26px);
-    font-weight: 600;
-    line-height: 1.1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
 .galeria-kep-felirat small {
     font-family: "DM Sans", sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 10px;
+    font-weight: 400;
     line-height: 1.4;
-    text-transform: uppercase;
 }
 
 .galeria-kep-gomb img {
     display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
+    aspect-ratio: 1;
     object-fit: cover;
     object-position: center;
-    transform: scale(1.001);
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
 .galeria-kep-gomb:hover img {
     filter: saturate(1.04);
-    transform: scale(1.025);
 }
 
 .galeria-kep-gomb:focus-visible {
@@ -135,7 +113,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    margin-top: clamp(34px, 5vw, 58px);
+    margin-top: 24px;
     padding: 24px 4px 0;
     border-top: 1px solid var(--ui-line);
 }
@@ -160,23 +138,25 @@
         grid-template-columns: minmax(0, 1fr) minmax(240px, 0.65fr);
     }
 
-    .galeria-racs { gap: 12px; }
+    .galeria-racs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
 }
 
 @media screen and (max-width: 640px) {
     .galeria-oldal {
         width: calc(100% - 24px);
-        padding-top: 28px;
     }
 
     .galeria-oldal-fej {
         grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 0 4px 28px;
+        gap: 16px;
+        padding: 0 4px 20px;
     }
 
     .galeria-oldal-fej h1 {
-        font-size: clamp(60px, 22vw, 86px);
+        font-size: clamp(38px, 11vw, 52px);
     }
 
     .galeria-oldal-fej .szekcio-leiras {
@@ -185,22 +165,17 @@
     }
 
     .galeria-racs {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-top: 12px;
     }
 
-    .galeria-kep-gomb,
-    .galeria-kep-gomb.magas {
-        aspect-ratio: 4 / 5;
-        border-radius: var(--lumi-radius-card);
+    .galeria-kep-felirat {
+        padding: 8px;
     }
 
-    .galeria-kep-felirat {
-        right: 10px;
-        bottom: 10px;
-        left: 10px;
-        padding: 12px 13px;
+    .galeria-kep-felirat strong {
+        font-size: 12px;
     }
 
     .galeria-oldal-zaras {
@@ -344,8 +319,7 @@
     line-height: 1.4;
 }
 .footer-kapcsolat a,
-.footer-navigacio a,
-.footer-ikon-forras {
+.footer-navigacio a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -357,7 +331,7 @@
 }
 .footer-kapcsolat a:hover,
 .footer-navigacio a:hover,
-.footer-ikon-forras:hover {
+.footer-keszito:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
 }
@@ -419,9 +393,14 @@
     font-size: 12px;
     line-height: 1.5;
 }
-.footer-ikon-forras {
+.footer-keszito {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     flex-shrink: 0;
+    color: var(--ui-ink);
     font-size: 12px;
+    line-height: 1.5;
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -437,7 +416,7 @@
         border-inline: 1px solid var(--ui-taupe);
     }
     .footer-navigacio a,
-    .footer-ikon-forras { min-height: 30px; }
+    .footer-keszito { min-height: 30px; }
     .footer-kapcsolat { grid-area: 1 / 3; align-self: start; }
     .footer-kapcsolat address { display: grid; gap: 0; }
     .footer-kapcsolat a { min-height: 30px; }
@@ -597,9 +576,6 @@
 }
 
 @media screen and (max-width: 768px) {
-    body.mobil-menu-nyitva {
-        overflow: hidden;
-    }
     .hamburger {
         display: block;
     }

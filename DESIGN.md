@@ -181,6 +181,8 @@ components:
 
 # Design System: LumiNails
 
+> Current homepage refinement, 2026-10-11: the requested redesign retains this palette, content and real photography, but replaces the earlier opening/thumbnail composition with a framed split hero, compact section links, an independent five-image mosaic and local Phosphor regular service icons. See [.21st/DESIGN.md](.21st/DESIGN.md) and [the scoped change and validation record](docs/home-redesign-2026-10-11.md). Older homepage descriptions below are historical; utility, booking and admin guidance is unchanged. TEST only; no production release.
+
 ## Overview
 
 **Creative North Star: "Ivory & Taupe studio"**

@@ -2,7 +2,7 @@
 .jogi-oldal {
     width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
-    padding: clamp(72px, 8vw, 116px) 0 0;
+    padding: var(--lumi-section-padding-block) 0 0;
 }
 
 .jogi-fejlec h1 {
@@ -30,7 +30,7 @@
     grid-template-columns: minmax(0, 1fr) minmax(300px, 0.56fr);
     align-items: end;
     gap: clamp(40px, 6vw, 84px);
-    padding-bottom: 56px;
+    padding-bottom: 28px;
     border-bottom: 1px solid var(--ui-line-strong);
 }
 
@@ -55,7 +55,7 @@
     grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
     align-items: start;
     gap: clamp(44px, 6vw, 80px);
-    margin-top: 64px;
+    margin-top: 32px;
 }
 
 .jogi-oldalsav {
@@ -282,7 +282,7 @@
     .jogi-elrendezes {
         grid-template-columns: minmax(0, 1fr);
         gap: 44px;
-        margin-top: 48px;
+        margin-top: 28px;
     }
 
     .jogi-oldalsav {
@@ -302,7 +302,7 @@
     }
 
     .jogi-fejlec {
-        padding-bottom: 42px;
+        padding-bottom: 24px;
     }
 
     .jogi-elrendezes {

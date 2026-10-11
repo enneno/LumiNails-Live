@@ -1,4 +1,4 @@
-/* Homepage studio: section navigation, unoverlaid photograph and thumbnail workspace. */
+/* Homepage opening: clear copy, a framed photograph and compact section links. */
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -8,60 +8,45 @@
     clip-path: inset(50%);
     white-space: nowrap;
 }
-.studio-heading {
-    display: grid;
-    justify-items: center;
-    gap: 16px;
-    padding: 28px var(--lumi-section-padding-inline) 24px;
-}
-.studio-view-tabs {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(16px, 5vw, 32px);
-    max-width: 100%;
-}
-.studio-view-tabs a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 52px;
-    padding-block: 4px;
-    border-bottom: 2px solid transparent;
-    color: var(--ui-ink);
-    font-family: 'Reddit Sans Condensed', 'DM Sans', sans-serif;
-    font-size: clamp(21px, 5.7vw, 28px);
-    font-weight: 300;
-    line-height: 1.2;
-    text-decoration: none;
-}
-.studio-view-tabs a:hover {
-    border-color: var(--ui-taupe);
-}
-.studio-view-tabs a[aria-current="location"] {
-    border-color: var(--ui-ink);
-}
-.studio-intro {
-    margin: 0;
-    color: var(--ui-ink);
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-}
 #hero.studio-work-panel {
-    width: 100%;
+    display: grid;
+    gap: 28px;
+    width: min(var(--lumi-content-width), calc(100% - 2 * var(--lumi-section-padding-inline)));
     max-width: none;
-    margin: 0;
-    padding: 0;
+    margin-inline: auto;
+    padding: 24px 0 0;
     background: var(--ui-bg);
+}
+.hero-content {
+    min-width: 0;
+    align-self: center;
+}
+.hero-copy h1 {
+    margin: 12px 0 20px;
+    font-size: clamp(44px, 8vw, 72px);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1.08;
+    text-align: left;
+}
+.hero-copy > p {
+    max-width: 34ch;
+    margin: 0;
+    font-size: var(--lumi-font-lead);
+    line-height: 1.65;
+}
+.hero-booking {
+    gap: 24px;
+    margin-top: 28px;
+    white-space: nowrap;
 }
 .hero-visual {
     width: 100%;
-    height: auto;
+    min-width: 0;
     aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--lumi-radius-card);
     background: var(--ui-soft);
-    touch-action: pan-y pinch-zoom;
 }
 .hero-kep {
     display: block;
@@ -70,98 +55,56 @@
     object-fit: contain;
     object-position: center;
 }
-.studio-gallery-image .hero-kep {
-    object-fit: contain;
-}
-.studio-controls {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: center;
-    gap: 12px;
-    width: min(1440px, 100%);
-    margin-inline: auto;
-    padding: 16px var(--lumi-section-padding-inline);
-}
-.studio-enhanced .studio-controls {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
-}
-.studio-image-arrow {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    padding: 10px;
-    place-items: center;
-    border: 1px solid var(--ui-ink);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--ui-ink);
-    cursor: pointer;
-}
-.studio-image-arrow[hidden] {
-    display: none;
-}
-.studio-image-arrow:hover {
-    background: var(--ui-soft);
-}
-.studio-image-arrow svg,
-.studio-gallery-link svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-.studio-gallery-link {
+.studio-view-tabs {
     grid-column: 1 / -1;
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+    padding-block: 12px;
+    border-block: 1px solid var(--ui-line);
+}
+.studio-view-tabs a {
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     min-height: 44px;
+    padding-inline: 4px;
+    border: 1px solid var(--ui-line-strong);
+    border-radius: var(--lumi-radius-control);
+    background: var(--ui-soft);
     color: var(--ui-ink);
-    font-size: 14px;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
+    font-size: clamp(12px, 3.4vw, 16px);
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+}
+.studio-view-tabs a:hover,
+.studio-view-tabs a[aria-current="location"] {
+    background: var(--ui-ink);
+    color: var(--ui-bg);
 }
 @media (min-width: 769px) {
-    .studio-heading {
-        gap: 24px;
-        padding: 34px var(--lumi-section-padding-inline) 21px;
+    #hero.studio-work-panel {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        column-gap: clamp(32px, 5vw, 72px);
+        row-gap: 32px;
+        padding-top: 32px;
     }
-    .studio-view-tabs {
-        gap: clamp(64px, 6.25vw, 96px);
-    }
-    .studio-view-tabs a {
-        min-height: 72px;
-        padding-inline: 16px;
-        font-size: 42px;
-    }
-    .studio-intro {
-        font-size: 18px;
+    .hero-copy h1 {
+        font-size: clamp(48px, 5.6vw, 76px);
     }
     .hero-visual {
-        height: clamp(360px, 32.552vw, 560px);
-        aspect-ratio: auto;
+        aspect-ratio: 6 / 5;
     }
     .hero-kep {
         object-fit: cover;
+        object-position: 70% center;
     }
-    .studio-controls {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: clamp(16px, 3vw, 48px);
-        padding-block: 20px 28px;
+    .studio-view-tabs {
+        gap: 16px;
     }
-    .studio-enhanced .studio-controls {
-        grid-template-columns: 48px minmax(0, 1fr) 48px auto;
-    }
-    .studio-gallery-link {
-        grid-column: auto;
-        white-space: nowrap;
-    }
-    .studio-image-arrow {
-        width: 48px;
-        height: 48px;
+    .studio-view-tabs a {
+        font-size: 16px;
     }
 }

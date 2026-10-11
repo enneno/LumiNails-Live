@@ -1,5 +1,5 @@
 function galeriaBekotese() {
-    const galeriaGombok = Array.from(document.querySelectorAll('.galeria-kep-gomb'));
+    const galeriaGombok = Array.from(document.querySelectorAll('.galeria-kep-gomb, .studio-thumbnail'));
     const lightbox = document.getElementById('galeria-lightbox');
 
     if (galeriaGombok.length === 0 || !lightbox) {
@@ -64,7 +64,7 @@ function galeriaMegnyitasa(index) {
     galeriaElozoFokusz = document.activeElement;
     lightbox.classList.add('nyitva');
     lightbox.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    oldalGorgetesZarolasa('galeria', true);
     window.requestAnimationFrame(() => {
         lightbox.querySelector('.galeria-lightbox-bezar')?.focus();
     });
@@ -79,9 +79,9 @@ function galeriaBezarasa() {
 
     lightbox.classList.remove('nyitva');
     lightbox.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    oldalGorgetesZarolasa('galeria', false);
     if (galeriaElozoFokusz?.isConnected) {
-        galeriaElozoFokusz.focus();
+        galeriaElozoFokusz.focus({ preventScroll: true });
     }
     galeriaElozoFokusz = null;
 }

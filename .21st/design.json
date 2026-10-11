@@ -70,9 +70,9 @@
       "display": "DM Sans",
       "body": "DM Sans",
       "logo": "Playfair Display",
-      "studioTabs": "Reddit Sans Condensed",
-      "studioTabsWeight": 300,
-      "character": "Functional sans, retained serif wordmark, light condensed homepage view tabs"
+      "studioTabs": "DM Sans",
+      "studioTabsWeight": 500,
+      "character": "DM Sans content and compact section navigation; retained serif wordmark and condensed service headings"
     },
     "spacing": {
       "base": "4px (observed spacing rhythm, not a separate runtime scale)",
@@ -84,20 +84,18 @@
         "32px"
       ],
       "section": [
-        "52px",
-        "58px",
-        "64px",
-        "72px",
-        "96px",
-        "112px"
+        "24px",
+        "28px",
+        "32px",
+        "48px"
       ],
       "contentWidth": "1200px",
       "gutter": "clamp(20px, 4.8vw, 80px)",
       "sectionInline": "var(--ui-gutter); 20px at 768px and below",
-      "sectionBlock": "clamp(72px, 8vw, 112px); 58px at 768px and below",
+      "sectionBlock": "clamp(32px, 4vw, 48px); 28px at 768px and below",
       "adminWorkspace": "28px top / 42px inline / 50px bottom; responsive local variants",
-      "studioMobile": "24px top / 40px bottom / var(--lumi-section-padding-inline) inline (20px phone)",
-      "studioDesktop": "20px top / 48px bottom / var(--lumi-section-padding-inline) inline"
+      "studioMobile": "24px top; shared 28px section spacing",
+      "studioDesktop": "32px hero top; shared 32–48px section spacing"
     },
     "radius": {
       "control": "8px",
@@ -111,7 +109,7 @@
         "adminAuthentication": "12px",
         "adminNavigation": "9px"
       },
-      "hero": "Unframed full-width photograph, uncropped16:9 phone opening; no text/scrim"
+      "hero": "Framed 16px photograph, split desktop opening and uncropped 16:9 on phones"
     },
     "shadows": {
       "soft": "none",
@@ -124,13 +122,13 @@
     "motion": {
       "level": "subtle",
       "publicAction": "200ms ease",
-      "galleryRail": "180ms thumbnail outline; 240ms studio panel clip reveal",
+      "galleryRail": "Subtle image hover; reduced-motion overrides; shared viewer",
       "adminState": "160ms ease",
       "adminDrawer": "190ms ease",
       "rule": "Use short state transitions; studio reveal disabled for prefers-reduced-motion."
     },
-    "density": "Compact photographic studio index and alternate views; familiar grouped admin metrics/tasks",
-    "authority": "User-approved first/A studio comp and own-photo confirmation; implemented sources and local captures. Numeric pixel diff is not a visual pass.",
+    "density": "Compact section rhythm, split opening, five-image home mosaic and smaller gallery thumbnails",
+    "authority": "2026-10-11 user requests: retained content/palette, redesigned opening and service icons; arrow-free highlights, overlay scroll locking, compact page gaps, smaller gallery thumbnails and VibeWeb footer credit. Local TEST only.",
     "directionName": "Ivory & Taupe studio"
   },
   "components": {
@@ -144,12 +142,12 @@
     "patterns": [
       "Continuous homepage with Munkák / Szolgáltatások / Szofi in-page links",
       "Compact header with prices/account/booking utilities; mobile full navigation",
-      "Broad own CMS opening photograph without overlay or embedded copy; uncropped16:9 phone framing",
-      "Five own image thumbnails with circular controls, keyboard/swipe and predecode/error recovery",
-      "Visible divided image/text service rows, complete portrait/introduction and existing CMS booking invitation",
+      "Framed own CMS hero photograph beside copy on desktop; uncropped 16:9 phone framing below copy",
+      "Five own gallery photographs in a responsive mosaic opening in the shared viewer; keyboard/swipe, predecode and error recovery",
+      "Visible divided icon/text service rows, complete portrait/introduction and existing CMS booking invitation",
       "No-JS full factual content and ten footer navigation links",
       "Shared compact ivory public footer; three-column desktop at900px, wrapping phone links",
-      "Retained gallery caption/lightbox, service detail, progressive booking and account/guest flow",
+      "Compact 4/3/2-column gallery with captions below photos and shared lightbox, service detail, progressive booking and account/guest flow",
       "Ivory/beige light admin and charcoal/ivory mixed dark cards with semantic independent appointment states",
       "Retained grouped admin metrics/task panels, mobile drawer and functional controls"
     ]
@@ -175,18 +173,27 @@
   },
   "decisions": [
     {
+      "date": "2026-10-11",
+      "decision": "Redesign the homepage opening, texts above the photograph, portfolio and service icons while retaining all existing copy, five palette colors and authentic photographs. Use a framed desktop split hero, compact section links, a five-image mosaic and local Phosphor regular icons. Portfolio opens in the shared viewer, with predecode, error recovery, keyboard controls and focus restoration. TEST only.",
+      "reason": "The user requested a redesign and specifically disliked these four surfaces. The previous studio composition is historical; booking, account, admin, SEO metadata and production are outside the change.",
+      "status": "local-preview",
+      "id": "2026-10-11-homepage-redesign"
+    },
+    {
       "id": "2026-10-10-continuous-studio-home",
       "date": "2026-10-10",
-      "status": "local-preview",
+      "status": "historical",
       "decision": "Preserve the approved Ivory & Taupe opening and own photographs, but replace hidden alternate views with a continuous page: works, services, Szofi and the existing CMS booking invitation. The three selectors become ordinary section links. Footer and booking workflows stay unchanged. No push or LIVE release.",
-      "reason": "The user likes the homepage style but says it is too short, like one block."
+      "reason": "The user likes the homepage style but says it is too short, like one block.",
+      "supersededBy": "2026-10-11-homepage-redesign"
     },
     {
       "id": "2026-10-10-ivory-taupe-studio",
       "date": "2026-10-10",
-      "status": "local-preview",
+      "status": "historical",
       "decision": "Implement the user-approved first/A studio comp with five pinned Ivory & Taupe colors, own CMS hero and five existing gallery photographs. Replace the stacked homepage with three accessible views and compact photo controls/shared footer. Preserve data, workflows, no-JS facts and independent semantic states. No commit, push or LIVE deployment.",
-      "reason": "The user selected the first comp and explicitly confirmed: Igen, a saját képekkel építsd meg."
+      "reason": "The user selected the first comp and explicitly confirmed: Igen, a saját képekkel építsd meg.",
+      "supersededBy": "2026-10-11-homepage-redesign"
     },
     {
       "id": "2026-10-10-local-beige-palette-preview",
@@ -335,7 +342,11 @@
     {
       "fact": "visual.implementation.reference",
       "source": ".impeccable/review/desktop.png, mobile.png, services-desktop.png, about-desktop.png, admin-desktop-light.png, admin-desktop-dark.png"
+    },
+    {
+      "fact": "homepage.redesign.and.validation",
+      "source": "docs/home-redesign-2026-10-11.md"
     }
   ],
-  "generatedAt": "2026-10-10T23:10:00+02:00"
+  "generatedAt": "2026-10-11T07:15:47.523Z"
 }

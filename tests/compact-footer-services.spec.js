@@ -9,17 +9,17 @@ test.beforeEach(async ({ page }) => {
 test('compact shared footer keeps all ten destinations and usable phone targets', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  // One metadata row now also holds the required Icons8 credit, with a 44px phone target.
+  // One metadata row now also holds the VibeWeb credit, with a 44px phone target.
   for (const [width, maxHeight] of [[320, 441], [390, 321], [1440, 174]]) {
     await page.setViewportSize({ width, height: 844 });
     const footer = page.locator('.site-footer');
     await expect(footer.locator('.footer-navigacio a')).toHaveCount(10);
-    await expect(footer.locator('.footer-ikon-forras')).toBeVisible();
-    await expect(footer.locator('.footer-ikon-forras')).toHaveAttribute('href', 'https://icons8.com');
+    await expect(footer.locator('.footer-keszito')).toBeVisible();
+    await expect(footer.locator('.footer-keszito')).toHaveAttribute('href', 'https://vibeweb.hu/');
     const metrics = await footer.evaluate(el => ({
       height: el.getBoundingClientRect().height,
       overflow: document.documentElement.scrollWidth - innerWidth,
-      targets: [...el.querySelectorAll('.footer-navigacio a, .social-gomb, .footer-kapcsolat a:not([hidden]), .footer-ikon-forras')].map(a => a.getBoundingClientRect().height)
+      targets: [...el.querySelectorAll('.footer-navigacio a, .social-gomb, .footer-kapcsolat a:not([hidden]), .footer-keszito')].map(a => a.getBoundingClientRect().height)
     }));
     expect(metrics.height, `${width}px`).toBeLessThanOrEqual(maxHeight);
     expect(metrics.overflow).toBeLessThanOrEqual(1);
@@ -33,11 +33,11 @@ test('compact shared footer keeps all ten destinations and usable phone targets'
   // Same owning footer on a representative inner page, no booking submission.
   await page.goto('/arlista/');
   await expect(page.locator('.footer-navigacio a')).toHaveCount(10);
-  await expect(page.locator('.footer-ikon-forras')).toBeVisible();
+  await expect(page.locator('.footer-keszito')).toBeVisible();
   expect((await page.locator('.site-footer').boundingBox()).height).toBeLessThanOrEqual(321);
 });
 
-test('homepage services use four local Icons8 images with and without JavaScript', async ({ page, browser }) => {
+test('homepage services use four local service icons with and without JavaScript', async ({ page, browser, baseURL }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await expect(page.locator('.szolgaltatas-kartya-ikon')).toHaveCount(4);
@@ -55,7 +55,7 @@ test('homepage services use four local Icons8 images with and without JavaScript
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
     await page.locator('#szolgaltatasok').scrollIntoViewIfNeeded();
-    await expect.poll(() => page.locator('.szolgaltatas-kartya-ikon').evaluateAll(images => images.every(img => img.complete && img.naturalWidth === 100 && img.naturalHeight === 100))).toBe(true);
+    await expect.poll(() => page.locator('.szolgaltatas-kartya-ikon').evaluateAll(images => images.every(img => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0))).toBe(true);
     const rows = await page.locator('.szolgaltatas-kartya').evaluateAll(elements => elements.map(el => ({
       image: getComputedStyle(el, '::before').backgroundImage,
       inlinePhoto: el.style.getPropertyValue('--service-image'),
@@ -71,7 +71,7 @@ test('homepage services use four local Icons8 images with and without JavaScript
       expect(row.inlinePhoto).toBe('');
       expect(row.iconHidden).toBe('true');
       expect(row.iconAlt).toBe('');
-      expect(row.iconSource).toMatch(/^\/kepek\/ikonok\/(epites|diszites|gel-lakk|manikur)\.png$/);
+      expect(row.iconSource).toMatch(/^\/kepek\/ikonok\/(epites|diszites|gel-lakk|manikur)\.svg$/);
       expect(row.left).toBeGreaterThanOrEqual(0);
       expect(row.right).toBeLessThanOrEqual(row.width);
     }
@@ -83,13 +83,13 @@ test('homepage services use four local Icons8 images with and without JavaScript
   expect(report.violations).toEqual([]);
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const staticPage = await context.newPage();
-  await staticPage.goto('http://127.0.0.1:8101/');
+  await staticPage.goto(`${baseURL}/`);
   await expect(staticPage.locator('.szolgaltatas-kartya-ikon')).toHaveCount(4);
   await staticPage.locator('#szolgaltatasok').scrollIntoViewIfNeeded();
-  await expect.poll(() => staticPage.locator('.szolgaltatas-kartya-ikon').evaluateAll(images => images.every(img => img.complete && img.naturalWidth === 100))).toBe(true);
+  await expect.poll(() => staticPage.locator('.szolgaltatas-kartya-ikon').evaluateAll(images => images.every(img => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0))).toBe(true);
   const staticSources = await staticPage.locator('.szolgaltatas-kartya-ikon').evaluateAll(images => images.map(img => img.getAttribute('src')));
-  expect(staticSources).toEqual(['/kepek/ikonok/epites.png', '/kepek/ikonok/diszites.png', '/kepek/ikonok/gel-lakk.png', '/kepek/ikonok/manikur.png']);
+  expect(staticSources).toEqual(['/kepek/ikonok/epites.svg', '/kepek/ikonok/diszites.svg', '/kepek/ikonok/gel-lakk.svg', '/kepek/ikonok/manikur.svg']);
   await expect(staticPage.locator('.footer-navigacio a')).toHaveCount(10);
-  await expect(staticPage.locator('.footer-ikon-forras')).toHaveAttribute('href', 'https://icons8.com');
+  await expect(staticPage.locator('.footer-keszito')).toHaveAttribute('href', 'https://vibeweb.hu/');
   await context.close();
 });

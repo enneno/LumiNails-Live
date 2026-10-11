@@ -19,7 +19,8 @@ function lablecAdatokAlkalmazasa(adatok) {
     if (kapcsolat?.nyitvatartas) {
         document.querySelectorAll('[data-foglalasi-idorend]').forEach((elem) => {
             elem.querySelector('strong').textContent = foglalasiIdorendSzovege(kapcsolat.nyitvatartas);
-            elem.querySelector('span').textContent = kapcsolat.nyitvatartas.megjegyzes;
+            const megjegyzes = elem.querySelector('span');
+            if (megjegyzes) megjegyzes.textContent = kapcsolat.nyitvatartas.megjegyzes;
         });
     }
 

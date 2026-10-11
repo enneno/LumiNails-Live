@@ -40,10 +40,10 @@
     --font-display: 'DM Sans', sans-serif;
     --lumi-content-width: 1200px;
     --lumi-section-padding-inline: var(--ui-gutter);
-    --lumi-section-padding-block: clamp(72px, 8vw, 112px);
+    --lumi-section-padding-block: clamp(32px, 4vw, 48px);
     --lumi-section-gap: var(--lumi-section-padding-block);
-    --lumi-section-gap-mobile: 64px;
-    --lumi-section-gap-small: 52px;
+    --lumi-section-gap-mobile: 28px;
+    --lumi-section-gap-small: 24px;
     --lumi-heading-description-gap: 28px;
     --lumi-price-heading-content-gap: 18px;
     --lumi-container-width: min(1400px, calc(100% - 40px));
@@ -81,7 +81,7 @@
 @media screen and (max-width: 768px) {
     :root {
         --lumi-section-padding-inline: 20px;
-        --lumi-section-padding-block: 58px;
+        --lumi-section-padding-block: 28px;
         --lumi-font-micro: 10px;
         --lumi-font-caption: 12px;
         --lumi-font-label: 13px;
@@ -214,19 +214,6 @@ textarea:focus-visible {
     gap: 22px;
 }
 
-.fooldal .menu-pontok a:is([href="/"], [href="/#szolgaltatasok"], [href="/galeria/"]) {
-    display: none;
-}
-
-.fooldal .menu-pontok a {
-    font-size: 16px;
-}
-
-.fooldal .menu-pontok a:last-child {
-    min-height: 52px;
-    min-width: 180px;
-}
-
 .menu-pontok a {
     display: inline-flex;
     align-items: center;
@@ -267,6 +254,12 @@ textarea:focus-visible {
     background: var(--ui-rose-dark, #91766e);
     box-shadow: inset 0 -3px 0 var(--ui-warm, #f0d7d5);
     color: var(--ui-on-primary-hover);
+}
+
+@media screen and (min-width: 769px) and (max-width: 900px) {
+    .fooldal .menu-pontok {
+        gap: 8px;
+    }
 }
 
 @media screen and (max-width: 768px) {
@@ -330,6 +323,21 @@ body > main,
 body > #fo-tartalom {
     width: 100%;
     flex: 1 0 auto;
+}
+
+/* Fixed-body locking also prevents background touch scrolling on phones. */
+html.oldal-gorgetes-zarolva {
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+html.oldal-gorgetes-zarolva body {
+    position: fixed;
+    top: var(--lumi-scroll-top);
+    right: 0;
+    left: 0;
+    padding-right: var(--lumi-scrollbar-width);
+    overflow: hidden;
 }
 
 #lablec-helye {
@@ -549,15 +557,6 @@ select.urlap-mezo:invalid {
     font-size: var(--lumi-font-caption);
     font-weight: 700;
     line-height: 1.5;
-}
-
-.szoveges-link > span {
-    flex: 0 0 auto;
-    font-family: Arial, sans-serif;
-    font-size: 1.15em;
-    font-weight: 400;
-    line-height: 1;
-    text-decoration: none;
 }
 
 .urlap-kuldes-gomb {

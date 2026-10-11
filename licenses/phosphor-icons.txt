@@ -1,13 +1,9 @@
-Phosphor Icons — homepage service symbols
-Source: https://github.com/phosphor-icons/core
-Pinned revision: 2b75f3ad12b420c9504ef05df8d2564a28f8500e
-Assets: assets/duotone/stack-simple-duotone.svg,
-        assets/duotone/sparkle-duotone.svg,
-        assets/duotone/paint-brush-duotone.svg,
-        assets/duotone/hand-heart-duotone.svg
-Original geometry and 0.2 opacity preserved; wrapper uses the site's CSS class,
-decorative accessibility attributes and currentColor. Included in index.html
-and src/public/30-content-rendering.js; no runtime icon package or CDN.
+Phosphor Icons: homepage service symbols (regular weight)
+Source: https://github.com/phosphor-icons/core/tree/main/assets/regular
+Assets: hand.svg, paint-brush.svg, scissors.svg
+Local names: epites.svg, diszites.svg, manikur.svg
+Original geometry is unchanged. Fill uses the existing charcoal brand color.
+Retrieved: 2026-10-11. These assets are decorative and have empty alt text.
 
 MIT License
 

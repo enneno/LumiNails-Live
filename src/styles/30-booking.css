@@ -558,7 +558,7 @@
     --booking-summary-bg: var(--ui-bg);
     width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
-    padding: clamp(72px, 8vw, 116px) 0 0;
+    padding: var(--lumi-section-padding-block) 0 0;
 }
 
 .foglalas-nyito {
@@ -568,7 +568,7 @@
     align-items: start;
     min-height: 0;
     margin: 0;
-    padding: 0 0 48px;
+    padding: 0 0 24px;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -686,16 +686,6 @@
     font-weight: 750;
     letter-spacing: 0.055em;
     line-height: 1.25;
-}
-
-.foglalas-ut-gomb::after {
-    content: "↗";
-    font-size: 12px;
-    line-height: 1;
-}
-
-.foglalas-ut-kartya[data-booking-path] .foglalas-ut-gomb::after {
-    content: "↓";
 }
 
 .foglalas-ut-kartya:hover {
