@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const { parseHTML } = require("linkedom");
+const { publicPageImages, appendGalleryMetadata, imageSitemapEntries } = require("./image-seo");
 
 const ROOT = path.resolve(__dirname, "..");
 const SITE_ORIGIN = process.env.LUMI_SITE_ORIGIN || "http://127.0.0.1:8102";
@@ -65,7 +66,7 @@ async function main() {
     fs.mkdirSync(path.dirname(path.join(OUTPUT_ROOT, relativePath)), { recursive: true });
     fs.writeFileSync(path.join(OUTPUT_ROOT, relativePath), content, "utf8");
   }
-  writeSitemap();
+  writeSitemap(renderedFiles);
   fs.writeFileSync(path.join(OUTPUT_ROOT, "adatok.json"), JSON.stringify(snapshot) + "\n");
   fs.writeFileSync(path.join(OUTPUT_ROOT, "deployment.json"), JSON.stringify({
     schemaVersion: 1, contentHash: snapshot.contentFingerprint,
@@ -79,12 +80,16 @@ async function main() {
   );
 }
 
-function writeSitemap() {
+function writeSitemap(renderedFiles) {
   const lastmod = new Date().toISOString().slice(0, 10);
+  const imagesByPath = new Map(PAGE_PATHS.map(([file, pathname]) => [
+    pathname,
+    publicPageImages(parseHTML(renderedFiles.get(file)).document, pathname, SITE_ORIGIN),
+  ]));
   const urls = SITEMAP_PATHS.map(
-    (pathname) => `    <url>\n        <loc>${SITE_ORIGIN}${pathname}</loc>\n        <lastmod>${lastmod}</lastmod>\n    </url>`,
+    (pathname) => `    <url>\n        <loc>${SITE_ORIGIN}${pathname}</loc>\n        <lastmod>${lastmod}</lastmod>\n${imageSitemapEntries(imagesByPath.get(pathname) || [])}    </url>`,
   ).join("\n");
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n</urlset>\n`;
   fs.writeFileSync(path.join(OUTPUT_ROOT, "sitemap.xml"), sitemap, "utf8");
 }
 
@@ -151,6 +156,7 @@ function renderPage({
   syncSerializableImageAttributes(document);
   syncPortableAssetUrls(document);
   syncStructuredData(document, content, context.foglalasiIdorendSzovege);
+  if (pathname === "/galeria/") appendGalleryMetadata(document, SITE_ORIGIN);
   document.documentElement.dataset.lumiContentUpdatedAt =
     snapshot.contentUpdatedAt;
   document.documentElement.dataset.lumiContentFingerprint =

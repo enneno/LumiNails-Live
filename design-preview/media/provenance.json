@@ -1,0 +1,54 @@
+{
+  "photos": [
+    {
+      "name": "work-1.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-10-22/1792628587847-f8bfcca6-272d-4aa9-93c5-cfe62a885d66-full.jpg",
+      "alt": "Francia kövekkel."
+    },
+    {
+      "name": "work-2.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-10-22/1792628563077-b89bec23-2e1f-4264-a38f-f1c4a5827897-full.jpg",
+      "alt": "Piros klasszikus."
+    },
+    {
+      "name": "work-3.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-10-22/1792628485084-ef811ffa-88bc-4edc-9445-d12004bb89a2-full.jpg",
+      "alt": "Pöttyös francia."
+    },
+    {
+      "name": "work-4.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-10-22/1792628194470-ff44a1db-fb6a-4f8c-914a-5230e8708c73-full.jpg",
+      "alt": "Csokoládébarna"
+    },
+    {
+      "name": "work-5.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-10-22/1792628093867-88d83bce-b63d-49db-98dd-89dbcd83d569-full.jpg",
+      "alt": "Egy kis milky, egy kis virág"
+    },
+    {
+      "name": "szofi.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-07-28/1785272237422-0wb9mvzv7xi-migrated-full.jpg",
+      "alt": "Lumi Nails Szofi"
+    },
+    {
+      "name": "work-6.jpg",
+      "origin": "galeria/optimized/large/image4.jpg",
+      "alt": "work-6.jpg"
+    },
+    {
+      "name": "work-7.jpg",
+      "origin": "galeria/optimized/large/image7.jpg",
+      "alt": "work-7.jpg"
+    },
+    {
+      "name": "hero.jpg",
+      "origin": "https://htbpzvmlegapaphsipax.supabase.co/storage/v1/object/public/site-media/uploads/2026-09-05/1788628618091-4ce48d0e-4cda-40a4-afc4-f15b78f8d0fe-full.jpg",
+      "alt": "Lumi Nails nyitókép"
+    }
+  ],
+  "fonts": {
+    "origin": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap",
+    "license": "SIL Open Font License; Google Fonts DM Sans and Playfair Display"
+  },
+  "imageProcessing": "Existing project images copied without changing pixels."
+}

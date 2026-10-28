@@ -612,7 +612,10 @@ function bekezdesekRenderelese(selector, bekezdesek) {
     const link = kontener.querySelector(':scope > .szoveges-link');
     const fragment = document.createDocumentFragment();
 
-    bekezdesek.forEach(szoveg => {
+    const megjelenitettBekezdesek = selector === '.bemutatkozas-szoveg'
+        ? bekezdesek.flatMap(szoveg => String(szoveg).split(/\n\s*\n/)).map(szoveg => szoveg.trim()).filter(Boolean)
+        : bekezdesek;
+    megjelenitettBekezdesek.forEach(szoveg => {
         const p = document.createElement('p');
         p.textContent = szoveg;
         fragment.appendChild(p);

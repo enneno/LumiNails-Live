@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T18:46:04Z",
+  "title": "Design System: Lumi Nails — saját munkák, mályva arculat",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Világos alap",
+        "source": "--ui-bg",
+        "purpose": "Halvány rózsás oldal- és fejléc-háttér, világos hero-szöveg."
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "Tónusos felület",
+        "source": "--ui-soft",
+        "purpose": "Értesítő és képhelyek világos rózsás felülete; másodlagos hover."
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Sötét törzsszöveg",
+        "source": "--ui-ink",
+        "purpose": "Törzsszöveg a világos felületeken; hero alapja."
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Rögzített mályva",
+        "source": "--ui-accent",
+        "purpose": "Akciók, világos szakaszok címei, fejlécbeli szóvédjegy, mély bemutatkozósáv és lábléc."
+      },
+      "accent-strong": {
+        "role": "primary",
+        "displayName": "Erős hangsúly",
+        "source": "--ui-accent-strong",
+        "purpose": "Elsődleges akció hover háttere és kerete."
+      },
+      "on-accent": {
+        "role": "neutral",
+        "displayName": "Világos felirat",
+        "source": "--ui-on-accent",
+        "purpose": "A mályva gombok, bemutatkozósáv és lábléc világos szövege."
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Áttetsző elválasztó",
+        "source": "--ui-line",
+        "purpose": "Finom mályvás keretek és elválasztók."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Nyitócím",
+        "purpose": "A hero kétsoros Playfair neve: clamp(68px, 12vw, 96px), 500 súly, 0.95 sormagasság, -0.04em betűköz."
+      },
+      "headline": {
+        "displayName": "Szakaszcím",
+        "purpose": "Alap H2; a bemutatkozás címe clamp(36px, 4.8vw, 56px), 400 súllyal."
+      },
+      "title": {
+        "displayName": "Cím",
+        "purpose": "Alap H3; desktopon szolgáltatássor-címek 30px, 400 súly."
+      },
+      "body": {
+        "displayName": "Törzsszöveg",
+        "purpose": "Általánosan legfeljebb 65ch; hero 32ch, bemutatkozás 52ch. Az üdvözlő bekezdés Playfair 28px/1.3."
+      },
+      "wordmark": {
+        "displayName": "Szóvédjegy",
+        "purpose": "A fejléc és lábléc kis Playfair szóvédjegye."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "action-color",
+        "value": "background-color 160ms ease, color 160ms ease",
+        "purpose": "Akciógomb hover; reduced-motion esetén nincs átmenet."
+      },
+      {
+        "name": "manual-scroll",
+        "value": "smooth",
+        "purpose": "Horgonygörgetés; reduced-motion esetén közvetlen ugrás."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "shared-columns",
+        "value": "640px"
+      },
+      {
+        "name": "desktop-composition",
+        "value": "900px"
+      }
+    ],
+    "previewScope": {
+      "sources": [
+        "preview.css",
+        "preview.js",
+        "build.mjs",
+        "../adatok.json"
+      ],
+      "canonicalDesignSystem": false,
+      "requestedComposition": "Külön sticky fejléc és meglévő értesítő → saját körmös munkafotó a fennmaradó képernyőn, kétsoros Playfair névvel → közvetlen mély mályva Szofi-bemutatkozás → oldalsó című szolgáltatások → aszimmetrikus munkagaléria → foglalási meghívó → lábléc.",
+      "noticePosition": "A fejléc alatt, a főtartalom és hero előtt.",
+      "imageCompApproved": false,
+      "homePath": "/",
+      "hero": {
+        "image": "/assets/work-1.jpg — saját Francia kövekkel. munka, minden szélességen teljes felületű cover.",
+        "heading": "Kétsoros Playfair Display; clamp(68px, 12vw, 96px), 500, line-height 0.95, letter-spacing -0.04em.",
+        "minimumHeight": "calc(100svh - var(--opening-chrome, 0px))",
+        "chromeMeasurement": "A fejléc és értesítő összmagasságát ResizeObserver méri; nincs preview-sáv.",
+        "mobileAndTablet": "900px alatt név, majd leírás/akció; gap 32px, padding-block 48px, object-position 58% 54%.",
+        "desktop": "900px-től bal alsó név és jobb alsó leírás/akció; minmax(0, 1fr) minmax(260px, 350px), gap 80px, padding-block 72px, object-position 54% 58%.",
+        "deck": "Legfeljebb 32ch, 16px/1.6; desktopon 18px.",
+        "overlay": true,
+        "mobileGradient": "linear-gradient(0deg, rgb(23 20 18 / 86%), rgb(23 20 18 / 68%) 65%, rgb(23 20 18 / 40%))",
+        "desktopGradient": "linear-gradient(0deg, rgb(23 20 18 / 88%), rgb(23 20 18 / 55%) 44%, rgb(23 20 18 / 12%) 100%)",
+        "action": "Közös mályva elsődleges akció, világos felirattal; canvas fókuszgyűrű."
+      },
+      "sharedRoutes": [
+        "/arlista/",
+        "/404.html"
+      ],
+      "assets": "Kilenc meglévő JPEG metaadatba írt eredettel és provenance.json nyilvántartással. A nyitókép work-1.jpg; a korábbi hero.jpg forrásmásolat megmarad. Négy helyi WOFF2 és két OFL licenc.",
+      "data": "Az adatok.json pillanatképe; mind a 19 szolgáltatásnév és ár megőrizve.",
+      "externalActions": "A foglalás, fiók, teljes galéria és szolgáltatásrészletek a jelenlegi éles oldalra mutatnak.",
+      "backendCalls": false,
+      "liveReleaseAuthorizedByPreview": false,
+      "review": {
+        "disposition": "ship: both scored fixes resolved; TEST public preview only",
+        "evidence": "../.impeccable/review/editorial-malyva-20261028/",
+        "widths": [
+          320,
+          390,
+          768,
+          1440
+        ],
+        "captureWidths": [
+          390,
+          1440
+        ],
+        "checks": [
+          "Nincs túlcsordulás, hibás kép, külső kérés vagy JavaScript-hiba.",
+          "Teljes képernyős hero és azonnali bemutatkozás.",
+          "Sticky fejléc a láblécnél is látható.",
+          "Mobilmenü, nagyító, Escape és fókusz-visszaadás.",
+          "Teljes bemutatkozószöveg és 19 eredeti ár.",
+          "Kizárt belső és korábbi előnézeti útvonalak 404-válasza."
+        ],
+        "reviewerFinding": "A kompozíció megfelel a jelenlegi direction contractnak. Az első verdict fix: elavult dokumentáció és a záróikon Unicode-jele miatt.",
+        "fixes": [
+          "A jelenlegi preview-dokumentáció a fix mályva kompozíciót rögzíti.",
+          "A forrásban a Bezárás felirat mellett már vonalas SVG-záróikon szerepel; viselkedése változatlan."
+        ],
+        "finalVerdict": "A verdict-pass.md mindkét megnevezett javítást megoldottnak értékelte; disposition: ship, kizárólag TEST publikus előnézetre.",
+        "captureLimitation": "A galéria elemképe sticky-fejléc műterméket tartalmaz; a teljes oldalképek az irányadók.",
+        "limitations": [
+          "Helyi Chromium és szélességemuláció.",
+          "Nincs fizikai iOS/Android ellenőrzés.",
+          "Nincs éles foglalási próba.",
+          "Nincs teljes hozzáférhetőségi audit.",
+          "Nincs produkciós jóváhagyás."
+        ]
+      },
+      "stickyHeader": {
+        "position": "sticky",
+        "top": "0",
+        "zIndex": 50,
+        "background": "Tömör canvas.",
+        "measurement": "ResizeObserver írja a fejléc mért magasságát az --sticky-header-height értékbe.",
+        "anchorPadding": "calc(var(--sticky-header-height, 106px) + 24px)"
+      },
+      "aboutBand": "A #szofi teljes szélességű accent sáv, on-accent szöveggel; közvetlenül a hero után. A saját portré mellett a teljes eredeti szöveg külön bekezdésekre bontva; az első üdvözlés Playfair 28px/1.3. 640px-től 0.85fr/1.15fr, 40px oszlopközzel; 900px-től 80px oszlopköz.",
+      "fixedPalette": "A kiválasztott mályva egyetlen paletta; nincs színválasztó, szin query vagy sessionStorage-logika.",
+      "servicesLayout": "900px-től 0.75fr/1.25fr oszlopok, gap 40px 80px; bal címoszlop sticky a fejlécmagasság + 40px helyen, jobb oldalt vonalas sorok és árlistalink.",
+      "galleryLayout": {
+        "below640": "Két oszlop, gap 32px 16px.",
+        "from640": "Két oszlop, gap 48px 32px.",
+        "from900": "12 oszlop, gap 64px 32px; váltakozó képméretek.",
+        "desktopSlots": [
+          "1 / 8",
+          "9 / 13",
+          "2 / 6",
+          "7 / 13",
+          "1 / 7",
+          "8 / 13"
+        ],
+        "photoAspectRatio": "3 / 4"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Elsődleges akció",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Közös accent foglalási akció a herón is; legalább 50px magas.",
+      "html": "<a class=\"ds-action\" href=\"#foglalas\">Időpontot foglalok<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M4 12h15M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-action{display:inline-flex;align-items:center;justify-content:space-between;gap:24px;min-height:50px;padding:13px 20px;border:1px solid var(--ui-accent,#873b59);border-radius:var(--control-radius,8px);color:var(--ui-on-accent,#fffaf7);background:var(--ui-accent,#873b59);font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:500;line-height:1.4;text-decoration:none;transition:background-color 160ms ease,color 160ms ease}.ds-action:hover{color:var(--ui-on-accent,#fffaf7);background:var(--ui-accent-strong,#65283f);border-color:var(--ui-accent-strong,#65283f)}.ds-action:focus-visible{outline:2px solid var(--ui-accent,#873b59);outline-offset:5px}.ds-action svg{flex:none}@media(prefers-reduced-motion:reduce){.ds-action{transition:none}}"
+    },
+    {
+      "name": "Másodlagos akció",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Teljes árlistához vagy galériához vezető keretes link.",
+      "html": "<a class=\"ds-secondary\" href=\"#arlista\">Teljes árlista<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M4 12h15M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:space-between;gap:24px;min-height:50px;padding:13px 20px;border:1px solid var(--ui-accent,#873b59);border-radius:var(--control-radius,8px);color:var(--ui-accent,#873b59);background:transparent;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:500;line-height:1.4;text-decoration:none;transition:background-color 160ms ease,color 160ms ease}.ds-secondary:hover{color:var(--ui-accent,#873b59);background:var(--ui-soft,#f5e1e8);border-color:var(--ui-accent,#873b59)}.ds-secondary:focus-visible{outline:2px solid var(--ui-accent,#873b59);outline-offset:5px}.ds-secondary svg{flex:none}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}}"
+    },
+    {
+      "name": "Asztali navigáció",
+      "kind": "nav",
+      "description": "900px-től megjelenő navigáció a végig látható sticky fejlécben.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Fő navigáció\"><a href=\"#szofi\">Szofi</a><a href=\"#szolgaltatasok\">Szolgáltatások</a><a href=\"#arlista\">Árlista</a><a href=\"#munkak\">Munkák</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:28px;color:var(--ui-ink,#392630);font-family:\"DM Sans\",sans-serif;font-size:14px}.ds-nav a{display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:none;text-underline-offset:5px}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:2px solid var(--ui-accent,#873b59);outline-offset:5px}"
+    },
+    {
+      "name": "Kétsoros hero név",
+      "kind": "custom",
+      "description": "A saját munkafotó aljára rendezett Playfair név; a minta csak a tipográfiát mutatja, sötét hero-alapon.",
+      "html": "<div class=\"ds-hero-ground\"><h1 class=\"ds-hero-wordmark\"><span>Lumi</span><span>Nails</span></h1></div>",
+      "css": ".ds-hero-ground{padding:24px;color:var(--ui-bg,#fff8f7);background:var(--ui-ink,#392630)}.ds-hero-wordmark{margin:0;font-family:\"Playfair Display\",serif;font-size:clamp(68px,12vw,96px);font-weight:500;line-height:.95;letter-spacing:-.04em}.ds-hero-wordmark span{display:block}"
+    },
+    {
+      "name": "Képnagyító bezárása",
+      "kind": "button",
+      "description": "A natív nagyító Bezárás gombja következetes, vonalas SVG-ikonnal; az Escape és fókusz-visszaadás a preview.js feladata.",
+      "html": "<button class=\"ds-lightbox-close\" type=\"button\" aria-label=\"Nagyítás bezárása\">Bezárás<svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"m6 6 12 12M18 6 6 18\"/></svg></button>",
+      "css": ".ds-lightbox-close{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:54px;padding:12px 20px;border:0;color:var(--ui-ink,#392630);background:var(--ui-bg,#fff8f7);font-family:\"DM Sans\",sans-serif;font-size:16px;cursor:pointer}.ds-lightbox-close svg{width:28px;height:28px}.ds-lightbox-close:focus-visible{outline:2px solid var(--ui-accent,#873b59);outline-offset:5px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Saját munkák és Szofi, mályvában",
+    "overview": "Ez a dokumentum kizárólag a design-preview jelenlegi publikus TEST-előnézetét rögzíti. A kiválasztott mályva szín fix. A saját körmös munka, a nagy, kétsoros Lumi Nails név és Szofi személye adja a felület karakterét. A fejléc → teljes képernyős hero → közvetlen bemutatkozás sorrend megmarad; utána szolgáltatások, munkák, foglalási meghívó és lábléc következik.\n\nA jelenlegi vizuális alap a README.md direction contractja és a megvalósult forrás; ez kódalapú felhasználói iteráció, új képi comp nélkül. A dokumentum nem cseréli le a gyökér kanonikus designrendszerét, és nem ad élesítési engedélyt.",
+    "keyCharacteristics": [
+      "Egyetlen mályva paletta, halvány rózsás alap és mély színű bemutatkozósáv.",
+      "Saját Francia kövekkel. munkafotó, alul nagy Playfair név és foglalási meghívó.",
+      "Oldalt álló szolgáltatáscím és váltakozó méretű, sarkos galériaképek desktopon."
+    ],
+    "rules": [
+      {
+        "name": "The Fixed Mauve Rule",
+        "body": "Ebben az előnézetben a felhasználó által kiválasztott mályva az egyetlen paletta; nincs színválasztó vagy URL-/munkamenet-alapú témaváltás.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hero–About Rule",
+        "body": "A hero után minden szélességen közvetlenül Szofi bemutatkozása következik; közéjük más szakasz nem kerül.",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "Do őrizd meg a saját fotókat és teljes eredeti szövegeket. A kilenc JPEG eredete a metaadatokban és a media/provenance.json nyilvántartásban szerepel; a megőrzött hero.jpg nem a jelenlegi nyitókép.",
+      "Do a rögzített mályva előnézetet és a README.md direction contractját kövesd; a gyökér kanonikus dokumentumai külön hatáskörben maradnak."
+    ],
+    "donts": [
+      "Don't tekintsd a foglalás-, fiók- és szolgáltatáslinkeket helyi funkciónak: a jelenlegi éles oldalra vezetnek. Nincs helyi Auth/API-kliens, adatírás vagy éles foglalási próba.",
+      "Don't következtess a preview-ból admin/PWA-módosításra vagy LIVE-kiadási engedélyre. A csomag noindex/nofollow és robots Disallow jelölést kap.",
+      "Don't állíts teljes hozzáférhetőségi vagy fizikai készülékes igazolást. A .impeccable/review/editorial-malyva-20261028 négy szélességen (320/390/768/1440px) igazolja a célzott helyi ellenőrzést: nincs túlcsordulás, hibás kép vagy külső kérés; működik a menü, nagyító, Escape/fókusz-visszaadás; a teljes szöveg és 19 ár megmaradt, a kizárt útvonalak 404-et adnak. A független reviewer a kompozíciót megfelelőnek találta, dokumentációfrissítést és SVG-záróikont kért; a végső javításellenőrzés mindkét tételt megoldottnak értékelte, disposition: ship, kizárólag TEST publikus előnézetre. A galéria elemképe sticky-fejléc műterméket tartalmaz, ezért ott a dokumentum tetejéről készült teljes oldalképek az irányadók. Nincs teljes audit vagy produkciós jóváhagyás."
+    ]
+  }
+}

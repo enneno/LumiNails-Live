@@ -281,9 +281,9 @@
 .site-footer {
     width: 100%;
     margin: 0;
-    padding: 12px var(--lumi-section-padding-inline);
+    padding: 32px var(--lumi-section-padding-inline);
     border-top: 1px solid var(--ui-line);
-    background: var(--ui-bg);
+    background: var(--ui-footer-bg);
     color: var(--ui-ink);
 }
 .footer-belso {

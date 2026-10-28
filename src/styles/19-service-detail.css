@@ -2,9 +2,18 @@
 
 body > #fo-tartalom.seo-szolgaltatas-oldal {
     --seo-tartalmi-terkoz: var(--lumi-section-padding-block);
-    width: min(1180px, calc(100% - 48px));
-    margin: 0 auto;
+    --seo-oldal-margo: 24px;
+    display: grid;
+    grid-template-columns: minmax(var(--seo-oldal-margo), 1fr) minmax(0, 1180px) minmax(var(--seo-oldal-margo), 1fr);
+    align-content: start;
+    width: 100%;
+    margin: 0;
     padding: 0;
+}
+
+.seo-szolgaltatas-oldal > :not(.seo-szolgaltatas-hero) {
+    grid-column: 2;
+    min-width: 0;
 }
 
 .seo-szolgaltatas-oldal :is(h1, h2, h3, p) {
@@ -24,24 +33,37 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 }
 
 .seo-szolgaltatas-hero {
+    position: relative;
+    isolation: isolate;
+    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: center;
-    gap: 48px;
+    align-items: end;
     width: 100%;
     max-width: none;
-    min-height: 0;
+    min-height: calc(100svh - var(--ui-header-height));
     margin: 0;
-    padding: var(--lumi-section-padding-block) 0 24px;
+    padding: clamp(40px, 6vw, 72px) var(--lumi-section-padding-inline);
+    color: var(--ui-on-dark);
+    background: var(--ui-ink);
+}
+.seo-szolgaltatas-hero::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    content: '';
+    background: linear-gradient(0deg, rgb(23 20 18 / 90%), rgb(23 20 18 / 68%) 60%, rgb(23 20 18 / 25%));
 }
 .seo-szolgaltatas-hero-szoveg {
+    width: min(var(--lumi-content-width), 100%);
     min-width: 0;
+    margin-inline: auto;
     padding: 0;
-    color: var(--ui-ink);
+    color: inherit;
 }
 .seo-szolgaltatas-hero h1 {
+    max-width: 22ch;
     margin: 0 0 24px;
-    color: var(--ui-ink);
+    color: inherit;
     font-family: var(--font-display);
     font-size: clamp(36px, 4vw, 56px);
     font-weight: 500;
@@ -50,27 +72,34 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
     text-align: left;
 }
 .seo-szolgaltatas-hero-szoveg > p {
+    max-width: 65ch;
     margin: 0;
-    color: var(--ui-muted);
-    font-size: var(--lumi-font-body-small);
+    color: inherit;
+    font-size: 16px;
     line-height: 1.8;
+    text-align: left;
 }
 .seo-szolgaltatas-hero-kep {
-    position: relative;
+    position: absolute;
+    z-index: -2;
+    inset: 0;
     margin: 0;
     overflow: hidden;
-    border-radius: var(--lumi-radius-card);
+    border-radius: 0;
     background: var(--ui-soft);
 }
 .seo-szolgaltatas-hero-kep img {
     display: block;
     width: 100%;
-    height: auto;
-    aspect-ratio: 3 / 2;
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--seo-hero-kepfokusz, center);
+}
+body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"], [data-szolgaltatas-oldal="nailArt"]) .seo-szolgaltatas-hero-kep {
+    --seo-hero-kepfokusz: right center;
 }
 .seo-szolgaltatas-hero .szekcio-kicker {
-    color: var(--ui-accent-text);
+    color: inherit;
 }
 .seo-szolgaltatas-zaras-akciok {
     display: flex;
@@ -382,14 +411,9 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
 
 @media screen and (max-width: 768px) {
     body > #fo-tartalom.seo-szolgaltatas-oldal {
-        width: calc(100% - 32px);
+        --seo-oldal-margo: 16px;
     }
 
-    .seo-szolgaltatas-hero {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 24px;
-        padding: 24px 0;
-    }
     .seo-szolgaltatas-hero h1 {
         font-size: clamp(30px, 8vw, 38px);
     }

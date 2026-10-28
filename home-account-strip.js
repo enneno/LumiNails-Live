@@ -33,5 +33,7 @@
         </div>
     `;
 
-    hero.insertAdjacentElement('afterend', section);
+    const bookingSection = document.getElementById('kapcsolat');
+    if (bookingSection) bookingSection.insertAdjacentElement('beforebegin', section);
+    else (document.getElementById('bemutatkozas') || hero).insertAdjacentElement('afterend', section);
 })();

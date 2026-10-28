@@ -1326,8 +1326,9 @@
 
 .foglalas-kezelo-bevitel {
     display: grid;
-    grid-template-columns: minmax(170px, 1fr) minmax(170px, max-content);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
     gap: 10px;
+    min-width: 0;
 }
 
 .foglalas-kezelo-bevitel input {

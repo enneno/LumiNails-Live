@@ -1,5 +1,5 @@
 .arlista-oldal {
-    width: min(1200px, calc(100% - 48px));
+    width: min(840px, calc(100% - 48px));
     margin: 0 auto;
     padding: var(--lumi-section-padding-block) 0 0;
 }
@@ -12,7 +12,7 @@
     font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 0.9;
-    text-align: center;
+    text-align: left;
 }
 
 .arlista-oldal > .szekcio-leiras {
@@ -21,14 +21,14 @@
     color: var(--ui-muted);
     font-size: var(--lumi-font-body);
     line-height: 1.75;
-    text-align: center;
+    text-align: left;
 }
 
 .arlista-panel {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    margin: 32px 0 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    margin: 48px 0 0;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -53,7 +53,7 @@
     color: var(--ui-muted);
     font-size: var(--lumi-font-body);
     line-height: 1.6;
-    text-align: center;
+    text-align: left;
 }
 
 .arlista-allapot--hiba {
@@ -63,10 +63,10 @@
 .arlista-csoport,
 .arlista-ket-oszlop .arlista-csoport {
     margin: 0;
-    padding: 34px 32px;
-    border: 1px solid var(--ui-line);
-    border-radius: var(--lumi-radius-card);
-    background: var(--ui-surface);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
 }
 
 .arlista-csoport h3 {
@@ -81,30 +81,23 @@
 }
 
 .arlista-sor {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
-    gap: 10px;
+    gap: 16px;
     min-height: 50px;
-    padding: 8px 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--ui-line);
     color: var(--ui-ink);
-    font-family: "DM Sans", sans-serif;
-    font-size: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
     line-height: 1.45;
 }
 
-.arlista-sor::before {
-    content: "";
-    flex: 1 1 auto;
-    min-width: 18px;
-    order: 2;
-    margin-top: 0;
-    border-bottom: 1px dotted rgba(67, 49, 43, 0.38);
-}
 
 .arlista-sor > span {
     min-width: 0;
-    order: 1;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .arlista-sor strong {
@@ -112,11 +105,11 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 3px;
-    order: 3;
     color: var(--ui-ink);
-    font-weight: 750;
+    font-weight: 500;
     line-height: 1.1;
     white-space: nowrap;
+    text-align: right;
 }
 
 .arlista-ido {
@@ -179,16 +172,12 @@
         margin-top: 24px;
     }
 
-    .arlista-csoport,
-    .arlista-ket-oszlop .arlista-csoport {
-        padding: 26px 20px;
-    }
 }
 
 @media screen and (max-width: 640px) {
     .arlista-ervenyesseg {
         justify-content: center;
-        text-align: center;
+        text-align: left;
     }
 
     .arlista-ervenyesseg::before {
@@ -202,7 +191,4 @@
         font-size: var(--lumi-font-body);
     }
 
-    .arlista-sor::before {
-        min-width: 10px;
-    }
 }
