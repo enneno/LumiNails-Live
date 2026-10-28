@@ -4,8 +4,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-lumi-internal-secret",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-lumi-internal-secret",
 };
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -20,162 +22,303 @@ serve(async (req) => {
     const emailJobId = String(body.email_job_id || "").trim();
     activeEmailJobId = emailJobId;
     const mode = String(body.mode || "new_booking").trim();
-    const notification = body.notification && typeof body.notification === "object"
-      ? body.notification as Record<string, unknown>
-      : {};
+    const notification =
+      body.notification && typeof body.notification === "object"
+        ? body.notification as Record<string, unknown>
+        : {};
 
     if (!bookingId) {
       return json({ ok: false, error: "Missing booking_id" }, 400);
     }
-    if (mode !== "admin_update" && !isUuid(emailJobId)) {
-      return json({ ok: false, error: "Missing or invalid email_job_id" }, 400);
-    }
 
+    if (mode !== "admin_update" && !isUuid(emailJobId)) {
+      return json(
+        { ok: false, error: "Missing or invalid email_job_id" },
+        400,
+      );
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const ownerEmail = Deno.env.get("OWNER_EMAIL") || "";
-    const fromEmail = Deno.env.get("FROM_EMAIL") || "Lumi Nails <foglalas@luminails.hu>";
-    const replyToEmail = Deno.env.get("REPLY_TO_EMAIL") || ownerEmail;
-    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "llevisimon@gmail.com";
-    const internalSecret = req.headers.get("x-lumi-internal-secret") || "";
+    const fromEmail =
+      Deno.env.get("FROM_EMAIL") ||
+      "Lumi Nails <foglalas@luminails.hu>";
+    const replyToEmail =
+      Deno.env.get("REPLY_TO_EMAIL") || ownerEmail;
+    const adminEmail =
+      Deno.env.get("ADMIN_EMAIL") || "llevisimon@gmail.com";
+    const internalSecret =
+      req.headers.get("x-lumi-internal-secret") || "";
 
     if (!supabaseUrl || !serviceRoleKey) {
-      return json({ ok: false, error: "Missing Supabase environment variables" }, 500);
+      return json(
+        {
+          ok: false,
+          error: "Missing Supabase environment variables",
+        },
+        500,
+      );
     }
-
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     activeSupabase = supabase;
+
     if (mode === "admin_update") {
-      const adminOk = await isAdminRequest(req, supabase, adminEmail);
+      const adminOk = await isAdminRequest(
+        req,
+        supabase,
+        adminEmail,
+      );
 
       if (!adminOk) {
-        return json({ ok: false, error: "not_authorized" }, 401);
+        return json(
+          { ok: false, error: "not_authorized" },
+          401,
+        );
       }
     } else if (internalSecret !== serviceRoleKey) {
-      console.warn("send-booking-email rejected non-internal request", { bookingId, mode });
-      return json({ ok: false, error: "not_authorized" }, 401);
+      console.warn(
+        "send-booking-email rejected non-internal request",
+        { bookingId, mode },
+      );
+
+      return json(
+        { ok: false, error: "not_authorized" },
+        401,
+      );
     }
 
     if (mode !== "admin_update") {
-      const { data: emailJob, error: emailJobError } = await supabase
-        .from("booking_email_jobs")
-        .select("id,booking_id,kind,status")
-        .eq("id", emailJobId)
-        .maybeSingle();
+      const { data: emailJob, error: emailJobError } =
+        await supabase
+          .from("booking_email_jobs")
+          .select("id,booking_id,kind,status")
+          .eq("id", emailJobId)
+          .maybeSingle();
 
-      if (emailJobError || !emailJob || emailJob.booking_id !== bookingId || emailJob.kind !== "new_booking") {
-        console.warn("send-booking-email invalid email job", { bookingId, emailJobId });
-        return json({ ok: false, error: "Email job not found" }, 404);
+      if (
+        emailJobError ||
+        !emailJob ||
+        emailJob.booking_id !== bookingId ||
+        emailJob.kind !== "new_booking"
+      ) {
+        console.warn(
+          "send-booking-email invalid email job",
+          { bookingId, emailJobId },
+        );
+
+        return json(
+          { ok: false, error: "Email job not found" },
+          404,
+        );
       }
 
       if (emailJob.status === "sent") {
-        return json({ ok: true, email: "already_sent" });
+        return json({
+          ok: true,
+          email: "already_sent",
+        });
       }
 
       if (emailJob.status === "failed") {
-        return json({ ok: false, email: "retry_limit_reached", queued: false }, 409);
+        return json(
+          {
+            ok: false,
+            email: "retry_limit_reached",
+            queued: false,
+          },
+          409,
+        );
       }
     }
 
     if (!resendApiKey || !ownerEmail) {
-      console.error("send-booking-email missing email environment", {
-        bookingId,
-        mode,
-        missingResendApiKey: !resendApiKey,
-        missingOwnerEmail: !ownerEmail,
-      });
-      if (mode !== "admin_update") await finishEmailJob(supabase, emailJobId, false, "Missing email environment variables");
-      return json({ ok: false, email: "missing_email_environment", queued: mode !== "admin_update" }, 500);
+      console.error(
+        "send-booking-email missing email environment",
+        {
+          bookingId,
+          mode,
+          missingResendApiKey: !resendApiKey,
+          missingOwnerEmail: !ownerEmail,
+        },
+      );
+
+      if (mode !== "admin_update") {
+        await finishEmailJob(
+          supabase,
+          emailJobId,
+          false,
+          "Missing email environment variables",
+        );
+      }
+
+      return json(
+        {
+          ok: false,
+          email: "missing_email_environment",
+          queued: mode !== "admin_update",
+        },
+        500,
+      );
     }
 
     const { data: booking, error } = await supabase
       .from("bookings")
-      .select("customer_name,customer_phone,customer_email,note,starts_at,ends_at,created_at,status,coupon_code,coupon_title,public_reference,services(name,price_text)")
+      .select(
+        "customer_name,customer_phone,customer_email,note,starts_at,ends_at,created_at,status,coupon_code,coupon_title,public_reference,services(name,price_text)",
+      )
       .eq("id", bookingId)
       .single();
 
     if (error || !booking) {
-      console.error("send-booking-email booking not found", { bookingId, mode });
-      if (mode !== "admin_update") await finishEmailJob(supabase, emailJobId, false, "Booking not found");
-      return json({ ok: false, error: "Booking not found" }, 404);
+      console.error(
+        "send-booking-email booking not found",
+        { bookingId, mode },
+      );
+
+      if (mode !== "admin_update") {
+        await finishEmailJob(
+          supabase,
+          emailJobId,
+          false,
+          "Booking not found",
+        );
+      }
+
+      return json(
+        { ok: false, error: "Booking not found" },
+        404,
+      );
     }
 
-    console.log("send-booking-email booking loaded", {
-      bookingId,
-      mode,
-      status: booking.status,
-      startsAt: booking.starts_at,
-    });
 
-    const serviceName = serviceNameFromRelation(booking.services);
+    const serviceName = serviceNameFromRelation(
+      booking.services,
+    );
     const appointmentDate = formatDate(booking.starts_at);
     const startsAt = formatDate(booking.starts_at, true);
     const endsAt = formatDate(booking.ends_at, true);
-    const submittedAt = `${formatDate(booking.created_at)}\n${formatDate(booking.created_at, true)}`;
-    const appointmentText = `${appointmentDate}\n${startsAt} – ${endsAt}`;
-    const coupon = couponSummary(booking.coupon_code, booking.coupon_title);
-    const couponRows: Array<[string, unknown]> = coupon ? [["Kupon", coupon]] : [];
-    const bookingReference = String(booking.public_reference || "").trim();
+    const submittedAt =
+      `${formatDate(booking.created_at)}\n${
+        formatDate(booking.created_at, true)
+      }`;
+    const appointmentText =
+      `${appointmentDate}\n${startsAt} – ${endsAt}`;
+    const coupon = couponSummary(
+      booking.coupon_code,
+      booking.coupon_title,
+    );
+    const couponRows: Array<[string, unknown]> =
+      coupon ? [["Kupon", coupon]] : [];
+    const bookingReference = String(
+      booking.public_reference || "",
+    ).trim();
     const bookingManageUrl = bookingReference
-      ? `https://luminails.hu/foglalas/?foglalas=${encodeURIComponent(bookingReference)}#foglalas-ellenorzes`
+      ? `https://luminails.hu/foglalas/?foglalas=${
+        encodeURIComponent(bookingReference)
+      }#foglalas-ellenorzes`
       : "";
-    const bookingReferenceRows: Array<[string, unknown]> = bookingReference
-      ? [["Foglal\u00e1si azonos\u00edt\u00f3", bookingReference]]
-      : [];
+    const bookingReferenceRows: Array<[string, unknown]> =
+      bookingReference
+        ? [["Foglalási azonosító", bookingReference]]
+        : [];
+
     const calendarAttachment = {
       filename: "lumi-nails-foglalas.ics",
-      content: base64FromUtf8(calendarEvent({
-        id: bookingId,
-        customerName: booking.customer_name,
-        customerPhone: formatPhone(booking.customer_phone),
-        customerEmail: booking.customer_email,
-        note: booking.note || "",
-        serviceName,
-        startsAt: booking.starts_at,
-        endsAt: booking.ends_at,
-      })),
+      content: base64FromUtf8(
+        calendarEvent({
+          id: bookingId,
+          customerName: booking.customer_name,
+          customerPhone: formatPhone(booking.customer_phone),
+          customerEmail: booking.customer_email,
+          note: booking.note || "",
+          serviceName,
+          startsAt: booking.starts_at,
+          endsAt: booking.ends_at,
+        }),
+      ),
     };
 
     const siteContent = await loadSiteContent(supabase);
-    const location = String(siteContent?.kapcsolat?.cim || "2800 Tatabánya, Kós Károly út");
-    const instagramUrl = String(siteContent?.kapcsolat?.instagram || "https://www.instagram.com/luminails.xx/");
+    const location = String(
+      siteContent?.kapcsolat?.cim ||
+        "2800 Tatabánya, Kós Károly út",
+    );
+    const instagramUrl = String(
+      siteContent?.kapcsolat?.instagram ||
+        "https://www.instagram.com/luminails.xx/",
+    );
+
     const variables = {
       nev: booking.customer_name,
       szolgaltatas: serviceName,
       idopont: appointmentText,
       helyszin: location,
     };
-    const ownerSubject = `Új Lumi Nails foglalás - ${booking.customer_name}`;
-    const newBookingTemplate = emailTemplate(siteContent?.email?.ujFoglalas, {
-      targy: "Lumi Nails foglalásod beérkezett",
-      cim: "Köszönöm a foglalásodat!",
-      szoveg: "Szia {nev}!\n\nMegkaptam az időpontfoglalásodat, az alábbi adatokkal rögzítettük a rendszerben.",
-    }, variables);
+
+    const ownerSubject =
+      `Új Lumi Nails foglalás - ${booking.customer_name}`;
+
+    const newBookingTemplate = emailTemplate(
+      siteContent?.email?.ujFoglalas,
+      {
+        targy: "Lumi Nails foglalásod beérkezett",
+        cim: "Köszönöm a foglalásodat!",
+        szoveg:
+          "Szia {nev}!\n\nMegkaptam az időpontfoglalásodat, az alábbi adatokkal rögzítettük a rendszerben.",
+      },
+      variables,
+    );
+
     const customerSubject = newBookingTemplate.subject;
+
     if (mode === "admin_update") {
-      const statusChanged = Boolean(notification.status_changed);
-      const timeChanged = Boolean(notification.time_changed);
-      const status = String(notification.status || booking.status || "");
-      const update = adminUpdateMessage(status, statusChanged, timeChanged, siteContent?.email || {}, variables);
+      const statusChanged = Boolean(
+        notification.status_changed,
+      );
+      const timeChanged = Boolean(
+        notification.time_changed,
+      );
+      const status = String(
+        notification.status || booking.status || "",
+      );
+
+      const update = adminUpdateMessage(
+        status,
+        statusChanged,
+        timeChanged,
+        siteContent?.email || {},
+        variables,
+      );
 
       if (!update) {
-        return json({ ok: true, email: "skipped" });
+        return json({
+          ok: true,
+          email: "skipped",
+        });
       }
 
       const customerHtml = pageHtml(`
         <h1>${escapeHtml(update.title)}</h1>
         ${paragraphsHtml(update.message)}
-        ${detailTable([
+        ${
+        detailTable([
           ["Szolgáltatás", serviceName],
           ...couponRows,
           ["Időpont", appointmentText],
           ...bookingReferenceRows,
           ["Helyszín", location],
-        ])}
-        ${bookingManageUrl ? `<p style="margin:22px 0;"><a href="${escapeHtml(bookingManageUrl)}" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Foglal&aacute;s ellen&#337;rz&eacute;se vagy lemond&aacute;sa</a></p>` : ""}
+        ])
+      }
+        ${
+        bookingManageUrl
+          ? `<p style="margin:22px 0;"><a href="${
+            escapeHtml(bookingManageUrl)
+          }" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Foglal&aacute;s ellen&#337;rz&eacute;se vagy lemond&aacute;sa</a></p>`
+          : ""
+      }
         <p class="muted">Ha kérdésed van vagy módosítani szeretnél, kérlek Instagramon írj üzenetet.</p>
         <p style="margin:22px 0;">
           <a href="${instagramUrl}" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Instagram üzenet</a>
@@ -184,14 +327,18 @@ serve(async (req) => {
       `);
 
       const customerText = [
-      update.message,
+        update.message,
         "",
         `Szolgáltatás: ${serviceName}`,
         ...(coupon ? [`Kupon: ${coupon}`] : []),
         `Időpont: ${appointmentText}`,
-        ...(bookingReference ? [`Foglal\u00e1si azonos\u00edt\u00f3: ${bookingReference}`] : []),
+        ...(bookingReference
+          ? [`Foglalási azonosító: ${bookingReference}`]
+          : []),
         `Helyszín: ${location}`,
-        ...(bookingManageUrl ? [`Foglal\u00e1s kezel\u00e9se: ${bookingManageUrl}`] : []),
+        ...(bookingManageUrl
+          ? [`Foglalás kezelése: ${bookingManageUrl}`]
+          : []),
         "",
         `Ha kérdésed van vagy módosítani szeretnél, kérlek Instagramon írj: ${instagramUrl}`,
         "",
@@ -209,13 +356,18 @@ serve(async (req) => {
         [],
         `booking-admin-update-legacy/${bookingId}`,
       );
-      console.log("send-booking-email admin_update sent", { bookingId, target: "customer" });
-      return json({ ok: true, email: "admin_update_sent" });
+
+
+      return json({
+        ok: true,
+        email: "admin_update_sent",
+      });
     }
 
     const ownerHtml = pageHtml(`
       <h1>Új foglalás érkezett</h1>
-      ${detailTable([
+      ${
+      detailTable([
         ["Név", booking.customer_name],
         ["Telefon", formatPhone(booking.customer_phone)],
         ["Email", booking.customer_email],
@@ -225,21 +377,30 @@ serve(async (req) => {
         ...bookingReferenceRows,
         ["Beküldve", submittedAt],
         ["Megjegyzés", booking.note || "-"],
-      ])}
+      ])
+    }
       <p class="muted">A foglalás az admin felületen is megjelent. Ott tudod visszaigazolni, készre állítani vagy törölni.</p>
     `);
 
     const customerHtml = pageHtml(`
       <h1>${escapeHtml(newBookingTemplate.title)}</h1>
       ${paragraphsHtml(newBookingTemplate.message)}
-      ${detailTable([
+      ${
+      detailTable([
         ["Szolgáltatás", serviceName],
         ...couponRows,
         ["Időpont", appointmentText],
         ...bookingReferenceRows,
         ["Helyszín", location],
-      ])}
-      ${bookingManageUrl ? `<p style="margin:22px 0;"><a href="${escapeHtml(bookingManageUrl)}" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Foglal&aacute;s ellen&#337;rz&eacute;se vagy lemond&aacute;sa</a></p>` : ""}
+      ])
+    }
+      ${
+      bookingManageUrl
+        ? `<p style="margin:22px 0;"><a href="${
+          escapeHtml(bookingManageUrl)
+        }" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Foglal&aacute;s ellen&#337;rz&eacute;se vagy lemond&aacute;sa</a></p>`
+        : ""
+    }
       <p class="muted">Ha valamit módosítani szeretnél, kérlek Instagramon írj üzenetet.</p>
       <p style="margin:22px 0;">
         <a href="${instagramUrl}" class="lumi-email-button" style="display:inline-block;padding:12px 18px;background:#302824;color:#fffaf6;border:1px solid #302824;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.3px;">Instagram üzenet</a>
@@ -255,7 +416,9 @@ serve(async (req) => {
       `Szolgáltatás: ${serviceName}`,
       ...(coupon ? [`Kupon: ${coupon}`] : []),
       `Időpont: ${appointmentText}`,
-      ...(bookingReference ? [`Foglal\u00e1si azonos\u00edt\u00f3: ${bookingReference}`] : []),
+      ...(bookingReference
+        ? [`Foglalási azonosító: ${bookingReference}`]
+        : []),
       `Beküldve: ${submittedAt}`,
       `Megjegyzés: ${booking.note || "-"}`,
     ].join("\n");
@@ -266,9 +429,13 @@ serve(async (req) => {
       `Szolgáltatás: ${serviceName}`,
       ...(coupon ? [`Kupon: ${coupon}`] : []),
       `Időpont: ${appointmentText}`,
-      ...(bookingReference ? [`Foglal\u00e1si azonos\u00edt\u00f3: ${bookingReference}`] : []),
+      ...(bookingReference
+        ? [`Foglalási azonosító: ${bookingReference}`]
+        : []),
       `Helyszín: ${location}`,
-      ...(bookingManageUrl ? [`Foglal\u00e1s kezel\u00e9se: ${bookingManageUrl}`] : []),
+      ...(bookingManageUrl
+        ? [`Foglalás kezelése: ${bookingManageUrl}`]
+        : []),
       "",
       `Ha valamit módosítani szeretnél, kérlek Instagramon írj: ${instagramUrl}`,
       "",
@@ -276,44 +443,120 @@ serve(async (req) => {
     ].join("\n");
 
     const results = await Promise.allSettled([
-      sendEmail(resendApiKey, fromEmail, ownerEmail, replyToEmail, ownerSubject, ownerHtml, ownerText, [calendarAttachment], `new-booking-owner/${bookingId}`),
-      sendEmail(resendApiKey, fromEmail, booking.customer_email, replyToEmail, customerSubject, customerHtml, customerText, [], `new-booking-customer/${bookingId}`),
+      sendEmail(
+        resendApiKey,
+        fromEmail,
+        ownerEmail,
+        replyToEmail,
+        ownerSubject,
+        ownerHtml,
+        ownerText,
+        [calendarAttachment],
+        `new-booking-owner/${bookingId}`,
+      ),
+      sendEmail(
+        resendApiKey,
+        fromEmail,
+        booking.customer_email,
+        replyToEmail,
+        customerSubject,
+        customerHtml,
+        customerText,
+        [],
+        `new-booking-customer/${bookingId}`,
+      ),
     ]);
 
     const delivery = results.map((result, index) => {
-      const target = index === 0 ? "owner" : "customer";
+      const target =
+        index === 0 ? "owner" : "customer";
 
       if (result.status === "fulfilled") {
-        return { target, ok: true };
+        return {
+          target,
+          ok: true,
+        };
       }
 
-      return { target, ok: false, error: errorMessage(result.reason) };
+      return {
+        target,
+        ok: false,
+        error: errorMessage(result.reason),
+      };
     });
 
-    console.log("send-booking-email new_booking delivery", { bookingId, delivery });
 
     const failed = delivery.filter((item) => !item.ok);
 
     if (failed.length > 0) {
-      console.error("send-booking-email new_booking failed", { bookingId, failed });
-      await finishEmailJob(supabase, emailJobId, false, failed.map((item) => `${item.target}: ${item.error}`).join("; "));
-      return json({
-        ok: false,
-        email: "partial_or_failed",
-        delivery,
-        error: failed.map((item) => `${item.target}: ${item.error}`),
-      }, 500);
+      console.error(
+        "send-booking-email new_booking failed",
+        {
+          bookingId,
+          failed,
+        },
+      );
+
+      await finishEmailJob(
+        supabase,
+        emailJobId,
+        false,
+        failed.map(
+          (item) => `${item.target}: ${item.error}`,
+        ).join("; "),
+      );
+
+      return json(
+        {
+          ok: false,
+          email: "partial_or_failed",
+          delivery,
+          error: failed.map(
+            (item) => `${item.target}: ${item.error}`,
+          ),
+        },
+        500,
+      );
     }
 
-    await finishEmailJob(supabase, emailJobId, true);
-    return json({ ok: true, email: "sent", delivery });
+    await finishEmailJob(
+      supabase,
+      emailJobId,
+      true,
+    );
+
+    return json({
+      ok: true,
+      email: "sent",
+      delivery,
+    });
   } catch (error) {
     const message = errorMessage(error);
-    console.error("send-booking-email unexpected error", message);
-    if (activeSupabase && isUuid(activeEmailJobId)) {
-      await finishEmailJob(activeSupabase, activeEmailJobId, false, message);
+
+    console.error(
+      "send-booking-email unexpected error",
+      message,
+    );
+
+    if (
+      activeSupabase &&
+      isUuid(activeEmailJobId)
+    ) {
+      await finishEmailJob(
+        activeSupabase,
+        activeEmailJobId,
+        false,
+        message,
+      );
     }
-    return json({ ok: false, error: message }, 500);
+
+    return json(
+      {
+        ok: false,
+        error: message,
+      },
+      500,
+    );
   }
 });
 
@@ -325,48 +568,76 @@ async function sendEmail(
   subject: string,
   html: string,
   text: string,
-  attachments: Array<{ filename: string; content: string }> = [],
+  attachments: Array<{
+    filename: string;
+    content: string;
+  }> = [],
   idempotencyKey = "",
 ) {
-  const payload: Record<string, unknown> = { from, to, subject, html, text, reply_to: replyTo };
+  const payload: Record<string, unknown> = {
+    from,
+    to,
+    subject,
+    html,
+    text,
+    reply_to: replyTo,
+  };
 
   if (attachments.length > 0) {
     payload.attachments = attachments;
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+  const response = await fetch(
+    "https://api.resend.com/emails",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        ...(idempotencyKey
+          ? { "Idempotency-Key": idempotencyKey }
+          : {}),
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 
   if (!response.ok) {
     throw new Error(await response.text());
   }
 }
 
-async function finishEmailJob(supabase: any, emailJobId: string, success: boolean, lastError = "") {
-  const { error } = await supabase.rpc("finish_booking_email_job", {
-    p_job_id: emailJobId,
-    p_success: success,
-    p_error: lastError,
-  });
+async function finishEmailJob(
+  supabase: any,
+  emailJobId: string,
+  success: boolean,
+  lastError = "",
+) {
+  const { error } = await supabase.rpc(
+    "finish_booking_email_job",
+    {
+      p_job_id: emailJobId,
+      p_success: success,
+      p_error: lastError,
+    },
+  );
 
   if (error) {
-    console.warn("send-booking-email could not finish email job", {
-      emailJobId,
-      success,
-      error: error.message,
-    });
+    console.warn(
+      "send-booking-email could not finish email job",
+      {
+        emailJobId,
+        success,
+        error: error.message,
+      },
+    );
   }
 }
 
 function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 function errorMessage(error: unknown) {
@@ -377,21 +648,31 @@ function errorMessage(error: unknown) {
   return String(error);
 }
 
-async function isAdminRequest(req: Request, supabase: ReturnType<typeof createClient>, adminEmail: string) {
-  const authHeader = req.headers.get("Authorization") || "";
-  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+async function isAdminRequest(
+  req: Request,
+  supabase: ReturnType<typeof createClient>,
+  adminEmail: string,
+) {
+  const authHeader =
+    req.headers.get("Authorization") || "";
+  const token = authHeader.replace(
+    /^Bearer\s+/i,
+    "",
+  ).trim();
 
   if (!token) {
     return false;
   }
 
-  const { data, error } = await supabase.auth.getUser(token);
+  const { data, error } =
+    await supabase.auth.getUser(token);
 
   if (error || !data.user?.email) {
     return false;
   }
 
-  return data.user.email.toLowerCase() === adminEmail.toLowerCase();
+  return data.user.email.toLowerCase() ===
+    adminEmail.toLowerCase();
 }
 
 function adminUpdateMessage(
@@ -402,65 +683,146 @@ function adminUpdateMessage(
   variables: Record<string, string>,
 ) {
   if (status === "cancelled") {
-    return emailTemplate(templates.lemondas, {
-      targy: "Lumi Nails időpontod lemondva",
-      cim: "Időpont lemondva",
-      szoveg: "Szia {nev}!\n\nA foglalásod lemondásra került. Ha új időpontot szeretnél egyeztetni, kérlek írj üzenetet.",
-    }, variables);
+    return emailTemplate(
+      templates.lemondas,
+      {
+        targy: "Lumi Nails időpontod lemondva",
+        cim: "Időpont lemondva",
+        szoveg:
+          "Szia {nev}!\n\nA foglalásod lemondásra került. Ha új időpontot szeretnél egyeztetni, kérlek írj üzenetet.",
+      },
+      variables,
+    );
   }
+
   if (status === "confirmed") {
-    const key = timeChanged ? "visszaigazolasModositva" : "visszaigazolas";
-    return emailTemplate(templates[key], timeChanged ? {
-      targy: "Lumi Nails időpontod visszaigazolva és módosítva",
-      cim: "Időpont visszaigazolva és módosítva",
-      szoveg: "Szia {nev}!\n\nA foglalásod vissza lett igazolva, és az időpont adatai módosultak. Az aktuális részleteket lent találod.",
-    } : {
-      targy: "Lumi Nails időpontod visszaigazolva",
-      cim: "Időpont visszaigazolva",
-      szoveg: "Szia {nev}!\n\nA foglalásod vissza lett igazolva. Az aktuális részleteket lent találod.",
-    }, variables);
+    const key = timeChanged
+      ? "visszaigazolasModositva"
+      : "visszaigazolas";
+
+    return emailTemplate(
+      templates[key],
+      timeChanged
+        ? {
+          targy:
+            "Lumi Nails időpontod visszaigazolva és módosítva",
+          cim:
+            "Időpont visszaigazolva és módosítva",
+          szoveg:
+            "Szia {nev}!\n\nA foglalásod vissza lett igazolva, és az időpont adatai módosultak. Az aktuális részleteket lent találod.",
+        }
+        : {
+          targy:
+            "Lumi Nails időpontod visszaigazolva",
+          cim: "Időpont visszaigazolva",
+          szoveg:
+            "Szia {nev}!\n\nA foglalásod vissza lett igazolva. Az aktuális részleteket lent találod.",
+        },
+      variables,
+    );
   }
+
   if (timeChanged) {
-    return emailTemplate(templates.idopontModositva, {
-      targy: "Lumi Nails időpontod módosult",
-      cim: "Időpont módosítva",
-      szoveg: "Szia {nev}!\n\nAz időpontod adatai módosultak. Az aktuális részleteket lent találod.",
-    }, variables);
+    return emailTemplate(
+      templates.idopontModositva,
+      {
+        targy: "Lumi Nails időpontod módosult",
+        cim: "Időpont módosítva",
+        szoveg:
+          "Szia {nev}!\n\nAz időpontod adatai módosultak. Az aktuális részleteket lent találod.",
+      },
+      variables,
+    );
   }
-  if (statusChanged && status === "pending") {
-    return emailTemplate(templates.fuggoben, {
-      targy: "Lumi Nails foglalásod státusza módosult",
-      cim: "Foglalás státusza módosult",
-      szoveg: "Szia {nev}!\n\nA foglalásod státusza módosult. Az aktuális részleteket lent találod.",
-    }, variables);
+
+  if (
+    statusChanged &&
+    status === "pending"
+  ) {
+    return emailTemplate(
+      templates.fuggoben,
+      {
+        targy:
+          "Lumi Nails foglalásod státusza módosult",
+        cim: "Foglalás státusza módosult",
+        szoveg:
+          "Szia {nev}!\n\nA foglalásod státusza módosult. Az aktuális részleteket lent találod.",
+      },
+      variables,
+    );
   }
+
   return null;
 }
 
 async function loadSiteContent(supabase: any) {
-  const { data, error } = await supabase.from("site_settings").select("value").eq("key", "site_content").maybeSingle();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "site_content")
+    .maybeSingle();
+
   if (error) {
-    console.warn("send-booking-email site content load failed", error.message);
+    console.warn(
+      "send-booking-email site content load failed",
+      error.message,
+    );
+
     return {};
   }
-  return data?.value && typeof data.value === "object" ? data.value : {};
+
+  return data?.value &&
+      typeof data.value === "object"
+    ? data.value
+    : {};
 }
 
-function emailTemplate(source: any, fallback: any, variables: Record<string, string>) {
+function emailTemplate(
+  source: any,
+  fallback: any,
+  variables: Record<string, string>,
+) {
   return {
-    subject: applyVariables(source?.targy || fallback.targy, variables),
-    title: applyVariables(source?.cim || fallback.cim, variables),
-    message: applyVariables(source?.szoveg || fallback.szoveg, variables),
+    subject: applyVariables(
+      source?.targy || fallback.targy,
+      variables,
+    ),
+    title: applyVariables(
+      source?.cim || fallback.cim,
+      variables,
+    ),
+    message: applyVariables(
+      source?.szoveg || fallback.szoveg,
+      variables,
+    ),
   };
 }
 
-function applyVariables(value: unknown, variables: Record<string, string>) {
-  return String(value || "").replace(/\{(nev|szolgaltatas|idopont|helyszin)\}/g, (_match, key) => variables[key] || "");
+function applyVariables(
+  value: unknown,
+  variables: Record<string, string>,
+) {
+  return String(value || "").replace(
+    /\{(nev|szolgaltatas|idopont|helyszin)\}/g,
+    (_match, key) => variables[key] || "",
+  );
 }
 
 function paragraphsHtml(value: string) {
-  return String(value || "").split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`).join("");
+  return String(value || "")
+    .split(/\n{2,}/)
+    .map(
+      (paragraph) =>
+        `<p>${
+          escapeHtml(paragraph).replace(
+            /\n/g,
+            "<br>",
+          )
+        }</p>`,
+    )
+    .join("");
 }
+
 function calendarEvent(adatok: {
   id: string;
   customerName: string;
@@ -476,7 +838,9 @@ function calendarEvent(adatok: {
     `Telefon: ${adatok.customerPhone}`,
     `Email: ${adatok.customerEmail}`,
     `Szolgáltatás: ${adatok.serviceName}`,
-    adatok.note ? `Megjegyzés: ${adatok.note}` : "",
+    adatok.note
+      ? `Megjegyzés: ${adatok.note}`
+      : "",
   ].filter(Boolean).join("\n");
 
   return [
@@ -488,19 +852,26 @@ function calendarEvent(adatok: {
     "X-WR-TIMEZONE:Europe/Budapest",
     "BEGIN:VEVENT",
     `UID:${icsText(adatok.id)}@luminails.hu`,
-    `DTSTAMP:${icsDate(new Date().toISOString())}`,
+    `DTSTAMP:${
+      icsDate(new Date().toISOString())
+    }`,
     `DTSTART:${icsDate(adatok.startsAt)}`,
     `DTEND:${icsDate(adatok.endsAt)}`,
     `SUMMARY:${icsText(adatok.customerName)}`,
     `DESCRIPTION:${icsText(description)}`,
-    `LOCATION:${icsText("2800 Tatabánya, Kós Károly út")}`,
+    `LOCATION:${
+      icsText("2800 Tatabánya, Kós Károly út")
+    }`,
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n");
 }
 
 function icsDate(value: string) {
-  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return new Date(value)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
 function icsText(value: string) {
@@ -512,7 +883,8 @@ function icsText(value: string) {
 }
 
 function base64FromUtf8(value: string) {
-  const bytes = new TextEncoder().encode(value);
+  const bytes =
+    new TextEncoder().encode(value);
   let binary = "";
 
   bytes.forEach((byte) => {
@@ -522,15 +894,25 @@ function base64FromUtf8(value: string) {
   return btoa(binary);
 }
 
-function couponSummary(code: unknown, title: unknown) {
-  const couponCode = String(code || "").trim();
-  const couponTitle = String(title || "").trim();
+function couponSummary(
+  code: unknown,
+  title: unknown,
+) {
+  const couponCode =
+    String(code || "").trim();
+  const couponTitle =
+    String(title || "").trim();
 
   if (!couponCode && !couponTitle) {
     return "";
   }
 
-  if (!couponCode || !couponTitle || couponCode.toLowerCase() === couponTitle.toLowerCase()) {
+  if (
+    !couponCode ||
+    !couponTitle ||
+    couponCode.toLowerCase() ===
+      couponTitle.toLowerCase()
+  ) {
     return couponCode || couponTitle;
   }
 
@@ -567,13 +949,30 @@ function pageHtml(content: string) {
             font-size: 13px;
           }
           @media only screen and (max-width: 520px) {
-            .lumi-email-outer { padding: 10px 6px !important; }
-            .lumi-email-main { padding: 25px 18px 22px !important; }
-            .lumi-email-footer { padding: 16px 18px 20px !important; }
-            .lumi-email-main h1 { font-size: 32px !important; line-height: 1.1 !important; }
-            .lumi-detail-label { width: 92px !important; padding-right: 10px !important; }
-            .lumi-detail-value { font-size: 15px !important; }
-            .lumi-email-button { display: block !important; text-align: center !important; }
+            .lumi-email-outer {
+              padding: 10px 6px !important;
+            }
+            .lumi-email-main {
+              padding: 25px 18px 22px !important;
+            }
+            .lumi-email-footer {
+              padding: 16px 18px 20px !important;
+            }
+            .lumi-email-main h1 {
+              font-size: 32px !important;
+              line-height: 1.1 !important;
+            }
+            .lumi-detail-label {
+              width: 92px !important;
+              padding-right: 10px !important;
+            }
+            .lumi-detail-value {
+              font-size: 15px !important;
+            }
+            .lumi-email-button {
+              display: block !important;
+              text-align: center !important;
+            }
           }
         </style>
       </head>
@@ -608,45 +1007,85 @@ function pageHtml(content: string) {
   `;
 }
 
-function detailTable(rows: Array<[string, unknown]>) {
+function detailTable(
+  rows: Array<[string, unknown]>,
+) {
   return `
     <table role="presentation" style="width:100%;border-collapse:collapse;margin:22px 0 24px;">
-      ${rows.map(([label, value]) => `
+      ${
+    rows.map(
+      ([label, value]) => `
         <tr>
-          <td class="lumi-detail-label" width="116" valign="top" style="width:116px;padding:13px 18px 13px 0;border-bottom:1px solid #eadfd9;color:#9d6878;font-size:11px;font-weight:700;letter-spacing:.9px;line-height:1.45;text-transform:uppercase;white-space:nowrap;">${escapeHtml(label)}</td>
-          <td class="lumi-detail-value" valign="top" style="padding:12px 0 13px;border-bottom:1px solid #eadfd9;color:#302824;font-size:16px;line-height:1.45;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(value).replace(/\r?\n/g, "<br>")}</td>
+          <td class="lumi-detail-label" width="116" valign="top" style="width:116px;padding:13px 18px 13px 0;border-bottom:1px solid #eadfd9;color:#9d6878;font-size:11px;font-weight:700;letter-spacing:.9px;line-height:1.45;text-transform:uppercase;white-space:nowrap;">${
+        escapeHtml(label)
+      }</td>
+          <td class="lumi-detail-value" valign="top" style="padding:12px 0 13px;border-bottom:1px solid #eadfd9;color:#302824;font-size:16px;line-height:1.45;overflow-wrap:anywhere;word-break:break-word;">${
+        escapeHtml(value).replace(/\r?\n/g, "<br>")
+      }</td>
         </tr>
-      `).join("")}
+      `,
+    ).join("")
+  }
     </table>
   `;
 }
 
 function serviceNameFromRelation(value: unknown) {
   if (Array.isArray(value)) {
-    return String(value[0]?.name || "Szolgáltatás");
+    return String(
+      value[0]?.name || "Szolgáltatás",
+    );
   }
 
-  if (value && typeof value === "object" && "name" in value) {
-    return String((value as { name?: unknown }).name || "Szolgáltatás");
+  if (
+    value &&
+    typeof value === "object" &&
+    "name" in value
+  ) {
+    return String(
+      (value as { name?: unknown }).name ||
+        "Szolgáltatás",
+    );
   }
 
   return "Szolgáltatás";
 }
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
+function json(
+  body: unknown,
+  status = 200,
+) {
+  return new Response(
+    JSON.stringify(body),
+    {
+      status,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 }
 
-function formatDate(value: string, timeOnly = false) {
-  return new Intl.DateTimeFormat("hu-HU", timeOnly
-    ? { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Budapest" }
-    : { year: "numeric", month: "2-digit", day: "2-digit", weekday: "long", timeZone: "Europe/Budapest" }
+function formatDate(
+  value: string,
+  timeOnly = false,
+) {
+  return new Intl.DateTimeFormat(
+    "hu-HU",
+    timeOnly
+      ? {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Europe/Budapest",
+      }
+      : {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        weekday: "long",
+        timeZone: "Europe/Budapest",
+      },
   ).format(new Date(value));
 }
 
@@ -655,9 +1094,15 @@ function formatPhone(value: unknown) {
   const digits = raw.replace(/\D/g, "");
   let localNumber = "";
 
-  if (digits.length === 11 && digits.startsWith("36")) {
+  if (
+    digits.length === 11 &&
+    digits.startsWith("36")
+  ) {
     localNumber = digits.slice(2);
-  } else if (digits.length === 11 && digits.startsWith("06")) {
+  } else if (
+    digits.length === 11 &&
+    digits.startsWith("06")
+  ) {
     localNumber = digits.slice(2);
   } else if (digits.length === 9) {
     localNumber = digits;
@@ -667,12 +1112,12 @@ function formatPhone(value: unknown) {
     return raw;
   }
 
-  return "+36\u00a0"
-    + localNumber.slice(0, 2)
-    + "\u00a0"
-    + localNumber.slice(2, 5)
-    + "\u00a0"
-    + localNumber.slice(5);
+  return "+36\u00a0" +
+    localNumber.slice(0, 2) +
+    "\u00a0" +
+    localNumber.slice(2, 5) +
+    "\u00a0" +
+    localNumber.slice(5);
 }
 
 function escapeHtml(value: unknown) {

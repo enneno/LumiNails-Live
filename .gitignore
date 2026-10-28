@@ -12,5 +12,11 @@ preview-*.png
 playwright-report/
 test-results/
 output/playwright/
+.playwright-cli/
+.impeccable/build/
+.impeccable/questions/
 .impeccable/review/
 supabase/.temp/
+dist/
+.wrangler/
+.local-browsers/

@@ -244,47 +244,15 @@ function normalizaltUtvonal(utvonal) {
     return htmlOldalak[utvonal] || utvonal;
 }
 
-function adatokBetoltese() {
+async function adatokBetoltese() {
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot) return null;
     const alap = lumiAlapOldalAdatok();
-
-    return onlineOldalAdatokBetoltese()
-        .then(onlineAdatok => {
-            if (onlineAdatok) {
-                return melyOsszefesules(alap, onlineAdatok);
-            }
-
-            return fetch(`/adatok.json?v=${Date.now()}`, { cache: 'no-store' })
-                .then(response => response.ok ? response.json() : null)
-                .then(jsonAdatok => jsonAdatok ? melyOsszefesules(alap, jsonAdatok) : alap)
-                .catch(() => alap);
-        })
-        .then(adatok => oldalAdatokNormalizalasa(adatok, alap));
+    return oldalAdatokNormalizalasa(melyOsszefesules(alap, snapshot.siteContent), alap);
 }
 
 async function onlineOldalAdatokBetoltese() {
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        return null;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        const { data, error } = await kliens
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'site_content')
-            .maybeSingle();
-
-        if (error || !data?.value) {
-            return null;
-        }
-
-        return data.value;
-    } catch (_error) {
-        return null;
-    }
+    return (await lumiPublicSnapshotBetoltese())?.siteContent || null;
 }
 
 function melyOsszefesules(alap, feluliras) {
@@ -1168,65 +1136,11 @@ function foglalasiSzolgaltatasokRenderelese(szolgaltatasok) {
 
 async function onlineArlistaBetoltese() {
     const panel = document.querySelector('.arlista-oldal .arlista-panel');
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!panel) {
-        return;
-    }
-
-    if (!config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        if (!panel.querySelector('.arlista-sor')) {
-            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-        }
-        return;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        let { data, error } = await kliens
-            .from('services')
-            .select('name,price_text,price_amount,price_unit,price_suffix,duration_minutes,active,sort_order')
-            .eq('active', true)
-            .order('sort_order', { ascending: true });
-
-        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-            ({ data, error } = await kliens
-                .from('services')
-                .select('name,price_text,duration_minutes,active,sort_order')
-                .eq('active', true)
-                .order('sort_order', { ascending: true }));
-        }
-
-        if (error) {
-            if (!panel.querySelector('.arlista-sor')) {
-                arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-            }
-            return;
-        }
-
-        if (!Array.isArray(data) || data.length === 0) {
-            arlistaAllapotMegjelenitese('Jelenleg nincs megjeleníthető szolgáltatás az árlistában.');
-            return;
-        }
-
-        const szolgaltatasok = data.map(szolgaltatasArNormalizalasa);
-        arlistaSzolgaltatasokRenderelese(szolgaltatasok);
-
-        const { data: ervenyesseg } = await kliens
-            .from('site_settings')
-            .select('value,updated_at')
-            .eq('key', 'arlista_ervenyesseg')
-            .maybeSingle();
-
-        arlistaErvenyessegMegjelenitese(
-            ervenyesseg?.value?.effective_since || ervenyesseg?.updated_at
-        );
-    } catch (_error) {
-        if (!panel.querySelector('.arlista-sor')) {
-            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-        }
-    }
+    if (!panel) return;
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot) return; // Keep the last successfully prerendered HTML.
+    arlistaSzolgaltatasokRenderelese(snapshot.services.map(szolgaltatasArNormalizalasa));
+    arlistaErvenyessegMegjelenitese(snapshot.priceEffectiveAt);
 }
 
 function arlistaAllapotMegjelenitese(uzenet, hiba = false) {

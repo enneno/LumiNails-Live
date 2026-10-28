@@ -1,11 +1,13 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const crypto = require("node:crypto");
 const { parseHTML } = require("linkedom");
 
 const ROOT = path.resolve(__dirname, "..");
-const SITE_ORIGIN = "https://luminails.hu";
+const SITE_ORIGIN = process.env.LUMI_SITE_ORIGIN || "http://127.0.0.1:8102";
+const outputIndex = process.argv.indexOf("--out-dir");
+const OUTPUT_ROOT = outputIndex >= 0 ? path.resolve(process.argv[outputIndex + 1]) : path.join(ROOT, 'dist');
+if (OUTPUT_ROOT !== ROOT && !OUTPUT_ROOT.startsWith(ROOT + path.sep)) throw new Error("Output must stay inside the TEST workspace.");
 const PAGE_PATHS = [
   ["index.html", "/"],
   ["404.html", "/404.html"],
@@ -60,9 +62,17 @@ async function main() {
     );
   }
   for (const [relativePath, content] of renderedFiles) {
-    fs.writeFileSync(path.join(ROOT, relativePath), content, "utf8");
+    fs.mkdirSync(path.dirname(path.join(OUTPUT_ROOT, relativePath)), { recursive: true });
+    fs.writeFileSync(path.join(OUTPUT_ROOT, relativePath), content, "utf8");
   }
   writeSitemap();
+  fs.writeFileSync(path.join(OUTPUT_ROOT, "adatok.json"), JSON.stringify(snapshot) + "\n");
+  fs.writeFileSync(path.join(OUTPUT_ROOT, "deployment.json"), JSON.stringify({
+    schemaVersion: 1, contentHash: snapshot.contentFingerprint,
+    environment: process.env.LUMI_DEPLOY_ENV || "test", origin: SITE_ORIGIN,
+    codeRevision: process.env.CF_PAGES_COMMIT_SHA || process.env.WORKERS_CI_COMMIT_SHA || "local",
+    builtAt: new Date().toISOString(),
+  }) + "\n");
 
   console.log(
     `PRERENDERED ${PAGE_PATHS.length} HTML oldal, ${snapshot.services.length} aktív szolgáltatás.`,
@@ -75,7 +85,7 @@ function writeSitemap() {
     (pathname) => `    <url>\n        <loc>${SITE_ORIGIN}${pathname}</loc>\n        <lastmod>${lastmod}</lastmod>\n    </url>`,
   ).join("\n");
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
-  fs.writeFileSync(path.join(ROOT, "sitemap.xml"), sitemap, "utf8");
+  fs.writeFileSync(path.join(OUTPUT_ROOT, "sitemap.xml"), sitemap, "utf8");
 }
 
 function renderPage({
@@ -321,85 +331,13 @@ function durationLabel(value) {
 }
 
 async function loadSnapshot(config) {
-  const serviceColumns =
-    "name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,active,sort_order";
-  const [services, settings] = await Promise.all([
-    rest(config, "services", {
-      select: serviceColumns,
-      active: "eq.true",
-      order: "sort_order.asc",
-    }),
-    rest(config, "site_settings", {
-      select: "key,value,updated_at",
-      key: "in.(site_content,arlista_ervenyesseg,telefon_lathato)",
-    }),
-  ]);
-
-  if (!Array.isArray(services) || services.length === 0) {
-    throw new Error(
-      "A Supabase nem adott vissza aktív szolgáltatást; a korábbi oldal marad közzétéve.",
-    );
-  }
-  const siteContent = row(settings, "site_content");
-  if (!siteContent?.value || typeof siteContent.value !== "object") {
-    throw new Error(
-      "A site_content nem érhető el; a korábbi oldal marad közzétéve.",
-    );
-  }
-  const priceEffective = row(settings, "arlista_ervenyesseg");
-  const phoneSetting = row(settings, "telefon_lathato");
-
-  return {
-    services,
-    siteContent: siteContent.value,
-    contentUpdatedAt: siteContent.updated_at || new Date(0).toISOString(),
-    priceEffectiveAt:
-      priceEffective?.value?.effective_since ||
-      priceEffective?.updated_at ||
-      null,
-    phoneVisible:
-      typeof phoneSetting?.value?.visible === "boolean"
-        ? phoneSetting.value.visible
-        : null,
-    contentFingerprint: crypto
-      .createHash("sha256")
-      .update(
-        JSON.stringify({
-          services,
-          siteContent: siteContent.value,
-          priceEffective: priceEffective?.value || null,
-          phoneVisible: phoneSetting?.value?.visible ?? null,
-        }),
-      )
-      .digest("hex")
-      .slice(0, 20),
-  };
-}
-
-function row(settings, key) {
-  return Array.isArray(settings)
-    ? settings.find((item) => item?.key === key)
-    : null;
-}
-
-async function rest(config, table, query) {
-  const url = new URL(`/rest/v1/${table}`, config.url);
-  Object.entries(query).forEach(([key, value]) =>
-    url.searchParams.set(key, value),
-  );
-  const response = await fetch(url, {
-    headers: {
-      apikey: config.publishableKey,
-      Authorization: `Bearer ${config.publishableKey}`,
-    },
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!response.ok) {
-    throw new Error(
-      `Supabase ${table} lekérés sikertelen (${response.status}).`,
-    );
-  }
-  return response.json();
+  const { loadPublicSnapshot, contentFingerprint } = await import('../supabase/functions/_shared/public-snapshot.mjs');
+  const fixtureIndex = process.argv.indexOf('--snapshot');
+  const snapshot = fixtureIndex >= 0
+    ? JSON.parse(fs.readFileSync(process.argv[fixtureIndex + 1], 'utf8'))
+    : await loadPublicSnapshot({ url: config.url, key: config.publishableKey });
+  snapshot.contentFingerprint = await contentFingerprint(snapshot);
+  return snapshot;
 }
 
 function readPublicSupabaseConfig() {

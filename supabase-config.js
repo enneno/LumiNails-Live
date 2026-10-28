@@ -1,3 +1,9 @@
+window.lumiAssetUrl = function (url) {
+    const manifest = document.getElementById('lumi-asset-map');
+    if (!manifest) return url;
+    try { return JSON.parse(manifest.textContent)[url.split('?')[0]] || url; } catch (_) { return url; }
+};
+
 window.LUMI_SUPABASE = {
     url: 'https://htbpzvmlegapaphsipax.supabase.co',
     publishableKey: 'sb_publishable_vrbNMFIQN4KGLzV9fQMyqg_PHtcRAZI'
@@ -26,7 +32,7 @@ window.lumiSupabaseClient = (() => {
     if (isAdminPath || document.querySelector('link[data-lumi-typography-tuning]')) return;
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = '/typography-tuning.css?v=2';
+    style.href = window.lumiAssetUrl('/typography-tuning.css?v=2');
     style.dataset.lumiTypographyTuning = 'true';
     document.head.appendChild(style);
 })();
@@ -38,21 +44,21 @@ window.lumiSupabaseClient = (() => {
     if (!isBookingPath || document.querySelector('script[data-lumi-secure-booking-manager]')) return;
 
     if (document.readyState === 'loading') {
-        document.write('<link rel="stylesheet" href="/booking-manage.css?v=2" data-lumi-secure-booking-manager-style>');
-        document.write('<script src="/booking-manage.js?v=1" data-lumi-secure-booking-manager><\/script>');
+        document.write('<link rel="stylesheet" href="' + window.lumiAssetUrl('/booking-manage.css?v=2') + '" data-lumi-secure-booking-manager-style>');
+        document.write('<script src="' + window.lumiAssetUrl('/booking-manage.js?v=1') + '" data-lumi-secure-booking-manager><\/script>');
         return;
     }
 
     if (!document.querySelector('link[data-lumi-secure-booking-manager-style]')) {
         const style = document.createElement('link');
         style.rel = 'stylesheet';
-        style.href = '/booking-manage.css?v=2';
+        style.href = window.lumiAssetUrl('/booking-manage.css?v=2');
         style.dataset.lumiSecureBookingManagerStyle = 'true';
         document.head.appendChild(style);
     }
 
     const script = document.createElement('script');
-    script.src = '/booking-manage.js?v=1';
+    script.src = window.lumiAssetUrl('/booking-manage.js?v=1');
     script.dataset.lumiSecureBookingManager = 'true';
     document.head.appendChild(script);
 })();
@@ -65,14 +71,14 @@ window.lumiSupabaseClient = (() => {
     if (!document.querySelector('link[data-lumi-home-account-strip]')) {
         const style = document.createElement('link');
         style.rel = 'stylesheet';
-        style.href = '/home-account-strip.css?v=3';
+        style.href = window.lumiAssetUrl('/home-account-strip.css?v=3');
         style.dataset.lumiHomeAccountStrip = 'true';
         document.head.appendChild(style);
     }
 
     if (!document.querySelector('script[data-lumi-home-account-strip]')) {
         const script = document.createElement('script');
-        script.src = '/home-account-strip.js?v=2';
+        script.src = window.lumiAssetUrl('/home-account-strip.js?v=2');
         script.dataset.lumiHomeAccountStrip = 'true';
         document.head.appendChild(script);
     }
@@ -83,12 +89,12 @@ window.lumiSupabaseClient = (() => {
     if (!isAccountPath || document.querySelector('script[data-lumi-account-entry]')) return;
 
     if (document.readyState === 'loading') {
-        document.write('<script src="/account-entry.js?v=1" data-lumi-account-entry><\/script>');
+        document.write('<script src="' + window.lumiAssetUrl('/account-entry.js?v=1') + '" data-lumi-account-entry><\/script>');
         return;
     }
 
     const script = document.createElement('script');
-    script.src = '/account-entry.js?v=1';
+    script.src = window.lumiAssetUrl('/account-entry.js?v=1');
     script.dataset.lumiAccountEntry = 'true';
     document.head.appendChild(script);
 })();
@@ -113,7 +119,7 @@ window.lumiSupabaseClient = (() => {
 
     if (document.querySelector('script[data-lumi-pwa]')) return;
     const script = document.createElement('script');
-    script.src = '/pwa.js?v=5';
+    script.src = window.lumiAssetUrl('/pwa.js?v=5');
     script.defer = true;
     script.dataset.lumiPwa = 'true';
     document.head.appendChild(script);
@@ -124,7 +130,7 @@ window.lumiSupabaseClient = (() => {
     if (!isAdminPath || document.querySelector('script[data-lumi-pwa-admin-shell]')) return;
 
     const script = document.createElement('script');
-    script.src = '/pwa-admin-shell.js?v=3';
+    script.src = window.lumiAssetUrl('/pwa-admin-shell.js?v=3');
     script.defer = true;
     script.dataset.lumiPwaAdminShell = 'true';
     document.head.appendChild(script);

@@ -20,18 +20,24 @@
     "audit:lighthouse": "node scripts/run-lighthouse.js",
     "test:admin": "playwright test tests/admin-production-redesign.spec.js tests/admin-booking-css-architecture.spec.js tests/admin-v2-regressions.spec.js tests/admin-cms-image-workspace.spec.js tests/admin-dark-mode.spec.js",
     "verify:admin": "npm run build && npm run assets:version && npm run check && npm run test:admin",
-    "verify": "npm run build && npm run assets:version && npm run check && npm test"
+    "verify": "npm run build && npm run assets:version && npm run check && npm test",
+    "build:site": "node scripts/build-site.js",
+    "serve:dist": "node scripts/static-server.js --dir dist --port 8102",
+    "deploy:test": "wrangler pages deploy dist --project-name luminails-test",
+    "test:architecture": "node --test tests/unit/publication.test.mjs tests/unit/publication-sql.test.mjs tests/unit/site-build.test.mjs"
   },
   "license": "UNLICENSED",
   "type": "commonjs",
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@electric-sql/pglite": "0.5.13",
     "lighthouse": "^13.4.1",
     "linkedom": "^0.18.13",
     "playwright": "^1.61.1",
     "prettier": "^3.9.6",
     "sharp": "^0.35.4",
     "stylelint": "^17.14.1",
-    "stylelint-config-standard": "^40.0.0"
+    "stylelint-config-standard": "^40.0.0",
+    "wrangler": "4.154.0"
   }
 }

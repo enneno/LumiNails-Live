@@ -1,4 +1,9 @@
-    async function idosavokBetoltese() {
+    function idosavokBetoltese() {
+        return adminKeresOsszevonasa('idosavokBetoltese', idosavokBetolteseLetoltese);
+    }
+
+    async function idosavokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         const { data, error } = await allapot.kliens
             .from('availability_windows')
@@ -6,19 +11,21 @@
             .order('work_date', { ascending: true })
             .order('start_time', { ascending: true });
 
+        if (!ervenyes()) return false;
         if (error) {
             onlineStatusz('Nem sikerült betölteni a dátumos idősávokat. Futtasd a dátumos Supabase migrációt.', true);
-            return;
+            return false;
         }
 
         elemek.idosavLista.innerHTML = '';
 
         if (!data.length) {
             elemek.idosavLista.innerHTML = '<p class="admin-ures">Még nincs megadva foglalható dátum.</p>';
-            return;
+            return false;
         }
 
         data.forEach(idosav => elemek.idosavLista.appendChild(idosavKartya(idosav)));
+        return true;
     }
 
     function idosavKartya(idosav) {
@@ -169,11 +176,16 @@
         idosavokBetoltese();
     }
 
-    async function beallitasokBetoltese() {
+    function beallitasokBetoltese() {
+        return adminKeresOsszevonasa('beallitasokBetoltese', beallitasokBetolteseLetoltese);
+    }
+
+    async function beallitasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
 
         if (!elemek.telefonLathato) {
-            return;
+            return false;
         }
 
         const { data, error } = await allapot.kliens
@@ -185,10 +197,12 @@
         if (error) {
             onlineStatusz('Az online beállítások még nem érhetők el. Futtasd a friss Supabase SQL-t.', true);
             elemek.telefonLathato.checked = true;
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         elemek.telefonLathato.checked = data?.value?.visible !== false;
+        return true;
     }
 
     async function beallitasokMentese() {
@@ -209,6 +223,7 @@
             }, { onConflict: 'key' });
 
         onlineStatusz(error ? 'Nem sikerült menteni az online beállításokat. Futtasd a friss Supabase SQL-t.' : 'Online beállítások mentve.', Boolean(error));
+        if (!error) await publikusHtmlFrissitesKerese('telefon_lathatosag_mentve');
     }
 
     function tiltasStatuszErtek(statusz) {
@@ -260,7 +275,12 @@
         elemek.tiltasVege.value = `${String(Math.floor(vegePerc / 60)).padStart(2, '0')}:${String(vegePerc % 60).padStart(2, '0')}`;
     }
 
-    async function tiltasokBetoltese() {
+    function tiltasokBetoltese() {
+        return adminKeresOsszevonasa('tiltasokBetoltese', tiltasokBetolteseLetoltese);
+    }
+
+    async function tiltasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         let { data, error } = await allapot.kliens
             .from('blocked_times')
             .select('id,starts_at,ends_at,reason,status,service_id,services(name,description,price_text,duration_minutes)')
@@ -294,9 +314,10 @@
 
         if (error) {
             onlineStatusz('Nem sikerült betölteni a foglalt időket.', true);
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         allapot.tiltasElemek = (data || []).map(tiltas => ({
             ...tiltas,
             status: tiltasStatuszErtek(tiltas.status)
@@ -307,6 +328,7 @@
         }
 
         tiltasListaRenderelese();
+        return true;
     }
 
     function tiltasOsszesOldal() {
@@ -508,6 +530,7 @@
 
     function adminTabValtas(tab) {
         allapot.aktivTab = tab || 'foglalasok';
+        adminPanelAdatokBetoltese(allapot.aktivTab).catch(() => onlineStatusz('Az adatok nem tölthetők be.', true));
         const aktivTab = allapot.aktivTab;
         const mentesFeliratok = {
             foglalasok: 'Módosítások mentése',

@@ -276,6 +276,9 @@ async function installSupabaseBoundaryMock(page) {
 
     await page.addInitScript((seed) => {
         const clone = (value) => JSON.parse(JSON.stringify(value));
+        window.__adminReads = [];
+        window.__adminRpcs = [];
+        const authListeners = [];
 
         class Query {
             constructor(table) {
@@ -385,15 +388,24 @@ async function installSupabaseBoundaryMock(page) {
         const client = {
             auth: {
                 getSession: async () => ({ data: { session }, error: null }),
-                onAuthStateChange: () => ({
-                    data: { subscription: { unsubscribe() {} } }
-                }),
+                onAuthStateChange: callback => {
+                    authListeners.push(callback);
+                    return { data: { subscription: { unsubscribe() {} } } };
+                },
                 signInWithPassword: async () => ({ data: { session }, error: null }),
                 signOut: async () => ({ error: null }),
                 updateUser: async () => ({ data: { user: session.user }, error: null })
             },
-            from: table => new Query(table),
+            from: table => { window.__adminReads.push(table); return new Query(table); },
             rpc: async (name, args) => {
+                window.__adminRpcs.push({ name, args: clone(args || {}) });
+                if (name === 'save_public_site_content') {
+                    if (window.__adminSaveConflict) return { data: null, error: { code: '40001' } };
+                    const version = '2026-10-28T12:00:00+00:00';
+                    const row = seed.site_settings.find(item => item.key === 'site_content');
+                    row.value = clone(args.p_content); row.updated_at = version;
+                    return { data: version, error: null };
+                }
                 if (name === 'is_lumi_admin') {
                     return { data: true, error: null };
                 }
@@ -417,7 +429,7 @@ async function installSupabaseBoundaryMock(page) {
                 return { data: [], error: null };
             },
             functions: {
-                invoke: async () => ({ data: { success: true }, error: null })
+                invoke: async (_name, options) => ({ data: { ok: true, published: false, state: options?.body?.action === 'status' ? 'unpublished' : 'pending' }, error: null })
             },
             storage: {
                 from: () => ({
@@ -430,6 +442,7 @@ async function installSupabaseBoundaryMock(page) {
         };
 
         window.supabase = { createClient: () => client };
+        window.__adminEmitAuth = event => authListeners.forEach(callback => callback(event, session));
     }, data);
 }
 
@@ -482,6 +495,57 @@ function expectHeadingTopsAligned(tops) {
 }
 
 test.describe('production admin redesign', () => {
+    test('publication: admin loads opened panels only and retains editor drafts across token refreshes', async ({ page }) => {
+        await openAdmin(page, { width: 1440, height: 1000 });
+        const initialReads = await page.evaluate(() => window.__adminReads);
+        expect(initialReads).not.toContain('services');
+        expect(initialReads).not.toContain('coupons');
+        expect(initialReads).not.toContain('site_settings');
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        const field = page.locator('#admin-cms-root input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
+        await field.fill('Helyi szerkesztési próba');
+        const readCount = await page.evaluate(() => window.__adminReads.length);
+        const roleChecks = await page.evaluate(() => window.__adminRpcs.filter(call => call.name === 'is_lumi_admin').length);
+        await page.evaluate(() => window.__adminEmitAuth('TOKEN_REFRESHED'));
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="attekintes"]').click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await expect(field).toHaveValue('Helyi szerkesztési próba');
+        expect(await page.evaluate(() => window.__adminReads.filter(table => table === 'site_settings').length)).toBe(1);
+        expect(await page.evaluate(() => window.__adminRpcs.filter(call => call.name === 'is_lumi_admin').length)).toBe(roleChecks);
+        expect(readCount).toBeGreaterThan(0);
+        await page.locator('#admin-panel-szovegek [data-admin-v2-panel="szolgaltatasok"]').click();
+        await expect(page.locator('#admin-szolgaltatas-lista .admin-db-kartya')).toHaveCount(4);
+        const price = page.locator('#admin-szolgaltatas-lista [data-mezo="name"]').first();
+        await price.evaluate(input => { input.value = 'Nem mentett árlista'; });
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="attekintes"]').click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await page.locator('#admin-panel-szovegek [data-admin-v2-panel="szolgaltatasok"]').click();
+        await expect(price).toHaveValue('Nem mentett árlista');
+        expect(await page.evaluate(() => window.__adminReads.filter(table => table === 'services').length)).toBe(1);
+    });
+
+    test('publication: mobile CMS preserves conflicts and separates saved content from pending publication', async ({ page }) => {
+        await openAdmin(page, { width: 390, height: 844 });
+        await page.getByRole('button', { name: 'Navigáció megnyitása' }).click();
+        await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        const field = page.locator('#admin-cms-root input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
+        await field.fill('Csak helyi mockban mentett próba');
+        await page.evaluate(() => { window.__adminSaveConflict = true; });
+        await page.locator('#admin-panel-szovegek [data-admin-v2-save]').click();
+        await expect(page.locator('#admin-online-status')).toContainText('közben módosult');
+        await expect(field).toHaveValue('Csak helyi mockban mentett próba');
+        await page.evaluate(() => { window.__adminSaveConflict = false; });
+        await page.locator('#admin-panel-szovegek [data-admin-v2-save]').click();
+        await expect(page.locator('#admin-online-status')).toHaveText('Tartalom mentve.');
+        await expect(page.locator('#admin-publication-status')).toHaveAttribute('data-publication-state', 'pending');
+        await expect(page.locator('#admin-publication-status')).not.toContainText('nyilvánosan megjelent');
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+        await page.screenshot({ path: 'test-results/publication-mobile.png' });
+        await page.locator('#admin-cms-reload').click();
+        await expect(page.locator('#admin-online-status')).toHaveText('A weboldal tartalma betöltve.');
+        await expect(field).toHaveValue('Csak helyi mockban mentett próba');
+    });
+
     test('dashboard counts distinct future bookable dates', async ({ page }) => {
         const browserErrors = await openAdmin(page, { width: 1440, height: 1000 });
 

@@ -34,6 +34,9 @@
         content: null,
         session: null,
         dirty: false,
+        contentVersion: null,
+        contentLoadPromise: null,
+        userKey: null,
         saving: false,
         cmsView: 'fooldal',
         cmsGroup: 15,
@@ -466,16 +469,31 @@
         root.addEventListener('change', cmsChange);
         root.addEventListener('click', cmsClick);
         document.getElementById('admin-cms-save')?.addEventListener('click', saveContent);
-        document.getElementById('admin-cms-reload')?.addEventListener('click', loadContent);
+        document.getElementById('admin-cms-reload')?.addEventListener('click', () => {
+            if (state.dirty && !window.confirm('Elveted a még nem mentett változtatásokat és betöltöd a legújabb tartalmat?')) return;
+            state.dirty = false;
+            loadContent();
+        });
 
-        state.client.auth.onAuthStateChange((_event, session) => {
+        function sessionChanged(session) {
+            const key = session?.user?.id || session?.user?.email || 'session';
             state.session = session;
-            if (session) loadContent();
-        });
-        state.client.auth.getSession().then(({ data }) => {
-            state.session = data.session;
-            if (state.session) loadContent();
-        });
+            if (!session) {
+                state.contentLoadPromise = null;
+                state.userKey = null; state.content = null; state.contentVersion = null; state.dirty = false;
+                root.innerHTML = '';
+                return;
+            }
+            if (state.userKey === key) return;
+            state.userKey = key;
+            if (document.querySelector('#admin-panel-szovegek.aktiv')) loadContent();
+        }
+        state.client.auth.onAuthStateChange((_event, session) => queueMicrotask(() => sessionChanged(session)));
+        state.client.auth.getSession().then(({ data }) => sessionChanged(data.session));
+        new MutationObserver(() => {
+            if (document.querySelector('#admin-panel-szovegek.aktiv') && !state.content) loadContent();
+        }).observe(document.getElementById('admin-panel-szovegek') || root, { attributes: true, attributeFilter: ['class'] });
+
     });
 
     function field(path, label, type = 'text') { return { path, label, type }; }
@@ -563,11 +581,24 @@
         return sets;
     }
 
-    async function loadContent() {
+    function loadContent() {
+        if (state.contentLoadPromise) return state.contentLoadPromise;
+        if (state.dirty) return Promise.resolve();
+        const request = loadContentNow().finally(() => {
+            if (state.contentLoadPromise === request) state.contentLoadPromise = null;
+        });
+        state.contentLoadPromise = request;
+        return state.contentLoadPromise;
+    }
+
+    async function loadContentNow() {
         if (!state.client || !state.session || state.saving) return;
+        const userKey = state.userKey;
         status('Tartalom betöltése...');
         const defaults = window.lumiAlapOldalAdatok?.() || {};
-        const { data, error } = await state.client.from('site_settings').select('value').eq('key', 'site_content').maybeSingle();
+        const { data, error } = await state.client.from('site_settings').select('value,updated_at').eq('key', 'site_content').maybeSingle();
+
+        if (!state.session || state.userKey !== userKey) return;
 
         if (error) {
             state.content = clone(defaults);
@@ -576,11 +607,14 @@
             return;
         }
 
+        if (!state.session) return;
+        state.contentVersion = data?.updated_at || null;
         state.content = normalizeContent(deepMerge(defaults, data?.value || {}), defaults);
         state.dirty = false;
         render();
         status('A weboldal tartalma betöltve.');
         updateSaveLabel();
+        window.lumiPublikusHtmlFrissitesKerese?.('ellenorzes', 'status');
     }
 
     function render() {
@@ -1092,34 +1126,27 @@
         state.content = normalizeContent(state.content, window.lumiAlapOldalAdatok?.() || {});
         setSaving(true);
         status('Tartalom mentése...');
-        const phoneVisible = getPath(state.content, 'kapcsolat.telefonLathato') !== false;
-        const [contentResult, phoneResult] = await Promise.all([
-            state.client.from('site_settings').upsert({
-                key: 'site_content',
-                value: state.content,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'key' }),
-            state.client.from('site_settings').upsert({
-                key: 'telefon_lathato',
-                value: { visible: phoneVisible },
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'key' })
-        ]);
+        let result;
+        try {
+            result = await state.client.rpc('save_public_site_content', {
+                p_content: state.content, p_expected_updated_at: state.contentVersion
+            });
+        } catch (_) {
+            result = { error: { code: 'network' } };
+        }
         setSaving(false);
-
-        if (contentResult.error || phoneResult.error) {
-            console.error('Tartalom mentési hiba:', contentResult.error || phoneResult.error);
-            status('A mentés nem sikerült. Ellenőrizd a Supabase SQL beállítását.', true);
+        if (result.error) {
+            status(result.error.code === '40001'
+                ? 'A tartalom közben módosult. A saját módosításaid megmaradtak; egyeztesd őket az új változattal.'
+                : 'A mentés nem sikerült. A biztonságos mentési migráció és a kapcsolat ellenőrzése szükséges.', true);
             return;
         }
+        state.contentVersion = result.data;
 
         state.dirty = false;
         updateSaveLabel();
-        status('Minden tartalom elmentve. A keresőbarát HTML frissítése indul...');
-        const htmlFrissites = await window.lumiPublikusHtmlFrissitesKerese?.('site_content_mentve');
-        status(htmlFrissites?.ok
-            ? 'Minden tartalom elmentve. A publikus HTML néhány percen belül frissül.'
-            : 'Minden tartalom elmentve. A publikus HTML a következő kiadáskor frissül.');
+        status('Tartalom mentve.');
+        await window.lumiPublikusHtmlFrissitesKerese?.('site_content_mentve');
     }
 
     function markDirtyAndRenderGallery() {

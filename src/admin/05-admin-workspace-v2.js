@@ -861,7 +861,7 @@
         adminV2MenuBezarasa();
         adminV2ErtesitesekBezarasa();
         if (tab === 'attekintes') adminV2AttekintesFrissitese();
-        if (tab === 'vendegek') vendegProfilokBetoltese();
+
         if (tab === 'esemenynaplo') adminV2KommunikacioFrissitese();
 
         document.querySelector('.admin-workspace-main')?.scrollTo?.({ top: 0, behavior: 'auto' });
@@ -940,7 +940,7 @@
         adminV2NapiListaRenderelese(today);
         adminV2KovetkezoListaRenderelese(upcoming);
         adminV2TeendoListaRenderelese(pending, emailErrors, cancellations);
-        await adminV2HorizonFrissitese(todayKey);
+        if (allapot.aktivTab === 'attekintes') await adminV2HorizonFrissitese(todayKey);
     }
 
     function adminV2AttekintesIdopont(item) {
@@ -1070,7 +1070,12 @@
         `).join('');
     }
 
-    async function adminV2HorizonFrissitese(todayKey) {
+    function adminV2HorizonFrissitese(todayKey) {
+        return adminKeresOsszevonasa('horizon:' + todayKey, () => adminV2HorizonLetoltese(todayKey));
+    }
+
+    async function adminV2HorizonLetoltese(todayKey) {
+        const ervenyes = adminKeresMunkamenetOr();
         const value = document.getElementById('admin-v2-stat-horizon');
         const meta = document.getElementById('admin-v2-stat-horizon-meta');
         if (!value || !meta || !allapot.kliens) return;
@@ -1083,6 +1088,7 @@
             if (typeof query.gte === 'function') query = query.gte('work_date', todayKey);
             query = query.order('work_date', { ascending: true });
             const { data, error } = await query;
+            if (!ervenyes()) return;
             const availableDates = [...new Set((data || [])
                 .map(item => String(item?.work_date || '').trim())
                 .filter(dateKey => dateKey >= todayKey))]

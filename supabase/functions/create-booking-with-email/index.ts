@@ -122,7 +122,6 @@ serve(async (req) => {
       return json({ ok: false, error: cleanError(error?.message || "Nem sikerült létrehozni a foglalást.") }, 400);
     }
 
-    console.log("create-booking-with-email booking created", { bookingId, startsAt });
     const { data: bookingReferenceRow, error: bookingReferenceError } = await supabase
       .from("bookings")
       .select("public_reference")
@@ -168,8 +167,6 @@ serve(async (req) => {
 
     if (!email.ok) {
       console.error("create-booking-with-email email failed", { bookingId, email });
-    } else {
-      console.log("create-booking-with-email email sent", { bookingId, email });
     }
 
     return json({

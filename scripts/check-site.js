@@ -79,7 +79,7 @@ for (const htmlFile of HTML_FILES) {
     if (!html.includes('data-lumi-content-updated-at=')) {
         fail(htmlFile + ': hiányzik az előrenderelt tartalom időbélyege. Futtasd az npm run prerender parancsot.');
     }
-    if (!/data-lumi-content-fingerprint="[a-f0-9]{20}"/.test(html)) {
+    if (!/data-lumi-content-fingerprint="(?:[a-f0-9]{20}|[a-f0-9]{64})"/.test(html)) {
         fail(htmlFile + ': hiányzik az előrenderelt tartalom ujjlenyomata.');
     }
     if (!html.includes('<header class="site-header">') || !html.includes('<footer class="site-footer">')) {

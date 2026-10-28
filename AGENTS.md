@@ -1,10 +1,10 @@
 # AGENTS.md — LumiNails TEST fejlesztési szabályzat
 
-Ez a fájl a `C:\Users\llevi\OneDrive\Asztali gép\LumiNails_test` projektben végzett minden munkára kötelező szabályokat rögzíti.
+Ez a fájl a `D:\Asztal\LumiNails_test` projektben végzett minden munkára kötelező szabályokat rögzíti.
 
 ## Környezetek és kötelező kiadási folyamat
 
-- A fejlesztési és ellenőrzési projekt: `C:\Users\llevi\OneDrive\Asztali gép\LumiNails_test`.
+- A fejlesztési és ellenőrzési projekt: `D:\Asztal\LumiNails_test`.
 - Az éles helyi projekt útvonalát minden élesítés előtt külön, read-only ellenőrzéssel kell azonosítani; régi vagy feltételezett útvonalat tilos használni.
 - Minden fejlesztést először és kizárólag a TEST projektben kell elkészíteni.
 - A TEST-változtatásokat a kockázatukhoz arányosan kell átnézni; kis és egyértelmű változásnál a Git-diff és szükség esetén egy gyors vizuális ellenőrzés elegendő.

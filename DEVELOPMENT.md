@@ -1,8 +1,10 @@
 # Helyi fejlesztés
 
+> Irányadó kiadási mód: [statikus Cloudflare Pages-kiadás](docs/static-publication.md). A GitHub kizárólag a kész forrás tárolója; a build a Cloudflare-en fut.
+
 ## Fejlesztési forrás és éles példány
 
-A projekt elsődleges fejlesztési példánya: `C:\Users\llevi\OneDrive\Asztali gép\LumiNails_test`.
+A projekt elsődleges fejlesztési példánya: `D:\Asztal\LumiNails_test`.
 Minden fejlesztést és hibajavítást ebben a mappában kell elvégezni, ellenőrizni és a tesztoldalra feltölteni.
 
 Az éles `luminails.hu` GitHub-tároló az `enneno/LumiNails-Live`. Ebben normál fejlesztést nem végzünk; az éles tartalmat az ellenőrzött promóciós folyamat frissíti. Ha az éles tároló helyi példányára szükség van, az útvonalát minden művelet előtt külön ellenőrizni kell.
@@ -13,10 +15,10 @@ Az éles `luminails.hu` GitHub-tároló az `enneno/LumiNails-Live`. Ebben normá
 2. A módosítást helyileg, az `AGENTS.md` kockázatalapú szabályai szerint kell ellenőrizni. Kis vizuális változásnál nem kell teljes tesztcsomag.
 3. Az `enneno/enneno.github.io` `main` ágára kerülő commit automatikusan a tesztoldalra települ, GitHubon futó alkalmazásteszt nélkül.
 4. A tesztoldalon manuálisan csak a változás által érintett fontos működéseket és nézeteket kell ellenőrizni.
-5. Élesítéshez az `enneno/LumiNails-Live` tárolóban kézzel kell elindítani a `Promote tested site to luminails.hu` workflow-t, megadni az ellenőrzött TEST commitot vagy ágat, majd beírni az `ELESITES` megerősítést.
-6. A workflow ellenőrzi, hogy a kiválasztott TEST commit sikeresen kikerült-e a tesztoldalra, megőrzi az éles `CNAME` és `.github` fájlokat, majd ugyanazt az ellenőrzött tartalmat új GitHub-teszt futtatása nélkül menti és telepíti a `luminails.hu` oldalra.
+5. Külön élesítési jóváhagyás után a tényleges TEST deployment.json által igazolt commit fájljai emelhetők az enneno/LumiNails-Live main ágára. Az aktuális éles helyi példány útvonalát előbb külön ellenőrizni kell.
+6. Az éles CNAME megmarad. A GitHub Pages workflow-k helyét a Cloudflare Pages Git-integráció veszi át: npm run build:site, dist kimenet és környezetenként eltérő buildváltozók. Élesítéskor nem fut új teszt vagy audit.
 
-Normál fejlesztés közben semmi nem kerül automatikusan az éles oldalra. Visszaállításhoz az utolsó promóciós commit visszavonható, majd a `Redeploy current luminails.hu site` workflow kézzel, `UJRATELEPITES` megerősítéssel újraindítható. Az újratelepítés a már helyileg ellenőrzött éles commitot teszi közzé, ezért nem futtat új tesztet.
+Normál fejlesztéskor semmi nem kerül automatikusan az éles repositoryba. Hibás build az előző működő Cloudflare-kiadást hagyja elérhetően. Szükség esetén a Cloudflare korábbi sikeres production deploymentje állítható vissza.
 
 ## Szerkeszthető források
 

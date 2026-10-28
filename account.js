@@ -11,6 +11,8 @@
     let recoveryMode = false;
     let accountReady = false;
     let authRefreshId = 0;
+    let accountRefreshPromise = null;
+    let accountRefreshAgain = false;
 
     document.addEventListener('DOMContentLoaded', () => {
         if (!document.body?.classList.contains('fiok-oldal')) return;
@@ -45,8 +47,10 @@
         recoveryMode = new URLSearchParams(window.location.search).get('recovery') === '1';
 
         supabaseClient.auth.onAuthStateChange((event) => {
+            if (event === 'TOKEN_REFRESHED') return;
             if (event === 'PASSWORD_RECOVERY') recoveryMode = true;
-            window.setTimeout(() => refreshAccountState(), 0);
+            if (event === 'SIGNED_OUT') { ++authRefreshId; showSignedOutState(); }
+            window.setTimeout(() => refreshAccountState(['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED', 'PASSWORD_RECOVERY'].includes(event)), 0);
         });
 
         refreshAccountState();
@@ -67,7 +71,20 @@
         document.getElementById('fiok-megerosites-ujrakuldes')?.addEventListener('click', handleConfirmationResend);
     }
 
-    async function refreshAccountState() {
+    function refreshAccountState(force = false) {
+        if (accountRefreshPromise) {
+            if (force) ++authRefreshId;
+            accountRefreshAgain = accountRefreshAgain || force;
+            return accountRefreshPromise;
+        }
+        accountRefreshPromise = refreshAccountStateNow().finally(() => {
+            accountRefreshPromise = null;
+            if (accountRefreshAgain) { accountRefreshAgain = false; refreshAccountState(); }
+        });
+        return accountRefreshPromise;
+    }
+
+    async function refreshAccountStateNow() {
         const refreshId = ++authRefreshId;
         setGlobalStatus('Fiók ellenőrzése…');
 

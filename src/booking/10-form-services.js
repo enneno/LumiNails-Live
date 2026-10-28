@@ -354,7 +354,7 @@
         statuszKiirasa(elemek.statusz, '');
 
         const { data, error } = await supabaseValaszIdokerettel(
-            allapot.kliens.rpc('get_available_dates_for_style', {
+            foglalasiFrissRpc('get_available_dates_for_style', {
                 p_service_id: szolgaltatasId,
                 p_start_date: maiDatum(),
                 p_days: 90,
@@ -426,7 +426,7 @@
         statuszKiirasa(elemek.statusz, '');
 
         const { data, error } = await supabaseValaszIdokerettel(
-            allapot.kliens.rpc('get_available_slots_for_style', {
+            foglalasiFrissRpc('get_available_slots_for_style', {
                 p_service_id: szolgaltatasId,
                 p_date: datum,
                 p_nail_style: koromStilus
@@ -608,7 +608,7 @@
             );
 
             if (!error && data?.ok && data?.booking_id) {
-                console.info('Lumi Nails booking function result:', data);
+                // Successful booking details stay out of browser logs.
                 return { ...data, request_key: data.request_key || requestKey };
             }
 

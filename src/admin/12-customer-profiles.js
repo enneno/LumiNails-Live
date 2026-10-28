@@ -21,13 +21,14 @@
         workspaceMain.append(panel);
     }
 
-    async function vendegProfilokBetoltese() {
+    function vendegProfilokBetoltese() {
+        return adminKeresOsszevonasa('vendegProfilokBetoltese', vendegProfilokBetolteseLetoltese);
+    }
+
+    async function vendegProfilokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const panel = document.getElementById('admin-panel-vendegek');
         if (!panel || !allapot.kliens || !allapot.session) return;
-        if (allapot.vendegProfilok.length) {
-            vendegProfilListaRenderelese();
-            return;
-        }
 
         const keresId = ++allapot.vendegProfilKeresId;
         const lista = panel.querySelector('[data-vendeg-lista]');
@@ -38,7 +39,7 @@
         const { data, error } = await allapot.kliens
             .rpc('admin_registered_customer_profiles');
 
-        if (keresId !== allapot.vendegProfilKeresId) return;
+        if (!ervenyes() || keresId !== allapot.vendegProfilKeresId) return;
         if (error) {
             if (lista) lista.innerHTML = '<p class="admin-vendeg-ures admin-vendeg-hiba">Nem sikerült betölteni a regisztrált tagokat.</p>';
             if (osszefoglalo) osszefoglalo.textContent = 'Betöltési hiba';

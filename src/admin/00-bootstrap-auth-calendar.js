@@ -122,8 +122,8 @@
         elemek.tiltasLapozo?.addEventListener('click', tiltasLapozoKattintas);
         elemek.tiltasLapozo?.addEventListener('change', tiltasLapozoKattintas);
 
-        allapot.kliens.auth.onAuthStateChange((_event, session) => {
-            sessionAllapot(session, elemek);
+        allapot.kliens.auth.onAuthStateChange((event, session) => {
+            queueMicrotask(() => sessionAllapot(session, elemek, event === 'USER_UPDATED'));
         });
 
         allapot.kliens.auth.getSession().then(({ data }) => {
@@ -574,8 +574,19 @@
         jelszoStatusz('Jelszó módosítva.');
     }
 
-    async function sessionAllapot(session, elemek) {
+    async function sessionAllapot(session, elemek, force = false) {
+        const userKey = session?.user?.id || session?.user?.email || 'session';
+        if (session && !force && allapot.adminVerified && allapot.adminUserKey === userKey) {
+            allapot.session = session;
+            return;
+        }
         allapot.session = session;
+        allapot.adminVerified = false;
+        if (!session || allapot.adminUserKey !== userKey) {
+            adminAdatCacheTorlese();
+            for (const key of ['foglalasElemek', 'esemenynaploElemek', 'vendegProfilok', 'szolgaltatasok', 'kuponok', 'tiltasElemek']) allapot[key] = [];
+            window.lumiPublikacioLeallitasa?.();
+        }
         const ellenorzesId = (allapot.adminJogosultsagKeresId || 0) + 1;
         allapot.adminJogosultsagKeresId = ellenorzesId;
         elemek.authPanel.hidden = Boolean(session);
@@ -586,7 +597,7 @@
 
         if (!session) return;
 
-        const { data: admin, error } = await allapot.kliens.rpc('is_lumi_admin');
+        const { data: admin, error } = await adminKeresOsszevonasa('admin-role', () => allapot.kliens.rpc('is_lumi_admin'));
         if (ellenorzesId !== allapot.adminJogosultsagKeresId) return;
 
         if (error || admin !== true) {
@@ -595,22 +606,16 @@
             return;
         }
 
+        allapot.adminVerified = true;
+        allapot.adminUserKey = userKey;
         elemek.tartalom.hidden = false;
         if (elemek.lebegoMentes) elemek.lebegoMentes.hidden = false;
         authStatusz(elemek, '');
         adminTabValtas(allapot.aktivTab);
-        adatokFrissitese();
     }
 
     function adatokFrissitese() {
-        foglalasokBetoltese();
-        vendegProfilokBetoltese();
-        esemenynaploBetoltese();
-        szolgaltatasokBetoltese();
-        kuponokBetoltese();
-        idosavokBetoltese();
-        tiltasokBetoltese();
-        beallitasokBetoltese();
+        return adminPanelAdatokBetoltese(allapot.aktivTab, true);
     }
 
     async function lebegoMentes() {

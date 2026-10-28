@@ -81,57 +81,31 @@ function lablecAdatokAlkalmazasa(adatok) {
 
 async function onlineTelefonLathatosagAlkalmazasa() {
     const telefonLink = document.querySelector('[data-footer-phone]');
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!telefonLink || !config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        return;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        const { data, error } = await kliens
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'telefon_lathato')
-            .maybeSingle();
-
-        if (error || !data) {
-            return;
+    if (!telefonLink) return;
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot || snapshot.phoneVisible === null) return;
+    const lathato = snapshot.phoneVisible !== false;
+    if (lathato) {
+        const kapcsolat = window.lumiAdatok?.kapcsolat;
+        if (kapcsolat?.telefon) {
+            telefonLink.textContent = kapcsolat.telefon;
+            telefonLink.href = `tel:${kapcsolat.telefonLink || kapcsolat.telefon.replace(/\s/g, '')}`;
+            telefonLink.hidden = false;
+            telefonLink.style.display = '';
         }
-
-        const lathato = data.value?.visible !== false;
-
-        if (lathato) {
-            const kapcsolat = window.lumiAdatok?.kapcsolat;
-            if (kapcsolat?.telefon) {
-                telefonLink.textContent = kapcsolat.telefon;
-                telefonLink.href = `tel:${kapcsolat.telefonLink || kapcsolat.telefon.replace(/\s/g, '')}`;
-                telefonLink.hidden = false;
-                telefonLink.style.display = '';
-            }
-        } else {
-            telefonLink.textContent = '';
-            telefonLink.removeAttribute('href');
-            telefonLink.hidden = true;
-            telefonLink.style.display = 'none';
-        }
-    } catch (_error) {
-        // Ha az online beallitas meg nincs elesitve, a JSON szerinti alapertek marad.
+    } else {
+        telefonLink.textContent = '';
+        telefonLink.removeAttribute('href');
+        telefonLink.hidden = true;
+        telefonLink.style.display = 'none';
     }
 }
 
 document.addEventListener('click', function (event) {
     const menu = document.getElementById('mobil-nav');
     const hamburger = document.querySelector('.hamburger');
-
-    if (!menu || !hamburger) {
-        return;
-    }
-
-    if (menu.classList.contains('open') && !menu.contains(event.target) && !hamburger.contains(event.target)) {
-        menuBezarasa();
-    }
+    if (!menu || !hamburger) return;
+    if (menu.classList.contains('open') && !menu.contains(event.target) && !hamburger.contains(event.target)) menuBezarasa();
 });
 
 function csakSzamokatEnged(input) {

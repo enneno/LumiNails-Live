@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
     Promise.all([oldalvaz, adatokBetoltese()])
         .then(([, adatok]) => {
-            oldalAdatokAlkalmazasa(adatok);
+            if (adatok) oldalAdatokAlkalmazasa(adatok);
             galeriaBekotese();
             Promise.allSettled([
                 onlineTelefonLathatosagAlkalmazasa(),
@@ -548,6 +548,29 @@ function lumiAlapOldalAdatok() {
 }
 
 window.lumiAlapOldalAdatok = lumiAlapOldalAdatok;
+
+// Only public, build-produced data. Personal/account/booking requests bypass this cache.
+let lumiPublicSnapshotPromise = null;
+
+function lumiPublicSnapshotBetoltese() {
+    if (!lumiPublicSnapshotPromise) {
+        lumiPublicSnapshotPromise = fetch('/adatok.json', { cache: 'no-cache', credentials: 'omit' })
+            .then(response => {
+                if (!response.ok) throw new Error('public_snapshot_unavailable');
+                return response.json();
+            })
+            .then(snapshot => {
+                if (snapshot.schemaVersion !== 1 || !snapshot.siteContent || !Array.isArray(snapshot.services)) {
+                    throw new Error('public_snapshot_invalid');
+                }
+                return snapshot;
+            })
+            .catch(() => null);
+    }
+    return lumiPublicSnapshotPromise;
+}
+
+window.lumiPublicSnapshotBetoltese = lumiPublicSnapshotBetoltese;
 
 function tisztaUrlBeallitasa() {
     const tisztaUtvonalak = {
@@ -1192,47 +1215,15 @@ function normalizaltUtvonal(utvonal) {
     return htmlOldalak[utvonal] || utvonal;
 }
 
-function adatokBetoltese() {
+async function adatokBetoltese() {
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot) return null;
     const alap = lumiAlapOldalAdatok();
-
-    return onlineOldalAdatokBetoltese()
-        .then(onlineAdatok => {
-            if (onlineAdatok) {
-                return melyOsszefesules(alap, onlineAdatok);
-            }
-
-            return fetch(`/adatok.json?v=${Date.now()}`, { cache: 'no-store' })
-                .then(response => response.ok ? response.json() : null)
-                .then(jsonAdatok => jsonAdatok ? melyOsszefesules(alap, jsonAdatok) : alap)
-                .catch(() => alap);
-        })
-        .then(adatok => oldalAdatokNormalizalasa(adatok, alap));
+    return oldalAdatokNormalizalasa(melyOsszefesules(alap, snapshot.siteContent), alap);
 }
 
 async function onlineOldalAdatokBetoltese() {
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        return null;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        const { data, error } = await kliens
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'site_content')
-            .maybeSingle();
-
-        if (error || !data?.value) {
-            return null;
-        }
-
-        return data.value;
-    } catch (_error) {
-        return null;
-    }
+    return (await lumiPublicSnapshotBetoltese())?.siteContent || null;
 }
 
 function melyOsszefesules(alap, feluliras) {
@@ -2116,65 +2107,11 @@ function foglalasiSzolgaltatasokRenderelese(szolgaltatasok) {
 
 async function onlineArlistaBetoltese() {
     const panel = document.querySelector('.arlista-oldal .arlista-panel');
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!panel) {
-        return;
-    }
-
-    if (!config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        if (!panel.querySelector('.arlista-sor')) {
-            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-        }
-        return;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        let { data, error } = await kliens
-            .from('services')
-            .select('name,price_text,price_amount,price_unit,price_suffix,duration_minutes,active,sort_order')
-            .eq('active', true)
-            .order('sort_order', { ascending: true });
-
-        if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-            ({ data, error } = await kliens
-                .from('services')
-                .select('name,price_text,duration_minutes,active,sort_order')
-                .eq('active', true)
-                .order('sort_order', { ascending: true }));
-        }
-
-        if (error) {
-            if (!panel.querySelector('.arlista-sor')) {
-                arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-            }
-            return;
-        }
-
-        if (!Array.isArray(data) || data.length === 0) {
-            arlistaAllapotMegjelenitese('Jelenleg nincs megjeleníthető szolgáltatás az árlistában.');
-            return;
-        }
-
-        const szolgaltatasok = data.map(szolgaltatasArNormalizalasa);
-        arlistaSzolgaltatasokRenderelese(szolgaltatasok);
-
-        const { data: ervenyesseg } = await kliens
-            .from('site_settings')
-            .select('value,updated_at')
-            .eq('key', 'arlista_ervenyesseg')
-            .maybeSingle();
-
-        arlistaErvenyessegMegjelenitese(
-            ervenyesseg?.value?.effective_since || ervenyesseg?.updated_at
-        );
-    } catch (_error) {
-        if (!panel.querySelector('.arlista-sor')) {
-            arlistaAllapotMegjelenitese('Az árlista most nem tölthető be. Kérlek, próbáld újra később.', true);
-        }
-    }
+    if (!panel) return;
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot) return; // Keep the last successfully prerendered HTML.
+    arlistaSzolgaltatasokRenderelese(snapshot.services.map(szolgaltatasArNormalizalasa));
+    arlistaErvenyessegMegjelenitese(snapshot.priceEffectiveAt);
 }
 
 function arlistaAllapotMegjelenitese(uzenet, hiba = false) {
@@ -2409,57 +2346,31 @@ function lablecAdatokAlkalmazasa(adatok) {
 
 async function onlineTelefonLathatosagAlkalmazasa() {
     const telefonLink = document.querySelector('[data-footer-phone]');
-    const config = window.LUMI_SUPABASE;
-    const supabaseLib = window.supabase;
-
-    if (!telefonLink || !config?.url || !config?.publishableKey || !supabaseLib?.createClient) {
-        return;
-    }
-
-    try {
-        const kliens = window.lumiSupabaseClient();
-        const { data, error } = await kliens
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'telefon_lathato')
-            .maybeSingle();
-
-        if (error || !data) {
-            return;
+    if (!telefonLink) return;
+    const snapshot = await lumiPublicSnapshotBetoltese();
+    if (!snapshot || snapshot.phoneVisible === null) return;
+    const lathato = snapshot.phoneVisible !== false;
+    if (lathato) {
+        const kapcsolat = window.lumiAdatok?.kapcsolat;
+        if (kapcsolat?.telefon) {
+            telefonLink.textContent = kapcsolat.telefon;
+            telefonLink.href = `tel:${kapcsolat.telefonLink || kapcsolat.telefon.replace(/\s/g, '')}`;
+            telefonLink.hidden = false;
+            telefonLink.style.display = '';
         }
-
-        const lathato = data.value?.visible !== false;
-
-        if (lathato) {
-            const kapcsolat = window.lumiAdatok?.kapcsolat;
-            if (kapcsolat?.telefon) {
-                telefonLink.textContent = kapcsolat.telefon;
-                telefonLink.href = `tel:${kapcsolat.telefonLink || kapcsolat.telefon.replace(/\s/g, '')}`;
-                telefonLink.hidden = false;
-                telefonLink.style.display = '';
-            }
-        } else {
-            telefonLink.textContent = '';
-            telefonLink.removeAttribute('href');
-            telefonLink.hidden = true;
-            telefonLink.style.display = 'none';
-        }
-    } catch (_error) {
-        // Ha az online beallitas meg nincs elesitve, a JSON szerinti alapertek marad.
+    } else {
+        telefonLink.textContent = '';
+        telefonLink.removeAttribute('href');
+        telefonLink.hidden = true;
+        telefonLink.style.display = 'none';
     }
 }
 
 document.addEventListener('click', function (event) {
     const menu = document.getElementById('mobil-nav');
     const hamburger = document.querySelector('.hamburger');
-
-    if (!menu || !hamburger) {
-        return;
-    }
-
-    if (menu.classList.contains('open') && !menu.contains(event.target) && !hamburger.contains(event.target)) {
-        menuBezarasa();
-    }
+    if (!menu || !hamburger) return;
+    if (menu.classList.contains('open') && !menu.contains(event.target) && !hamburger.contains(event.target)) menuBezarasa();
 });
 
 function csakSzamokatEnged(input) {

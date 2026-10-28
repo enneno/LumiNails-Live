@@ -1,10 +1,15 @@
-    async function foglalasokBetoltese() {
+    function foglalasokBetoltese() {
+        return adminKeresOsszevonasa('foglalasokBetoltese', foglalasokBetolteseLetoltese);
+    }
+
+    async function foglalasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         onlineStatusz('Foglalások betöltése...');
 
         const alapSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,services(name,price_text)';
         const kuponSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
-        const inspiracioSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
+        const inspiracioSelect = 'id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
         let { data: foglalasok, error: foglalasHiba } = await allapot.kliens
             .from('bookings')
             .select(inspiracioSelect)
@@ -26,7 +31,7 @@
                 .order('starts_at', { ascending: false })
                 .limit(ADMIN_FOGLALAS_LIMIT));
         }
-        if (!foglalasHiba && Array.isArray(foglalasok) && foglalasok.length) {
+        if (!foglalasHiba && Array.isArray(foglalasok) && foglalasok.length && !Object.hasOwn(foglalasok[0], 'public_reference')) {
             const { data: referenciaAdatok, error: referenciaHiba } = await allapot.kliens
                 .from('bookings')
                 .select('id,public_reference,starts_at')
@@ -81,6 +86,7 @@
         }
 
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
+        if (!ervenyes()) return false;
 
         allapot.foglalasElemek = [
             ...(foglalasok || []).map(foglalas => ({ tipus: 'booking', datum: foglalas.starts_at, adat: foglalas })),
@@ -92,6 +98,7 @@
         ].sort((a, b) => new Date(b.datum) - new Date(a.datum));
 
         await vendegLemondasEsemenyekBetoltese();
+        if (!ervenyes()) return false;
 
         if (allapot.foglalasOldal > foglalasOsszesOldal()) {
             allapot.foglalasOldal = foglalasOsszesOldal();
@@ -227,6 +234,7 @@
     }
 
     async function vendegLemondasEsemenyekBetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const foglalasIds = vendegAltalLemondottFoglalasok()
             .map(elem => elem.adat?.id)
             .filter(Boolean);
@@ -249,6 +257,7 @@
             return;
         }
 
+        if (!ervenyes()) return;
         (data || []).forEach(esemeny => {
             const bookingId = String(esemeny.booking_id || '');
             if (!bookingId) {
@@ -502,7 +511,12 @@
         foglalasListaRenderelese();
     }
 
-    async function esemenynaploBetoltese() {
+    function esemenynaploBetoltese() {
+        return adminKeresOsszevonasa('esemenynaploBetoltese', esemenynaploBetolteseLetoltese);
+    }
+
+    async function esemenynaploBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
 
         if (!elemek.esemenynaploLista) {
@@ -523,6 +537,7 @@
             return;
         }
 
+        if (!ervenyes()) return false;
         allapot.esemenynaploElemek = Array.isArray(data) ? data : [];
         if (allapot.esemenynaploOldal > esemenynaploOsszesOldal()) {
             allapot.esemenynaploOldal = esemenynaploOsszesOldal();

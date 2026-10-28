@@ -1,10 +1,18 @@
-    async function szolgaltatasokBetoltese() {
+    function szolgaltatasokBetoltese() {
+        return adminKeresOsszevonasa('szolgaltatasokBetoltese', szolgaltatasokBetolteseLetoltese);
+    }
+
+    async function szolgaltatasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         let { data, error } = await allapot.kliens
             .from('services')
-            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order')
+            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order,editor_version')
             .order('sort_order', { ascending: true });
 
+        if (error && adatbazisOszlopHiany(error, ['editor_version'])) {
+            ({ data, error } = await allapot.kliens.from('services').select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order').order('sort_order', { ascending: true }));
+        }
         if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
             ({ data, error } = await allapot.kliens
                 .from('services')
@@ -14,14 +22,16 @@
 
         if (error) {
             onlineStatusz('Nem sikerült betölteni az árlista tételeket.', true);
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         allapot.szolgaltatasok = (data || []).map(szolgaltatasArNormalizalasa);
         elemek.szolgaltatasLista.innerHTML = '';
         allapot.szolgaltatasok.forEach(szolgaltatas => elemek.szolgaltatasLista.appendChild(szolgaltatasKartya(szolgaltatas)));
         keziSzolgaltatasValasztoFrissitese();
         arKalkulatorFrissitese();
+        return true;
     }
 
     function szolgaltatasArNormalizalasa(szolgaltatas) {
@@ -173,7 +183,8 @@
         }
 
         onlineStatusz('Új árlista tétel létrehozva. Töltsd ki, majd mentsd az árlistát.');
-        szolgaltatasokBetoltese();
+        await szolgaltatasokBetoltese();
+        await publikusHtmlFrissitesKerese('szolgaltatas_letrehozva');
     }
 
     async function szolgaltatasListaKattintas(event) {
@@ -228,33 +239,23 @@
 
         onlineStatusz('Árlista mentése...');
 
-        for (const kartya of kartyak) {
-            const payload = szolgaltatasPayload(kartya);
-            let { error } = await allapot.kliens
-                .from('services')
-                .update(payload)
-                .eq('id', kartya.dataset.id);
-
-            if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-                const { price_amount, price_unit, price_suffix, ...regiPayload } = payload;
-                ({ error } = await allapot.kliens
-                    .from('services')
-                    .update(regiPayload)
-                    .eq('id', kartya.dataset.id));
-            }
-
-            if (error) {
-                onlineStatusz('Nem sikerült menteni az egyik árlista tételt.', true);
-                return;
-            }
+        const items = kartyak.map(kartya => ({
+            id: kartya.dataset.id,
+            expected_version: allapot.szolgaltatasok.find(item => item.id === kartya.dataset.id)?.editor_version || null,
+            payload: szolgaltatasPayload(kartya)
+        }));
+        const { error } = await allapot.kliens.rpc('save_public_services', { p_items: items });
+        if (error) {
+            onlineStatusz(error.code === '40001'
+                ? 'Az árlista közben módosult. A szerkesztett értékek megmaradtak; betöltés és egyeztetés szükséges.'
+                : 'Az árlista nem menthető. Ellenőrizd a biztonságos mentési migrációt és a kapcsolatot.', true);
+            return;
         }
 
         await szolgaltatasokBetoltese();
         kuponokBetoltese();
-        const htmlFrissites = await publikusHtmlFrissitesKerese('arlista_mentve');
-        onlineStatusz(htmlFrissites.ok
-            ? 'Árlista mentve. A publikus HTML frissítése elindult.'
-            : 'Árlista mentve. A publikus HTML a következő kiadáskor frissül.');
+        await publikusHtmlFrissitesKerese('arlista_mentve');
+        onlineStatusz('Árlista mentve.');
     }
 
     function szolgaltatasPayload(kartya) {

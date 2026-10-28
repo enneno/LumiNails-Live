@@ -22,3 +22,13 @@
             return { data: null, error };
         }
     }
+
+    const foglalasiFrissKeresek = new Map();
+    function foglalasiFrissRpc(nev, parameterek) {
+        const kulcs = nev + JSON.stringify(parameterek);
+        if (foglalasiFrissKeresek.has(kulcs)) return foglalasiFrissKeresek.get(kulcs);
+        const keres = Promise.resolve(allapot.kliens.rpc(nev, parameterek))
+            .finally(() => foglalasiFrissKeresek.delete(kulcs));
+        foglalasiFrissKeresek.set(kulcs, keres);
+        return keres;
+    }

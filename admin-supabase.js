@@ -124,8 +124,8 @@
         elemek.tiltasLapozo?.addEventListener('click', tiltasLapozoKattintas);
         elemek.tiltasLapozo?.addEventListener('change', tiltasLapozoKattintas);
 
-        allapot.kliens.auth.onAuthStateChange((_event, session) => {
-            sessionAllapot(session, elemek);
+        allapot.kliens.auth.onAuthStateChange((event, session) => {
+            queueMicrotask(() => sessionAllapot(session, elemek, event === 'USER_UPDATED'));
         });
 
         allapot.kliens.auth.getSession().then(({ data }) => {
@@ -576,8 +576,19 @@
         jelszoStatusz('Jelszó módosítva.');
     }
 
-    async function sessionAllapot(session, elemek) {
+    async function sessionAllapot(session, elemek, force = false) {
+        const userKey = session?.user?.id || session?.user?.email || 'session';
+        if (session && !force && allapot.adminVerified && allapot.adminUserKey === userKey) {
+            allapot.session = session;
+            return;
+        }
         allapot.session = session;
+        allapot.adminVerified = false;
+        if (!session || allapot.adminUserKey !== userKey) {
+            adminAdatCacheTorlese();
+            for (const key of ['foglalasElemek', 'esemenynaploElemek', 'vendegProfilok', 'szolgaltatasok', 'kuponok', 'tiltasElemek']) allapot[key] = [];
+            window.lumiPublikacioLeallitasa?.();
+        }
         const ellenorzesId = (allapot.adminJogosultsagKeresId || 0) + 1;
         allapot.adminJogosultsagKeresId = ellenorzesId;
         elemek.authPanel.hidden = Boolean(session);
@@ -588,7 +599,7 @@
 
         if (!session) return;
 
-        const { data: admin, error } = await allapot.kliens.rpc('is_lumi_admin');
+        const { data: admin, error } = await adminKeresOsszevonasa('admin-role', () => allapot.kliens.rpc('is_lumi_admin'));
         if (ellenorzesId !== allapot.adminJogosultsagKeresId) return;
 
         if (error || admin !== true) {
@@ -597,22 +608,16 @@
             return;
         }
 
+        allapot.adminVerified = true;
+        allapot.adminUserKey = userKey;
         elemek.tartalom.hidden = false;
         if (elemek.lebegoMentes) elemek.lebegoMentes.hidden = false;
         authStatusz(elemek, '');
         adminTabValtas(allapot.aktivTab);
-        adatokFrissitese();
     }
 
     function adatokFrissitese() {
-        foglalasokBetoltese();
-        vendegProfilokBetoltese();
-        esemenynaploBetoltese();
-        szolgaltatasokBetoltese();
-        kuponokBetoltese();
-        idosavokBetoltese();
-        tiltasokBetoltese();
-        beallitasokBetoltese();
+        return adminPanelAdatokBetoltese(allapot.aktivTab, true);
     }
 
     async function lebegoMentes() {
@@ -669,6 +674,54 @@
         }
 
         await idosavokMentese();
+    }
+
+    const adminFolyamatbanLevoKeresek = new Map();
+    const adminBetoltottAdatok = new Set();
+
+    function adminKeresMunkamenetOr() {
+        const verzio = allapot.adatCacheVerzio;
+        return () => Boolean(allapot.session && allapot.adminVerified && allapot.adatCacheVerzio === verzio);
+    }
+
+    function adminKeresOsszevonasa(kulcs, betoltes) {
+        if (adminFolyamatbanLevoKeresek.has(kulcs)) return adminFolyamatbanLevoKeresek.get(kulcs);
+        const keres = Promise.resolve().then(betoltes).finally(() => {
+            if (adminFolyamatbanLevoKeresek.get(kulcs) === keres) adminFolyamatbanLevoKeresek.delete(kulcs);
+        });
+        adminFolyamatbanLevoKeresek.set(kulcs, keres);
+        return keres;
+    }
+
+    function adminAdatCacheTorlese() {
+        allapot.adatCacheVerzio = (allapot.adatCacheVerzio || 0) + 1;
+        adminBetoltottAdatok.clear();
+        adminFolyamatbanLevoKeresek.clear();
+    }
+
+    async function adminPanelAdatokBetoltese(tab, force = false) {
+        if (!allapot.session || !allapot.adminVerified) return;
+        const verzio = allapot.adatCacheVerzio;
+        const betoltok = {
+            foglalasok: foglalasokBetoltese, esemenyek: esemenynaploBetoltese,
+            szolgaltatasok: szolgaltatasokBetoltese, kuponok: kuponokBetoltese,
+            idosavok: idosavokBetoltese, tiltasok: tiltasokBetoltese,
+            beallitasok: beallitasokBetoltese, vendegek: vendegProfilokBetoltese,
+        };
+        const stabil = new Set(['szolgaltatasok', 'kuponok', 'beallitasok']);
+        const fuggosegek = {
+            attekintes: ['foglalasok', 'esemenyek'], foglalasok: ['foglalasok'],
+            esemenynaplo: ['esemenyek'], vendegek: ['vendegek'],
+            szolgaltatasok: ['szolgaltatasok'], arkalkulator: ['szolgaltatasok', 'kuponok'],
+            kuponok: ['szolgaltatasok', 'kuponok'], idosavok: ['idosavok'],
+            tiltasok: ['szolgaltatasok', 'tiltasok'], beallitasok: ['beallitasok'],
+        };
+        await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
+            if (!force && stabil.has(kulcs) && adminBetoltottAdatok.has(kulcs)) return;
+            const siker = await betoltok[kulcs]();
+            if (siker !== false && stabil.has(kulcs) && verzio === allapot.adatCacheVerzio) adminBetoltottAdatok.add(kulcs);
+        }));
+        if (tab === 'attekintes') await adminV2AttekintesFrissitese();
     }
 
     const ADMIN_V2_TAB_GROUPS = Object.freeze({
@@ -1534,7 +1587,7 @@
         adminV2MenuBezarasa();
         adminV2ErtesitesekBezarasa();
         if (tab === 'attekintes') adminV2AttekintesFrissitese();
-        if (tab === 'vendegek') vendegProfilokBetoltese();
+
         if (tab === 'esemenynaplo') adminV2KommunikacioFrissitese();
 
         document.querySelector('.admin-workspace-main')?.scrollTo?.({ top: 0, behavior: 'auto' });
@@ -1613,7 +1666,7 @@
         adminV2NapiListaRenderelese(today);
         adminV2KovetkezoListaRenderelese(upcoming);
         adminV2TeendoListaRenderelese(pending, emailErrors, cancellations);
-        await adminV2HorizonFrissitese(todayKey);
+        if (allapot.aktivTab === 'attekintes') await adminV2HorizonFrissitese(todayKey);
     }
 
     function adminV2AttekintesIdopont(item) {
@@ -1743,7 +1796,12 @@
         `).join('');
     }
 
-    async function adminV2HorizonFrissitese(todayKey) {
+    function adminV2HorizonFrissitese(todayKey) {
+        return adminKeresOsszevonasa('horizon:' + todayKey, () => adminV2HorizonLetoltese(todayKey));
+    }
+
+    async function adminV2HorizonLetoltese(todayKey) {
+        const ervenyes = adminKeresMunkamenetOr();
         const value = document.getElementById('admin-v2-stat-horizon');
         const meta = document.getElementById('admin-v2-stat-horizon-meta');
         if (!value || !meta || !allapot.kliens) return;
@@ -1756,6 +1814,7 @@
             if (typeof query.gte === 'function') query = query.gte('work_date', todayKey);
             query = query.order('work_date', { ascending: true });
             const { data, error } = await query;
+            if (!ervenyes()) return;
             const availableDates = [...new Set((data || [])
                 .map(item => String(item?.work_date || '').trim())
                 .filter(dateKey => dateKey >= todayKey))]
@@ -2027,13 +2086,18 @@ function arlistaFeliratokFrissitese() {
     });
 }
 
-    async function foglalasokBetoltese() {
+    function foglalasokBetoltese() {
+        return adminKeresOsszevonasa('foglalasokBetoltese', foglalasokBetolteseLetoltese);
+    }
+
+    async function foglalasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         onlineStatusz('Foglalások betöltése...');
 
         const alapSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,services(name,price_text)';
         const kuponSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
-        const inspiracioSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
+        const inspiracioSelect = 'id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
         let { data: foglalasok, error: foglalasHiba } = await allapot.kliens
             .from('bookings')
             .select(inspiracioSelect)
@@ -2055,7 +2119,7 @@ function arlistaFeliratokFrissitese() {
                 .order('starts_at', { ascending: false })
                 .limit(ADMIN_FOGLALAS_LIMIT));
         }
-        if (!foglalasHiba && Array.isArray(foglalasok) && foglalasok.length) {
+        if (!foglalasHiba && Array.isArray(foglalasok) && foglalasok.length && !Object.hasOwn(foglalasok[0], 'public_reference')) {
             const { data: referenciaAdatok, error: referenciaHiba } = await allapot.kliens
                 .from('bookings')
                 .select('id,public_reference,starts_at')
@@ -2110,6 +2174,7 @@ function arlistaFeliratokFrissitese() {
         }
 
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
+        if (!ervenyes()) return false;
 
         allapot.foglalasElemek = [
             ...(foglalasok || []).map(foglalas => ({ tipus: 'booking', datum: foglalas.starts_at, adat: foglalas })),
@@ -2121,6 +2186,7 @@ function arlistaFeliratokFrissitese() {
         ].sort((a, b) => new Date(b.datum) - new Date(a.datum));
 
         await vendegLemondasEsemenyekBetoltese();
+        if (!ervenyes()) return false;
 
         if (allapot.foglalasOldal > foglalasOsszesOldal()) {
             allapot.foglalasOldal = foglalasOsszesOldal();
@@ -2256,6 +2322,7 @@ function arlistaFeliratokFrissitese() {
     }
 
     async function vendegLemondasEsemenyekBetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const foglalasIds = vendegAltalLemondottFoglalasok()
             .map(elem => elem.adat?.id)
             .filter(Boolean);
@@ -2278,6 +2345,7 @@ function arlistaFeliratokFrissitese() {
             return;
         }
 
+        if (!ervenyes()) return;
         (data || []).forEach(esemeny => {
             const bookingId = String(esemeny.booking_id || '');
             if (!bookingId) {
@@ -2531,7 +2599,12 @@ function arlistaFeliratokFrissitese() {
         foglalasListaRenderelese();
     }
 
-    async function esemenynaploBetoltese() {
+    function esemenynaploBetoltese() {
+        return adminKeresOsszevonasa('esemenynaploBetoltese', esemenynaploBetolteseLetoltese);
+    }
+
+    async function esemenynaploBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
 
         if (!elemek.esemenynaploLista) {
@@ -2552,6 +2625,7 @@ function arlistaFeliratokFrissitese() {
             return;
         }
 
+        if (!ervenyes()) return false;
         allapot.esemenynaploElemek = Array.isArray(data) ? data : [];
         if (allapot.esemenynaploOldal > esemenynaploOsszesOldal()) {
             allapot.esemenynaploOldal = esemenynaploOsszesOldal();
@@ -3607,13 +3681,14 @@ function arlistaFeliratokFrissitese() {
         workspaceMain.append(panel);
     }
 
-    async function vendegProfilokBetoltese() {
+    function vendegProfilokBetoltese() {
+        return adminKeresOsszevonasa('vendegProfilokBetoltese', vendegProfilokBetolteseLetoltese);
+    }
+
+    async function vendegProfilokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const panel = document.getElementById('admin-panel-vendegek');
         if (!panel || !allapot.kliens || !allapot.session) return;
-        if (allapot.vendegProfilok.length) {
-            vendegProfilListaRenderelese();
-            return;
-        }
 
         const keresId = ++allapot.vendegProfilKeresId;
         const lista = panel.querySelector('[data-vendeg-lista]');
@@ -3624,7 +3699,7 @@ function arlistaFeliratokFrissitese() {
         const { data, error } = await allapot.kliens
             .rpc('admin_registered_customer_profiles');
 
-        if (keresId !== allapot.vendegProfilKeresId) return;
+        if (!ervenyes() || keresId !== allapot.vendegProfilKeresId) return;
         if (error) {
             if (lista) lista.innerHTML = '<p class="admin-vendeg-ures admin-vendeg-hiba">Nem sikerült betölteni a regisztrált tagokat.</p>';
             if (osszefoglalo) osszefoglalo.textContent = 'Betöltési hiba';
@@ -3967,39 +4042,144 @@ function arlistaFeliratokFrissitese() {
         }
     }
 
-    async function publikusHtmlFrissitesKerese(ok = 'tartalom') {
-        if (!allapot.kliens || !allapot.session) {
-            return { ok: false, reason: 'nincs_admin_munkamenet' };
-        }
+    let publikusKozzetetelKeres = null;
+    let publikusKozzetetelAkcio = null;
+    let publikusKozzetetelId = 0;
+    let publikusKozzetetelIdozito = null;
+    let publikusKozzetetelAdat = null;
 
+    function publikacioAllapotKiirasa(szoveg, allapotNev) {
+        let panel = document.getElementById('admin-publication-status');
+        if (!panel) {
+            const root = document.querySelector('.admin-workspace-main') || adminElemek().tartalom;
+            if (!root) return;
+            panel = document.createElement('p');
+            panel.id = 'admin-publication-status';
+            panel.className = 'admin-status';
+            panel.setAttribute('role', 'status');
+            const text = document.createElement('span');
+            text.dataset.publicationMessage = '';
+            const refresh = document.createElement('button');
+            refresh.type = 'button';
+            refresh.className = 'admin-kis-gomb';
+            refresh.textContent = 'Megjelenés ellenőrzése';
+            refresh.addEventListener('click', () => publikusHtmlFrissitesKerese('ellenorzes', 'status'));
+            panel.append(text, document.createTextNode(' '), refresh);
+            root.prepend(panel);
+        }
+        panel.dataset.publicationState = allapotNev;
+        panel.querySelector('[data-publication-message]').textContent = szoveg + ' ';
+        const retry = panel.querySelector('[data-publication-retry]');
+        if (['error', 'unpublished', 'unverified'].includes(allapotNev)) {
+            if (!retry) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'admin-kis-gomb';
+                button.dataset.publicationRetry = '';
+                button.textContent = 'Közzététel indítása';
+                button.addEventListener('click', () => publikusHtmlFrissitesKerese('ujraproba'));
+                panel.append(document.createTextNode(' '), button);
+            }
+        } else retry?.remove();
+        panel.hidden = false;
+    }
+
+    async function publikusKozzetetelEllenorzese(azonosito, probalkozas = 0) {
+        if (azonosito !== publikusKozzetetelId || !allapot.session || !publikusKozzetetelAdat) return;
+        if (document.hidden) {
+            publikusKozzetetelIdozito = window.setTimeout(() => publikusKozzetetelEllenorzese(azonosito, probalkozas), 15000);
+            return;
+        }
+        const expected = publikusKozzetetelAdat;
+        try {
+            const url = new URL('/deployment.json', expected.siteUrl);
+            url.searchParams.set('verify', expected.contentHash);
+            const response = await fetch(url, { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(10000) });
+            const manifest = response.ok ? await response.json() : null;
+            if (azonosito !== publikusKozzetetelId) return;
+            if (manifest?.schemaVersion === 1 && manifest.environment === expected.environment
+                && manifest.origin === expected.siteUrl && manifest.contentHash === expected.contentHash) {
+                publikacioAllapotKiirasa('A mentett tartalom nyilvánosan megjelent.', 'published');
+                return;
+            }
+        } catch (_) { /* Keep the last working public release; never claim publication on a failed check. */ }
+        if (azonosito !== publikusKozzetetelId) return;
+        if (probalkozas >= 7) {
+            publikacioAllapotKiirasa('A tartalom mentve, a nyilvános megjelenés még nem igazolt. Az előző kiadás elérhető.', 'unverified');
+            return;
+        }
+        publikusKozzetetelIdozito = window.setTimeout(() => publikusKozzetetelEllenorzese(azonosito, probalkozas + 1), Math.min(30000, 5000 * (probalkozas + 1)));
+    }
+
+    function publikusHtmlFrissitesKerese(ok = 'tartalom', action = 'publish') {
+        if (!allapot.kliens || !allapot.session) return Promise.resolve({ ok: false, reason: 'nincs_admin_munkamenet' });
+        if (publikusKozzetetelKeres) {
+            // Each successful save may change the database while a publication request is running.
+            // Serialize publishes; the server deduplicates hooks using the fresh content hash.
+            if (action === 'status' && publikusKozzetetelAkcio === 'status') return publikusKozzetetelKeres;
+            return publikusKozzetetelKeres.then(() => publikusHtmlFrissitesKerese(ok, action));
+        }
+        publikusKozzetetelAkcio = action;
+        publikusKozzetetelKeres = publikusHtmlFrissitesInditasa(ok, action)
+            .finally(() => { publikusKozzetetelKeres = null; publikusKozzetetelAkcio = null; });
+        return publikusKozzetetelKeres;
+    }
+
+    async function publikusHtmlFrissitesInditasa(ok, action) {
+        const azonosito = ++publikusKozzetetelId;
+        window.clearTimeout(publikusKozzetetelIdozito);
         try {
             const elesOldal = ['luminails.hu', 'www.luminails.hu'].includes(window.location.hostname.toLowerCase());
-            const frissitoFuggveny = elesOldal ? 'request-live-site-rebuild' : 'request-site-rebuild';
+            const frissitoFuggveny = elesOldal ? 'publish-live-site-content' : 'publish-site-content';
             const { data, error } = await allapot.kliens.functions.invoke(frissitoFuggveny, {
-                body: { reason: String(ok || 'tartalom').slice(0, 80) }
+                body: { action, reason: String(ok || 'tartalom').slice(0, 80) }
             });
-
+            if (azonosito !== publikusKozzetetelId || !allapot.session) return { ok: false, reason: 'munkamenet_megvaltozott' };
             if (error || data?.ok !== true) {
-                console.warn('A publikus HTML frissítése nem indult el:', error || data);
-                return { ok: false, reason: data?.error || error?.message || 'ismeretlen_hiba' };
+                publikacioAllapotKiirasa('A mentés után a közzététel nem indult el vagy nem ellenőrizhető. A Cloudflare és Supabase beállításait ellenőrizni kell.', 'error');
+                return { ok: false, reason: data?.error || 'publication_request_failed' };
             }
-
-            return { ok: true };
-        } catch (error) {
-            console.warn('A publikus HTML frissítése nem indult el:', error);
-            return { ok: false, reason: error?.message || 'ismeretlen_hiba' };
+            if (data.published === true) {
+                publikacioAllapotKiirasa('A mentett tartalom nyilvánosan megjelent.', 'published');
+            } else if (data.state === 'pending') {
+                publikusKozzetetelAdat = data;
+                publikacioAllapotKiirasa('A tartalom mentve. A nyilvános közzététel folyamatban van.', 'pending');
+                publikusKozzetetelEllenorzese(azonosito);
+            } else {
+                publikacioAllapotKiirasa('A mentett tartalom még nincs nyilvánosan közzétéve.', 'unpublished');
+            }
+            return data;
+        } catch (_) {
+            if (azonosito !== publikusKozzetetelId || !allapot.session) return { ok: false, reason: 'munkamenet_megvaltozott' };
+            publikacioAllapotKiirasa('A közzététel most nem ellenőrizhető. A mentés ettől független.', 'error');
+            return { ok: false, reason: 'publication_request_failed' };
         }
     }
 
     window.lumiPublikusHtmlFrissitesKerese = publikusHtmlFrissitesKerese;
+    window.lumiPublikacioLeallitasa = () => {
+        ++publikusKozzetetelId;
+        window.clearTimeout(publikusKozzetetelIdozito);
+        publikusKozzetetelAdat = null;
+        const panel = document.getElementById('admin-publication-status');
+        if (panel) panel.hidden = true;
+    };
 
-    async function szolgaltatasokBetoltese() {
+    function szolgaltatasokBetoltese() {
+        return adminKeresOsszevonasa('szolgaltatasokBetoltese', szolgaltatasokBetolteseLetoltese);
+    }
+
+    async function szolgaltatasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         let { data, error } = await allapot.kliens
             .from('services')
-            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order')
+            .select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order,editor_version')
             .order('sort_order', { ascending: true });
 
+        if (error && adatbazisOszlopHiany(error, ['editor_version'])) {
+            ({ data, error } = await allapot.kliens.from('services').select('id,name,description,price_text,price_amount,price_unit,price_suffix,duration_minutes,booking_enabled,active,sort_order').order('sort_order', { ascending: true }));
+        }
         if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
             ({ data, error } = await allapot.kliens
                 .from('services')
@@ -4009,14 +4189,16 @@ function arlistaFeliratokFrissitese() {
 
         if (error) {
             onlineStatusz('Nem sikerült betölteni az árlista tételeket.', true);
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         allapot.szolgaltatasok = (data || []).map(szolgaltatasArNormalizalasa);
         elemek.szolgaltatasLista.innerHTML = '';
         allapot.szolgaltatasok.forEach(szolgaltatas => elemek.szolgaltatasLista.appendChild(szolgaltatasKartya(szolgaltatas)));
         keziSzolgaltatasValasztoFrissitese();
         arKalkulatorFrissitese();
+        return true;
     }
 
     function szolgaltatasArNormalizalasa(szolgaltatas) {
@@ -4168,7 +4350,8 @@ function arlistaFeliratokFrissitese() {
         }
 
         onlineStatusz('Új árlista tétel létrehozva. Töltsd ki, majd mentsd az árlistát.');
-        szolgaltatasokBetoltese();
+        await szolgaltatasokBetoltese();
+        await publikusHtmlFrissitesKerese('szolgaltatas_letrehozva');
     }
 
     async function szolgaltatasListaKattintas(event) {
@@ -4223,33 +4406,23 @@ function arlistaFeliratokFrissitese() {
 
         onlineStatusz('Árlista mentése...');
 
-        for (const kartya of kartyak) {
-            const payload = szolgaltatasPayload(kartya);
-            let { error } = await allapot.kliens
-                .from('services')
-                .update(payload)
-                .eq('id', kartya.dataset.id);
-
-            if (error && adatbazisOszlopHiany(error, ['price_amount', 'price_unit', 'price_suffix'])) {
-                const { price_amount, price_unit, price_suffix, ...regiPayload } = payload;
-                ({ error } = await allapot.kliens
-                    .from('services')
-                    .update(regiPayload)
-                    .eq('id', kartya.dataset.id));
-            }
-
-            if (error) {
-                onlineStatusz('Nem sikerült menteni az egyik árlista tételt.', true);
-                return;
-            }
+        const items = kartyak.map(kartya => ({
+            id: kartya.dataset.id,
+            expected_version: allapot.szolgaltatasok.find(item => item.id === kartya.dataset.id)?.editor_version || null,
+            payload: szolgaltatasPayload(kartya)
+        }));
+        const { error } = await allapot.kliens.rpc('save_public_services', { p_items: items });
+        if (error) {
+            onlineStatusz(error.code === '40001'
+                ? 'Az árlista közben módosult. A szerkesztett értékek megmaradtak; betöltés és egyeztetés szükséges.'
+                : 'Az árlista nem menthető. Ellenőrizd a biztonságos mentési migrációt és a kapcsolatot.', true);
+            return;
         }
 
         await szolgaltatasokBetoltese();
         kuponokBetoltese();
-        const htmlFrissites = await publikusHtmlFrissitesKerese('arlista_mentve');
-        onlineStatusz(htmlFrissites.ok
-            ? 'Árlista mentve. A publikus HTML frissítése elindult.'
-            : 'Árlista mentve. A publikus HTML a következő kiadáskor frissül.');
+        await publikusHtmlFrissitesKerese('arlista_mentve');
+        onlineStatusz('Árlista mentve.');
     }
 
     function szolgaltatasPayload(kartya) {
@@ -4720,9 +4893,14 @@ function arlistaFeliratokFrissitese() {
         return `${tagolt} Ft`;
     }
 
-    async function kuponokBetoltese() {
+    function kuponokBetoltese() {
+        return adminKeresOsszevonasa('kuponokBetoltese', kuponokBetolteseLetoltese);
+    }
+
+    async function kuponokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
-        if (!elemek.kuponLista) return;
+        if (!elemek.kuponLista) return false;
 
         let { data, error } = await allapot.kliens
             .from('coupons')
@@ -4746,12 +4924,13 @@ function arlistaFeliratokFrissitese() {
                 .order('created_at', { ascending: true }));
         }
 
+        if (!ervenyes()) return false;
         if (error) {
             allapot.kuponok = [];
             arKalkulatorKuponokFrissitese();
             elemek.kuponLista.innerHTML = `<p class="admin-ures">A kuponkezel\u00e9shez futtasd a <code>supabase-coupons.sql</code> f\u00e1jlt Supabase-ben.</p>`;
             if (!hianyzoKuponTabla(error)) onlineStatusz('Nem siker\u00fclt bet\u00f6lteni a kuponokat.', true);
-            return;
+            return false;
         }
 
         allapot.kuponok = (data || []).map(kupon => ({
@@ -4763,10 +4942,11 @@ function arlistaFeliratokFrissitese() {
 
         if (!allapot.kuponok.length) {
             elemek.kuponLista.innerHTML = '<p class="admin-ures">M\u00e9g nincs kupon. Hozz l\u00e9tre egyet az \u00daj kupon gombbal.</p>';
-            return;
+            return false;
         }
 
         allapot.kuponok.forEach(kupon => elemek.kuponLista.appendChild(kuponKartya(kupon)));
+        return true;
     }
 
     function kuponKartya(kupon) {
@@ -5187,10 +5367,16 @@ function arlistaFeliratokFrissitese() {
         }
 
         onlineStatusz('Kuponok mentve.');
+        // Coupon validity remains live; public text changes are picked up at the next publication check.
         kuponokBetoltese();
     }
 
-    async function idosavokBetoltese() {
+    function idosavokBetoltese() {
+        return adminKeresOsszevonasa('idosavokBetoltese', idosavokBetolteseLetoltese);
+    }
+
+    async function idosavokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
         const { data, error } = await allapot.kliens
             .from('availability_windows')
@@ -5198,19 +5384,21 @@ function arlistaFeliratokFrissitese() {
             .order('work_date', { ascending: true })
             .order('start_time', { ascending: true });
 
+        if (!ervenyes()) return false;
         if (error) {
             onlineStatusz('Nem sikerült betölteni a dátumos idősávokat. Futtasd a dátumos Supabase migrációt.', true);
-            return;
+            return false;
         }
 
         elemek.idosavLista.innerHTML = '';
 
         if (!data.length) {
             elemek.idosavLista.innerHTML = '<p class="admin-ures">Még nincs megadva foglalható dátum.</p>';
-            return;
+            return false;
         }
 
         data.forEach(idosav => elemek.idosavLista.appendChild(idosavKartya(idosav)));
+        return true;
     }
 
     function idosavKartya(idosav) {
@@ -5361,11 +5549,16 @@ function arlistaFeliratokFrissitese() {
         idosavokBetoltese();
     }
 
-    async function beallitasokBetoltese() {
+    function beallitasokBetoltese() {
+        return adminKeresOsszevonasa('beallitasokBetoltese', beallitasokBetolteseLetoltese);
+    }
+
+    async function beallitasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
 
         if (!elemek.telefonLathato) {
-            return;
+            return false;
         }
 
         const { data, error } = await allapot.kliens
@@ -5377,10 +5570,12 @@ function arlistaFeliratokFrissitese() {
         if (error) {
             onlineStatusz('Az online beállítások még nem érhetők el. Futtasd a friss Supabase SQL-t.', true);
             elemek.telefonLathato.checked = true;
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         elemek.telefonLathato.checked = data?.value?.visible !== false;
+        return true;
     }
 
     async function beallitasokMentese() {
@@ -5401,6 +5596,7 @@ function arlistaFeliratokFrissitese() {
             }, { onConflict: 'key' });
 
         onlineStatusz(error ? 'Nem sikerült menteni az online beállításokat. Futtasd a friss Supabase SQL-t.' : 'Online beállítások mentve.', Boolean(error));
+        if (!error) await publikusHtmlFrissitesKerese('telefon_lathatosag_mentve');
     }
 
     function tiltasStatuszErtek(statusz) {
@@ -5452,7 +5648,12 @@ function arlistaFeliratokFrissitese() {
         elemek.tiltasVege.value = `${String(Math.floor(vegePerc / 60)).padStart(2, '0')}:${String(vegePerc % 60).padStart(2, '0')}`;
     }
 
-    async function tiltasokBetoltese() {
+    function tiltasokBetoltese() {
+        return adminKeresOsszevonasa('tiltasokBetoltese', tiltasokBetolteseLetoltese);
+    }
+
+    async function tiltasokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         let { data, error } = await allapot.kliens
             .from('blocked_times')
             .select('id,starts_at,ends_at,reason,status,service_id,services(name,description,price_text,duration_minutes)')
@@ -5486,9 +5687,10 @@ function arlistaFeliratokFrissitese() {
 
         if (error) {
             onlineStatusz('Nem sikerült betölteni a foglalt időket.', true);
-            return;
+            return false;
         }
 
+        if (!ervenyes()) return false;
         allapot.tiltasElemek = (data || []).map(tiltas => ({
             ...tiltas,
             status: tiltasStatuszErtek(tiltas.status)
@@ -5499,6 +5701,7 @@ function arlistaFeliratokFrissitese() {
         }
 
         tiltasListaRenderelese();
+        return true;
     }
 
     function tiltasOsszesOldal() {
@@ -5700,6 +5903,7 @@ function arlistaFeliratokFrissitese() {
 
     function adminTabValtas(tab) {
         allapot.aktivTab = tab || 'foglalasok';
+        adminPanelAdatokBetoltese(allapot.aktivTab).catch(() => onlineStatusz('Az adatok nem tölthetők be.', true));
         const aktivTab = allapot.aktivTab;
         const mentesFeliratok = {
             foglalasok: 'Módosítások mentése',

@@ -4,7 +4,8 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT = path.resolve(__dirname, '..');
+const directoryIndex = process.argv.indexOf('--dir');
+const ROOT = directoryIndex >= 0 ? path.resolve(process.argv[directoryIndex + 1]) : path.resolve(__dirname, '..');
 const portIndex = process.argv.indexOf('--port');
 const PORT = Number(portIndex >= 0 ? process.argv[portIndex + 1] : process.env.PORT || 8101);
 const hostIndex = process.argv.indexOf('--host');
@@ -25,51 +26,7 @@ const MIME = {
     '.xml': 'application/xml; charset=utf-8'
 };
 
-const PUBLIC_ROOT_FILES = new Set([
-    'index.html',
-    '404.html',
-    'adatkezeles.html',
-    'admin.html',
-    'arlista.html',
-    'foglalas.html',
-    'galeria.html',
-    'admin-content.js',
-    'admin-export.js',
-    'admin-supabase.js',
-    'booking.js',
-    'booking-manage.js',
-    'booking-manage.css',
-    'home-account-strip.js',
-    'home-account-strip.css',
-    'typography-tuning.css',
-    'account-entry.js',
-    'account.js',
-    'script.js',
-    'style.css',
-    'admin-v2.css',
-    'supabase-config.js',
-    'pwa.js',
-    'pwa-admin-shell.js',
-    'sw.js',
-    'manifest.webmanifest',
-    'favicon.ico',
-    'robots.txt',
-    'sitemap.xml'
-]);
-const PUBLIC_DIRECTORIES = new Set([
-    'adatkezeles',
-    'admin',
-    'arlista',
-    'fiokom',
-    'foglalas',
-    'galeria',
-    'gel-lakk-tatabanya',
-    'kepek',
-    'korom-diszites-nail-art-tatabanya',
-    'manikur-tatabanya',
-    'mukorom-epites-toltes'
-]);
-const PUBLIC_NESTED_EXTENSIONS = new Set(['.html', '.jpg', '.jpeg', '.png', '.webp', '.svg', '.ico']);
+const { PUBLIC_ROOT_FILES, PUBLIC_DIRECTORIES, PUBLIC_NESTED_EXTENSIONS } = require('./public-files');
 
 function isPublicFile(filePath) {
     const relativePath = path.relative(ROOT, filePath);
@@ -77,7 +34,8 @@ function isPublicFile(filePath) {
     if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) return false;
     if (segments.length === 1) return PUBLIC_ROOT_FILES.has(segments[0]);
     return PUBLIC_DIRECTORIES.has(segments[0])
-        && PUBLIC_NESTED_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+        && (PUBLIC_NESTED_EXTENSIONS.has(path.extname(filePath).toLowerCase())
+            || segments[0] === 'assets' && ['.js', '.css'].includes(path.extname(filePath).toLowerCase()));
 }
 
 const server = http.createServer((request, response) => {

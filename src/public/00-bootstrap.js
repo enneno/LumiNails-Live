@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
     Promise.all([oldalvaz, adatokBetoltese()])
         .then(([, adatok]) => {
-            oldalAdatokAlkalmazasa(adatok);
+            if (adatok) oldalAdatokAlkalmazasa(adatok);
             galeriaBekotese();
             Promise.allSettled([
                 onlineTelefonLathatosagAlkalmazasa(),

@@ -1,6 +1,11 @@
-    async function kuponokBetoltese() {
+    function kuponokBetoltese() {
+        return adminKeresOsszevonasa('kuponokBetoltese', kuponokBetolteseLetoltese);
+    }
+
+    async function kuponokBetolteseLetoltese() {
+        const ervenyes = adminKeresMunkamenetOr();
         const elemek = adminElemek();
-        if (!elemek.kuponLista) return;
+        if (!elemek.kuponLista) return false;
 
         let { data, error } = await allapot.kliens
             .from('coupons')
@@ -24,12 +29,13 @@
                 .order('created_at', { ascending: true }));
         }
 
+        if (!ervenyes()) return false;
         if (error) {
             allapot.kuponok = [];
             arKalkulatorKuponokFrissitese();
             elemek.kuponLista.innerHTML = `<p class="admin-ures">A kuponkezel\u00e9shez futtasd a <code>supabase-coupons.sql</code> f\u00e1jlt Supabase-ben.</p>`;
             if (!hianyzoKuponTabla(error)) onlineStatusz('Nem siker\u00fclt bet\u00f6lteni a kuponokat.', true);
-            return;
+            return false;
         }
 
         allapot.kuponok = (data || []).map(kupon => ({
@@ -41,10 +47,11 @@
 
         if (!allapot.kuponok.length) {
             elemek.kuponLista.innerHTML = '<p class="admin-ures">M\u00e9g nincs kupon. Hozz l\u00e9tre egyet az \u00daj kupon gombbal.</p>';
-            return;
+            return false;
         }
 
         allapot.kuponok.forEach(kupon => elemek.kuponLista.appendChild(kuponKartya(kupon)));
+        return true;
     }
 
     function kuponKartya(kupon) {
@@ -465,5 +472,6 @@
         }
 
         onlineStatusz('Kuponok mentve.');
+        // Coupon validity remains live; public text changes are picked up at the next publication check.
         kuponokBetoltese();
     }
