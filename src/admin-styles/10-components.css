@@ -3,24 +3,24 @@
    their feature-specific layout. No late override files and no !important. */
 
 .admin-body.admin-v2 {
-  --admin-ui-field-height: 32px;
-  --admin-ui-choice-height: 32px;
-  --admin-ui-button-height: 34px;
-  --admin-ui-icon-button-size: 30px;
+  --admin-ui-field-height: 36px;
+  --admin-ui-choice-height: 36px;
+  --admin-ui-button-height: 36px;
+  --admin-ui-icon-button-size: 32px;
   --admin-ui-touch-target: 44px;
-  --admin-ui-control-radius: 11px;
-  --admin-ui-icon-radius: 10px;
+  --admin-ui-control-radius: 8px;
+  --admin-ui-icon-radius: 8px;
   --admin-ui-field-padding-x: 9px;
   --admin-ui-choice-padding-x: 9px;
   --admin-ui-button-padding-x: 13px;
   --admin-ui-textarea-min-height: 72px;
   --admin-ui-control-line-height: 1.2;
-  --admin-ui-action-font-size: 14px;
+  --admin-ui-action-font-size: 12px;
   --admin-ui-placeholder-font-size: 14px;
-  --admin-ui-input-font-size: 18px;
-  --admin-ui-select-font-size: 14px;
+  --admin-ui-input-font-size: 14px;
+  --admin-ui-select-font-size: 12px;
   --admin-ui-page-size-font-size: 14px;
-  --admin-ui-picker-font-size: 20px;
+  --admin-ui-picker-font-size: 16px;
   --admin-ui-ios-field-optical-ratio: 0.32;
   --admin-ui-ios-choice-optical-ratio: 0.32;
 }
@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 5px;
+  gap: calc(5px * var(--admin-scale, 1));
   color: var(--barna);
   font-size: var(--lumi-font-label);
   font-weight: 600;
@@ -51,7 +51,7 @@
   align-items: center;
   justify-content: flex-start;
   min-height: 38px;
-  gap: 10px;
+  gap: calc(10px * var(--admin-scale, 1));
   line-height: 1.35;
 }
 
@@ -79,19 +79,19 @@
 .admin-body .admin-db-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: calc(14px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-db-lista {
   display: grid;
-  gap: 14px;
+  gap: calc(14px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-db-kartya {
   min-width: 0;
   box-sizing: border-box;
   margin-bottom: 9px;
-  padding: 12px 13px;
+  padding: calc(12px * var(--admin-scale, 1)) calc(13px * var(--admin-scale, 1));
   color: var(--szoveg);
   border: 1px solid var(--admin-v2-border);
   border-radius: 11px;
@@ -104,18 +104,13 @@
   overflow-wrap: anywhere;
   color: var(--barna);
   font-family: "DM Sans", sans-serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--admin-scale, 1));
   line-height: 1.25;
 }
 
-.admin-body .admin-db-kartya p {
+.admin-body :where(.admin-db-kartya) p {
   margin: 6px 0 0;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.admin-body.admin-v2 .admin-db-kartya span:not(.admin-allapot-jelzo) {
-  font-size: 14px;
+  font-size: calc(14px * var(--admin-scale, 1));
   line-height: 1.45;
 }
 
@@ -127,13 +122,13 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: calc(12px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-db-akciok {
   display: none;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: calc(10px * var(--admin-scale, 1));
   margin-top: 12px;
 }
 
@@ -165,7 +160,7 @@
 .admin-body .admin-kartya-tipus {
   margin: 0 0 4px;
   color: var(--admin-v2-subtle);
-  font-size: 12px;
+  font-size: calc(12px * var(--admin-scale, 1));
   font-weight: 600;
   letter-spacing: 0.1em;
   line-height: 1.2;
@@ -220,8 +215,8 @@
 
 /* Shared segmented navigation: visual treatment belongs here; feature files own only layout. */
 .admin-body.admin-v2 .admin-segmented {
-  gap: 2px;
-  padding: 3px;
+  gap: calc(2px * var(--admin-scale, 1));
+  padding: calc(3px * var(--admin-scale, 1));
   border: 1px solid var(--admin-v2-border);
   border-radius: 12px;
   background: var(--admin-v2-surface-soft);
@@ -231,7 +226,7 @@
 .admin-body.admin-v2 .admin-segmented-item {
   display: inline-flex;
   min-height: 34px;
-  padding: 0 12px;
+  padding: 0 calc(12px * var(--admin-scale, 1));
   align-items: center;
   justify-content: center;
   border: 0;
@@ -239,7 +234,7 @@
   color: var(--admin-v2-muted);
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--admin-scale, 1));
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -406,135 +401,46 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   --admin-ui-time-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e9eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E");
 }
 
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"]) {
-  position: relative;
-  display: block;
-  box-sizing: border-box;
-  inline-size: 100%;
-  width: 100%;
-  max-inline-size: 100%;
-  max-width: 100%;
-  min-inline-size: 0;
-  min-width: 0;
-  height: 34px;
-  min-height: 34px;
-  padding: 0;
-  overflow: hidden;
-  appearance: none;
-  -webkit-appearance: none;
-  border: 1px solid var(--admin-v2-border);
-  border-radius: 12px;
-  color: var(--admin-v2-ink);
-  background-color: var(--admin-v2-surface);
-  background-position: right var(--admin-ui-picker-icon-gap) center;
-  background-repeat: no-repeat;
-  background-size: var(--admin-ui-picker-icon-size) var(--admin-ui-picker-icon-size);
-  box-shadow: 0 1px 2px rgba(67, 42, 35, .04);
-  font-family: inherit;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1;
-  text-align: center;
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="month"]) {
-  background-image: var(--admin-ui-date-icon);
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) input[type="time"] {
-  background-image: var(--admin-ui-time-icon);
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"])::-webkit-date-and-time-value {
-  box-sizing: border-box;
-  width: calc(100% - var(--admin-ui-picker-icon-zone));
-  max-width: calc(100% - var(--admin-ui-picker-icon-zone));
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  overflow: hidden;
-  font-size: 20px;
-  line-height: 1.1;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"])::-webkit-datetime-edit,
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"])::-webkit-datetime-edit-fields-wrapper {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-size: 20px;
-  line-height: 1.1;
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(
-  input[type="date"]::-webkit-datetime-edit-year-field,
-  input[type="date"]::-webkit-datetime-edit-month-field,
-  input[type="date"]::-webkit-datetime-edit-day-field,
-  input[type="date"]::-webkit-datetime-edit-text,
-  input[type="month"]::-webkit-datetime-edit-year-field,
-  input[type="month"]::-webkit-datetime-edit-month-field,
-  input[type="month"]::-webkit-datetime-edit-text,
-  input[type="time"]::-webkit-datetime-edit-hour-field,
-  input[type="time"]::-webkit-datetime-edit-minute-field,
-  input[type="time"]::-webkit-datetime-edit-ampm-field,
-  input[type="time"]::-webkit-datetime-edit-text
-) {
-  font-size: 20px;
-  line-height: 1.1;
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"]):focus {
-  border-color: color-mix(in srgb, var(--admin-v2-brand) 58%, var(--admin-v2-border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-v2-brand-soft) 78%, transparent);
-  outline: 0;
-}
-
-.admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input[type="date"], input[type="time"], input[type="month"])::-webkit-calendar-picker-indicator {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: var(--admin-ui-picker-icon-zone);
-  max-width: var(--admin-ui-picker-icon-zone);
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
-  cursor: pointer;
+/* Reference-style compact controls. Native values remain under their existing form owners. */
+.admin-body.admin-v2 select[data-studio-native-select][hidden] { display: none; }
+.admin-select-control { position: relative; display: flex; width: 100%; max-width: 100%; min-width: 0; }
+.admin-body.admin-v2 .admin-select-trigger { display: block; width: 100%; max-width: 100%; min-width: 0; height: var(--admin-ui-choice-height); padding: 0 calc(28px * var(--admin-scale, 1)) 0 calc(10px * var(--admin-scale, 1)); overflow: hidden; border: 1px solid var(--admin-v2-border); border-radius: 8px; color: var(--admin-v2-ink); background: var(--lumi-control-bg) var(--lumi-select-arrow) no-repeat right 9px center / 12px; font: 600 calc(12px * var(--admin-scale, 1))/1.4 var(--font-display); text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.admin-select-trigger:disabled { opacity: .55; cursor: default; }
+.admin-select-popup { position: fixed; inset: auto; z-index: 2000; margin: 0; padding: calc(4px * var(--admin-scale, 1)); overflow-y: auto; border: 1px solid var(--admin-v2-border); border-radius: 10px; color: var(--admin-v2-ink); background: var(--admin-v2-surface); box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
+.admin-body.admin-v2 .admin-select-option { display: block; width: 100%; min-height: 36px; padding: calc(8px * var(--admin-scale, 1)) calc(10px * var(--admin-scale, 1)); border: 0; border-radius: 6px; color: inherit; background: transparent; font: 600 calc(12px * var(--admin-scale, 1))/1.4 var(--font-display); text-align: left; cursor: pointer; }
+.admin-select-option[aria-selected="true"] { color: var(--admin-v2-brand); background: var(--admin-v2-surface-soft); }
+.admin-select-option:focus-visible { outline: 2px solid var(--admin-v2-brand); outline-offset: -2px; }
+.admin-select-option:disabled { opacity: .4; }
+.admin-temporal-control { position: relative; display: flex; align-items: center; width: 100%; max-width: 100%; min-width: 0; height: var(--admin-ui-field-height); border: 1px solid var(--admin-v2-border); border-radius: 8px; background: var(--lumi-control-bg); }
+.admin-temporal-control:focus-within { outline: 2px solid var(--admin-v2-brand); outline-offset: 1px; }
+.admin-temporal-value { display: block; flex: 1; min-width: 0; padding: 0 calc(28px * var(--admin-scale, 1)) 0 calc(9px * var(--admin-scale, 1)); overflow: hidden; color: var(--admin-v2-ink); font: 600 calc(12px * var(--admin-scale, 1))/1.4 var(--font-display); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.admin-temporal-control::after { position: absolute; right: 9px; width: 13px; height: 13px; background: var(--admin-ui-date-icon) center / contain no-repeat; content: ''; pointer-events: none; }
+.admin-temporal-control:has(input[type="time"])::after { background-image: var(--admin-ui-time-icon); }
+.admin-body.admin-v2 :is(#admin-tartalom,#admin-bejelentkezes-panel) .admin-temporal-control input { position: absolute; inset: 0; width: 100%; max-width: 100%; min-width: 0; height: 100%; min-height: 0; margin: 0; padding: 0; opacity: 0; font-size: 16px; cursor: pointer; }
+.admin-temporal-control.is-disabled { opacity: .55; }
+.studio-density-setting { margin-top: 16px; }
+.admin-v2-button.has-draft::before { width: 5px; height: 5px; border-radius: 50%; background: currentColor; content: ''; }
+@media (pointer: coarse) {
+  .admin-body.admin-v2 :is(#admin-tartalom,#admin-bejelentkezes-panel) :is(input:not([type="checkbox"]):not([type="radio"]),textarea):focus { font-size: 16px; }
 }
 
 .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) textarea {
   width: 100%;
   min-width: 0;
   min-height: var(--admin-ui-textarea-min-height);
-  padding: 8px var(--admin-ui-field-padding-x);
+  padding: calc(8px * var(--admin-scale, 1)) var(--admin-ui-field-padding-x);
   border-radius: var(--admin-ui-control-radius);
   line-height: 1.4;
 }
 
 .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input, textarea)::placeholder {
   font-size: var(--admin-ui-placeholder-font-size);
-  font-size-adjust: none;
   line-height: var(--admin-ui-control-line-height);
 }
 
 .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) select,
 .admin-body.admin-v2 #admin-tartalom .admin-db-statusz {
-  font-size: 14px;
-  font-size-adjust: none;
+  font-size: calc(14px * var(--admin-scale, 1));
   height: var(--admin-ui-choice-height);
   min-height: var(--admin-ui-choice-height);
   padding-top: 0;
@@ -674,7 +580,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   align-items: center;
   justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 7px;
+  gap: calc(7px * var(--admin-scale, 1));
   margin-top: 18px;
   padding-bottom: 0;
   color: var(--barna);
@@ -690,8 +596,8 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 .admin-body .admin-lapozo-nav {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 3px;
+  gap: calc(2px * var(--admin-scale, 1));
+  padding: calc(3px * var(--admin-scale, 1));
   border: 1px solid var(--admin-v2-border);
   border-radius: 12px;
   background: var(--admin-v2-surface-soft);
@@ -701,16 +607,16 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   display: inline-flex;
   height: 36px;
   min-height: 36px;
-  padding: 0 10px;
+  padding: 0 calc(10px * var(--admin-scale, 1));
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: calc(5px * var(--admin-scale, 1));
   border: 0;
   border-radius: 9px;
   color: var(--admin-v2-muted);
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--admin-scale, 1));
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -741,13 +647,13 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   display: grid;
   min-width: 46px;
   height: 36px;
-  padding: 0 8px;
+  padding: 0 calc(8px * var(--admin-scale, 1));
   place-items: center;
   border-radius: 9px;
   color: var(--admin-v2-brand-dark);
   background: var(--admin-v2-surface);
   box-shadow: 0 1px 3px rgba(67, 42, 35, .08);
-  font-size: 14px;
+  font-size: calc(14px * var(--admin-scale, 1));
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -756,7 +662,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 .admin-body .admin-lapozo-jobb {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: calc(7px * var(--admin-scale, 1));
   margin-left: auto;
 }
 
@@ -764,10 +670,10 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 .admin-body .admin-pagination-size {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: calc(6px * var(--admin-scale, 1));
   margin: 0;
   color: var(--admin-v2-subtle);
-  font-size: 12px;
+  font-size: calc(12px * var(--admin-scale, 1));
   font-weight: 600;
   white-space: nowrap;
 }
@@ -778,7 +684,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   min-width: 62px;
   height: 38px;
   min-height: 38px;
-  padding: 0 24px 0 10px;
+  padding: 0 calc(24px * var(--admin-scale, 1)) 0 calc(10px * var(--admin-scale, 1));
   border-color: var(--admin-v2-border);
   border-radius: var(--admin-ui-control-radius);
   background-color: var(--admin-v2-surface);
@@ -801,10 +707,10 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
     height: 30px;
     padding-inline: 6px;
   }
-  .admin-body .admin-lapozo-nav { padding: 2px; }
+  .admin-body .admin-lapozo-nav { padding: calc(2px * var(--admin-scale, 1)); }
   .admin-body .admin-lapozo {
     min-height: 36px;
-    gap: 6px 8px;
+    gap: calc(6px * var(--admin-scale, 1)) calc(8px * var(--admin-scale, 1));
   }
   .admin-body .admin-lapozo-felso { margin: 6px 0; }
   .admin-body .admin-pagination-size .admin-oldalmeret-select,
@@ -821,7 +727,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
+  gap: calc(18px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-kompakt-kartya-osszefoglalo {
@@ -833,7 +739,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   margin: 0;
   padding: 0;
   overflow: visible;
-  font-size: clamp(21px, 2vw, 26px);
+  font-size: calc(14px * var(--admin-scale, 1));
   line-height: 1.04;
   -webkit-line-clamp: unset;
 }
@@ -850,27 +756,27 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: calc(6px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-allapot-jelzo {
   display: inline-flex;
   align-items: center;
   min-height: 26px;
-  padding: 0 8px;
+  padding: 0 calc(8px * var(--admin-scale, 1));
   border-radius: 7px;
-  color: #56715e;
-  background: #e8f0e9;
-  font-size: var(--lumi-font-caption);
+  color: var(--admin-v2-success);
+  background: var(--admin-v2-success-soft);
+  font-size: calc(10px * var(--admin-scale, 1));
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   white-space: nowrap;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .admin-body .admin-allapot-jelzo.inaktiv {
   color: var(--admin-muted);
-  background: #efedeb;
+  background: var(--lumi-control-bg);
 }
 
 .admin-body .admin-ikonos-gomb {
@@ -878,7 +784,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
   align-items: center;
   justify-content: center;
   min-height: var(--admin-ui-touch-target);
-  gap: 7px;
+  gap: calc(7px * var(--admin-scale, 1));
 }
 
 .admin-body .admin-ikonos-gomb svg {
@@ -895,12 +801,12 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 .admin-body .admin-kompakt-szerkeszto {
   display: none;
   margin-top: 12px;
-  padding-top: 12px;
+  padding-top: calc(12px * var(--admin-scale, 1));
   border-top: 1px solid rgba(240, 215, 213, 0.68);
 }
 
 .admin-body .admin-szerkesztheto-kartya.szerkeszt {
-  background: #fbf6f2;
+  background: var(--admin-v2-surface-soft);
 }
 
 .admin-body .admin-szerkesztheto-kartya.szerkeszt .admin-kompakt-szerkeszto {
@@ -910,26 +816,23 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 .admin-body .admin-szerkesztheto-kartya .admin-db-akciok {
   justify-content: flex-end;
   margin-top: 10px;
-  padding-top: 10px;
+  padding-top: calc(10px * var(--admin-scale, 1));
   border-top: 1px solid rgba(73, 58, 52, 0.09);
 }
 
 @media screen and (max-width: 768px) {
   .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
   .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) textarea {
-    font-size: max(22px, 1em);
-    font-size-adjust: var(--admin-ui-ios-field-optical-ratio);
+    font-size: var(--admin-ui-input-font-size);
   }
 
   .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) select,
   .admin-body.admin-v2 #admin-tartalom .admin-db-statusz {
-    font-size: max(22px, 1em);
-    font-size-adjust: var(--admin-ui-ios-choice-optical-ratio);
+    font-size: var(--admin-ui-input-font-size);
   }
 
   .admin-body.admin-v2 :is(#admin-tartalom, #admin-bejelentkezes-panel) :is(input, textarea)::placeholder {
     font-size: var(--admin-ui-placeholder-font-size);
-    font-size-adjust: none;
   }
 
   .admin-body .admin-db-grid,
@@ -967,7 +870,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
    Feature styles may position these components, while their visual treatment
    remains centralized here. */
 .admin-body.admin-v2 .admin-db-lista--sorok > .admin-db-kartya {
-  padding: 12px 7px;
+  padding: calc(12px * var(--admin-scale, 1)) calc(7px * var(--admin-scale, 1));
   border: 0;
   border-bottom: 1px solid var(--admin-line);
   border-radius: 0;
@@ -980,13 +883,13 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 .admin-db-lista--sorok.admin-db-lista--surubb > .admin-db-kartya {
-  padding-block: 9px;
+  padding-block: calc(9px * var(--admin-scale, 1));
 }
 
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-db-statusz--foglalas {
   height: 34px;
   min-height: 34px;
-  padding: 0 16px;
+  padding: 0 calc(16px * var(--admin-scale, 1));
   appearance: none;
   -webkit-appearance: none;
   border-color: var(--booking-state-border);
@@ -1009,7 +912,7 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 }
 
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt .admin-db-statusz--foglalas {
-  padding: 0 28px 0 12px;
+  padding: 0 calc(28px * var(--admin-scale, 1)) 0 calc(12px * var(--admin-scale, 1));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f5f59' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
   background-position: right 9px center;
   background-size: 14px 14px;
@@ -1018,22 +921,22 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 
 .admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo {
   color: var(--admin-v2-muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--admin-scale, 1));
   font-weight: 600;
   line-height: 1.15;
 }
 
 .admin-body.admin-v2 #admin-panel-szovegek .admin-mezo {
   color: var(--admin-v2-muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--admin-scale, 1));
   font-weight: 600;
 }
 
 .admin-body .admin-allapot-jelzo--kompakt {
   min-height: 22px;
-  padding: 0 7px;
+  padding: 0 calc(7px * var(--admin-scale, 1));
   border-radius: 999px;
-  font-size: 11px;
+  font-size: calc(11px * var(--admin-scale, 1));
   font-weight: 600;
   line-height: 22px;
   white-space: nowrap;
@@ -1041,17 +944,31 @@ html[data-admin-theme="dark"] .admin-body.admin-v2 {
 
 @container admin-workspace (max-width: 480px) {
   .admin-body.admin-v2 .admin-db-lista--sorok > .admin-db-kartya {
-    padding: 11px 3px;
+    padding: calc(11px * var(--admin-scale, 1)) calc(3px * var(--admin-scale, 1));
   }
 
   .admin-body.admin-v2 .admin-db-lista--sorok.admin-db-lista--surubb > .admin-db-kartya {
-    padding-block: 9px;
+    padding-block: calc(9px * var(--admin-scale, 1));
   }
 }
 
 @media screen and (max-width: 768px) {
   .admin-body .admin-allapot-jelzo--kompakt {
     padding-inline: 6px;
-    font-size: 9px;
+    font-size: calc(9px * var(--admin-scale, 1));
   }
 }
+
+/* Studio control variants; geometry belongs to the shared primitive above. */
+.admin-body.admin-v2 .admin-v2-button,.admin-body.admin-v2 .admin-v2-icon-button { display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--admin-scale, 1)); border: 1px solid var(--admin-v2-border); border-radius: 8px; color: var(--admin-v2-ink); background: var(--admin-v2-surface-soft); font: 700 calc(12px * var(--admin-scale, 1))/1.25 'Manrope', sans-serif; cursor: pointer; transition: background-color 200ms, border-color 200ms; }
+.admin-v2-button svg,.admin-v2-icon-button svg { width: 16px; height: 16px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.admin-body.admin-v2 .admin-v2-button-primary { border-color: var(--admin-v2-brand); color: var(--admin-v2-on-brand); background: var(--admin-v2-brand); }
+.admin-body.admin-v2 .admin-v2-button:hover,.admin-body.admin-v2 .admin-v2-icon-button:hover { border-color: var(--admin-v2-brand); }
+.admin-body.admin-v2 .admin-v2-button-primary:hover { background: var(--admin-v2-brand-dark); }
+.admin-body.admin-v2 :is(.admin-v2-button,.admin-v2-icon-button):disabled { opacity: .45; cursor: not-allowed; }
+
+.studio-sortable { position:relative; }
+.studio-sort-handle { display:flex; align-items:center; justify-content:center; width:26px; height:32px; padding:0; border:0; border-radius:6px; background:transparent; color:var(--admin-v2-muted); font-size:20px; line-height:1; cursor:grab; touch-action:none; }
+.studio-sort-handle:focus-visible { outline:2px solid var(--admin-v2-brand); outline-offset:2px; }
+.studio-sortable.is-sort-source { opacity:.55; }
+.studio-sortable.is-sort-target { outline:2px solid var(--admin-v2-brand); outline-offset:2px; }

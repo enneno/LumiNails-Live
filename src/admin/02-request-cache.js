@@ -10,6 +10,7 @@
         if (adminFolyamatbanLevoKeresek.has(kulcs)) return adminFolyamatbanLevoKeresek.get(kulcs);
         const keres = Promise.resolve().then(betoltes).finally(() => {
             if (adminFolyamatbanLevoKeresek.get(kulcs) === keres) adminFolyamatbanLevoKeresek.delete(kulcs);
+            window.dispatchEvent(new CustomEvent('lumi:admin-data',{detail:{scope:kulcs}}));
         });
         adminFolyamatbanLevoKeresek.set(kulcs, keres);
         return keres;
@@ -18,6 +19,7 @@
     function adminAdatCacheTorlese() {
         allapot.adatCacheVerzio = (allapot.adatCacheVerzio || 0) + 1;
         adminBetoltottAdatok.clear();
+        adminStudioFoglalasKartyak.clear();
         adminFolyamatbanLevoKeresek.clear();
     }
 
@@ -39,6 +41,7 @@
             tiltasok: ['szolgaltatasok', 'tiltasok'], beallitasok: ['beallitasok'],
         };
         await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
+            if (!force && typeof adminStudioVanPiszkozat === 'function' && adminStudioVanPiszkozat(kulcs)) return;
             if (!force && stabil.has(kulcs) && adminBetoltottAdatok.has(kulcs)) return;
             const siker = await betoltok[kulcs]();
             if (siker !== false && stabil.has(kulcs) && verzio === allapot.adatCacheVerzio) adminBetoltottAdatok.add(kulcs);

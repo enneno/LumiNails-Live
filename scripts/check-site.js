@@ -27,9 +27,10 @@ const JS_FILES = [
     'account.js',
     'admin-supabase.js',
     'admin-export.js',
-    'admin-content.js'
+    'admin-content.js',
+    'admin-reference.js'
 ];
-const CSS_FILES = ['style.css', 'admin-v2.css'];
+const CSS_FILES = ['style.css', 'admin-reference.css'];
 const EDGE_FUNCTION_FILES = [
     'supabase/functions/create-booking-with-email/index.ts',
     'supabase/functions/upload-booking-inspirations/index.ts',
@@ -166,7 +167,8 @@ for (const relativePath of HTML_FILES.concat(JS_FILES, CSS_FILES)) {
 }
 for (const jsFile of JS_FILES) {
     try {
-        execFileSync(process.execPath, ['--check', path.join(ROOT, jsFile)], { stdio: 'pipe' });
+        if(jsFile==='admin-reference.js')execFileSync(process.execPath,['--check','--input-type=module'],{input:fs.readFileSync(path.join(ROOT,jsFile)),stdio:'pipe'});
+        else execFileSync(process.execPath, ['--check', path.join(ROOT, jsFile)], { stdio: 'pipe' });
     } catch (error) {
         fail(jsFile + ': JavaScript szintaktikai hiba.');
     }
@@ -197,15 +199,21 @@ const closeBraces = (css.match(/\}/g) || []).length;
 if (openBraces !== closeBraces) {
     fail('CSS kapcsos zárójel eltérés: ' + openBraces + '/' + closeBraces + '.');
 }
-if (css.includes('!important')) {
+// The generated reference bundle includes Tailwind's vendor preflight. Keep the
+// no-important authoring rule on first-party CSS; never patch generated vendor CSS.
+const referenceSourceRoot=path.join(ROOT,'src/admin-reference');
+const authoredAdminCss=fs.readdirSync(referenceSourceRoot,{recursive:true}).filter(file=>file.endsWith('.css')).map(file=>fs.readFileSync(path.join(referenceSourceRoot,file),'utf8')).join('\n');
+if (fs.readFileSync(path.join(ROOT,'style.css'),'utf8').includes('!important') || authoredAdminCss.includes('!important')) {
     fail('A CSS !important szabályt tartalmaz.');
 }
 
 const allowedBreakpoints = new Set(['380', '420', '480', '520', '640', '768', '769', '900']);
-const breakpoints = Array.from(css.matchAll(/@media[^\{]*(?:min|max)-width:\s*(\d+)px/g), match => match[1]);
-const unexpectedBreakpoints = Array.from(new Set(breakpoints.filter(value => !allowedBreakpoints.has(value))));
-if (unexpectedBreakpoints.length) {
-    fail('Nem szabványos CSS töréspont: ' + unexpectedBreakpoints.join(', ') + ' px.');
+for(const file of CSS_FILES){
+    // The copied admin owns its reference breakpoints; public rules stay unchanged.
+    const allowed=file==='admin-reference.css'?new Set(['640','1024']):allowedBreakpoints;
+    const breakpoints=Array.from(fs.readFileSync(path.join(ROOT,file),'utf8').matchAll(/@media[^\{]*(?:min|max)-width:\s*(\d+)px/g),match=>match[1]);
+    const unexpected=[...new Set(breakpoints.filter(value=>!allowed.has(value)))];
+    if(unexpected.length)fail(file+': nem szabványos CSS töréspont: '+unexpected.join(', ')+' px.');
 }
 const adminHtml = fs.readFileSync(path.join(ROOT, 'admin/index.html'), 'utf8');
 const adminJs = fs.readFileSync(path.join(ROOT, 'admin-supabase.js'), 'utf8');

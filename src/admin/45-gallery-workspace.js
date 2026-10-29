@@ -4,6 +4,7 @@
     let galleryMode = false;
     let internalSwitch = false;
     let refreshQueued = false;
+    let galleryFilter = '';
     let galleryPage = 1;
     let galleryPageSize = 10;
 
@@ -63,6 +64,7 @@
             queueRefresh(root);
         }, true);
 
+        root.addEventListener('input',event=>{if(event.target.matches('[data-gallery-filter]')){galleryFilter=event.target.value;galleryPage=1;queueRefresh(root);}});
         const observer = new MutationObserver(() => queueRefresh(root));
         observer.observe(root, { childList: true, subtree: true });
         queueRefresh(root);
@@ -139,7 +141,7 @@
                 button.setAttribute('aria-selected', 'false');
             });
 
-            const title = root.querySelector('.cms-editor-card-header h3');
+            const title = root.querySelector('.cms-active-title');
             if (title) title.textContent = 'Galéria képek';
 
             moveGalleryChoicesIntoControls(root);
@@ -210,7 +212,9 @@
             else header.appendChild(pagination);
         }
 
-        const items = Array.from(list.querySelectorAll(':scope > .cms-gallery-item'));
+        let filter=header.querySelector('[data-gallery-filter]');if(!filter){const label=document.createElement('label');label.className='admin-mezo cms-gallery-search';label.innerHTML='Képek keresése<input type="search" data-gallery-filter placeholder="Kép leírása">';header.append(label);filter=label.querySelector('input');filter.value=galleryFilter;}
+        const all=Array.from(list.querySelectorAll(':scope > .cms-gallery-item'));
+        const items=all.filter(item=>Array.from(item.querySelectorAll('[data-cms-path]')).map(input=>input.value).join(' ').toLocaleLowerCase('hu-HU').includes(galleryFilter.trim().toLocaleLowerCase('hu-HU')));all.forEach(item=>{if(!items.includes(item))item.hidden=true;});
         const total = items.length;
         const size = galleryPageSize === 'all'
             ? Math.max(1, total)

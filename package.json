@@ -12,14 +12,14 @@
     "admin:css:isolate": "node scripts/admin-css-isolation.js --fix",
     "admin:css:check": "node scripts/admin-css-isolation.js --check",
     "public:css:check": "node scripts/public-css-architecture.js --check",
-    "lint:css": "stylelint \"src/styles/**/*.css\" \"src/admin-styles/**/*.css\" \"booking-manage.css\" \"home-account-strip.css\" \"typography-tuning.css\"",
+    "lint:css": "stylelint \"src/styles/**/*.css\" \"src/admin-styles/**/*.css\" \"src/admin-reference/**/*.css\" \"booking-manage.css\" \"home-account-strip.css\" \"typography-tuning.css\"",
     "check": "node scripts/check-site.js && npm run build:check && npm run public:css:check && npm run admin:css:check && npm run lint:css",
     "test": "playwright test",
     "test:visual": "playwright test tests/visual-critical.spec.js",
     "test:a11y": "playwright test tests/accessibility-critical.spec.js",
     "audit:lighthouse": "node scripts/run-lighthouse.js",
-    "test:admin": "playwright test tests/admin-production-redesign.spec.js tests/admin-booking-css-architecture.spec.js tests/admin-v2-regressions.spec.js tests/admin-cms-image-workspace.spec.js tests/admin-dark-mode.spec.js",
-    "verify:admin": "npm run build && npm run assets:version && npm run check && npm run test:admin",
+    "test:admin": "node scripts/run-admin-tests.js",
+    "verify:admin": "npm run build && npm run admin:css:check && npm run lint:css && npm run test:admin",
     "verify": "npm run build && npm run assets:version && npm run check && npm test",
     "build:site": "node scripts/build-site.js",
     "serve:dist": "node scripts/static-server.js --dir dist --port 8102",
@@ -31,6 +31,9 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "0.5.13",
+    "@tailwindcss/node": "4.3.3",
+    "@tailwindcss/oxide": "4.3.3",
+    "esbuild": "0.28.2",
     "lighthouse": "^13.4.1",
     "linkedom": "^0.18.13",
     "playwright": "^1.61.1",
@@ -38,6 +41,14 @@
     "sharp": "^0.35.4",
     "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0",
+    "tailwindcss": "4.3.3",
     "wrangler": "4.154.0"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   }
 }

@@ -22,6 +22,8 @@ const PUBLIC_ROOT_FILES = new Set([
     'script.js',
     'style.css',
     'admin-v2.css',
+    'admin-reference.js',
+    'admin-reference.css',
     'supabase-config.js',
     'pwa.js',
     'pwa-admin-shell.js',

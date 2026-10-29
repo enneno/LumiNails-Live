@@ -22,6 +22,8 @@ const HTML_FILES = [
 const ASSETS = [
     'style.css',
     'admin-v2.css',
+    'admin-reference.css',
+    'admin-reference.js',
     'supabase-config.js',
     'script.js',
     'booking.js',

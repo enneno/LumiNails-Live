@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const {spawnSync}=require('node:child_process');
+const root=path.resolve(__dirname,'..');
+const env={...process.env};
+const browsers=path.join(root,'.local-browsers');
+const browserManifest=JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve('playwright-core/package.json')),'browsers.json'),'utf8'));
+const revision=browserManifest.browsers.find(browser=>browser.name==='webkit').revision;
+const hasWebKit=directory=>Boolean(directory&&fs.existsSync(path.join(directory,'webkit-'+revision,process.platform==='win32'?'Playwright.exe':'pw_run.sh')));
+if(hasWebKit(browsers)&&!hasWebKit(env.PLAYWRIGHT_BROWSERS_PATH))env.PLAYWRIGHT_BROWSERS_PATH=browsers;
+const cli=path.join(path.dirname(require.resolve('playwright/package.json')),'cli.js');
+const result=spawnSync(process.execPath,[cli,'test','--config','playwright.admin.config.js',...process.argv.slice(2)],{cwd:root,env,stdio:'inherit'});
+if(result.error)console.error(result.error.message);
+process.exitCode=result.status??1;

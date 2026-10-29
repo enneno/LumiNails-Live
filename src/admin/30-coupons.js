@@ -9,14 +9,18 @@
 
         let { data, error } = await allapot.kliens
             .from('coupons')
-            .select('id,code,title,description,discount_type,discount_value,discount_basis,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
+            .select(
+                'id,code,title,description,discount_type,discount_value,discount_basis,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order'
+            )
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: true });
 
         if (error && adatbazisOszlopHiany(error, ['discount_basis'])) {
             ({ data, error } = await allapot.kliens
                 .from('coupons')
-                .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order')
+                .select(
+                    'id,code,title,description,discount_type,discount_value,discount_text,service_id,service_category,customer_scope,valid_from,valid_until,active,show_on_home,sort_order'
+                )
                 .order('sort_order', { ascending: true })
                 .order('created_at', { ascending: true }));
         }
@@ -24,7 +28,9 @@
         if (error && adatbazisOszlopHiany(error, ['service_category', 'customer_scope'])) {
             ({ data, error } = await allapot.kliens
                 .from('coupons')
-                .select('id,code,title,description,discount_type,discount_value,discount_text,service_id,valid_from,valid_until,active,show_on_home,sort_order')
+                .select(
+                    'id,code,title,description,discount_type,discount_value,discount_text,service_id,valid_from,valid_until,active,show_on_home,sort_order'
+                )
                 .order('sort_order', { ascending: true })
                 .order('created_at', { ascending: true }));
         }
@@ -38,7 +44,7 @@
             return false;
         }
 
-        allapot.kuponok = (data || []).map(kupon => ({
+        allapot.kuponok = (data || []).map((kupon) => ({
             ...kupon,
             discount_basis: kuponKedvezmenyAlapja(kupon)
         }));
@@ -50,12 +56,17 @@
             return false;
         }
 
-        allapot.kuponok.forEach(kupon => elemek.kuponLista.appendChild(kuponKartya(kupon)));
+        allapot.kuponok.forEach((kupon) => elemek.kuponLista.appendChild(kuponKartya(kupon)));
+        const ujKartya = elemek.kuponLista.querySelector('.szerkeszt');
+        if (ujKartya && allapot.aktivTab === 'kuponok') adminKartyaPanelMegnyitasa(ujKartya);
         return true;
     }
 
     function kuponKartya(kupon) {
-        const ujKupon = String(kupon.title || '').trim().toLowerCase() === 'új kupon';
+        const ujKupon =
+            String(kupon.title || '')
+                .trim()
+                .toLowerCase() === 'új kupon';
         const ervenyesseg = [kupon.valid_from, kupon.valid_until].filter(Boolean).join(' – ') || 'Nincs dátumkorlát';
         const aktualisAllapot = kuponAktualisAllapota(kupon);
         const kedvezmenyAlap = kuponKedvezmenyAlapFelirat(kuponKedvezmenyAlapja(kupon));
@@ -64,67 +75,67 @@
         kartya.dataset.id = kupon.id;
 
         kartya.innerHTML = `
-            <div class="admin-kompakt-kartya-fej">
-                <div class="admin-kompakt-kartya-osszefoglalo">
-                    <span class="admin-kartya-tipus">Kupon</span>
-                    <h3>${html(kupon.code || 'Kód nélkül')}</h3>
-                    <p>${html(kupon.title || 'Névtelen kupon')} · ${html(kupon.discount_text || `${Number(kupon.discount_value) || 0}`)} · ${html(kedvezmenyAlap)} · ${html(ervenyesseg)}</p>
+                <div class="admin-kompakt-kartya-fej">
+                    <div class="admin-kompakt-kartya-osszefoglalo">
+                        <span class="admin-kartya-tipus">Kupon</span>
+                        <h3>${html(kupon.code || 'Kód nélkül')}</h3>
+                        <p>${html(kupon.title || 'Névtelen kupon')} · ${html(kupon.discount_text || `${Number(kupon.discount_value) || 0}`)} · ${html(kedvezmenyAlap)} · ${html(ervenyesseg)}</p>
+                    </div>
+                    <div class="admin-kompakt-kartya-vezerlok">
+                        <span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${html(aktualisAllapot.cimke)}</span>
+                        ${kupon.show_on_home ? `<span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${aktualisAllapot.aktiv ? 'Főoldalon' : 'Főoldalra jelölve'}</span>` : ''}
+                        <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-admin-kartya-toggle aria-expanded="${String(ujKupon)}">${adminV2Ikon(ujKupon ? 'close' : 'edit')}<span>${ujKupon ? 'Bezárás' : 'Szerkesztés'}</span></button>
+                    </div>
                 </div>
-                <div class="admin-kompakt-kartya-vezerlok">
-                    <span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${html(aktualisAllapot.cimke)}</span>
-                    ${kupon.show_on_home ? `<span class="admin-allapot-jelzo${aktualisAllapot.aktiv ? '' : ' inaktiv'}">${aktualisAllapot.aktiv ? 'Főoldalon' : 'Főoldalra jelölve'}</span>` : ''}
-                    <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-admin-kartya-toggle aria-expanded="${String(ujKupon)}">${adminV2Ikon(ujKupon ? 'close' : 'edit')}<span>${ujKupon ? 'Bezárás' : 'Szerkesztés'}</span></button>
-                </div>
-            </div>
-            <div class="admin-kompakt-szerkeszto">
-                <div class="admin-kupon-szerkeszto-racs">
-                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--alapadatok">
-                        <legend>Kupon adatai</legend>
-                        <div class="admin-kupon-mezo-racs admin-kupon-mezo-racs--alapadatok">
-                            <label class="admin-mezo admin-kupon-kod">Kuponkód<input type="text" data-mezo="code" value="${attr(kupon.code || '')}" autocomplete="off"></label>
-                            <label class="admin-mezo admin-kupon-cim">Belső név<input type="text" data-mezo="title" value="${attr(kupon.title || '')}"></label>
-                            <label class="admin-mezo admin-kupon-leiras">Vendégnek szóló leírás<textarea data-mezo="description" rows="3">${html(kupon.description || '')}</textarea></label>
-                        </div>
-                    </fieldset>
+                <div class="admin-kompakt-szerkeszto">
+                    <div class="admin-kupon-szerkeszto-racs">
+                        <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--alapadatok">
+                            <legend>Kupon adatai</legend>
+                            <div class="admin-kupon-mezo-racs admin-kupon-mezo-racs--alapadatok">
+                                <label class="admin-mezo admin-kupon-kod">Kuponkód<input type="text" data-mezo="code" value="${attr(kupon.code || '')}" autocomplete="off"></label>
+                                <label class="admin-mezo admin-kupon-cim">Belső név<input type="text" data-mezo="title" value="${attr(kupon.title || '')}"></label>
+                                <label class="admin-mezo admin-kupon-leiras">Vendégnek szóló leírás<textarea data-mezo="description" rows="3">${html(kupon.description || '')}</textarea></label>
+                            </div>
+                        </fieldset>
 
-                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--kedvezmeny">
-                        <legend>Kedvezmény számítása</legend>
-                        <p class="admin-kupon-szekcio-leiras">Válaszd ki a kedvezmény formáját és azt az összeget, amelyből le kell vonni.</p>
-                        <div class="admin-kupon-mezo-racs">
-                            <label class="admin-mezo admin-kupon-tipus">Kedvezmény típusa<select data-mezo="discount_type">${kuponTipusOptions(kupon.discount_type)}</select></label>
-                            <label class="admin-mezo admin-kupon-ertek">Érték<input type="number" min="0" step="1" inputmode="numeric" data-mezo="discount_value" value="${Number(kupon.discount_value) || 0}"></label>
-                            <label class="admin-mezo admin-kupon-alap">Miből vonja le?<select data-mezo="discount_basis">${kuponKedvezmenyAlapOptions(kuponKedvezmenyAlapja(kupon))}</select></label>
-                            <label class="admin-mezo admin-kupon-szoveg">Megjelenő kedvezményszöveg<input type="text" data-mezo="discount_text" value="${attr(kupon.discount_text || '')}"></label>
-                        </div>
-                        <p class="admin-kupon-szamitas-pelda" data-kupon-szamitas-segedlet></p>
-                    </fieldset>
+                        <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--kedvezmeny">
+                            <legend>Kedvezmény számítása</legend>
+                            <p class="admin-kupon-szekcio-leiras">Válaszd ki a kedvezmény formáját és azt az összeget, amelyből le kell vonni.</p>
+                            <div class="admin-kupon-mezo-racs">
+                                <label class="admin-mezo admin-kupon-tipus">Kedvezmény típusa<select data-mezo="discount_type">${kuponTipusOptions(kupon.discount_type)}</select></label>
+                                <label class="admin-mezo admin-kupon-ertek">Érték<input type="number" min="0" step="1" inputmode="numeric" data-mezo="discount_value" value="${Number(kupon.discount_value) || 0}"></label>
+                                <label class="admin-mezo admin-kupon-alap">Miből vonja le?<select data-mezo="discount_basis">${kuponKedvezmenyAlapOptions(kuponKedvezmenyAlapja(kupon))}</select></label>
+                                <label class="admin-mezo admin-kupon-szoveg">Megjelenő kedvezményszöveg<input type="text" data-mezo="discount_text" value="${attr(kupon.discount_text || '')}"></label>
+                            </div>
+                            <p class="admin-kupon-szamitas-pelda" data-kupon-szamitas-segedlet></p>
+                        </fieldset>
 
-                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--feltetelek">
-                        <legend>Felhasználási feltételek</legend>
-                        <div class="admin-kupon-mezo-racs">
-                            <label class="admin-mezo admin-kupon-szolgaltatas">Mire érvényes?<select data-mezo="service_scope">${kuponSzolgaltatasOptions(kupon)}</select></label>
-                            <label class="admin-mezo admin-kupon-celkozonseg">Ki használhatja?<select data-mezo="customer_scope">${kuponKozonsegOptions(kupon.customer_scope)}</select></label>
-                            <label class="admin-mezo admin-kupon-datum">Érvényes ettől<input type="date" data-mezo="valid_from" value="${attr(kupon.valid_from || '')}"></label>
-                            <label class="admin-mezo admin-kupon-datum">Érvényes eddig<input type="date" data-mezo="valid_until" value="${attr(kupon.valid_until || '')}"></label>
-                        </div>
-                    </fieldset>
+                        <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--feltetelek">
+                            <legend>Felhasználási feltételek</legend>
+                            <div class="admin-kupon-mezo-racs">
+                                <label class="admin-mezo admin-kupon-szolgaltatas">Mire érvényes?<select data-mezo="service_scope">${kuponSzolgaltatasOptions(kupon)}</select></label>
+                                <label class="admin-mezo admin-kupon-celkozonseg">Ki használhatja?<select data-mezo="customer_scope">${kuponKozonsegOptions(kupon.customer_scope)}</select></label>
+                                <label class="admin-mezo admin-kupon-datum">Érvényes ettől<input type="date" data-mezo="valid_from" value="${attr(kupon.valid_from || '')}"></label>
+                                <label class="admin-mezo admin-kupon-datum">Érvényes eddig<input type="date" data-mezo="valid_until" value="${attr(kupon.valid_until || '')}"></label>
+                            </div>
+                        </fieldset>
 
-                    <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--megjelenes">
-                        <legend>Megjelenés és állapot</legend>
-                        <div class="admin-kupon-kapcsolok">
-                            <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="active" ${kupon.active ? 'checked' : ''}> <span><strong>Aktív kupon</strong><small>Csak aktív és dátum szerint érvényes kupon használható.</small></span></label>
-                            <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="show_on_home" ${kupon.show_on_home ? 'checked' : ''}> <span><strong>Főoldali kártya</strong><small>Az ajánlat a főoldalon is megjelenhet.</small></span></label>
-                        </div>
-                        <label class="admin-mezo admin-kupon-sorrend">Megjelenési sorrend<input type="number" step="1" inputmode="numeric" data-mezo="sort_order" value="${Number(kupon.sort_order) || 0}"></label>
-                    </fieldset>
+                        <fieldset class="admin-kupon-szekcio admin-kupon-szekcio--megjelenes">
+                            <legend>Megjelenés és állapot</legend>
+                            <div class="admin-kupon-kapcsolok">
+                                <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="active" ${kupon.active ? 'checked' : ''}> <span><strong>Aktív kupon</strong><small>Csak aktív és dátum szerint érvényes kupon használható.</small></span></label>
+                                <label class="admin-mezo admin-checkbox admin-kupon-checkbox"><input type="checkbox" data-mezo="show_on_home" ${kupon.show_on_home ? 'checked' : ''}> <span><strong>Főoldali kártya</strong><small>Az ajánlat a főoldalon is megjelenhet.</small></span></label>
+                            </div>
+                            <label class="admin-mezo admin-kupon-sorrend">Megjelenési sorrend<input type="number" step="1" inputmode="numeric" data-mezo="sort_order" value="${Number(kupon.sort_order) || 0}"></label>
+                        </fieldset>
+                    </div>
+                    <div class="admin-db-akciok admin-kupon-akciok">
+                        <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-kupon-mozgat="fel">${adminV2Ikon('up')}<span>Feljebb</span></button>
+                        <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-kupon-mozgat="le">${adminV2Ikon('down')}<span>Lejjebb</span></button>
+                        <button type="button" class="admin-kis-gomb admin-veszely-gomb admin-ikonos-gomb" data-kupon-torles>${adminV2Ikon('trash')}<span>Törlés</span></button>
+                    </div>
                 </div>
-                <div class="admin-db-akciok admin-kupon-akciok">
-                    <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-kupon-mozgat="fel">${adminV2Ikon('up')}<span>Feljebb</span></button>
-                    <button type="button" class="admin-kis-gomb admin-ikonos-gomb" data-kupon-mozgat="le">${adminV2Ikon('down')}<span>Lejjebb</span></button>
-                    <button type="button" class="admin-kis-gomb admin-veszely-gomb admin-ikonos-gomb" data-kupon-torles>${adminV2Ikon('trash')}<span>Törlés</span></button>
-                </div>
-            </div>
-        `;
+            `;
         kuponSzerkesztoMezoAllapotFrissitese(kartya);
         return kartya;
     }
@@ -142,11 +153,15 @@
             ['percent', 'Sz\u00e1zal\u00e9k (%)'],
             ['fixed', 'Fix \u00f6sszeg (Ft)'],
             ['text', 'Csak sz\u00f6veges akci\u00f3']
-        ].map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`).join('');
+        ]
+            .map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`)
+            .join('');
     }
 
     function kuponKedvezmenyAlapja(kupon = {}) {
-        const alap = String(kupon?.discount_basis || '').trim().toLowerCase();
+        const alap = String(kupon?.discount_basis || '')
+            .trim()
+            .toLowerCase();
         if (['total', 'service', 'decoration'].includes(alap)) return alap;
         return normalizaltAdminKuponSzoveg(kupon?.service_category) === 'diszites' ? 'decoration' : 'service';
     }
@@ -156,7 +171,9 @@
             ['total', 'Teljes árból (szolgáltatás + díszítések)'],
             ['service', 'Csak az alapszolgáltatás árából'],
             ['decoration', 'Csak a díszítések árából']
-        ].map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`).join('');
+        ]
+            .map(([ertek, cimke]) => `<option value="${ertek}" ${ertek === aktiv ? 'selected' : ''}>${cimke}</option>`)
+            .join('');
     }
 
     function kuponKedvezmenyAlapFelirat(alap) {
@@ -198,7 +215,9 @@
         return [
             ['all', 'Mindenkinek'],
             ['new_customer', 'Csak \u00faj vend\u00e9gnek']
-        ].map(([value, cimke]) => `<option value="${value}" ${value === ertek ? 'selected' : ''}>${cimke}</option>`).join('');
+        ]
+            .map(([value, cimke]) => `<option value="${value}" ${value === ertek ? 'selected' : ''}>${cimke}</option>`)
+            .join('');
     }
 
     function kuponSzolgaltatasOptions(kupon = {}) {
@@ -207,32 +226,35 @@
             `<option value="all" ${aktivErtek === 'all' ? 'selected' : ''}>Minden szolg\u00e1ltat\u00e1s</option>`,
             `<option value="category:D\u00edsz\u00edt\u00e9s" ${aktivErtek === 'category:D\u00edsz\u00edt\u00e9s' ? 'selected' : ''}>Extra d\u00edsz\u00edt\u00e9s b\u00e1rmely foglalhat\u00f3 szolg\u00e1ltat\u00e1s mell\u00e9</option>`
         ];
-        const kategoriak = SZOLGALTATAS_KUPON_KATEGORIAK.filter(kategoria =>
-            kategoria !== 'D\u00edsz\u00edt\u00e9s'
-            && allapot.szolgaltatasok.some(szolgaltatas =>
-                szolgaltatas.booking_enabled
-                && szolgaltatasKuponKategoria(szolgaltatas) === kategoria
-            )
+        const kategoriak = SZOLGALTATAS_KUPON_KATEGORIAK.filter(
+            (kategoria) =>
+                kategoria !== 'D\u00edsz\u00edt\u00e9s' &&
+                allapot.szolgaltatasok.some(
+                    (szolgaltatas) => szolgaltatas.booking_enabled && szolgaltatasKuponKategoria(szolgaltatas) === kategoria
+                )
         );
 
         if (kategoriak.length) {
             opciok.push('<optgroup label="Foglalhat\u00f3 kateg\u00f3ri\u00e1k">');
-            kategoriak.forEach(kategoria => {
+            kategoriak.forEach((kategoria) => {
                 const ertek = `category:${kategoria}`;
-                opciok.push(`<option value="${attr(ertek)}" ${aktivErtek === ertek ? 'selected' : ''}>${html(kategoria)} kateg\u00f3ria</option>`);
+                opciok.push(
+                    `<option value="${attr(ertek)}" ${aktivErtek === ertek ? 'selected' : ''}>${html(kategoria)} kateg\u00f3ria</option>`
+                );
             });
             opciok.push('</optgroup>');
         }
 
-        const foglalhatoSzolgaltatasok = allapot.szolgaltatasok.filter(szolgaltatas =>
-            szolgaltatas.booking_enabled
-            && szolgaltatasKuponKategoria(szolgaltatas) !== 'D\u00edsz\u00edt\u00e9s'
+        const foglalhatoSzolgaltatasok = allapot.szolgaltatasok.filter(
+            (szolgaltatas) => szolgaltatas.booking_enabled && szolgaltatasKuponKategoria(szolgaltatas) !== 'D\u00edsz\u00edt\u00e9s'
         );
         if (foglalhatoSzolgaltatasok.length) {
             opciok.push('<optgroup label="Konkr\u00e9t foglalhat\u00f3 t\u00e9telek">');
-            foglalhatoSzolgaltatasok.forEach(szolgaltatas => {
+            foglalhatoSzolgaltatasok.forEach((szolgaltatas) => {
                 const ertek = `service:${szolgaltatas.id}`;
-                opciok.push(`<option value="${attr(ertek)}" ${aktivErtek === ertek ? 'selected' : ''}>${html(szolgaltatas.name || '')}</option>`);
+                opciok.push(
+                    `<option value="${attr(ertek)}" ${aktivErtek === ertek ? 'selected' : ''}>${html(szolgaltatas.name || '')}</option>`
+                );
             });
             opciok.push('</optgroup>');
         }
@@ -242,7 +264,7 @@
 
     function kuponScopeAktivErtek(kupon = {}) {
         if (kupon.service_id) {
-            const szolgaltatas = allapot.szolgaltatasok.find(tetel => tetel.id === kupon.service_id);
+            const szolgaltatas = allapot.szolgaltatasok.find((tetel) => tetel.id === kupon.service_id);
             if (szolgaltatasKuponKategoria(szolgaltatas) === 'D\u00edsz\u00edt\u00e9s') {
                 return 'category:D\u00edsz\u00edt\u00e9s';
             }
@@ -287,27 +309,12 @@
             sort_order: 999
         };
 
-        let { error } = await allapot.kliens.from('coupons').insert(ujKupon);
-
-        if (error && adatbazisOszlopHiany(error, ['discount_basis', 'customer_scope'])) {
-            const kompatibilisKupon = { ...ujKupon };
-            if (adatbazisOszlopHiany(error, ['discount_basis'])) delete kompatibilisKupon.discount_basis;
-            if (adatbazisOszlopHiany(error, ['customer_scope'])) delete kompatibilisKupon.customer_scope;
-            ({ error } = await allapot.kliens.from('coupons').insert(kompatibilisKupon));
-            if (!error) {
-                onlineStatusz('\u00daj kupon l\u00e9trehozva, de az \u00faj vend\u00e9g kuponmez\u0151h\u00f6z futtasd a friss Supabase SQL-t.', true);
-                kuponokBetoltese();
-                return;
-            }
-        }
-
-        if (error) {
-            onlineStatusz('Nem siker\u00fclt l\u00e9trehozni a kupont. Futtasd a supabase-coupons.sql f\u00e1jlt.', true);
-            return;
-        }
-
-        onlineStatusz('\u00daj kupon l\u00e9trehozva.');
-        kuponokBetoltese();
+        ujKupon.id = crypto.randomUUID();
+        const card = kuponKartya(ujKupon);
+        card.dataset.draftNew = 'true';
+        document.getElementById('admin-kupon-lista').append(card);
+        adminKartyaPanelMegnyitasa(card);
+        onlineStatusz('Új kupon-piszkozat. A létrehozást a Mentés véglegesíti.');
     }
 
     async function kuponListaKattintas(event) {
@@ -327,8 +334,15 @@
         }
 
         if (event.target.closest('[data-kupon-torles]')) {
-            if (!window.confirm('Biztosan törlöd ezt a kupont? Törlés előtt automatikusan inaktiválom, hogy ne maradjon kint a főoldalon.')) return;
-            await kuponTorlese(kartya.dataset.id);
+            if (!window.confirm('Biztosan törlöd ezt a kupont? A törlést a Mentés véglegesíti.')) return;
+            window.LumiAdminSheet?.resetWithin(kartya);
+            if (kartya.dataset.draftNew) kartya.remove();
+            else {
+                kartya.dataset.draftDelete = 'true';
+                kartya.hidden = true;
+            }
+            adminStudioMentesJelzes();
+            onlineStatusz('Törlésre jelölve. A Mentés véglegesíti.');
         }
     }
 
@@ -341,20 +355,14 @@
     async function kuponTorlese(id) {
         onlineStatusz('Kupon inaktiválása és törlése...');
 
-        const { error: inaktivHiba } = await allapot.kliens
-            .from('coupons')
-            .update({ active: false, show_on_home: false })
-            .eq('id', id);
+        const { error: inaktivHiba } = await allapot.kliens.from('coupons').update({ active: false, show_on_home: false }).eq('id', id);
 
         if (inaktivHiba) {
             onlineStatusz('Nem sikerült inaktiválni a kupont, ezért nem töröltem.', true);
             return;
         }
 
-        const { error } = await allapot.kliens
-            .from('coupons')
-            .delete()
-            .eq('id', id);
+        const { error } = await allapot.kliens.from('coupons').delete().eq('id', id);
 
         if (error) {
             onlineStatusz('A kupont inaktiváltam, de törölni nem sikerült. Így már nem jelenik meg az oldalon.', true);
@@ -376,14 +384,19 @@
 
         Array.from(lista.querySelectorAll('.admin-kupon-kartya')).forEach((elem, index) => {
             const sorrend = mezo(elem, 'sort_order');
-            if (sorrend) sorrend.value = String((index + 1) * 10);
+            if (sorrend) {
+                elem.dataset.studioSortDirty = 'true';
+                sorrend.value = String((index + 1) * 10);
+                sorrend.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         });
         onlineStatusz('A kupon sorrend módosult. A véglegesítéshez nyomd meg a Mentés gombot.');
     }
 
     async function kuponokMentese() {
-        const kartyak = Array.from(document.querySelectorAll('#admin-kupon-lista .admin-kupon-kartya'));
-        if (!kartyak.length) {
+        const allCards = Array.from(document.querySelectorAll('#admin-kupon-lista .admin-kupon-kartya'));
+        const kartyak = allCards.filter((card) => !card.dataset.draftDelete);
+        if (!allCards.length) {
             onlineStatusz('Nincs menthet\u0151 kupon.');
             return;
         }
@@ -440,26 +453,27 @@
                 sort_order: szamMezo(kartya, 'sort_order')
             };
 
-            let { error } = await allapot.kliens
-                .from('coupons')
-                .update(payload)
-                .eq('id', kartya.dataset.id);
+            const write = (payload) =>
+                kartya.dataset.draftNew
+                    ? allapot.kliens.from('coupons').insert({ ...payload, id: kartya.dataset.id })
+                    : allapot.kliens.from('coupons').update(payload).eq('id', kartya.dataset.id);
+            let { error } = await write(payload);
 
             if (error && adatbazisOszlopHiany(error, ['discount_basis', 'service_category', 'customer_scope'])) {
                 const kompatibilisPayload = { ...payload };
                 const kedvezmenyAlapHianyzik = adatbazisOszlopHiany(error, ['discount_basis']);
                 if (kedvezmenyAlapHianyzik && payload.discount_basis !== 'service') {
-                    onlineStatusz(`${kod}: az új kedvezményalap mentéséhez előbb futtasd a supabase-coupon-discount-basis.sql frissítést.`, true);
+                    onlineStatusz(
+                        `${kod}: az új kedvezményalap mentéséhez előbb futtasd a supabase-coupon-discount-basis.sql frissítést.`,
+                        true
+                    );
                     mezo(kartya, 'discount_basis')?.focus();
                     return;
                 }
                 if (kedvezmenyAlapHianyzik) delete kompatibilisPayload.discount_basis;
                 if (adatbazisOszlopHiany(error, ['service_category'])) delete kompatibilisPayload.service_category;
                 if (adatbazisOszlopHiany(error, ['customer_scope'])) delete kompatibilisPayload.customer_scope;
-                ({ error } = await allapot.kliens
-                    .from('coupons')
-                    .update(kompatibilisPayload)
-                    .eq('id', kartya.dataset.id));
+                ({ error } = await write(kompatibilisPayload));
                 if (!error) {
                     onlineStatusz('Kuponok mentve, de minden új kuponbeállításhoz futtasd a friss Supabase SQL-eket.', true);
                 }
@@ -469,8 +483,16 @@
                 onlineStatusz('Nem siker\u00fclt menteni az egyik kupont.', true);
                 return;
             }
+            delete kartya.dataset.draftNew;
         }
 
+        for (const card of allCards.filter((card) => card.dataset.draftDelete)) {
+            const { error } = await allapot.kliens.from('coupons').delete().eq('id', card.dataset.id);
+            if (error) {
+                onlineStatusz('Az egyik kupon törlése nem sikerült.', true);
+                return;
+            }
+        }
         onlineStatusz('Kuponok mentve.');
         // Coupon validity remains live; public text changes are picked up at the next publication check.
         kuponokBetoltese();

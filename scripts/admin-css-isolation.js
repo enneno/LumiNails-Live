@@ -13,6 +13,7 @@ const expectedFiles = [
   '10-components.css',
   '15-responsive-context.css',
   '20-workspace.css',
+  '25-editor-sheet.css',
   '30-bookings.css',
   '40-content-editor.css',
   '42-cms-image-controls.css',
@@ -43,8 +44,8 @@ function fail(message) {
 
 const adminHtml = fs.readFileSync(adminHtmlPath, 'utf8');
 const styles = localStylesheets(adminHtml);
-if (styles.length !== 1 || !styles[0].startsWith('/admin-v2.css')) {
-  fail(`admin/index.html must load exactly one local stylesheet (/admin-v2.css). Found: ${styles.join(', ') || 'none'}`);
+if (styles.length !== 1 || !styles[0].startsWith('/admin-reference.css')) {
+  fail(`admin/index.html must load exactly one local stylesheet (/admin-reference.css). Found: ${styles.join(', ') || 'none'}`);
 }
 if (/\/style\.css(?:\?|["'])/i.test(adminHtml)) {
   fail('admin/index.html must not load the public /style.css bundle.');
@@ -172,5 +173,5 @@ if (!config.includes('isAdminPath') || !config.includes('isAdminPath || document
 }
 
 if (!process.exitCode) {
-  console.log(`OK admin CSS architecture: ${expectedFiles.length} explicit sources -> ${styles[0]}`);
+  console.log(`OK active admin CSS: copied React module styles -> ${styles[0]}; ${expectedFiles.length} retained legacy sources checked separately.`);
 }

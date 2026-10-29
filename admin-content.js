@@ -581,6 +581,15 @@
         return sets;
     }
 
+    window.LumiAdminCms = {
+        save: () => saveContent(), isDirty: () => state.dirty, readForm: () => readForm(),
+        result: () => status.lastResult || {message:'',error:false},
+        load: async(force=false) => { if(force) state.dirty=false; await loadContent(); },
+        source: () => ({content:clone(state.content),groups:clone(GROUPS),views:clone(CMS_VIEWS),fieldsets:clone(CMS_FIELD_SETS)}),
+        setData: content => { state.content=clone(content);state.dirty=true;updateSaveLabel(); },
+        upload: (path,file) => uploadImage(path,file,{value:"",disabled:false})
+    };
+
     function loadContent() {
         if (state.contentLoadPromise) return state.contentLoadPromise;
         if (state.dirty) return Promise.resolve();
@@ -620,116 +629,51 @@
     function render() {
         const root = document.getElementById('admin-cms-root');
         if (!root || !state.content) return;
+        if(window.LumiReferenceUiActive){window.dispatchEvent(new Event('lumi:content'));return;}
+        window.LumiAdminSheet?.resetWithin(root);
         root.innerHTML = '';
-
         const activeView = CMS_VIEWS.find(view => view.id === state.cmsView) || CMS_VIEWS[0];
         if (!activeView.groups.includes(state.cmsGroup)) state.cmsGroup = activeView.groups[0];
         const activeGroup = GROUPS[state.cmsGroup];
-
         const tabs = document.createElement('div');
-        tabs.className = 'cms-view-tabs';
-        tabs.setAttribute('role', 'tablist');
-        tabs.setAttribute('aria-label', 'Szerkeszthető tartalmi területek');
+        tabs.className = 'cms-view-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Tartalmi területek');
         CMS_VIEWS.forEach(view => {
-            const button = document.createElement('button');
-            const selected = view.id === activeView.id;
-            button.type = 'button';
-            button.className = 'cms-view-tab';
-            button.dataset.cmsView = view.id;
-            button.setAttribute('role', 'tab');
-            button.setAttribute('aria-selected', String(selected));
-            button.innerHTML = `<span>${escapeHtml(view.title)}</span><small>${view.groups.length}</small>`;
-            tabs.appendChild(button);
+            const button = document.createElement('button');button.type='button';button.className='cms-view-tab';button.dataset.cmsView=view.id;
+            button.setAttribute('role','tab');button.setAttribute('aria-selected',String(view.id===activeView.id));button.textContent=view.title;tabs.append(button);
         });
-
-
-        const layout = document.createElement('div');
-        layout.className = 'cms-editor-layout';
-
-        const sectionPicker = document.createElement('label');
-        sectionPicker.className = 'cms-section-picker';
-        sectionPicker.innerHTML = `
-            <span>Szerkesztett szekció</span>
-            <select data-cms-section-select aria-label="${escapeAttribute(activeView.title)} szekciói">
-                ${activeView.groups.map(groupIndex => {
-                    const group = GROUPS[groupIndex];
-                    const shortTitle = group.title.replace(/^(Főoldal|Foglalás)\s+[–-]\s+/i, '');
-                    return `<option value="${groupIndex}"${groupIndex === state.cmsGroup ? ' selected' : ''}>${escapeHtml(shortTitle)}</option>`;
-                }).join('')}
-            </select>`;
-
-        const index = document.createElement('nav');
-        index.className = 'cms-section-index';
-        index.setAttribute('aria-label', `${activeView.title} szekciói`);
-        activeView.groups.forEach(groupIndex => {
-            const group = GROUPS[groupIndex];
-            const button = document.createElement('button');
-            const selected = groupIndex === state.cmsGroup;
-            const shortTitle = group.title.replace(/^(Főoldal|Foglalás)\s+[–-]\s+/i, '');
-            const itemCount = group.fields.length
-                + (group.gallery ? 1 : 0);
-            button.type = 'button';
-            button.className = 'cms-section-index-button';
-            button.dataset.cmsSection = String(groupIndex);
-            button.setAttribute('aria-current', selected ? 'true' : 'false');
-            button.innerHTML = `
-                <span>${escapeHtml(shortTitle)}</span>
-                <small>${itemCount} szerkeszthető rész</small>`;
-            index.appendChild(button);
-        });
-
-        const editor = document.createElement('section');
-        editor.className = 'cms-editor-card';
-        const editorHeader = document.createElement('div');
-        editorHeader.className = 'cms-editor-card-header';
-        editorHeader.innerHTML = `
-            <div>
-                <h3>${escapeHtml(activeGroup.title)}</h3>
-            </div>
-            <span class="cms-field-count">${activeGroup.fields.length} mező</span>`;
-
-        const body = document.createElement('div');
-        body.className = 'cms-section-body';
-        body.appendChild(renderFieldArea(state.cmsGroup, activeGroup.fields));
-        if (activeGroup.gallery) body.appendChild(renderGallery());
-
-        editor.append(editorHeader, body);
-        layout.append(sectionPicker, index, editor);
-        root.append(tabs, layout);
-        window.requestAnimationFrame(() => {
-            tabs.scrollLeft = state.cmsViewScroll;
-            index.scrollLeft = state.cmsSectionScroll;
-        });
+        const layout=document.createElement('div');layout.className='cms-editor-layout';
+        const picker=document.createElement('label');picker.className='cms-section-picker';picker.hidden=true;
+        const select=document.createElement('select');select.dataset.cmsSectionSelect='';select.setAttribute('aria-label','Szekció');
+        activeView.groups.forEach(index=>{const option=new Option(GROUPS[index].title,String(index),index===state.cmsGroup,index===state.cmsGroup);select.add(option);});picker.append(select);
+        const index=document.createElement('nav');index.className='cms-section-index';index.setAttribute('aria-label','Oldal részei');
+        activeView.groups.forEach(groupIndex=>{const button=document.createElement('button');button.type='button';button.className='cms-section-index-button';button.dataset.cmsSection=String(groupIndex);button.setAttribute('aria-current',String(groupIndex===state.cmsGroup));button.textContent=GROUPS[groupIndex].title.replace(/^(Főoldal|Foglalás)\s+[–-]\s+/i,'');index.append(button);});
+        const editor=document.createElement('section');editor.className='cms-editor-card';
+        const heading=document.createElement('h3');heading.className='cms-active-title';heading.textContent=activeGroup.title;
+        const body=document.createElement('div');body.className='cms-section-body';body.append(renderFieldArea(state.cmsGroup,activeGroup.fields));
+        if(activeGroup.gallery)body.append(renderGallery());
+        editor.append(heading,body);layout.append(picker,index,editor);root.append(tabs,layout);
+        requestAnimationFrame(()=>{tabs.scrollLeft=state.cmsViewScroll;index.scrollLeft=state.cmsSectionScroll;});
     }
 
-    function renderFieldArea(groupIndex, fields) {
-        const sets = CMS_FIELD_SETS[groupIndex];
-        if (!sets) {
-            const grid = document.createElement('div');
-            grid.className = 'admin-grid cms-field-grid';
-            fields.forEach(definition => grid.appendChild(renderField(definition)));
-            return grid;
-        }
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'cms-fieldsets';
-        sets.forEach(([title, start, end], setIndex) => {
-            const details = document.createElement('details');
-            details.className = 'cms-fieldset';
-            details.open = setIndex === 0;
-
-            const summary = document.createElement('summary');
-            summary.innerHTML = `
-                <span>${escapeHtml(title)}</span>
-                <small>${end - start + 1} mező</small>`;
-
-            const grid = document.createElement('div');
-            grid.className = 'admin-grid cms-field-grid cms-fieldset-grid';
-            fields.slice(start, end + 1).forEach(definition => grid.appendChild(renderField(definition)));
-            details.append(summary, grid);
-            wrapper.appendChild(details);
-        });
-        return wrapper;
+    function renderFieldArea(groupIndex,fields) {
+        const wrapper=document.createElement('div');wrapper.className='cms-fieldsets';
+        const sets=CMS_FIELD_SETS[groupIndex] || [['Tartalom',0,fields.length-1]];
+        sets.forEach(([title,start,end],setIndex)=>{
+            const block=document.createElement('section');block.className='cms-fieldset';
+            const heading=document.createElement('div');heading.className='cms-block-heading';
+            const h=document.createElement('h4');h.textContent=title;heading.append(h);
+            const grid=document.createElement('div');grid.className='admin-grid cms-field-grid cms-fieldset-grid';
+            fields.slice(start,end+1).forEach(definition=>grid.append(renderField(definition)));
+            // Repeated items and image groups get their own small editor; prose stays inline.
+            const collection=setIndex>0 && (/kártya|szolgáltatás|kép|gomb|előny|gyakori kérdés/i.test(title));
+            if(collection){
+                grid.hidden=true;block.classList.add('cms-collection-row');
+                const button=document.createElement('button');button.type='button';button.className='cms-block-edit';button.textContent='Szerkesztés';button.setAttribute('aria-label',title+' szerkesztése');
+                button.addEventListener('click',()=>window.LumiAdminSheet?.open({owner:block,nodes:[grid],title,trigger:button,onSave:saveContent,onClose:readForm}));heading.append(button);
+                const preview=document.createElement('p');preview.className='cms-block-preview';preview.textContent=fields.slice(start,end+1).filter(d=>d.type!=='image'&&d.type!=='checkbox').map(d=>String(getPath(state.content,d.path)||'')).filter(Boolean).slice(0,2).join(' · ');heading.append(preview);
+            }
+            block.append(heading,grid);wrapper.append(block);
+        });return wrapper;
     }
     function renderField(definition) {
         if (definition.type === 'image') return renderImageField(definition.path, definition.label);
@@ -852,6 +796,13 @@
                 <button type="button" class="admin-kis-gomb" data-cms-gallery-move="down" data-index="${index}" aria-label="Lejjebb">↓ Lejjebb</button>
                 <button type="button" class="admin-kis-gomb admin-veszely-gomb" data-cms-gallery-delete="${index}">Törlés</button>`;
             card.appendChild(actions);
+            const editor=document.createElement('div');editor.className='cms-gallery-item-editor';editor.hidden=true;
+            while(card.firstChild)editor.append(card.firstChild);
+            const trigger=document.createElement('button');trigger.type='button';trigger.className='cms-gallery-thumbnail';trigger.setAttribute('aria-label',(item.kepAlt||title.textContent)+' szerkesztése');
+            const thumbnail=document.createElement('img');thumbnail.src=item.kep||'';thumbnail.alt=item.kepAlt||'';thumbnail.loading='lazy';trigger.append(thumbnail);
+            const caption=document.createElement('span');caption.textContent=item.kepAlt||title.textContent;trigger.append(caption);
+            trigger.addEventListener('click',()=>window.LumiAdminSheet?.open({owner:card,nodes:[editor],title:title.textContent,trigger,onSave:saveContent,onClose:readForm}));
+            card.append(trigger,editor);
             list.appendChild(card);
         });
         wrapper.appendChild(list);
@@ -952,6 +903,7 @@
             const nextView = CMS_VIEWS.find(view => view.id === viewButton.dataset.cmsView);
             if (!nextView || nextView.id === state.cmsView) return;
             state.cmsView = nextView.id;
+            state.cmsEditorOpen = false;
             state.cmsGroup = nextView.groups[0];
             state.cmsSectionScroll = 0;
             render();
@@ -963,8 +915,9 @@
             rememberCmsScroll();
             readForm();
             const nextGroup = Number(sectionButton.dataset.cmsSection);
-            if (!Number.isInteger(nextGroup) || nextGroup === state.cmsGroup) return;
+            if (!Number.isInteger(nextGroup)) return;
             state.cmsGroup = nextGroup;
+            state.cmsEditorOpen = false;
             render();
             return;
         }
@@ -1122,7 +1075,7 @@
 
     async function saveContent() {
         if (!state.client || !state.session || !state.content || state.saving) return;
-        readForm();
+        if(!window.LumiReferenceUiActive)readForm();
         state.content = normalizeContent(state.content, window.lumiAlapOldalAdatok?.() || {});
         setSaving(true);
         status('Tartalom mentése...');
@@ -1181,6 +1134,7 @@
     }
 
     function status(message, error = false) {
+        status.lastResult={message,error};
         const element = document.getElementById('admin-cms-status');
         if (!element) return;
 

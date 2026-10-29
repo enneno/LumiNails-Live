@@ -1,997 +1,149 @@
-/* Bookings workspace: filters, list/card states, status system, calendar and inspiration UI.
-   This is the only admin CSS owner for #admin-panel-foglalasok and .admin-foglalas-* rules. */
+/* Booking list, month and week views: a single feature owner. */
+.admin-body.admin-v2 #admin-panel-foglalasok { --booking-state-color: var(--admin-v2-brand); }
+.admin-body.admin-v2 #admin-foglalas-lista { display: grid; gap: calc(8px * var(--admin-scale, 1)); }
+.admin-body.admin-v2 .admin-foglalas-kartya { position: relative; min-width: 0; margin: 0; padding: calc(12px * var(--admin-scale, 1)); border: 1px solid transparent; border-radius: 12px; background: var(--admin-v2-surface); box-shadow: inset 3px 0 0 var(--booking-state-color, var(--admin-v2-border)); cursor: pointer; transition: background-color 200ms, border-color 200ms; }
+.admin-body.admin-v2 .admin-foglalas-kartya:hover { border-color: var(--admin-v2-border); background: var(--lumi-control-bg); }
+.admin-foglalas-kartya .admin-db-kartya-fej { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: calc(12px * var(--admin-scale, 1)); margin: 0; }
+.admin-foglalas-fosor { display: flex; align-items: center; justify-content: space-between; gap: calc(16px * var(--admin-scale, 1)); min-width: 0; }
+.admin-foglalas-nev-blokk { flex: 1; min-width: 0; }
+.admin-body.admin-v2 .admin-foglalas-nev-blokk h3 { margin: 4px 0 0; font: 600 calc(14px * var(--admin-scale, 1))/1.4 'Manrope', sans-serif; color: var(--admin-v2-ink); }
+.admin-foglalas-azonosito,.admin-foglalas-kartya .admin-kartya-tipus { display: inline-block; width: fit-content; margin: 0; padding: calc(2px * var(--admin-scale, 1)) calc(5px * var(--admin-scale, 1)); border-radius: 4px; background: var(--lumi-control-bg); color: var(--admin-v2-muted); font-size: calc(8px * var(--admin-scale, 1)); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.admin-foglalas-azonosito code { font-family: inherit; }
+.admin-foglalas-rovid-szolgaltatas { margin: 4px 0 0; color: var(--admin-v2-muted); font-size: calc(11px * var(--admin-scale, 1)); line-height: 1.5; }
+.admin-foglalas-vezerlok { display: flex; align-items: center; justify-content: flex-end; gap: calc(6px * var(--admin-scale, 1)); }
+.admin-foglalas-vezerlok > .admin-db-statusz,.admin-foglalas-vezerlok > [data-foglalas-reszletek] { display: none; }
+.admin-body.admin-v2 .admin-booking-icon-button { position: relative; display: inline-grid; flex: 0 0 30px; width: 30px; height: 30px; min-height: 30px; padding: 0; overflow: hidden; border: 0; border-radius: 8px; color: var(--admin-v2-muted); background: transparent; font-size: 0; cursor: pointer; }
+[data-foglalas-szerkesztes].admin-booking-icon-button::before { content: ''; display: block; width: 14px; height: 14px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg) scale(.5); }
+.admin-booking-icon-button::after { position: absolute; inset: -7px; content: ''; }
+.admin-foglalas-kartya > :is(.admin-foglalas-reszletek,.admin-idopont-szerkeszto,.admin-db-akciok,.admin-foglalas-lemondasi-megjegyzes) { display: none; }
+.admin-foglalas-kartya :is(.admin-foglalas-idopont,.admin-foglalas-ido) { width: 48px; flex-shrink: 0; color: var(--admin-v2-ink); font-size: calc(12px * var(--admin-scale, 1)); text-align: center; }
+.admin-foglalas-idopont :is(span,strong,time) { display: block; }
+.admin-foglalas-idopont small { color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); }
+.studio-booking-meta { display: flex; align-items: center; justify-content: space-between; gap: calc(8px * var(--admin-scale, 1)); margin-bottom: 8px; }
+.studio-booking-meta > span:first-child { color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); }
+.admin-foglalas-idopont { margin: 0; }
+.admin-foglalas-idopont strong { display: block; color: var(--admin-v2-ink); font-size: calc(14px * var(--admin-scale, 1)); font-weight: 700; }
+.admin-kezi-ido-naptar svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.admin-body.admin-v2 .admin-foglalas-kartya.szerkeszt { background: var(--admin-v2-surface-soft); }
+.admin-foglalas-meta-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: calc(12px * var(--admin-scale, 1)); margin: 12px 0; }
+.admin-foglalas-meta-grid p,.admin-foglalas-reszlet-sor { display: grid; min-width: 0; margin: 0 0 10px; gap: calc(3px * var(--admin-scale, 1)); font-size: calc(12px * var(--admin-scale, 1)); overflow-wrap: anywhere; }
+.admin-foglalas-meta-grid strong,.admin-foglalas-reszlet-sor strong { color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); font-weight: 700; }
+.admin-foglalas-meta-grid a { color: var(--admin-v2-ink); text-decoration: none; }
+.admin-idopont-szerkeszto { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: calc(12px * var(--admin-scale, 1)); padding-top: calc(12px * var(--admin-scale, 1)); border-top: 1px solid var(--admin-v2-border); }
+.admin-idopont-szerkeszto > .admin-mezo:first-child { grid-column: 1/-1; }
+.admin-kezi-foglalas-also-sor { grid-column: 1/-1; display: grid; grid-template-columns: minmax(0,1fr) 120px; gap: calc(12px * var(--admin-scale, 1)); }
+.admin-fizetett-osszeg-seged { margin: 4px 0 0; color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); }
+.admin-foglalas-kartya .admin-db-akciok { padding-top: calc(12px * var(--admin-scale, 1)); margin-top: 12px; border-top: 1px solid var(--admin-v2-border); }
+.admin-foglalas-vezerlok > .studio-status { white-space: nowrap; }
+.admin-foglalas-nezetvalto { display: flex; flex-shrink: 0; gap: calc(2px * var(--admin-scale, 1)); padding: calc(3px * var(--admin-scale, 1)); border: 1px solid var(--admin-v2-border); border-radius: 8px; background: var(--admin-v2-surface-soft); }
+.admin-body.admin-v2 .admin-foglalas-nezet-gomb { min-height: 30px; padding: calc(5px * var(--admin-scale, 1)) calc(10px * var(--admin-scale, 1)); border: 0; border-radius: 6px; background: transparent; color: var(--admin-v2-muted); font: 700 calc(11px * var(--admin-scale, 1))/1.3 'Manrope', sans-serif; cursor: pointer; }
+.admin-body.admin-v2 .admin-foglalas-nezet-gomb.aktiv { color: var(--admin-v2-brand); background: var(--lumi-control-bg); }
+.admin-foglalas-attekintes { margin: 10px 0; color: var(--admin-v2-muted); font-size: calc(11px * var(--admin-scale, 1)); }
+.admin-foglalas-osszefoglalo { margin: 0; }
+#admin-panel-foglalasok > .admin-panel-akciok { display: grid; grid-template-columns: minmax(0,1fr) 180px; align-items: end; gap: calc(12px * var(--admin-scale, 1)); margin: 0 0 12px; }
+.admin-foglalas-muveletek { display: none; }
+.admin-kereses-mezo { display: grid; gap: calc(5px * var(--admin-scale, 1)); min-width: 0; color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); }
+.admin-kereses-input-wrap { position: relative; display: block; min-width: 0; }
+.admin-kereses-input-wrap input { width: 100%; }
+.admin-kereses-torles { position: absolute; top: 2px; right: 2px; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: var(--admin-v2-muted); cursor: pointer; }
+.admin-vendeg-lemondas-jelzes { display: flex; align-items: center; justify-content: space-between; gap: calc(12px * var(--admin-scale, 1)); margin: 12px 0; padding: calc(12px * var(--admin-scale, 1)); border: 1px solid color-mix(in srgb,var(--admin-v2-danger) 30%,transparent); border-radius: 10px; color: var(--admin-v2-danger); background: var(--admin-v2-danger-soft); }
+.admin-vendeg-lemondas-jelzes :is(p,h3) { margin: 0; font-size: calc(12px * var(--admin-scale, 1)); }
+.admin-vendeg-lemondas-akciok { display: flex; gap: calc(6px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar { margin-top: 16px; }
+.admin-foglalas-naptar-fej { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: calc(12px * var(--admin-scale, 1)); margin-bottom: 12px; }
+.admin-foglalas-naptar-fej h3 { margin: 0; font-size: calc(14px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-leptetes { display: flex; gap: calc(6px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-hetfej,.admin-foglalas-naptar-racs { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: calc(4px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-hetfej { padding: calc(6px * var(--admin-scale, 1)) 0; text-align: center; color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); font-weight: 700; }
+.admin-foglalas-naptar-cella { min-width: 0; }
+.admin-body.admin-v2 .admin-foglalas-naptar-nap { display: flex; position: relative; flex-direction: column; gap: calc(6px * var(--admin-scale, 1)); width: 100%; min-height: 78px; padding: calc(8px * var(--admin-scale, 1)); border: 1px solid var(--admin-v2-border); border-radius: 8px; color: var(--admin-v2-ink); background: var(--admin-v2-surface-soft); font: 600 calc(12px * var(--admin-scale, 1))/1.2 'Manrope', sans-serif; text-align: left; cursor: pointer; }
+.admin-body.admin-v2 .admin-foglalas-naptar-nap.kijelolt { border-color: var(--admin-v2-brand); color: var(--admin-v2-on-brand); background: var(--admin-v2-brand); }
+.admin-foglalas-naptar-nap.mai .admin-foglalas-naptar-napszam { text-decoration: underline; text-underline-offset: 4px; }
+.admin-foglalas-naptar-darab { position: absolute; right: 6px; top: 6px; font-size: calc(9px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-esemenyek { display: flex; flex-wrap: wrap; gap: calc(3px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-esemeny { padding: calc(2px * var(--admin-scale, 1)) calc(4px * var(--admin-scale, 1)); border-radius: 3px; color: var(--admin-confirmed-text); background: color-mix(in srgb,var(--admin-confirmed) 15%,transparent); font-size: calc(9px * var(--admin-scale, 1)); }
+.admin-foglalas-naptar-tovabbi { font-size: calc(9px * var(--admin-scale, 1)); }
+.admin-foglalas-napi-panel { margin-top: 20px; }
+.admin-foglalas-napi-fej { display: flex; align-items: center; gap: calc(12px * var(--admin-scale, 1)); margin-bottom: 10px; }
+.admin-foglalas-napi-fej h4 { margin: 0; font-size: calc(13px * var(--admin-scale, 1)); }
+.admin-foglalas-napi-fej span { color: var(--admin-v2-muted); font-size: calc(11px * var(--admin-scale, 1)); }
+.admin-foglalas-napi-lista { display: grid; gap: calc(8px * var(--admin-scale, 1)); }
+.admin-foglalas-napi-lista > button { display: flex; align-items: center; gap: calc(12px * var(--admin-scale, 1)); min-height: 62px; padding: calc(12px * var(--admin-scale, 1)); border: 1px solid var(--admin-v2-border); border-radius: 10px; color: var(--admin-v2-ink); background: var(--admin-v2-surface-soft); text-align: left; font-size: calc(12px * var(--admin-scale, 1)); cursor: pointer; }
+.admin-foglalas-napi-lista > button :is(strong,small,span) { display: block; }
+.studio-week-toolbar { display: flex; align-items: center; justify-content: space-between; gap: calc(8px * var(--admin-scale, 1)); margin: 16px 0 8px; }
+.studio-week-toolbar > div { display: flex; align-items: center; gap: calc(8px * var(--admin-scale, 1)); }
+.studio-week-toolbar strong { font-size: calc(12px * var(--admin-scale, 1)); font-weight: 600; }
+.studio-week-toolbar svg { transform: rotate(-90deg); }
+.studio-week-legend { display: flex; gap: calc(16px * var(--admin-scale, 1)); margin: 8px 0; color: var(--admin-v2-muted); font-size: calc(10px * var(--admin-scale, 1)); }
+.studio-week-scroll { max-height: 72vh; overflow: auto; border: 1px solid var(--admin-v2-border); border-radius: 8px; overscroll-behavior: contain; }
+.studio-week-grid { display: grid; grid-template-columns: 42px repeat(7,minmax(86px,1fr)); min-width: 660px; }
+.studio-week-corner,.studio-week-day-heading { position: sticky; top: 0; z-index: 5; padding: calc(8px * var(--admin-scale, 1)) calc(4px * var(--admin-scale, 1)); border-bottom: 1px solid var(--admin-v2-border); background: var(--admin-v2-surface); text-align: center; }
+.studio-week-day-heading { border-right: 1px solid var(--admin-v2-border); }
+.studio-week-day-heading small { display: block; color: var(--admin-v2-muted); font-size: calc(8px * var(--admin-scale, 1)); text-transform: uppercase; }
+.studio-week-day-heading strong { display: block; margin-top: 3px; font-size: calc(11px * var(--admin-scale, 1)); }
+.studio-week-day-heading.is-today strong { color: var(--admin-v2-brand); }
+.studio-week-hours { position: relative; height: 616px; border-right: 1px solid var(--admin-v2-border); background: var(--admin-v2-surface); }
+.studio-week-hours > span { position: absolute; right: 5px; font-size: calc(8px * var(--admin-scale, 1)); color: var(--admin-v2-muted); }
+.studio-week-day { position: relative; height: 616px; border-right: 1px solid var(--admin-v2-border); background: var(--lumi-control-bg); }
+.studio-week-day.is-weekend { background: var(--admin-v2-surface-soft); }
+.admin-body.admin-v2 .studio-week-slot { display: block; width: 100%; height: 44px; padding: 0; border: 0; border-top: 1px solid var(--admin-v2-border); background: transparent; cursor: pointer; }
+.studio-week-slot:hover { background: color-mix(in srgb,var(--admin-v2-brand) 8%,transparent); }
+.admin-body.admin-v2 .studio-week-event { position: absolute; z-index: 2; left: 3px; right: 3px; display: flex; flex-direction: column; align-items: flex-start; gap: calc(2px * var(--admin-scale, 1)); min-height: 24px; padding: calc(5px * var(--admin-scale, 1)); overflow: hidden; border: 1px solid color-mix(in srgb,var(--admin-track) 70%,transparent); border-radius: 6px; color: var(--admin-v2-ink); background: color-mix(in srgb,var(--admin-track) 22%,var(--admin-v2-surface)); font: 600 calc(9px * var(--admin-scale, 1))/1.3 'Manrope', sans-serif; text-align: left; cursor: pointer; }
+.admin-body.admin-v2 .studio-week-event-blocked { border-color: var(--admin-blocked); background: color-mix(in srgb,var(--admin-blocked) 20%,var(--admin-v2-surface)); }
+.studio-week-event small { font-size: calc(8px * var(--admin-scale, 1)); }
+.studio-week-event span { color: var(--admin-v2-muted); font-size: calc(8px * var(--admin-scale, 1)); }
+.studio-mobile-week-scroll { display: none; }
+.studio-month-main { min-width: 0; padding: calc(12px * var(--admin-scale, 1)); border-radius: 12px; background: var(--admin-v2-surface-soft); }
+@media (min-width: 1280px) {
+  .admin-body.admin-v2 #admin-foglalas-lista { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
+  .admin-foglalas-naptar { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(288px,.8fr); gap: calc(12px * var(--admin-scale, 1)); }
+  .admin-foglalas-napi-panel { margin-top: 0; }
+}
+.admin-inspiracio-modal { position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: calc(18px * var(--admin-scale, 1)); border: 0; color: var(--admin-v2-ink); background: rgb(0 0 0 / .65); }
+.admin-inspiracio-modal[open] { display: grid; place-items: center; }
+.admin-inspiracio-modal-doboz { width: min(980px,100%); max-height: 85dvh; overflow: auto; border-radius: 16px; background: var(--admin-v2-surface); }
+.admin-inspiracio-modal-fejlec { display: flex; justify-content: space-between; align-items: center; padding: calc(16px * var(--admin-scale, 1)); }
+.admin-inspiracio-modal-fejlec h3 { margin: 0; font-size: calc(18px * var(--admin-scale, 1)); }
+.admin-inspiracio-bezaras { width: 40px; height: 40px; border: 0; color: var(--admin-v2-ink); background: transparent; cursor: pointer; }
+.admin-inspiracio-modal-racs { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr)); gap: calc(12px * var(--admin-scale, 1)); padding: calc(16px * var(--admin-scale, 1)); }
+.admin-inspiracio-modal-racs img { width: 100%; max-height: 65vh; object-fit: contain; }
+@media (max-width: 639px) {
+  .studio-week-scroll { display: none; }
+  .studio-mobile-week-scroll { display: block; overflow: auto; border: 1px solid var(--admin-v2-border); border-radius: 8px; overscroll-behavior: contain; }
+  .studio-mobile-week-grid { display: grid; grid-template-columns: 42px 616px; width: 658px; }
+  .studio-mobile-week-corner,.studio-mobile-week-hours { position: sticky; top: 0; z-index: 4; height: 28px; background: var(--admin-v2-surface); }
+  .studio-mobile-week-hours { display: flex; align-items: center; border-bottom: 1px solid var(--admin-v2-border); }
+  .studio-mobile-week-hours span { width: 44px; flex-shrink: 0; text-align: center; font-size: calc(8px * var(--admin-scale, 1)); color: var(--admin-v2-muted); }
+  .studio-mobile-week-label { position: sticky; left: 0; z-index: 3; display: grid; align-content: center; justify-items: center; height: 52px; border-right: 1px solid var(--admin-v2-border); border-bottom: 1px solid var(--admin-v2-border); background: var(--admin-v2-surface); }
+  .studio-mobile-week-label strong { font-size: calc(9px * var(--admin-scale, 1)); text-transform: uppercase; }
+  .studio-mobile-week-label small { font-size: calc(9px * var(--admin-scale, 1)); color: var(--admin-v2-muted); }
+  .studio-mobile-week-label.is-today { color: var(--admin-v2-brand); background: var(--admin-v2-surface-soft); }
+  .studio-mobile-week-day { position: relative; display: flex; height: 52px; background: var(--lumi-control-bg); border-bottom: 1px solid var(--admin-v2-border); }
+  .admin-body.admin-v2 .studio-mobile-week-slot { width: 44px; flex-shrink: 0; height: 52px; padding: 0; border: 0; border-right: 1px solid var(--admin-v2-border); background: transparent; cursor: pointer; }
+  .admin-body.admin-v2 .studio-mobile-week-event { position: absolute; z-index: 2; top: 4px; display: grid; align-content: center; gap: calc(3px * var(--admin-scale, 1)); height: 43px; min-width: 28px; padding: calc(4px * var(--admin-scale, 1)); overflow: hidden; border: 1px solid var(--admin-track); border-radius: 5px; background: color-mix(in srgb,var(--admin-track) 22%,var(--admin-v2-surface)); color: var(--admin-v2-ink); font: 700 calc(8px * var(--admin-scale, 1))/1.3 'Manrope',sans-serif; text-align: left; cursor: pointer; }
+  .admin-body.admin-v2 .studio-mobile-week-event.studio-week-event-blocked { border-color: var(--admin-blocked); background: color-mix(in srgb,var(--admin-blocked) 20%,var(--admin-v2-surface)); }
+  .studio-mobile-week-event small { font-size: calc(8px * var(--admin-scale, 1)); font-weight: 500; }
+  #admin-panel-foglalasok > .admin-panel-akciok { grid-template-columns: minmax(0, 1fr) minmax(90px, .45fr); gap: calc(8px * var(--admin-scale, 1)); }
+  .admin-body.admin-v2 .admin-foglalas-kartya { padding: calc(10px * var(--admin-scale, 1)); box-shadow: inset 3px 0 0 var(--booking-state-color, var(--admin-v2-border)); }
+  .admin-body.admin-v2 .admin-foglalas-nev-blokk h3 { font-size: calc(12px * var(--admin-scale, 1)); }
+  .admin-foglalas-rovid-szolgaltatas { font-size: calc(10px * var(--admin-scale, 1)); }
+  .admin-vendeg-lemondas-jelzes { flex-wrap: wrap; }
+  .admin-body.admin-v2 .admin-foglalas-naptar-nap { min-height: 54px; padding: calc(6px * var(--admin-scale, 1)); }
+  .admin-foglalas-naptar-esemeny time { display: none; }
+  .admin-foglalas-naptar-esemeny { width: 5px; height: 5px; padding: 0; border-radius: 50%; background: var(--admin-confirmed); }
+  .admin-foglalas-naptar-napszam { font-size: calc(11px * var(--admin-scale, 1)); }
+}
+.admin-foglalas-statusz-confirmed,.admin-foglalas-statusz-active { --booking-state-color: var(--admin-confirmed); }
+.admin-foglalas-statusz-pending { --booking-state-color: var(--admin-v2-brand); }
+.admin-foglalas-statusz-done { --booking-state-color: var(--admin-v2-success); }
+.admin-foglalas-statusz-cancelled,.admin-foglalas-statusz-cancelled_by_customer { --booking-state-color: var(--admin-v2-danger); }
+.studio-status-active { color: var(--admin-confirmed-text); background: color-mix(in srgb,var(--admin-confirmed) 15%,transparent); }
+@media (min-width:1024px) { .admin-body.admin-v2 .admin-foglalas-kartya { background: var(--admin-v2-surface-soft); } }
 
-.admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-status-width: 150px;
-  --booking-calendar-header-bg: var(--admin-v2-surface-soft);
---booking-calendar-cell-bg: var(--admin-v2-surface);
---booking-calendar-empty-bg: var(--admin-v2-bg);
---booking-calendar-hover-bg: var(--admin-v2-brand-soft);
---booking-calendar-selected-bg: var(--admin-v2-brand-soft);
---booking-calendar-count-bg: var(--admin-v2-brand-soft);
---booking-calendar-event-bg: var(--admin-v2-surface-soft);
---booking-calendar-event-border: var(--admin-v2-border-strong);
---booking-calendar-event-text: var(--admin-ink);
---booking-calendar-pending-border: #315e5c;
---booking-calendar-pending-bg: #e4eceb;
---booking-calendar-confirmed-border: #31566c;
---booking-calendar-confirmed-bg: #e4eef4;
---booking-calendar-done-border: #2f603f;
---booking-calendar-done-bg: #e2efe5;
---booking-calendar-cancelled-border: #2e2927;
---booking-calendar-cancelled-bg: #2e2927;
---booking-calendar-cancelled-customer-border: #62404c;
---booking-calendar-cancelled-customer-bg: #62404c;
---booking-calendar-day-row-bg: var(--admin-v2-surface);
---booking-calendar-day-status-bg: rgba(248, 247, 243, .72);
-  --booking-icon-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/%3E%3Cpath d='m15 5 4 4'/%3E%3C/svg%3E");
-  --booking-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
-  --booking-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
-  --booking-icon-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E");
-  --booking-icon-list: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13'/%3E%3Cpath d='M8 12h13'/%3E%3Cpath d='M8 18h13'/%3E%3Cpath d='M3 6h.01'/%3E%3Cpath d='M3 12h.01'/%3E%3Cpath d='M3 18h.01'/%3E%3C/svg%3E");
-  max-width: 1280px;
-  margin-inline: auto;
-}
+.studio-booking-meta > .admin-select-control { width:auto; max-width:46%; }
+.admin-body.admin-v2 .admin-select-trigger--status { min-height:28px; padding:4px 22px 4px 8px; font-size:10px; color:var(--booking-state-color,var(--admin-v2-muted)); background:transparent; border-color:transparent; }
+.studio-booking-draft { color:var(--admin-v2-brand); font-size:10px; }
+.studio-week-event.is-dragging,.studio-mobile-week-event.is-dragging { opacity:.5; pointer-events:none; }
 
-html[data-admin-theme="dark"] .admin-body.admin-v2 #admin-panel-foglalasok {
-  --booking-calendar-header-bg: #403c36;
-  --booking-calendar-cell-bg: #302e2b;
-  --booking-calendar-empty-bg: #292724;
-  --booking-calendar-hover-bg: #4d473f;
-  --booking-calendar-selected-bg: #605445;
-  --booking-calendar-count-bg: #4d473f;
-  --booking-calendar-event-bg: #403c36;
-  --booking-calendar-event-border: #c4b8a9;
-  --booking-calendar-event-text: #fff9f1;
-  --booking-calendar-pending-border: #dfcebc;
-  --booking-calendar-pending-bg: #403c36;
-  --booking-calendar-confirmed-border: #8db5ca;
-  --booking-calendar-confirmed-bg: #304853;
-  --booking-calendar-done-border: #8fb99c;
-  --booking-calendar-done-bg: #2f4437;
-  --booking-calendar-cancelled-border: #92999f;
-  --booking-calendar-cancelled-bg: #414950;
-  --booking-calendar-cancelled-customer-border: #d293a5;
-  --booking-calendar-cancelled-customer-bg: #513a44;
-  --booking-calendar-day-row-bg: #302e2b;
-  --booking-calendar-day-status-bg: #4d473f;
-}
-
-/* Toolbar and search */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-panel-akciok-keresessel {
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(154px, 180px);
-  grid-template-areas: "search status";
-  align-items: end;
-  gap: 10px;
-  margin-bottom: 8px;
-  padding: 0 0 14px;
-  border: 0;
-  border-bottom: 1px solid var(--admin-line);
-  border-radius: 0;
-  background: transparent;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-mezo:not(.admin-statusz-szuro-mezo) { grid-area: search; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-statusz-szuro-mezo {
-  grid-area: status;
-  width: 100%;
-  max-width: none;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-mezo {
-  display: grid;
-  grid-template-rows: auto var(--admin-ui-field-height);
-  align-self: end;
-  gap: 6px;
-  margin: 0;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-statusz-szuro-mezo {
-  grid-template-rows: auto var(--admin-ui-choice-height);
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok #admin-foglalas-statusz-szuro {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-input {
-  position: relative;
-  min-width: 0;
-  height: var(--admin-ui-field-height);
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-input input {
-  height: var(--admin-ui-field-height);
-  min-height: var(--admin-ui-field-height);
-  padding-right: calc(var(--admin-ui-icon-button-size) + 8px);
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-input input::-webkit-search-cancel-button {
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-torles {
-  position: absolute;
-  top: 50%;
-  right: 1px;
-  display: inline-grid;
-  width: var(--admin-ui-icon-button-size);
-  min-width: var(--admin-ui-icon-button-size);
-  height: var(--admin-ui-icon-button-size);
-  min-height: var(--admin-ui-icon-button-size);
-  padding: 0;
-  place-items: center;
-  border: 0;
-  border-radius: var(--admin-ui-icon-radius);
-  color: var(--admin-v2-brand-dark);
-  background: transparent;
-  font-size: var(--admin-ui-action-font-size);
-  line-height: 1;
-  transform: translateY(-50%);
-  cursor: pointer;
-  overflow: visible;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-torles::after {
-  position: absolute;
-  inset: calc((var(--admin-ui-touch-target) - var(--admin-ui-icon-button-size)) / -2);
-  content: "";
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-torles:hover {
-  color: var(--admin-v2-danger);
-  background: var(--admin-v2-danger-soft);
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-torles[hidden] { display: none; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-torles svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-/* Customer cancellation notice */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-jelzes {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  margin: 14px 0 12px;
-  padding: 16px 18px;
-  border: 1px solid color-mix(in srgb, var(--admin-v2-danger) 34%, var(--admin-v2-border));
-  border-left: 4px solid var(--admin-rose-dark);
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--admin-v2-danger-soft), var(--admin-v2-surface-soft));
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-jelzes[hidden] { display: none; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-szoveg { min-width: 0; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-kicker {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--admin-v2-brand-dark);
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-szoveg strong {
-  display: block;
-  color: var(--admin-ink);
-  font-size: var(--lumi-font-body);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-szoveg p {
-  margin: 5px 0 0;
-  color: var(--admin-muted);
-  font-size: var(--lumi-font-body-small);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok #admin-vendeg-lemondas-darab {
-  color: var(--admin-v2-brand-dark);
-  font-weight: 600;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-akciok {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 8px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-vendeg-lemondas-nyugtazas {
-  border-color: var(--admin-rose-dark);
-  color: var(--ui-on-primary);
-  background: var(--admin-rose-dark);
-}
-
-/* List/calendar switch and summary */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-attekintes {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 48px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--admin-line);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezetvalto {
-  display: inline-grid;
-  width: 168px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb { gap: 7px; }
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb::before {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 14px;
-  background: currentColor;
-  content: "";
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 14px 14px;
-  mask-size: 14px 14px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb[data-foglalas-nezet="lista"]::before {
-  -webkit-mask-image: var(--booking-icon-list);
-  mask-image: var(--booking-icon-list);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb[data-foglalas-nezet="naptar"]::before {
-  -webkit-mask-image: var(--booking-icon-calendar);
-  mask-image: var(--booking-icon-calendar);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-osszefoglalo {
-  margin: 0;
-  color: var(--admin-muted);
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: right;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-lapozo-felso { margin: 8px 0 10px; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-lapozo {
-  justify-content: space-between;
-  flex-wrap: wrap;
-  min-height: 44px;
-  gap: 8px 12px;
-}
-
-
-/* Canonical card list */
-.admin-body.admin-v2 #admin-panel-foglalasok #admin-foglalas-lista {
-  gap: 0;
-  border-top: 1px solid var(--admin-v2-border);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya {
-  --booking-state-color: var(--admin-v2-subtle);
-  --booking-state-bg: var(--admin-v2-surface-soft);
-  --booking-state-border: var(--admin-v2-border);
-  position: relative;
-  margin: 0;
-  padding: 0 5px 0 9px;
-  border: 0;
-  border-bottom: 1px solid var(--admin-v2-border);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  transition: background-color 150ms ease;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-pending,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="pending"]:checked)
-) { --booking-state-color: var(--admin-v2-warning); --booking-state-bg: var(--admin-v2-warning-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-warning) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-confirmed,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="confirmed"]:checked)
-) { --booking-state-color: var(--admin-v2-info); --booking-state-bg: var(--admin-v2-info-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-info) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-done,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="done"]:checked)
-) { --booking-state-color: var(--admin-v2-success); --booking-state-bg: var(--admin-v2-success-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-success) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-blocked,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="blocked"]:checked)
-) { --booking-state-color: var(--admin-v2-brand-dark); --booking-state-bg: var(--admin-v2-brand-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-brand) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-cancelled,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="cancelled"]:checked)
-) { --booking-state-color: var(--admin-v2-danger); --booking-state-bg: var(--admin-v2-danger-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-danger) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(
-  .admin-foglalas-statusz-cancelled_by_customer,
-  .admin-foglalas-kartya:has(.admin-db-statusz option[value="cancelled_by_customer"]:checked)
-) { --booking-state-color: var(--admin-v2-danger); --booking-state-bg: var(--admin-v2-danger-soft); --booking-state-border: color-mix(in srgb, var(--admin-v2-danger) 34%, var(--admin-v2-border)); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya::before {
-  position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 0;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--booking-state-color);
-  content: "";
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato { cursor: pointer; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:not(.szerkeszt):hover,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:focus-visible { background: var(--admin-v2-surface-soft); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-kattinthato:focus-visible {
-  outline: 2px solid var(--admin-v2-brand-dark);
-  outline-offset: -2px;
-}
-
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-db-kartya-fej {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "identity controls";
-  align-items: end;
-  min-height: 88px;
-  gap: 0 12px;
-  padding: 6px 0;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-fosor { display: contents; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-idopont {
-  position: absolute;
-  top: 6px;
-  right: 0;
-  display: grid;
-  min-width: 0;
-  justify-items: end;
-  align-content: center;
-  gap: 2px;
-  margin: 0;
-  color: var(--admin-v2-muted);
-  text-align: right;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-datum {
-  color: var(--admin-v2-ink);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-datum::after {
-  display: none;
-  content: none;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-ido {
-  color: var(--admin-v2-muted);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk {
-  grid-area: identity;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  min-width: 0;
-  min-height: 58px;
-  gap: 2px;
-  align-content: center;
-  align-self: center;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok :is(.admin-foglalas-azonosito, .admin-db-kartya-tiltas .admin-kartya-tipus) {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  color: var(--admin-v2-subtle);
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .025em;
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-azonosito code { color: inherit; font: inherit; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk h3 {
-  margin: 0;
-  padding-bottom: 2px;
-  overflow: hidden;
-  color: var(--admin-v2-ink);
-  font-family: "DM Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-rovid-szolgaltatas {
-  min-width: 0;
-  min-height: 17px;
-  margin: 0;
-  overflow: hidden;
-  color: var(--admin-v2-muted);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-vezerlok {
-  grid-area: controls;
-  align-self: end;
-  display: grid;
-  grid-template-columns: var(--booking-status-width) var(--admin-ui-icon-button-size) var(--admin-ui-icon-button-size);
-  grid-template-rows: var(--admin-ui-icon-button-size);
-  align-items: center;
-  justify-content: end;
-  gap: 5px;
-  width: calc(var(--booking-status-width) + (2 * var(--admin-ui-icon-button-size)) + 10px);
-  min-width: calc(var(--booking-status-width) + (2 * var(--admin-ui-icon-button-size)) + 10px);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-vezerlok > .admin-db-statusz {
-  grid-column: 1;
-  width: var(--booking-status-width);
-  min-width: var(--booking-status-width);
-  max-width: var(--booking-status-width);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-vezerlok > .admin-kezi-ido-naptar { grid-column: 2; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-vezerlok > [data-foglalas-szerkesztes] { grid-column: 3; }
-.admin-body.admin-v2 #admin-panel-foglalasok [data-foglalas-reszletek],
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-booking-details-trigger { display: none; }
-/* Lucide action icons: shared button chrome comes from 10-components.css. */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-booking-icon-button {
-  color: var(--booking-state-color);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok [data-foglalas-szerkesztes]::before,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kezi-ido-naptar::before {
-  width: 16px;
-  height: 16px;
-  border: 0;
-  border-radius: 0;
-  background: currentColor;
-  content: "";
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 16px 16px;
-  mask-size: 16px 16px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok [data-foglalas-szerkesztes]::before {
-  -webkit-mask-image: var(--booking-icon-pencil);
-  mask-image: var(--booking-icon-pencil);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt [data-foglalas-szerkesztes]::before {
-  width: 17px;
-  height: 17px;
-  -webkit-mask-image: var(--booking-icon-close);
-  mask-image: var(--booking-icon-close);
-  -webkit-mask-size: 17px 17px;
-  mask-size: 17px 17px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kezi-ido-naptar::before {
-  -webkit-mask-image: var(--booking-icon-calendar);
-  mask-image: var(--booking-icon-calendar);
-}
-
-/* Details and edit state */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszletek,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-db-akciok { display: none; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-nyitott .admin-foglalas-reszletek { display: block; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt .admin-idopont-szerkeszto { display: grid; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt .admin-db-akciok { display: flex; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszletek {
-  margin: 2px 0 10px;
-  padding: 9px 0 0;
-  border-top: 1px solid var(--admin-v2-border);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 18px;
-  width: 100%;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid p {
-  display: grid;
-  min-width: 0;
-  margin: 0;
-  gap: 2px;
-  color: var(--admin-v2-ink);
-  background: transparent;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid strong {
-  display: block;
-  margin: 0;
-  color: var(--admin-v2-subtle);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid :is(span, a) {
-  min-width: 0;
-  color: var(--admin-v2-ink);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.28;
-  overflow-wrap: anywhere;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszlet-sor {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  align-items: baseline;
-  gap: 10px;
-  margin: 7px 0 0;
-  padding: 7px 0 0;
-  border-top: 1px solid rgba(73, 58, 52, .09);
-  color: var(--admin-v2-ink);
-  background: transparent;
-  font-size: 13px;
-  line-height: 1.3;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszlet-sor > strong {
-  color: var(--admin-v2-subtle);
-  font-size: 8.5px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszlet-sor > :not(strong) {
-  min-width: 0;
-  color: var(--admin-v2-ink);
-  overflow-wrap: anywhere;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-lemondasi-megjegyzes {
-  display: none;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 10px;
-  margin: 7px 0 0;
-  padding: 7px 0 0;
-  border-top: 1px solid rgba(73, 58, 52, .09);
-  color: var(--admin-v2-ink);
-  background: transparent;
-  font-size: 10.5px;
-  line-height: 1.3;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-lemondasi-megjegyzes strong {
-  color: var(--admin-v2-subtle);
-  font-size: 8.5px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-nyitott .admin-foglalas-lemondasi-megjegyzes,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt .admin-foglalas-lemondasi-megjegyzes { display: grid; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya-nyitott,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya.szerkeszt { background: var(--admin-v2-surface-soft); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto {
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, .65fr) minmax(0, .65fr);
-  gap: 6px;
-  margin-top: 8px;
-  padding: 9px 0 0;
-  border: 0;
-  border-top: 1px solid rgba(240, 215, 213, .72);
-  border-radius: 0;
-  background: transparent;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  gap: 5px;
-  overflow: hidden;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo-szeles {
-  grid-column: 1 / -1;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-kezi-foglalas-also-sor {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  align-items: start;
-  gap: 6px;
-  min-width: 0;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-idopont-szerkeszto .admin-mezo textarea {
-  height: 56px;
-  min-height: 56px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  resize: vertical;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-fizetett-osszeg-seged {
-  margin: 0;
-  color: var(--admin-v2-subtle);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.3;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok [data-idopont-mezo="paid_amount"][aria-invalid="true"] {
-  border-color: var(--admin-v2-danger);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-fizetett-osszeg-hiba {
-  color: var(--admin-v2-danger);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-db-akciok {
-  margin-top: 7px;
-  padding: 7px 0 12px;
-  align-items: center;
-  border-top: 1px solid rgba(73, 58, 52, .09);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-db-akciok [data-foglalas-torles] {
-  padding-inline: 10px;
-}
-
-/* Inspiration controls and modal */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-inspiracio-akciok {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-inspiracio-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  padding: 0 12px;
-  border: 1px solid rgba(185, 133, 143, .28);
-  border-radius: var(--lumi-radius-pill);
-  color: var(--akcentus);
-  background: rgba(185, 133, 143, .08);
-  font-family: 'DM Sans', sans-serif;
-  font-size: var(--lumi-font-button-compact);
-  font-weight: 600;
-  cursor: pointer;
-}
-.admin-inspiracio-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  background: rgba(43, 37, 33, .58);
-  backdrop-filter: blur(6px);
-}
-.admin-inspiracio-modal[hidden] { display: none; }
-.admin-inspiracio-modal-doboz {
-  display: flex;
-  flex-direction: column;
-  width: min(980px, 100%);
-  max-height: min(86vh, 900px);
-  overflow: hidden;
-  border: 1px solid rgba(185, 133, 143, .28);
-  border-radius: 26px;
-  background: var(--admin-v2-surface);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, .24);
-}
-.admin-inspiracio-modal-fejlec {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: clamp(18px, 3vw, 28px);
-  border-bottom: 1px solid rgba(185, 133, 143, .16);
-  background: var(--admin-v2-surface);
-}
-.admin-inspiracio-modal-doboz h3 {
-  margin: 0;
-  color: var(--barna);
-  font-family: 'Playfair Display', serif;
-  font-size: 34px;
-  line-height: 1;
-}
-.admin-inspiracio-bezaras {
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(185, 133, 143, .22);
-  border-radius: var(--lumi-radius-pill);
-  color: var(--tinta);
-  background: rgba(241, 222, 217, .55);
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-}
-.admin-inspiracio-modal-racs {
-  display: grid;
-  min-height: 0;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  align-content: start;
-  overflow: auto;
-  padding: clamp(18px, 3vw, 28px);
-}
-.admin-inspiracio-modal-racs figure { margin: 0; }
-.admin-inspiracio-modal-racs img {
-  display: block;
-  width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
-  border-radius: 18px;
-  background: rgba(241, 222, 217, .22);
-}
-.admin-inspiracio-modal-racs figcaption {
-  margin-top: 7px;
-  color: var(--barna);
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-body.admin-modal-nyitva { overflow: hidden; }
-
-/* Booking calendar */
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar { padding-top: 14px; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-fej {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 12px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-fej h3 {
-  margin: 0;
-  font-family: "Playfair Display", serif;
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 600;
-  line-height: 1;
-  text-transform: capitalize;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-leptetes { display: flex; gap: 6px; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-hetfej,
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-racs {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-hetfej {
-  border: 1px solid var(--admin-line);
-  border-bottom: 0;
-  background: var(--booking-calendar-header-bg);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-hetfej span {
-  padding: 8px 4px;
-  border-left: 1px solid var(--admin-line);
-  color: var(--admin-muted);
-  font-size: var(--lumi-font-calendar);
-  font-weight: 600;
-  letter-spacing: .12em;
-  text-align: center;
-  text-transform: uppercase;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-hetfej span:first-child { border-left: 0; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-racs {
-  border-top: 1px solid var(--admin-line);
-  border-right: 1px solid var(--admin-line);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-cella {
-  min-width: 0;
-  min-height: 112px;
-  border-bottom: 1px solid var(--admin-line);
-  border-left: 1px solid var(--admin-line);
-  background: var(--booking-calendar-cell-bg);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-ures { background: var(--booking-calendar-empty-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap {
-  position: relative;
-  display: grid;
-  width: 100%;
-  min-height: 111px;
-  align-content: start;
-  gap: 5px;
-  padding: 8px;
-  border: 0;
-  color: var(--admin-ink);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap:hover { background: var(--booking-calendar-hover-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap.kijelolt {
-  background: var(--booking-calendar-selected-bg);
-  box-shadow: inset 0 0 0 2px var(--admin-rose-dark);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-napszam {
-  width: 24px;
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-  line-height: 24px;
-  text-align: center;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap.mai .admin-foglalas-naptar-napszam {
-  border-radius: 50%;
-  color: var(--ui-on-primary);
-  background: var(--admin-rose-dark);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-darab {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  min-width: 20px;
-  padding: 2px 5px;
-  border-radius: 999px;
-  color: var(--admin-muted);
-  background: var(--booking-calendar-count-bg);
-  font-size: var(--lumi-font-calendar);
-  font-weight: 600;
-  line-height: 16px;
-  text-align: center;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-esemenyek {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-esemeny {
-  display: flex;
-  min-width: 0;
-  min-height: 18px;
-  align-items: center;
-  padding: 2px 5px;
-  border-left: 3px solid var(--booking-calendar-event-border);
-  border-radius: 3px;
-  color: var(--booking-calendar-event-text);
-  background: var(--booking-calendar-event-bg);
-  font-size: var(--lumi-font-calendar);
-  line-height: 1;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-esemeny > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-esemeny time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-statusz-pending { border-left-color: var(--booking-calendar-pending-border); background: var(--booking-calendar-pending-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok :is(.admin-foglalas-naptar-statusz-confirmed, .admin-foglalas-naptar-statusz-blocked) { border-left-color: var(--booking-calendar-confirmed-border); background: var(--booking-calendar-confirmed-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-statusz-done { border-left-color: var(--booking-calendar-done-border); background: var(--booking-calendar-done-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-statusz-cancelled { color: var(--ui-off-white); border-left-color: var(--booking-calendar-cancelled-border); background: var(--booking-calendar-cancelled-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-statusz-cancelled_by_customer { color: var(--ui-off-white); border-left-color: var(--booking-calendar-cancelled-customer-border); background: var(--booking-calendar-cancelled-customer-bg); }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-tovabbi {
-  color: var(--admin-muted);
-  font-size: var(--lumi-font-calendar);
-  font-weight: 600;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-panel {
-  margin-top: 14px;
-  border-top: 1px solid var(--admin-line);
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-fej {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 2px 10px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-fej h4 {
-  margin: 0;
-  font-family: "Playfair Display", serif;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.1;
-  text-transform: capitalize;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-fej > span {
-  color: var(--admin-muted);
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-lista { display: grid; gap: 5px; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-sor {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 52px;
-  padding: 8px 12px;
-  border: 1px solid var(--admin-line);
-  border-left-width: 4px;
-  border-radius: 7px;
-  color: var(--admin-ink);
-  background: var(--booking-calendar-day-row-bg);
-  text-align: left;
-  cursor: pointer;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-ido {
-  display: flex;
-  gap: 3px;
-  font-size: var(--lumi-font-label);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-adat {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-adat strong { font-size: var(--lumi-font-label); overflow-wrap: anywhere; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-adat small { color: var(--admin-muted); font-size: var(--lumi-font-caption); overflow-wrap: anywhere; }
-.admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-statusz {
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: var(--booking-calendar-day-status-bg);
-  font-size: var(--lumi-font-caption);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .admin-body.admin-v2 #admin-panel-foglalasok { --booking-status-width: 150px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-kartya { padding-right: 2px; padding-left: 8px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-db-kartya-fej { min-height: 88px; gap: 4px 10px; padding: 8px 0; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nev-blokk h3 { font-size: 16px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-rovid-szolgaltatas { font-size: 13px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-datum { font-size: 14px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-ido { font-size: 12px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid { gap: 8px 14px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid :is(span, a) { font-size: 13px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-meta-grid strong { font-size: 11px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-reszlet-sor { grid-template-columns: 96px minmax(0, 1fr); font-size: 13px; }
-  .admin-inspiracio-modal { padding: 10px; }
-  .admin-inspiracio-modal-doboz { max-height: calc(100dvh - 20px); border-radius: 22px; }
-  .admin-inspiracio-modal-fejlec, .admin-inspiracio-modal-racs { padding: 16px; }
-  .admin-inspiracio-modal-doboz h3 { font-size: 30px; }
-  .admin-inspiracio-modal-racs { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 480px) {
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-mezo > label,
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-statusz-szuro-mezo > span { display: none; }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-kereses-mezo {
-      grid-template-rows: var(--admin-ui-field-height);
-      gap: 0;
-    }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-statusz-szuro-mezo {
-      grid-template-rows: var(--admin-ui-choice-height);
-    }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-attekintes {
-      align-items: center;
-      flex-flow: row wrap;
-      min-height: 40px;
-      gap: 6px;
-      padding-block: 5px 6px;
-    }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezetvalto { width: 138px; }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb { gap: 5px; }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-nezet-gomb::before {
-      width: 12px;
-      height: 12px;
-      flex-basis: 12px;
-      -webkit-mask-size: 12px 12px;
-      mask-size: 12px 12px;
-    }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-osszefoglalo { flex: 1 1 150px; text-align: right; }
-    .admin-body.admin-v2 #admin-panel-foglalasok .admin-panel-akciok-keresessel {
-      grid-template-columns: minmax(0, 1fr) 112px;
-      grid-template-areas: "search status";
-      gap: 9px;
-      margin-bottom: 5px;
-      padding-bottom: 8px;
-    }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-statusz-szuro-mezo { width: 112px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-lapozo-jobb .admin-oldalmeret > span {
-    display: none;
-  }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-fej {
-    align-items: stretch;
-    flex-direction: column-reverse;
-    gap: 10px;
-  }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-leptetes {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-  }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-cella { min-height: 72px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-nap { min-height: 71px; gap: 2px; padding: 4px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-naptar-esemeny { min-height: 12px; padding: 1px 2px; border-left-width: 2px; font-size: var(--lumi-font-calendar); line-height: 1.2; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-sor { grid-template-columns: 78px minmax(0, 1fr); gap: 9px; min-height: 58px; padding: 8px; }
-  .admin-body.admin-v2 #admin-panel-foglalasok .admin-foglalas-napi-statusz { grid-column: 2; width: fit-content; padding: 3px 6px; white-space: normal; }
-}
+.admin-calendar-editor-host > .admin-foglalas-kartya { padding:0; margin:0; border:0; box-shadow:none; }
+.admin-calendar-editor-host > .admin-foglalas-kartya > :not(dialog) { display:none; }

@@ -18,13 +18,17 @@
         }
 
         elemek.idosavLista.innerHTML = '';
+        allapot.referenceWindows=(data || []).map(row=>({...row}));
+        allapot.beosztasBetoltve = true;
 
         if (!data.length) {
             elemek.idosavLista.innerHTML = '<p class="admin-ures">Még nincs megadva foglalható dátum.</p>';
+            adminStudioBeosztasRender();
             return false;
         }
 
         data.forEach(idosav => elemek.idosavLista.appendChild(idosavKartya(idosav)));
+        adminStudioBeosztasRender();
         return true;
     }
 
@@ -661,6 +665,8 @@
         kartya.classList.toggle('szerkeszt', nyitva);
         gomb.innerHTML = `${adminV2Ikon(nyitva ? 'close' : 'edit')}<span>${nyitva ? 'Bezárás' : 'Szerkesztés'}</span>`;
         gomb.setAttribute('aria-expanded', String(nyitva));
+        if (nyitva) adminKartyaPanelMegnyitasa(kartya);
+        else window.LumiAdminSheet.close();
     }
 
     async function idopontUtkozesHiba({ tipus, id = '', nev = '', startsAt, endsAt, statusz }) {

@@ -9,6 +9,7 @@ const ADMIN_STYLE_FILES = [
     '10-components.css',
     '15-responsive-context.css',
     '20-workspace.css',
+    '25-editor-sheet.css',
     '30-bookings.css',
     '40-content-editor.css',
     '42-cms-image-controls.css',
@@ -125,3 +126,7 @@ function main() {
 }
 
 main();
+
+// The reference component build stays part of the same static TEST/LIVE asset pipeline.
+const referenceBuild = require('node:child_process').spawnSync(process.execPath, [path.join(root, 'scripts/build-admin-reference.js'), ...(process.argv.includes('--check') ? ['--check'] : [])], {cwd:root,stdio:'inherit'});
+if(referenceBuild.status)process.exitCode=referenceBuild.status;

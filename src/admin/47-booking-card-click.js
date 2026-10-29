@@ -10,7 +10,7 @@
             if (!kartya || !lista.contains(kartya) || event.target.closest(INTERAKTIV)) return;
             if (kartya.classList.contains('szerkeszt')) return;
 
-            const reszletekGomb = kartya.querySelector('[data-foglalas-reszletek]');
+            const reszletekGomb = kartya.querySelector('[data-foglalas-szerkesztes]');
             if (!reszletekGomb) return;
 
             reszletekGomb.click();
@@ -22,7 +22,7 @@
             if (!kartya || event.target !== kartya || kartya.classList.contains('szerkeszt')) return;
             if (event.key !== 'Enter' && event.key !== ' ') return;
 
-            const reszletekGomb = kartya.querySelector('[data-foglalas-reszletek]');
+            const reszletekGomb = kartya.querySelector('[data-foglalas-szerkesztes]');
             if (!reszletekGomb) return;
 
             event.preventDefault();

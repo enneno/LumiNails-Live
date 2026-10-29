@@ -1,4 +1,12 @@
+    const adminStudioFoglalasKartyak = new Map();
+    function adminStudioFoglalasKartya(elem) {
+        const key = elem.tipus + ':' + elem.adat.id;
+        if (!adminStudioFoglalasKartyak.has(key))
+            adminStudioFoglalasKartyak.set(key, elem.tipus === 'blocked' ? tiltasFoglalasKartya(elem.adat) : foglalasKartya(elem.adat));
+        return adminStudioFoglalasKartyak.get(key);
+    }
     function foglalasokBetoltese() {
+        if (adminStudioVanPiszkozat('foglalasok')) return Promise.resolve(false);
         return adminKeresOsszevonasa('foglalasokBetoltese', foglalasokBetolteseLetoltese);
     }
 
@@ -7,9 +15,12 @@
         const elemek = adminElemek();
         onlineStatusz('Foglalások betöltése...');
 
-        const alapSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,services(name,price_text)';
-        const kuponSelect = 'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
-        const inspiracioSelect = 'id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
+        const alapSelect =
+            'id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,services(name,price_text)';
+        const kuponSelect =
+            'id,service_id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
+        const inspiracioSelect =
+            'id,service_id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
         let { data: foglalasok, error: foglalasHiba } = await allapot.kliens
             .from('bookings')
             .select(inspiracioSelect)
@@ -39,8 +50,8 @@
                 .limit(ADMIN_FOGLALAS_LIMIT);
 
             if (!referenciaHiba) {
-                const referenciaMap = new Map((referenciaAdatok || []).map(adat => [adat.id, adat.public_reference]));
-                foglalasok = foglalasok.map(foglalas => ({
+                const referenciaMap = new Map((referenciaAdatok || []).map((adat) => [adat.id, adat.public_reference]));
+                foglalasok = foglalasok.map((foglalas) => ({
                     ...foglalas,
                     public_reference: referenciaMap.get(foglalas.id) || ''
                 }));
@@ -51,7 +62,9 @@
 
         let { data: tiltasok, error: tiltasHiba } = await allapot.kliens
             .from('blocked_times')
-            .select('id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)')
+            .select(
+                'id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)'
+            )
             .order('starts_at', { ascending: false })
             .limit(ADMIN_FOGLALAS_LIMIT);
 
@@ -88,9 +101,14 @@
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
         if (!ervenyes()) return false;
 
+        adminStudioFoglalasKartyak.clear();
         allapot.foglalasElemek = [
-            ...(foglalasok || []).map(foglalas => ({ tipus: 'booking', datum: foglalas.starts_at, adat: foglalas })),
-            ...(tiltasok || []).map(tiltas => ({
+            ...(foglalasok || []).map((foglalas) => ({
+                tipus: 'booking',
+                datum: foglalas.starts_at,
+                adat: foglalas
+            })),
+            ...(tiltasok || []).map((tiltas) => ({
                 tipus: 'blocked',
                 datum: tiltas.starts_at,
                 adat: { ...tiltas, status: tiltasStatuszErtek(tiltas.status) }
@@ -110,17 +128,25 @@
 
     function hianyzoInspiracioOszlop(error) {
         const uzenet = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`.toLowerCase();
-        return uzenet.includes('inspiration_image') || uzenet.includes('nail_style') || uzenet.includes('column') && uzenet.includes('schema cache');
+        return (
+            uzenet.includes('inspiration_image') ||
+            uzenet.includes('nail_style') ||
+            (uzenet.includes('column') && uzenet.includes('schema cache'))
+        );
     }
 
     function hianyzoKuponOszlop(error) {
         const uzenet = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`.toLowerCase();
-        return uzenet.includes('coupon_code') || uzenet.includes('coupon_title') || uzenet.includes('column') && uzenet.includes('schema cache');
+        return (
+            uzenet.includes('coupon_code') || uzenet.includes('coupon_title') || (uzenet.includes('column') && uzenet.includes('schema cache'))
+        );
     }
 
     function adatbazisOszlopHiany(error, oszlopok = []) {
         const uzenet = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`.toLowerCase();
-        return oszlopok.some(oszlop => uzenet.includes(oszlop.toLowerCase())) || uzenet.includes('schema cache') && uzenet.includes('column');
+        return (
+            oszlopok.some((oszlop) => uzenet.includes(oszlop.toLowerCase())) || (uzenet.includes('schema cache') && uzenet.includes('column'))
+        );
     }
 
     function hianyzoKuponTabla(error) {
@@ -132,9 +158,7 @@
         const szurtElemek = foglalasSzurtElemek();
         const meret = listaOldalMeret(allapot.foglalasOldalMeret, szurtElemek.length);
         const kezd = allapot.foglalasOldalMeret === 'all' ? 0 : (allapot.foglalasOldal - 1) * meret;
-        const oldalElemek = allapot.foglalasOldalMeret === 'all'
-            ? szurtElemek
-            : szurtElemek.slice(kezd, kezd + meret);
+        const oldalElemek = allapot.foglalasOldalMeret === 'all' ? szurtElemek : szurtElemek.slice(kezd, kezd + meret);
 
         elemek.foglalasLista.innerHTML = '';
         foglalasAttekintesFrissitese(szurtElemek);
@@ -150,10 +174,8 @@
             return;
         }
 
-        oldalElemek.forEach(elem => {
-            elemek.foglalasLista.appendChild(elem.tipus === 'blocked'
-                ? tiltasFoglalasKartya(elem.adat)
-                : foglalasKartya(elem.adat));
+        oldalElemek.forEach((elem) => {
+            elemek.foglalasLista.appendChild(adminStudioFoglalasKartya(elem));
         });
 
         foglalasLapozoRenderelese();
@@ -161,16 +183,18 @@
     }
 
     function aktualisFoglalasExportAdatok() {
+        if(Array.isArray(allapot.referenceExportBookings))return allapot.referenceExportBookings;
         if (allapot.foglalasNezet === 'naptar') {
-            return foglalasNaptarHonapElemei()
-                .map(elem => ({ ...elem.adat, __tipus: elem.tipus }));
+            return foglalasNaptarHonapElemei().map((elem) => ({
+                ...elem.adat,
+                __tipus: elem.tipus
+            }));
         }
 
-        return aktualisListaOldal(
-            foglalasSzurtElemek(),
-            allapot.foglalasOldal,
-            allapot.foglalasOldalMeret
-        ).map(elem => ({ ...elem.adat, __tipus: elem.tipus }));
+        return aktualisListaOldal(foglalasSzurtElemek(), allapot.foglalasOldal, allapot.foglalasOldalMeret).map((elem) => ({
+            ...elem.adat,
+            __tipus: elem.tipus
+        }));
     }
 
     function foglalasSzurtElemek() {
@@ -179,18 +203,19 @@
         const statuszSzuro = allapot.foglalasStatuszSzuro || 'all';
 
         if (!kereses && !telefonKereses && statuszSzuro === 'all') {
-            return allapot.foglalasElemek;
+            return adminStudioFoglalasSorrend(allapot.foglalasElemek);
         }
 
-        return allapot.foglalasElemek.filter(elem => {
+        return adminStudioFoglalasSorrend(allapot.foglalasElemek).filter((elem) => {
             const adat = elem.adat || {};
             const statusz = String(adat.status || '').toLowerCase();
-            const statuszTalalat = statuszSzuro === 'all'
-                || statuszSzuro === 'blocked' && elem.tipus === 'blocked' && statusz === 'blocked'
-                || statuszSzuro === 'blocked_all' && elem.tipus === 'blocked'
-                || statuszSzuro === 'done' && statusz === 'done'
-                || statuszSzuro === 'cancelled_by_customer' && statusz === 'cancelled_by_customer'
-                || elem.tipus === 'booking' && statusz === statuszSzuro;
+            const statuszTalalat =
+                statuszSzuro === 'all' ||
+                (statuszSzuro === 'blocked' && elem.tipus === 'blocked' && statusz === 'blocked') ||
+                (statuszSzuro === 'blocked_all' && elem.tipus === 'blocked') ||
+                (statuszSzuro === 'done' && statusz === 'done') ||
+                (statuszSzuro === 'cancelled_by_customer' && statusz === 'cancelled_by_customer') ||
+                (elem.tipus === 'booking' && statusz === statuszSzuro);
 
             if (!statuszTalalat) {
                 return false;
@@ -215,7 +240,9 @@
                 elem.tipus === 'blocked' ? 'k\u00e9zzel felvett foglalt id\u0151' : 'foglal\u00e1s'
             ];
             const szovegTalalat = normalizaltKereses(szovegek.filter(Boolean).join(' ')).includes(kereses);
-            const telefonTalalat = telefonKereses && csakSzamok([adat.customer_phone, adat.customer_name, adat.customer_email].filter(Boolean).join(' ')).includes(telefonKereses);
+            const telefonTalalat =
+                telefonKereses &&
+                csakSzamok([adat.customer_phone, adat.customer_name, adat.customer_email].filter(Boolean).join(' ')).includes(telefonKereses);
             return szovegTalalat || telefonTalalat;
         });
     }
@@ -225,18 +252,19 @@
     }
 
     function foglalasFuggobenDarab() {
-        return allapot.foglalasElemek.filter(elem => elem.tipus === 'booking' && foglalasFuggoben(elem.adat)).length;
+        return allapot.foglalasElemek.filter((elem) => elem.tipus === 'booking' && foglalasFuggoben(elem.adat)).length;
     }
 
     function vendegAltalLemondottFoglalasok() {
-        return allapot.foglalasElemek.filter(elem => elem.tipus === 'booking'
-            && String(elem.adat?.status || '').toLowerCase() === 'cancelled_by_customer');
+        return allapot.foglalasElemek.filter(
+            (elem) => elem.tipus === 'booking' && String(elem.adat?.status || '').toLowerCase() === 'cancelled_by_customer'
+        );
     }
 
     async function vendegLemondasEsemenyekBetoltese() {
         const ervenyes = adminKeresMunkamenetOr();
         const foglalasIds = vendegAltalLemondottFoglalasok()
-            .map(elem => elem.adat?.id)
+            .map((elem) => elem.adat?.id)
             .filter(Boolean);
 
         allapot.lemondasEsemenyek = new Map();
@@ -258,7 +286,7 @@
         }
 
         if (!ervenyes()) return;
-        (data || []).forEach(esemeny => {
+        (data || []).forEach((esemeny) => {
             const bookingId = String(esemeny.booking_id || '');
             if (!bookingId) {
                 return;
@@ -278,9 +306,7 @@
 
     function vendegLemondasMegjegyzesEsemenybol(esemeny) {
         const metadata = esemeny?.metadata;
-        const metadataMegjegyzes = metadata && typeof metadata === 'object'
-            ? String(metadata.cancellation_note || '').trim()
-            : '';
+        const metadataMegjegyzes = metadata && typeof metadata === 'object' ? String(metadata.cancellation_note || '').trim() : '';
 
         if (metadataMegjegyzes) {
             return metadataMegjegyzes;
@@ -312,7 +338,7 @@
 
     function vendegLemondasOlvasatlanFoglalasok() {
         return vendegAltalLemondottFoglalasok()
-            .map(elem => elem.adat)
+            .map((elem) => elem.adat)
             .filter(vendegLemondasOlvasatlan);
     }
 
@@ -356,15 +382,17 @@
 
         const { data, error } = await allapot.kliens
             .from('booking_events')
-            .insert(olvasatlanFoglalasok.map(foglalas => ({
-                booking_id: foglalas.id,
-                event_type: 'customer_cancellation_acknowledged',
-                channel: 'admin',
-                status: 'success',
-                title: 'Vendéglemondás tudomásul véve',
-                message: 'Az admin a lemondást átnézte és tudomásul vette.',
-                metadata: {}
-            })))
+            .insert(
+                olvasatlanFoglalasok.map((foglalas) => ({
+                    booking_id: foglalas.id,
+                    event_type: 'customer_cancellation_acknowledged',
+                    channel: 'admin',
+                    status: 'success',
+                    title: 'Vendéglemondás tudomásul véve',
+                    message: 'Az admin a lemondást átnézte és tudomásul vette.',
+                    metadata: {}
+                }))
+            )
             .select('booking_id,created_at');
 
         if (error) {
@@ -373,9 +401,9 @@
             return;
         }
 
-        const mentettIdopontok = new Map((data || []).map(esemeny => [String(esemeny.booking_id), esemeny.created_at]));
+        const mentettIdopontok = new Map((data || []).map((esemeny) => [String(esemeny.booking_id), esemeny.created_at]));
         const most = new Date().toISOString();
-        olvasatlanFoglalasok.forEach(foglalas => {
+        olvasatlanFoglalasok.forEach((foglalas) => {
             const bookingId = String(foglalas.id);
             const esemenyek = allapot.lemondasEsemenyek.get(bookingId) || {};
             esemenyek.tudomasulvetel = mentettIdopontok.get(bookingId) || most;
@@ -417,7 +445,6 @@
         tab.setAttribute('aria-label', `Foglal\u00e1sok, ${darab} f\u00fcgg\u0151ben`);
     }
 
-
     function normalizaltKereses(ertek) {
         return String(ertek || '')
             .toLocaleLowerCase('hu-HU')
@@ -438,12 +465,14 @@
 
     function oldalmeretGombok(aktiv, adatNev) {
         return `<select class="admin-oldalmeret-select" data-${adatNev} aria-label="Oldalank\u00e9nt">
-            ${[10, 20, 'all'].map(ertek => {
-                const cimke = ertek === 'all' ? '\u00d6sszes' : String(ertek);
-                const aktivE = String(aktiv) === String(ertek);
-                return `<option value="${ertek}" ${aktivE ? 'selected' : ''}>${cimke}</option>`;
-            }).join('')}
-        </select>`;
+                ${[10, 20, 'all']
+                    .map((ertek) => {
+                        const cimke = ertek === 'all' ? '\u00d6sszes' : String(ertek);
+                        const aktivE = String(aktiv) === String(ertek);
+                        return `<option value="${ertek}" ${aktivE ? 'selected' : ''}>${cimke}</option>`;
+                    })
+                    .join('')}
+            </select>`;
     }
 
     function foglalasOsszesOldal() {
@@ -458,30 +487,30 @@
         const vanElem = lista.length > 0;
         const oldalSzoveg = vanElem ? `${allapot.foglalasOldal} / ${osszes}` : '0 / 0';
         return `
-            <div class="admin-lapozo-nav" role="group" aria-label="Foglalások lapozása">
-                <button type="button" class="admin-pagination-button" data-foglalas-oldal="elozo" aria-label="Előző oldal" title="Előző oldal" ${allapot.foglalasOldal <= 1 || !vanElem ? 'disabled' : ''}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"></path></svg>
-                    <span>Előző</span>
-                </button>
-                <span class="admin-pagination-page" aria-label="${html(oldalSzoveg)}">${html(oldalSzoveg)}</span>
-                <button type="button" class="admin-pagination-button" data-foglalas-oldal="kovetkezo" aria-label="Következő oldal" title="Következő oldal" ${allapot.foglalasOldal >= osszes || !vanElem ? 'disabled' : ''}>
-                    <span>Következő</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"></path></svg>
-                </button>
-            </div>
-            <div class="admin-lapozo-jobb">
-                <label class="admin-oldalmeret admin-pagination-size">
-                    <span>Oldalanként</span>
-                    ${oldalmeretGombok(allapot.foglalasOldalMeret, 'foglalas-oldalmeret')}
-                </label>
-            </div>
-        `;
+                <div class="admin-lapozo-nav" role="group" aria-label="Foglalások lapozása">
+                    <button type="button" class="admin-pagination-button" data-foglalas-oldal="elozo" aria-label="Előző oldal" title="Előző oldal" ${allapot.foglalasOldal <= 1 || !vanElem ? 'disabled' : ''}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"></path></svg>
+                        <span>Előző</span>
+                    </button>
+                    <span class="admin-pagination-page" aria-label="${html(oldalSzoveg)}">${html(oldalSzoveg)}</span>
+                    <button type="button" class="admin-pagination-button" data-foglalas-oldal="kovetkezo" aria-label="Következő oldal" title="Következő oldal" ${allapot.foglalasOldal >= osszes || !vanElem ? 'disabled' : ''}>
+                        <span>Következő</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"></path></svg>
+                    </button>
+                </div>
+                <div class="admin-lapozo-jobb">
+                    <label class="admin-oldalmeret admin-pagination-size">
+                        <span>Oldalanként</span>
+                        ${oldalmeretGombok(allapot.foglalasOldalMeret, 'foglalas-oldalmeret')}
+                    </label>
+                </div>
+            `;
     }
 
     function foglalasLapozoRenderelese() {
         const elemek = adminElemek();
         const htmlTartalom = foglalasLapozoHtml();
-        [elemek.foglalasLapozoFelso, elemek.foglalasLapozo].filter(Boolean).forEach(lapozo => {
+        [elemek.foglalasLapozoFelso, elemek.foglalasLapozo].filter(Boolean).forEach((lapozo) => {
             lapozo.innerHTML = htmlTartalom;
         });
     }
@@ -527,13 +556,16 @@
 
         const { data, error } = await allapot.kliens
             .from('booking_events')
-            .select('id,booking_id,event_type,channel,status,title,message,metadata,created_at,bookings(customer_name,customer_email,customer_phone,starts_at)')
+            .select(
+                'id,booking_id,event_type,channel,status,title,message,metadata,created_at,bookings(customer_name,customer_email,customer_phone,starts_at)'
+            )
             .neq('event_type', 'customer_cancellation_acknowledged')
             .order('created_at', { ascending: false })
             .limit(200);
 
         if (error) {
-            elemek.esemenynaploLista.innerHTML = '<p class="admin-ures">Az eseménynapló még nem érhető el. Futtasd a booking_events SQL-t Supabase-ben.</p>';
+            elemek.esemenynaploLista.innerHTML =
+                '<p class="admin-ures">Az eseménynapló még nem érhető el. Futtasd a booking_events SQL-t Supabase-ben.</p>';
             return;
         }
 
@@ -562,30 +594,29 @@
 
         const meret = listaOldalMeret(allapot.esemenynaploOldalMeret, allapot.esemenynaploElemek.length);
         const kezd = allapot.esemenynaploOldalMeret === 'all' ? 0 : (allapot.esemenynaploOldal - 1) * meret;
-        const oldalElemek = allapot.esemenynaploOldalMeret === 'all'
-            ? allapot.esemenynaploElemek
-            : allapot.esemenynaploElemek.slice(kezd, kezd + meret);
+        const oldalElemek =
+            allapot.esemenynaploOldalMeret === 'all' ? allapot.esemenynaploElemek : allapot.esemenynaploElemek.slice(kezd, kezd + meret);
 
-        oldalElemek.forEach(esemeny => {
+        oldalElemek.forEach((esemeny) => {
             const kartya = document.createElement('article');
             kartya.className = `admin-db-kartya admin-esemeny-kartya admin-esemeny-${html(esemeny.status || 'info')}`;
             const foglalasNev = esemeny.bookings?.customer_name || '';
             const foglalasIdo = esemeny.bookings?.starts_at ? datumIdoRovid(esemeny.bookings.starts_at) : '';
 
             kartya.innerHTML = `
-                <div class="admin-db-kartya-fej">
-                    <div>
-                        <p class="admin-esemeny-idopont">${html(datumIdoRovid(esemeny.created_at))}</p>
-                        <h3>${html(esemeny.title || esemenyTipusFelirat(esemeny.event_type))}</h3>
+                    <div class="admin-db-kartya-fej">
+                        <div>
+                            <p class="admin-esemeny-idopont">${html(datumIdoRovid(esemeny.created_at))}</p>
+                            <h3>${html(esemeny.title || esemenyTipusFelirat(esemeny.event_type))}</h3>
+                        </div>
+                        <span class="admin-esemeny-statusz">${html(esemenyStatuszFelirat(esemeny.status))}</span>
                     </div>
-                    <span class="admin-esemeny-statusz">${html(esemenyStatuszFelirat(esemeny.status))}</span>
-                </div>
-                <div class="admin-esemeny-reszletek">
-                    ${foglalasNev ? `<p><strong>Foglal\u00e1s:</strong> ${html(foglalasNev)}${foglalasIdo ? ` - ${html(foglalasIdo)}` : ''}</p>` : ''}
-                    ${esemeny.message ? `<p>${html(esemeny.message)}</p>` : ''}
-                    <p class="admin-esemeny-meta">${html([esemeny.channel, esemeny.event_type].filter(Boolean).join(' / '))}</p>
-                </div>
-            `;
+                    <div class="admin-esemeny-reszletek">
+                        ${foglalasNev ? `<p><strong>Foglal\u00e1s:</strong> ${html(foglalasNev)}${foglalasIdo ? ` - ${html(foglalasIdo)}` : ''}</p>` : ''}
+                        ${esemeny.message ? `<p>${html(esemeny.message)}</p>` : ''}
+                        <p class="admin-esemeny-meta">${html([esemeny.channel, esemeny.event_type].filter(Boolean).join(' / '))}</p>
+                    </div>
+                `;
 
             elemek.esemenynaploLista.appendChild(kartya);
         });
@@ -594,11 +625,10 @@
     }
 
     function aktualisEsemenyExportAdatok() {
-        return aktualisListaOldal(
-            allapot.esemenynaploElemek,
-            allapot.esemenynaploOldal,
-            allapot.esemenynaploOldalMeret
-        ).map(esemeny => ({ ...esemeny }));
+        if(Array.isArray(allapot.referenceExportEvents))return allapot.referenceExportEvents;
+        return aktualisListaOldal(allapot.esemenynaploElemek, allapot.esemenynaploOldal, allapot.esemenynaploOldalMeret).map((esemeny) => ({
+            ...esemeny
+        }));
     }
 
     function aktualisListaOldal(lista, oldal, oldalMeret) {
@@ -613,7 +643,10 @@
 
     function esemenynaploOsszesOldal() {
         if (allapot.esemenynaploOldalMeret === 'all') return 1;
-        return Math.max(1, Math.ceil(allapot.esemenynaploElemek.length / listaOldalMeret(allapot.esemenynaploOldalMeret, allapot.esemenynaploElemek.length)));
+        return Math.max(
+            1,
+            Math.ceil(allapot.esemenynaploElemek.length / listaOldalMeret(allapot.esemenynaploOldalMeret, allapot.esemenynaploElemek.length))
+        );
     }
 
     function esemenynaploLapozoHtml() {
@@ -621,30 +654,30 @@
         const vanElem = allapot.esemenynaploElemek.length > 0;
         const oldalSzoveg = vanElem ? `${allapot.esemenynaploOldal} / ${osszes}` : '0 / 0';
         return `
-            <div class="admin-lapozo-nav" role="group" aria-label="Eseménynapló lapozása">
-                <button type="button" class="admin-pagination-button" data-esemenynaplo-oldal="elozo" aria-label="Előző oldal" title="Előző oldal" ${allapot.esemenynaploOldal <= 1 || !vanElem ? 'disabled' : ''}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"></path></svg>
-                    <span>Előző</span>
-                </button>
-                <span class="admin-pagination-page" aria-label="${html(oldalSzoveg)}">${html(oldalSzoveg)}</span>
-                <button type="button" class="admin-pagination-button" data-esemenynaplo-oldal="kovetkezo" aria-label="Következő oldal" title="Következő oldal" ${allapot.esemenynaploOldal >= osszes || !vanElem ? 'disabled' : ''}>
-                    <span>Következő</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"></path></svg>
-                </button>
-            </div>
-            <div class="admin-lapozo-jobb">
-                <label class="admin-oldalmeret admin-pagination-size">
-                    <span>Oldalanként</span>
-                    ${oldalmeretGombok(allapot.esemenynaploOldalMeret, 'esemenynaplo-oldalmeret')}
-                </label>
-            </div>
-        `;
+                <div class="admin-lapozo-nav" role="group" aria-label="Eseménynapló lapozása">
+                    <button type="button" class="admin-pagination-button" data-esemenynaplo-oldal="elozo" aria-label="Előző oldal" title="Előző oldal" ${allapot.esemenynaploOldal <= 1 || !vanElem ? 'disabled' : ''}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"></path></svg>
+                        <span>Előző</span>
+                    </button>
+                    <span class="admin-pagination-page" aria-label="${html(oldalSzoveg)}">${html(oldalSzoveg)}</span>
+                    <button type="button" class="admin-pagination-button" data-esemenynaplo-oldal="kovetkezo" aria-label="Következő oldal" title="Következő oldal" ${allapot.esemenynaploOldal >= osszes || !vanElem ? 'disabled' : ''}>
+                        <span>Következő</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"></path></svg>
+                    </button>
+                </div>
+                <div class="admin-lapozo-jobb">
+                    <label class="admin-oldalmeret admin-pagination-size">
+                        <span>Oldalanként</span>
+                        ${oldalmeretGombok(allapot.esemenynaploOldalMeret, 'esemenynaplo-oldalmeret')}
+                    </label>
+                </div>
+            `;
     }
 
     function esemenynaploLapozoRenderelese() {
         const elemek = adminElemek();
         const htmlTartalom = esemenynaploLapozoHtml();
-        [elemek.esemenynaploLapozoFelso, elemek.esemenynaploLapozo].filter(Boolean).forEach(lapozo => {
+        [elemek.esemenynaploLapozoFelso, elemek.esemenynaploLapozo].filter(Boolean).forEach((lapozo) => {
             lapozo.innerHTML = htmlTartalom;
         });
     }
@@ -672,37 +705,41 @@
     }
 
     function esemenyStatuszFelirat(statusz) {
-        return {
-            success: 'Sikeres',
-            warning: 'Figyelmeztetés',
-            error: 'Hiba',
-            info: 'Infó'
-        }[statusz] || 'Infó';
+        return (
+            {
+                success: 'Sikeres',
+                warning: 'Figyelmeztetés',
+                error: 'Hiba',
+                info: 'Infó'
+            }[statusz] || 'Infó'
+        );
     }
 
     function esemenyTipusFelirat(tipus) {
-        return {
-            booking_created: 'Foglalás rögzítve',
-            owner_email: 'Tulaj email',
-            customer_email: 'Vendég email',
-            email_flow_failed: 'Email folyamat hiba',
-            admin_update_email: 'Módosítás email',
-            booking_reminder_email: 'Emlékeztető email',
-            booking_review_request_email: 'Értékeléskérő email',
-            customer_cancelled: 'A vendég mondta le',
-            inspiration_deleted: 'Inspiráció törölve'
-        }[tipus] || 'Esemény';
+        return (
+            {
+                booking_created: 'Foglalás rögzítve',
+                owner_email: 'Tulaj email',
+                customer_email: 'Vendég email',
+                email_flow_failed: 'Email folyamat hiba',
+                admin_update_email: 'Módosítás email',
+                booking_reminder_email: 'Emlékeztető email',
+                booking_review_request_email: 'Értékeléskérő email',
+                customer_cancelled: 'A vendég mondta le',
+                inspiration_deleted: 'Inspiráció törölve'
+            }[tipus] || 'Esemény'
+        );
     }
 
     function foglalasKartyaIdopont(kezdes, vege) {
         const datum = datumIdoRovid(kezdes).split(' ')[0];
 
         return `
-            <p class="admin-foglalas-idopont">
-                <span class="admin-foglalas-datum">${html(datum)}</span>
-                <span class="admin-foglalas-ido">${html(datumIdoRovid(kezdes, true))} – ${html(datumIdoRovid(vege, true))}</span>
-            </p>
-        `;
+                <p class="admin-foglalas-idopont">
+                    <span class="admin-foglalas-datum">${html(datum)}</span>
+                    <span class="admin-foglalas-ido">${html(datumIdoRovid(kezdes, true))} – ${html(datumIdoRovid(vege, true))}</span>
+                </p>
+            `;
     }
 
     function fizetettOsszegInputErtek(ertek) {
@@ -713,9 +750,7 @@
 
     function fizetettOsszegFelirat(ertek) {
         const inputErtek = fizetettOsszegInputErtek(ertek);
-        return inputErtek === ''
-            ? 'Nincs rögzítve'
-            : `${inputErtek.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
+        return inputErtek === '' ? 'Nincs rögzítve' : `${inputErtek.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
     }
 
     function fizetettOsszegMezoHtml(azonosito, ertek, opciok = {}) {
@@ -723,18 +758,17 @@
         const szelesOsztaly = opciok.szeles === false ? '' : ' admin-mezo-szeles';
         const cimke = opciok.cimke || 'Fizetett összeg (Ft)';
         return `<label class="admin-mezo${szelesOsztaly} admin-fizetett-osszeg-mezo">
-            ${html(cimke)}
-            <input type="number" min="0" max="2147483647" step="1" inputmode="numeric" data-idopont-mezo="paid_amount" value="${attr(fizetettOsszegInputErtek(ertek))}" aria-describedby="${attr(hibaId)}" disabled>
-            <small id="${attr(hibaId)}" class="admin-fizetett-osszeg-seged">Üresen hagyva nincs még fizetés rögzítve.</small>
-        </label>`;
+                ${html(cimke)}
+                <input type="number" min="0" max="2147483647" step="1" inputmode="numeric" data-idopont-mezo="paid_amount" value="${attr(fizetettOsszegInputErtek(ertek))}" aria-describedby="${attr(hibaId)}" disabled>
+                <small id="${attr(hibaId)}" class="admin-fizetett-osszeg-seged">Üresen hagyva nincs még fizetés rögzítve.</small>
+            </label>`;
     }
 
     function fizetettOsszegAdatok(kartya) {
         const mezo = idopontMezo(kartya, 'paid_amount');
         const seged = kartya?.querySelector('.admin-fizetett-osszeg-seged');
         const nyersErtek = String(mezo?.value || '').trim();
-        const ervenyes = nyersErtek === '' || /^\d+$/.test(nyersErtek)
-            && Number(nyersErtek) <= 2147483647;
+        const ervenyes = nyersErtek === '' || (/^\d+$/.test(nyersErtek) && Number(nyersErtek) <= 2147483647);
         const hiba = ervenyes ? '' : 'Adj meg egy 0 vagy annál nagyobb egész forintösszeget.';
 
         if (mezo) {
@@ -772,57 +806,62 @@
         kartya.dataset.inspiracioKepek = JSON.stringify(inspiracioKepek);
 
         kartya.innerHTML = `
-            <div class="admin-db-kartya-fej">
-                <div class="admin-foglalas-fosor">
-                    <div class="admin-foglalas-nev-blokk">
-                        <p class="admin-kartya-tipus admin-foglalas-azonosito${foglalasAzonosito ? '' : ' hianyzo'}" aria-label="Foglalási azonosító: ${attr(foglalasAzonosito || 'még nincs')}"><code>${html(foglalasAzonosito || 'Azonosító nélkül')}</code></p>
-                        <h3>${html(foglalas.customer_name)}</h3>
-                        <p class="admin-foglalas-rovid-szolgaltatas">${html(foglalas.services?.name || 'Törölt szolgáltatás')}</p>
+                <div class="admin-db-kartya-fej">
+                    <div class="admin-foglalas-fosor">
+                        <div class="admin-foglalas-nev-blokk">
+                            <p class="admin-kartya-tipus admin-foglalas-azonosito${foglalasAzonosito ? '' : ' hianyzo'}" aria-label="Foglalási azonosító: ${attr(foglalasAzonosito || 'még nincs')}"><code>${html(foglalasAzonosito || 'Azonosító nélkül')}</code></p>
+                            <h3>${html(foglalas.customer_name)}</h3>
+                            <p class="admin-foglalas-rovid-szolgaltatas">${html(foglalas.services?.name || 'Törölt szolgáltatás')}</p>
+                        </div>
+                        ${foglalasKartyaIdopont(foglalas.starts_at, foglalas.ends_at)}
                     </div>
-                    ${foglalasKartyaIdopont(foglalas.starts_at, foglalas.ends_at)}
+                    <div class="admin-foglalas-vezerlok">
+                        <select class="admin-db-statusz admin-db-statusz--foglalas" data-foglalas-statusz disabled>
+                            ${statuszOption('pending', 'Függőben', foglalas.status)}
+                            ${statuszOption('confirmed', 'Visszaigazolva', foglalas.status)}
+                            ${statuszOption('done', 'Teljesítve', foglalas.status)}
+                            ${statuszOption('cancelled', 'Általam lemondva', foglalas.status)}
+                            ${statuszOption('cancelled_by_customer', 'Vendég mondta le', foglalas.status)}
+                        </select>
+                        <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
+                        <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
+                    </div>
                 </div>
-                <div class="admin-foglalas-vezerlok">
-                    <select class="admin-db-statusz admin-db-statusz--foglalas" data-foglalas-statusz disabled>
-                        ${statuszOption('pending', 'Függőben', foglalas.status)}
-                        ${statuszOption('confirmed', 'Visszaigazolva', foglalas.status)}
-                        ${statuszOption('done', 'Kész', foglalas.status)}
-                        ${statuszOption('cancelled', 'Általam lemondva', foglalas.status)}
-                        ${statuszOption('cancelled_by_customer', 'Vendég mondta le', foglalas.status)}
-                    </select>
-                    <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
-                    <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
+                ${
+                    lemondasiMegjegyzes
+                        ? `
+                    <p class="admin-foglalas-lemondasi-megjegyzes">
+                        <strong>Lemondási megjegyzés</strong>
+                        <span>${html(lemondasiMegjegyzes)}</span>
+                    </p>
+                `
+                        : ''
+                }
+                <div class="admin-foglalas-reszletek admin-foglalas-reszletek-kompakt">
+                    <div class="admin-foglalas-meta-grid">
+                        <p class="admin-foglalas-meta-szolgaltatas"><strong>Szolgáltatás</strong><span>${html(foglalas.services?.name || 'Törölt szolgáltatás')}</span></p>
+                        <p class="admin-foglalas-meta-leadva"><strong>Leadva</strong><span>${html(datumIdoRovid(foglalas.created_at))}</span></p>
+                        <p class="admin-foglalas-meta-email"><strong>Email</strong><a href="mailto:${html(foglalas.customer_email)}">${html(foglalas.customer_email)}</a></p>
+                        <p class="admin-foglalas-meta-telefon"><strong>Tel</strong><a href="tel:${html(foglalas.customer_phone.replace(/\s/g, ''))}">${html(foglalas.customer_phone)}</a></p>
+                        <p class="admin-foglalas-meta-fizetett"><strong>Fizetett összeg</strong><span>${html(fizetettOsszegFelirat(foglalas.paid_amount))}</span></p>
+                    </div>
+                    ${koromStilus ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-korom-stilus"><strong>Köröm stílus</strong><span>${html(koromStilus)}</span></p>` : ''}
+                    ${megjegyzes ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-megjegyzes"><strong>Megjegyzés</strong><span>${html(megjegyzes)}</span></p>` : ''}
+                    ${kuponKod ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-kupon"><strong>Kupon</strong><span>${html(kuponKod)}</span></p>` : ''}
+                    ${inspiracioKepek.length ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles"><strong>Inspiráció</strong><span class="admin-inspiracio-akciok"><button type="button" class="admin-inspiracio-link" data-inspiracio-megnyitas>${inspiracioKepek.length} kép megnyitása</button><button type="button" class="admin-kis-gomb admin-veszely-gomb admin-inspiracio-torles" data-inspiracio-torles>Képek törlése</button></span></p>` : ''}
+                </div>            <div class="admin-idopont-szerkeszto">
+                    <label class="admin-mezo">Dátum<input type="date" data-idopont-mezo="date" value="${attr(datumInputErtek(foglalas.starts_at))}" disabled></label>
+                    <label class="admin-mezo">Kezdés<input type="time" data-idopont-mezo="start_time" value="${attr(idoInputErtek(foglalas.starts_at))}" disabled></label>
+                    <label class="admin-mezo">Vége<input type="time" data-idopont-mezo="end_time" value="${attr(idoInputErtek(foglalas.ends_at))}" disabled></label>
+                    ${fizetettOsszegMezoHtml(foglalas.id, foglalas.paid_amount)}
+                    <label class="admin-mezo admin-mezo-szeles">Üzenet az emailhez<textarea data-idopont-mezo="admin_message" placeholder="Opcionális. Lemondásnál vagy időpontmódosításnál bekerül a vendég emailjébe." disabled></textarea></label>
                 </div>
-            </div>
-            ${lemondasiMegjegyzes ? `
-                <p class="admin-foglalas-lemondasi-megjegyzes">
-                    <strong>Lemondási megjegyzés</strong>
-                    <span>${html(lemondasiMegjegyzes)}</span>
-                </p>
-            ` : ''}
-            <div class="admin-foglalas-reszletek admin-foglalas-reszletek-kompakt">
-                <div class="admin-foglalas-meta-grid">
-                    <p class="admin-foglalas-meta-szolgaltatas"><strong>Szolgáltatás</strong><span>${html(foglalas.services?.name || 'Törölt szolgáltatás')}</span></p>
-                    <p class="admin-foglalas-meta-leadva"><strong>Leadva</strong><span>${html(datumIdoRovid(foglalas.created_at))}</span></p>
-                    <p class="admin-foglalas-meta-email"><strong>Email</strong><a href="mailto:${html(foglalas.customer_email)}">${html(foglalas.customer_email)}</a></p>
-                    <p class="admin-foglalas-meta-telefon"><strong>Tel</strong><a href="tel:${html(foglalas.customer_phone.replace(/\s/g, ''))}">${html(foglalas.customer_phone)}</a></p>
-                    <p class="admin-foglalas-meta-fizetett"><strong>Fizetett összeg</strong><span>${html(fizetettOsszegFelirat(foglalas.paid_amount))}</span></p>
+                <div class="admin-db-akciok">
+                    <button type="button" class="admin-kis-gomb admin-veszely-gomb" data-foglalas-torles>Eltávolítás</button>
                 </div>
-                ${koromStilus ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-korom-stilus"><strong>Köröm stílus</strong><span>${html(koromStilus)}</span></p>` : ''}
-                ${megjegyzes ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-megjegyzes"><strong>Megjegyzés</strong><span>${html(megjegyzes)}</span></p>` : ''}
-                ${kuponKod ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles admin-foglalas-kupon"><strong>Kupon</strong><span>${html(kuponKod)}</span></p>` : ''}
-                ${inspiracioKepek.length ? `<p class="admin-foglalas-reszlet-sor admin-foglalas-reszlet-szeles"><strong>Inspiráció</strong><span class="admin-inspiracio-akciok"><button type="button" class="admin-inspiracio-link" data-inspiracio-megnyitas>${inspiracioKepek.length} kép megnyitása</button><button type="button" class="admin-kis-gomb admin-veszely-gomb admin-inspiracio-torles" data-inspiracio-torles>Képek törlése</button></span></p>` : ''}
-            </div>            <div class="admin-idopont-szerkeszto">
-                <label class="admin-mezo">Dátum<input type="date" data-idopont-mezo="date" value="${attr(datumInputErtek(foglalas.starts_at))}" disabled></label>
-                <label class="admin-mezo">Kezdés<input type="time" data-idopont-mezo="start_time" value="${attr(idoInputErtek(foglalas.starts_at))}" disabled></label>
-                <label class="admin-mezo">Vége<input type="time" data-idopont-mezo="end_time" value="${attr(idoInputErtek(foglalas.ends_at))}" disabled></label>
-                ${fizetettOsszegMezoHtml(foglalas.id, foglalas.paid_amount)}
-                <label class="admin-mezo admin-mezo-szeles">Üzenet az emailhez<textarea data-idopont-mezo="admin_message" placeholder="Opcionális. Lemondásnál vagy időpontmódosításnál bekerül a vendég emailjébe." disabled></textarea></label>
-            </div>
-            <div class="admin-db-akciok">
-                <button type="button" class="admin-kis-gomb admin-veszely-gomb" data-foglalas-torles>Eltávolítás</button>
-            </div>
-        `;
+            `;
 
+        adminStudioFoglalasKartyaJelzes(kartya, foglalas);
         return kartya;
     }
 
@@ -841,9 +880,9 @@
 
         const noteSorok = String(foglalas?.note || '')
             .split(/\r?\n/)
-            .map(sor => sor.trim())
+            .map((sor) => sor.trim())
             .filter(Boolean);
-        const stilusSor = noteSorok.find(sor => /^Köröm stílus:/i.test(sor));
+        const stilusSor = noteSorok.find((sor) => /^Köröm stílus:/i.test(sor));
         return stilusSor ? stilusSor.replace(/^Köröm stílus:\s*/i, '').trim() : '';
     }
 
@@ -853,10 +892,8 @@
 
         const tisztitottNote = note
             .split(/\r?\n/)
-            .map(sor => sor.trim())
-            .filter(sor => sor
-                && !/^(Kupon:|Alap\u00e1r:|Kedvezm\u00e9ny:|V\u00e9g\u00f6sszeg:)/i.test(sor)
-                && !/^Köröm stílus:/i.test(sor))
+            .map((sor) => sor.trim())
+            .filter((sor) => sor && !/^(Kupon:|Alap\u00e1r:|Kedvezm\u00e9ny:|V\u00e9g\u00f6sszeg:)/i.test(sor) && !/^Köröm stílus:/i.test(sor))
             .join(' ')
             .replace(/\s*Kupon:\s*[A-Z0-9_-]+(?:\s*\([^)]*\))?(?:\s*Alap\u00e1r:[\s\S]*)?$/i, '')
             .replace(/\s*Alap\u00e1r:\s*[\s\S]*$/i, '')
@@ -872,10 +909,10 @@
     }
 
     async function foglalasInspiracioLinkekAlairasa(foglalasok) {
-        const masolatok = foglalasok.map(foglalas => ({
+        const masolatok = foglalasok.map((foglalas) => ({
             ...foglalas,
             inspiration_images: Array.isArray(foglalas.inspiration_images)
-                ? foglalas.inspiration_images.map(kep => ({ ...kep }))
+                ? foglalas.inspiration_images.map((kep) => ({ ...kep }))
                 : foglalas.inspiration_images
         }));
         const bucketBejegyzesek = new Map();
@@ -893,9 +930,10 @@
         });
 
         for (const [bucket, bejegyzesek] of bucketBejegyzesek) {
-            const { data, error } = await allapot.kliens.storage
-                .from(bucket)
-                .createSignedUrls(bejegyzesek.map(bejegyzes => bejegyzes.path), 3600);
+            const { data, error } = await allapot.kliens.storage.from(bucket).createSignedUrls(
+                bejegyzesek.map((bejegyzes) => bejegyzes.path),
+                3600
+            );
 
             if (error) {
                 console.warn('Inspirációs képek ideiglenes linkje nem készült el:', error);
@@ -917,13 +955,13 @@
         const kepek = [];
         const ujKepek = Array.isArray(foglalas.inspiration_images) ? foglalas.inspiration_images : [];
 
-        ujKepek.forEach(kep => {
+        ujKepek.forEach((kep) => {
             if (kep?.url) {
                 kepek.push({
                     url: kep.url,
                     path: kep.path || '',
                     name: kep.name || 'Inspirációs kép',
-                    bucket: kep.bucket || inspiracioKepStorageBucket(kep),
+                    bucket: kep.bucket || inspiracioKepStorageBucket(kep)
                 });
             }
         });
@@ -933,7 +971,7 @@
                 url: foglalas.inspiration_image_url,
                 path: foglalas.inspiration_image_path || '',
                 name: foglalas.inspiration_image_name || 'Inspirációs kép',
-                bucket: 'site-media',
+                bucket: 'site-media'
             });
         }
 
@@ -984,11 +1022,17 @@
 
         let modal = document.getElementById('admin-inspiracio-modal');
         if (!modal) {
-            modal = document.createElement('div');
+            modal = document.createElement('dialog');
             modal.id = 'admin-inspiracio-modal';
             modal.className = 'admin-inspiracio-modal';
+            modal.setAttribute('aria-label', 'Inspirációs képek');
+            modal.addEventListener('cancel', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                inspiracioModalBezarasa();
+            });
             document.body.appendChild(modal);
-            modal.addEventListener('click', event => {
+            modal.addEventListener('click', (event) => {
                 if (event.target === modal || event.target.closest('[data-inspiracio-bezaras]')) {
                     inspiracioModalBezarasa();
                 }
@@ -996,23 +1040,27 @@
         }
 
         modal.innerHTML = `
-            <div class="admin-inspiracio-modal-doboz" role="dialog" aria-modal="true" aria-label="Inspirációs képek">
-                <div class="admin-inspiracio-modal-fejlec">
-                    <h3>Inspirációs képek</h3>
-                    <button type="button" class="admin-inspiracio-bezaras" data-inspiracio-bezaras aria-label="Bezárás">×</button>
+                <div class="admin-inspiracio-modal-doboz" role="dialog" aria-modal="true" aria-label="Inspirációs képek">
+                    <div class="admin-inspiracio-modal-fejlec">
+                        <h3>Inspirációs képek</h3>
+                        <button type="button" class="admin-inspiracio-bezaras" data-inspiracio-bezaras aria-label="Bezárás">×</button>
+                    </div>
+                    <div class="admin-inspiracio-modal-racs">
+                        ${kepek.map((kep) => `<figure><img src="${attr(kep.url)}" alt="${attr(kep.name || 'Inspirációs kép')}"><figcaption>${html(kep.name || 'Inspirációs kép')}</figcaption></figure>`).join('')}
+                    </div>
                 </div>
-                <div class="admin-inspiracio-modal-racs">
-                    ${kepek.map(kep => `<figure><img src="${attr(kep.url)}" alt="${attr(kep.name || 'Inspirációs kép')}"><figcaption>${html(kep.name || 'Inspirációs kép')}</figcaption></figure>`).join('')}
-                </div>
-            </div>
-        `;
+            `;
         modal.hidden = false;
+        modal.showModal();
         document.body.classList.add('admin-modal-nyitva');
     }
 
     function inspiracioModalBezarasa() {
         const modal = document.getElementById('admin-inspiracio-modal');
-        if (modal) modal.hidden = true;
+        if (modal) {
+            modal.hidden = true;
+            modal.close();
+        }
         document.body.classList.remove('admin-modal-nyitva');
     }
 
@@ -1032,46 +1080,47 @@
         kartya.dataset.eredetiReason = megjegyzes;
         kartya.dataset.eredetiFizetettOsszeg = fizetettOsszegInputErtek(tiltas.paid_amount);
         kartya.innerHTML = `
-            <div class="admin-db-kartya-fej">
-                <div class="admin-foglalas-fosor">
-                    <div class="admin-foglalas-nev-blokk">
-                        <p class="admin-kartya-tipus admin-foglalas-azonosito" aria-label="Kézzel felvett idő"><code>Kézzel felvett idő</code></p>
-                        <h3>${html(megjegyzes)}</h3>
-                        <p class="admin-foglalas-rovid-szolgaltatas">${szolgaltatas ? html(szolgaltatas) : '&nbsp;'}</p>
+                <div class="admin-db-kartya-fej">
+                    <div class="admin-foglalas-fosor">
+                        <div class="admin-foglalas-nev-blokk">
+                            <p class="admin-kartya-tipus admin-foglalas-azonosito" aria-label="Kézzel felvett idő"><code>Kézzel felvett idő</code></p>
+                            <h3>${html(megjegyzes)}</h3>
+                            <p class="admin-foglalas-rovid-szolgaltatas">${szolgaltatas ? html(szolgaltatas) : '&nbsp;'}</p>
+                        </div>
+                        ${foglalasKartyaIdopont(tiltas.starts_at, tiltas.ends_at)}
                     </div>
-                    ${foglalasKartyaIdopont(tiltas.starts_at, tiltas.ends_at)}
+                    <div class="admin-foglalas-vezerlok">
+                        <select class="admin-db-statusz admin-db-statusz--foglalas" data-foglalas-statusz aria-label="Kézi idő státusza" disabled>
+                            <option value="blocked" ${statusz === 'blocked' ? 'selected' : ''}>Foglalt</option>
+                            <option value="done" ${statusz === 'done' ? 'selected' : ''}>Teljesítve</option>
+                            <option value="cancelled_by_customer" ${statusz === 'cancelled_by_customer' ? 'selected' : ''}>Vendég mondta le</option>
+                        </select>
+                        <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
+                        <button type="button" class="admin-booking-icon-button admin-control-icon-button admin-kezi-ido-naptar" data-kezi-ido-naptar>Naptárba</button>
+                        <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
+                    </div>
                 </div>
-                <div class="admin-foglalas-vezerlok">
-                    <select class="admin-db-statusz admin-db-statusz--foglalas" data-foglalas-statusz aria-label="Kézi idő státusza" disabled>
-                        <option value="blocked" ${statusz === 'blocked' ? 'selected' : ''}>Foglalt</option>
-                        <option value="done" ${statusz === 'done' ? 'selected' : ''}>Kész</option>
-                        <option value="cancelled_by_customer" ${statusz === 'cancelled_by_customer' ? 'selected' : ''}>Vendég mondta le</option>
-                    </select>
-                    <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
-                    <button type="button" class="admin-booking-icon-button admin-control-icon-button admin-kezi-ido-naptar" data-kezi-ido-naptar>Naptárba</button>
-                    <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
+                <div class="admin-foglalas-reszletek admin-foglalas-reszletek-kompakt">
+                    <div class="admin-foglalas-meta-grid">
+                        <p class="admin-foglalas-meta-szolgaltatas"><strong>Szolgáltatás</strong><span>${szolgaltatas ? html(szolgaltatas) : 'Nincs szolgáltatás'}</span></p>
+                        <p class="admin-foglalas-meta-fizetett"><strong>Fizetett összeg</strong><span>${html(fizetettOsszegFelirat(tiltas.paid_amount))}</span></p>
+                    </div>
                 </div>
-            </div>
-            <div class="admin-foglalas-reszletek admin-foglalas-reszletek-kompakt">
-                <div class="admin-foglalas-meta-grid">
-                    <p class="admin-foglalas-meta-szolgaltatas"><strong>Szolgáltatás</strong><span>${szolgaltatas ? html(szolgaltatas) : 'Nincs szolgáltatás'}</span></p>
-                    <p class="admin-foglalas-meta-fizetett"><strong>Fizetett összeg</strong><span>${html(fizetettOsszegFelirat(tiltas.paid_amount))}</span></p>
+                <div class="admin-idopont-szerkeszto">
+                    <label class="admin-mezo">Dátum<input type="date" data-idopont-mezo="date" value="${attr(datumInputErtek(tiltas.starts_at))}" disabled></label>
+                    <label class="admin-mezo">Kezdés<input type="time" data-idopont-mezo="start_time" value="${attr(idoInputErtek(tiltas.starts_at))}" disabled></label>
+                    <label class="admin-mezo">Vége<input type="time" data-idopont-mezo="end_time" value="${attr(idoInputErtek(tiltas.ends_at))}" disabled></label>
+                    <div class="admin-kezi-foglalas-also-sor">
+                        <label class="admin-mezo">Név / megjegyzés<input type="text" data-idopont-mezo="reason" value="${attr(megjegyzes)}" required disabled></label>
+                        ${fizetettOsszegMezoHtml(tiltas.id, tiltas.paid_amount, { szeles: false, cimke: 'Összeg (Ft)' })}
+                    </div>
                 </div>
-            </div>
-            <div class="admin-idopont-szerkeszto">
-                <label class="admin-mezo">Dátum<input type="date" data-idopont-mezo="date" value="${attr(datumInputErtek(tiltas.starts_at))}" disabled></label>
-                <label class="admin-mezo">Kezdés<input type="time" data-idopont-mezo="start_time" value="${attr(idoInputErtek(tiltas.starts_at))}" disabled></label>
-                <label class="admin-mezo">Vége<input type="time" data-idopont-mezo="end_time" value="${attr(idoInputErtek(tiltas.ends_at))}" disabled></label>
-                <div class="admin-kezi-foglalas-also-sor">
-                    <label class="admin-mezo">Név / megjegyzés<input type="text" data-idopont-mezo="reason" value="${attr(megjegyzes)}" required disabled></label>
-                    ${fizetettOsszegMezoHtml(tiltas.id, tiltas.paid_amount, { szeles: false, cimke: 'Összeg (Ft)' })}
+                <div class="admin-db-akciok">
+                    <button type="button" class="admin-kis-gomb admin-veszely-gomb" data-foglalas-torles>Eltávolítás</button>
                 </div>
-            </div>
-            <div class="admin-db-akciok">
-                <button type="button" class="admin-kis-gomb admin-veszely-gomb" data-foglalas-torles>Eltávolítás</button>
-            </div>
-        `;
+            `;
 
+        adminStudioFoglalasKartyaJelzes(kartya, tiltas);
         return kartya;
     }
     function keziIdoNaptarMegnyitasa(kartya) {
@@ -1110,13 +1159,14 @@
         const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        const fajlNev = cim
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLocaleLowerCase('hu-HU')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '')
-            .slice(0, 48) || 'kezi-foglalas';
+        const fajlNev =
+            cim
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLocaleLowerCase('hu-HU')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '')
+                .slice(0, 48) || 'kezi-foglalas';
 
         link.href = url;
         link.download = `lumi-nails-${fajlNev}.ics`;
@@ -1128,7 +1178,10 @@
     }
 
     function adminIcsDatum(datum) {
-        return datum.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+        return datum
+            .toISOString()
+            .replace(/[-:]/g, '')
+            .replace(/\.\d{3}Z$/, 'Z');
     }
 
     function adminIcsSzoveg(szoveg) {
@@ -1140,32 +1193,38 @@
     }
 
     function foglalasIdopontValtozott(kartya) {
-        return kartya.dataset.eredetiDatum !== idopontMezo(kartya, 'date')?.value
-            || kartya.dataset.eredetiKezdes !== idopontMezo(kartya, 'start_time')?.value
-            || kartya.dataset.eredetiVege !== idopontMezo(kartya, 'end_time')?.value;
+        return (
+            kartya.dataset.eredetiDatum !== idopontMezo(kartya, 'date')?.value ||
+            kartya.dataset.eredetiKezdes !== idopontMezo(kartya, 'start_time')?.value ||
+            kartya.dataset.eredetiVege !== idopontMezo(kartya, 'end_time')?.value
+        );
     }
 
     function foglalasKartyaModosult(kartya, modositas) {
-        if (kartya.dataset.eredetiStatusz !== modositas.status
-            || foglalasIdopontValtozott(kartya)
-            || kartya.dataset.eredetiFizetettOsszeg !== fizetettOsszegInputErtek(modositas.paid_amount)) {
+        if (
+            kartya.dataset.eredetiStatusz !== modositas.status ||
+            foglalasIdopontValtozott(kartya) ||
+            kartya.dataset.eredetiFizetettOsszeg !== fizetettOsszegInputErtek(modositas.paid_amount)
+        ) {
             return true;
         }
 
-        return kartya.dataset.tipus === 'blocked'
-            && String(kartya.dataset.eredetiReason || '').trim() !== String(modositas.reason || '').trim();
+        return (
+            kartya.dataset.tipus === 'blocked' && String(kartya.dataset.eredetiReason || '').trim() !== String(modositas.reason || '').trim()
+        );
     }
     function ujAdminMuveletAzonosito() {
         if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
         const bytes = crypto.getRandomValues(new Uint8Array(16));
         bytes[6] = (bytes[6] & 0x0f) | 0x40;
         bytes[8] = (bytes[8] & 0x3f) | 0x80;
-        const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+        const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
         return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
     }
 
-    async function foglalasStatuszokMentese() {
-        const kartyak = Array.from(document.querySelectorAll('#admin-foglalas-lista .admin-db-kartya'));
+    async function foglalasStatuszokMentese(opciok = {}) {
+        if (adminStudioFizetesZarak.size) await Promise.all(adminStudioFizetesZarak.values());
+        const kartyak = Array.from(adminStudioFoglalasKartyak.values()).filter(card=>!opciok.recordKeys||opciok.recordKeys.includes(`${card.dataset.tipus}:${card.dataset.id}`));
 
         if (!kartyak.length) {
             onlineStatusz('Nincs menthető foglalási bejegyzés ezen az oldalon.');
@@ -1190,21 +1249,29 @@
                 return;
             }
 
-            const modositas = kartya.dataset.tipus === 'blocked'
-                ? {
-                    status: tiltasStatuszErtek(kartya.querySelector('[data-foglalas-statusz]')?.value),
-                    starts_at: adatok.startsAt,
-                    ends_at: adatok.endsAt,
-                    reason: idopontMezo(kartya, 'reason')?.value.trim(),
-                    paid_amount: fizetettOsszeg.ertek
-                }
-                : {
-                    status: kartya.querySelector('[data-foglalas-statusz]').value,
-                    starts_at: adatok.startsAt,
-                    ends_at: adatok.endsAt,
-                    paid_amount: fizetettOsszeg.ertek
-                };
+            const modositas =
+                kartya.dataset.tipus === 'blocked'
+                    ? {
+                          status: tiltasStatuszErtek(kartya.querySelector('[data-foglalas-statusz]')?.value),
+                          starts_at: adatok.startsAt,
+                          ends_at: adatok.endsAt,
+                          reason: idopontMezo(kartya, 'reason')?.value.trim(),
+                          paid_amount: fizetettOsszeg.ertek
+                      }
+                    : {
+                          status: kartya.querySelector('[data-foglalas-statusz]').value,
+                          starts_at: adatok.startsAt,
+                          ends_at: adatok.endsAt,
+                          paid_amount: fizetettOsszeg.ertek
+                      };
 
+            if (
+                modositas.paid_amount !== null &&
+                kartya.dataset.eredetiFizetettOsszeg !== fizetettOsszegInputErtek(modositas.paid_amount) &&
+                modositas.status === kartya.dataset.eredetiStatusz &&
+                (modositas.status === 'confirmed' || (kartya.dataset.tipus === 'blocked' && modositas.status === 'blocked'))
+            )
+                modositas.status = 'done';
             if (!foglalasKartyaModosult(kartya, modositas)) {
                 continue;
             }
@@ -1212,9 +1279,7 @@
             const utkozesHiba = await idopontUtkozesHiba({
                 tipus: kartya.dataset.tipus,
                 id: kartya.dataset.id,
-                nev: kartya.dataset.tipus === 'blocked'
-                    ? modositas.reason
-                    : kartya.querySelector('h3')?.textContent?.trim(),
+                nev: kartya.dataset.tipus === 'blocked' ? modositas.reason : kartya.querySelector('h3')?.textContent?.trim(),
                 startsAt: adatok.startsAt,
                 endsAt: adatok.endsAt,
                 statusz: modositas.status
@@ -1225,16 +1290,14 @@
                 return;
             }
 
-            const emailModositas = kartya.dataset.tipus === 'booking'
-                ? foglalasEmailModositas(kartya, modositas)
-                : null;
+            const emailModositas = kartya.dataset.tipus === 'booking' ? foglalasEmailModositas(kartya, modositas) : null;
 
             valtozasok.push({
                 kartya,
                 modositas,
                 emailModositas,
-                inspiraciotTorol: kartya.dataset.tipus === 'booking'
-                    && ['done', 'cancelled', 'cancelled_by_customer'].includes(modositas.status)
+                inspiraciotTorol:
+                    kartya.dataset.tipus === 'booking' && ['done', 'cancelled', 'cancelled_by_customer'].includes(modositas.status)
             });
         }
 
@@ -1257,10 +1320,11 @@
         }));
         const muveletUjjlenyomat = JSON.stringify(rpcChanges);
         const elozoMuvelet = allapot.foglalasMentesMuvelet;
-        const operationId = elozoMuvelet?.ujjlenyomat === muveletUjjlenyomat
-            ? elozoMuvelet.id
-            : ujAdminMuveletAzonosito();
-        allapot.foglalasMentesMuvelet = { id: operationId, ujjlenyomat: muveletUjjlenyomat };
+        const operationId = elozoMuvelet?.ujjlenyomat === muveletUjjlenyomat ? elozoMuvelet.id : ujAdminMuveletAzonosito();
+        allapot.foglalasMentesMuvelet = {
+            id: operationId,
+            ujjlenyomat: muveletUjjlenyomat
+        };
 
         const { data, error } = await allapot.kliens.rpc('apply_admin_booking_changes', {
             p_operation_id: operationId,
@@ -1270,7 +1334,10 @@
         if (error) {
             const uzenet = String(error.message || '');
             if (/ütközik|utkozik|szünet|szunet|exclusion/i.test(uzenet)) {
-                onlineStatusz('Nem sikerült menteni: az egyik módosított időpont ütközik egy másik foglalással vagy a kötelező szünettel.', true);
+                onlineStatusz(
+                    'Nem sikerült menteni: az egyik módosított időpont ütközik egy másik foglalással vagy a kötelező szünettel.',
+                    true
+                );
                 return;
             }
             onlineStatusz(`Egyetlen módosítás sem lett mentve. ${uzenet}`, true);
@@ -1308,16 +1375,17 @@
             onlineStatusz('Foglalási módosítások mentve. A szabad idősávok ehhez igazodnak.');
         }
 
-        await Promise.all([
-            foglalasokBetoltese(),
-            esemenynaploBetoltese()
-        ]);
+        const savedMessage = document.getElementById('admin-online-status').textContent;
+        adminStudioFoglalasKartyak.clear();
+        await Promise.all([foglalasokBetoltese(), esemenynaploBetoltese()]);
+        onlineStatusz(savedMessage);
+        adminStudioMentesJelzes();
     }
 
     async function foglalasInspiraciokTorlese(kartya, opciok = {}) {
         const kepek = inspiracioKepekKartyan(kartya);
         const pathsByBucket = new Map();
-        kepek.forEach(kep => {
+        kepek.forEach((kep) => {
             const path = inspiracioKepStoragePath(kep);
             if (!path) return;
             const bucket = inspiracioKepStorageBucket(kep);
@@ -1334,12 +1402,13 @@
         }
 
         for (const [bucket, pathSet] of pathsByBucket) {
-            const { error: torlesHiba } = await allapot.kliens.storage
-                .from(bucket)
-                .remove(Array.from(pathSet));
+            const { error: torlesHiba } = await allapot.kliens.storage.from(bucket).remove(Array.from(pathSet));
 
             if (torlesHiba) {
-                console.warn('Inspirációs képek Storage törlése nem sikerült:', { bucket, error: torlesHiba });
+                console.warn('Inspirációs képek Storage törlése nem sikerült:', {
+                    bucket,
+                    error: torlesHiba
+                });
                 return false;
             }
         }
@@ -1398,17 +1467,15 @@
             return;
         }
 
-        const { error } = await allapot.kliens
-            .from('booking_events')
-            .insert({
-                booking_id: bookingId,
-                event_type: esemeny.event_type,
-                channel: esemeny.channel || 'admin',
-                status: esemeny.status || 'info',
-                title: esemeny.title || 'Admin esemény',
-                message: esemeny.message || '',
-                metadata: esemeny.metadata || {}
-            });
+        const { error } = await allapot.kliens.from('booking_events').insert({
+            booking_id: bookingId,
+            event_type: esemeny.event_type,
+            channel: esemeny.channel || 'admin',
+            status: esemeny.status || 'info',
+            title: esemeny.title || 'Admin esemény',
+            message: esemeny.message || '',
+            metadata: esemeny.metadata || {}
+        });
 
         if (error) {
             console.warn('Lumi Nails eseménynapló mentési hiba:', error);
@@ -1488,7 +1555,10 @@
             const kepekTorolve = await foglalasInspiraciokTorlese(kartya);
             if (!kepekTorolve) {
                 inspiracioTorles.disabled = false;
-                onlineStatusz('Az inspirációs képek törlése nem sikerült. Kérlek próbáld újra, vagy ellenőrizd a Supabase Storage jogosultságot.', true);
+                onlineStatusz(
+                    'Az inspirációs képek törlése nem sikerült. Kérlek próbáld újra, vagy ellenőrizd a Supabase Storage jogosultságot.',
+                    true
+                );
                 return;
             }
 
@@ -1530,9 +1600,14 @@
             const kepek = inspiracioKepekKartyan(kartya);
             if (kepek.length) {
                 onlineStatusz('Foglaláshoz tartozó képek törlése...');
-                const kepekTorolve = await foglalasInspiraciokTorlese(kartya, { mezokUritese: false });
+                const kepekTorolve = await foglalasInspiraciokTorlese(kartya, {
+                    mezokUritese: false
+                });
                 if (!kepekTorolve) {
-                    onlineStatusz('A foglaláshoz tartozó kép törlése nem sikerült, ezért a foglalást nem töröltem. Kérlek próbáld újra, vagy ellenőrizd a Supabase Storage jogosultságot.', true);
+                    onlineStatusz(
+                        'A foglaláshoz tartozó kép törlése nem sikerült, ezért a foglalást nem töröltem. Kérlek próbáld újra, vagy ellenőrizd a Supabase Storage jogosultságot.',
+                        true
+                    );
                     return;
                 }
             }
@@ -1543,7 +1618,101 @@
 
     function foglalasListaFokuszElhagyas(event) {
         if (!event.target.matches('[data-idopont-mezo="paid_amount"]')) return;
-        fizetettOsszegAdatok(event.target.closest('.admin-db-kartya'));
+        void adminStudioFizetesMentese(event.target.closest('.admin-db-kartya'));
+    }
+
+    const adminStudioFizetesZarak = new Map();
+    async function adminStudioFizetesMentese(kartya) {
+        if (!kartya || adminStudioFizetesZarak.has(kartya.dataset.id)) return;
+        const input = idopontMezo(kartya, 'paid_amount'),
+            amount = fizetettOsszegAdatok(kartya);
+        if (amount.hiba) {
+            onlineStatusz(amount.hiba, true);
+            return;
+        }
+        if (kartya.dataset.eredetiFizetettOsszeg === fizetettOsszegInputErtek(amount.ertek)) return;
+        const item = allapot.foglalasElemek.find((item) => String(item.adat.id) === kartya.dataset.id && item.tipus === kartya.dataset.tipus);
+        if (!item) return;
+        const status = kartya.querySelector('[data-foglalas-statusz]');
+        if (
+            foglalasIdopontValtozott(kartya) ||
+            (status.value !== kartya.dataset.eredetiStatusz && status.value !== 'done') ||
+            (item.tipus === 'blocked' &&
+                String(idopontMezo(kartya, 'reason')?.value || '').trim() !== String(kartya.dataset.eredetiReason || '').trim())
+        ) {
+            onlineStatusz('Előbb mentsd vagy vond vissza az időpont és állapot függő módosítását.', true);
+            return;
+        }
+        const next =
+            amount.ertek !== null &&
+            (item.adat.status === 'confirmed' || (item.tipus === 'blocked' && ['active', 'blocked'].includes(item.adat.status)))
+                ? 'done'
+                : status.value;
+        const change = {
+            id: item.adat.id,
+            type: item.tipus,
+            status: next,
+            starts_at: item.adat.starts_at,
+            ends_at: item.adat.ends_at,
+            reason: item.adat.reason || '',
+            paid_amount: amount.ertek,
+            email_notification: null
+        };
+        const fingerprint = JSON.stringify(change);
+        if (kartya._paymentOperation?.fingerprint !== fingerprint) kartya._paymentOperation = { fingerprint, id: ujAdminMuveletAzonosito() };
+        const footer = kartya.querySelector('[data-editor-save]');
+        input.disabled = true;
+        if (footer) footer.disabled = true;
+        const work = (async () => {
+            onlineStatusz('Fizetett összeg mentése...');
+            try {
+                const { error } = await allapot.kliens.rpc('apply_admin_booking_changes', {
+                    p_operation_id: kartya._paymentOperation.id,
+                    p_changes: [change]
+                });
+                if (error) {
+                    onlineStatusz('A fizetett összeg nem lett mentve. ' + String(error.message || 'Próbáld újra.'), true);
+                    return;
+                }
+                const completed = next === 'done' && item.adat.status !== 'done';
+                item.adat.paid_amount = amount.ertek;
+                item.adat.status = next;
+                kartya.dataset.eredetiFizetettOsszeg = fizetettOsszegInputErtek(amount.ertek);
+                kartya.dataset.eredetiStatusz = next;
+                input.defaultValue = input.value;
+                status.value = next;
+                Array.from(status.options).forEach((option) => (option.defaultSelected = option.value === next));
+                Array.from(kartya.classList)
+                    .filter((name) => name.startsWith('admin-foglalas-statusz-'))
+                    .forEach((name) => kartya.classList.remove(name));
+                kartya.classList.add('admin-foglalas-statusz-' + next);
+                const displayed = kartya.querySelector('.admin-foglalas-meta-fizetett span');
+                if (displayed) displayed.textContent = fizetettOsszegFelirat(amount.ertek);
+                kartya._paymentOperation = null;
+                let cleanup = true;
+                if (completed && item.tipus === 'booking') cleanup = await foglalasInspiraciokTorlese(kartya);
+                onlineStatusz(
+                    !cleanup
+                        ? 'Az összeg mentve, a foglalás teljesítve. Az inspirációs képek törlése újrapróbálható.'
+                        : completed
+                          ? 'Fizetett összeg mentve, a foglalás teljesítve.'
+                          : 'Fizetett összeg mentve.',
+                    !cleanup
+                );
+                adminStudioStatuszJelzes(kartya);
+                adminStudioVezerlokFrissitese();
+                adminV2AttekintesFrissitese();
+            } catch (_) {
+                onlineStatusz('A fizetett összeg mentése nem sikerült. Az érték megmaradt; próbáld újra.', true);
+            } finally {
+                input.disabled = false;
+                if (footer) footer.disabled = false;
+                adminStudioFizetesZarak.delete(kartya.dataset.id);
+                adminStudioMentesJelzes();
+            }
+        })();
+        adminStudioFizetesZarak.set(kartya.dataset.id, work);
+        await work;
     }
 
     function foglalasSzerkesztesKapcsolasa(kartya) {
@@ -1559,7 +1728,7 @@
             foglalasReszletekKapcsolasa(kartya, false);
         }
 
-        kartya.querySelectorAll('[data-idopont-mezo], [data-foglalas-statusz]').forEach(mezoElem => {
+        kartya.querySelectorAll('[data-idopont-mezo]').forEach((mezoElem) => {
             mezoElem.disabled = !aktiv;
         });
 
@@ -1568,4 +1737,25 @@
         if (gomb) {
             gomb.textContent = aktiv ? 'Bezárás' : 'Szerkesztés';
         }
+        if (aktiv) adminKartyaPanelMegnyitasa(kartya, true);
+        else window.LumiAdminSheet.close();
+    }
+
+    function adminStudioFoglalasSorrend(items) {
+        const rank = (item) => {
+            const d = item.adat,
+                s = d.status;
+            if (s === 'cancelled_by_customer' && vendegLemondasOlvasatlan(d)) return 0;
+            if (['confirmed', 'pending', 'active', 'blocked'].includes(s) && new Date(d.ends_at) < new Date()) return 1;
+            if (s === 'pending') return 2;
+            if (['confirmed', 'active', 'blocked'].includes(s) && new Date(d.ends_at) >= new Date()) return 3;
+            return 4;
+        };
+        return [...items].sort(
+            (a, b) =>
+                rank(a) - rank(b) ||
+                (rank(a) < 4
+                    ? new Date(a.adat.starts_at) - new Date(b.adat.starts_at)
+                    : new Date(b.adat.starts_at) - new Date(a.adat.starts_at))
+        );
     }

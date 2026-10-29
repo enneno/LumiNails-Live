@@ -1,4 +1,172 @@
 const { test, expect } = require('playwright/test');
+const fs = require('fs');
+
+test('full studio create: the same manual editor opens from desktop and mobile',async({page})=>{
+    const errors=await openAdmin(page,{width:1440,height:1000});
+    await page.locator('.studio-desktop-create').click();
+    const sheet=page.locator('dialog.admin-editor-sheet[open]');
+    await expect(sheet.locator('#admin-tiltas-form')).toBeVisible();
+    await expect(page.locator('.admin-workspace-main')).toHaveCSS('overflow','hidden');
+    await sheet.locator('#admin-tiltas-datum').fill('2026-11-20');
+    await page.keyboard.press('Escape');await expect(sheet).toHaveCount(0);
+    await expect(page.locator('.admin-workspace-main')).toHaveCSS('overflow','auto');
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('.admin-v2-mobile-dock [data-studio-new]').click();
+    await expect(sheet.locator('#admin-tiltas-form')).toBeVisible();
+    await expect(sheet.locator('#admin-tiltas-datum')).toHaveValue('2026-11-20');
+    await page.keyboard.press('Escape');await expect(sheet).toHaveCount(0);
+    expect(errors).toEqual([]);
+});
+
+for(const width of [390,768,1440]){
+    test(`full studio card verdict: ${width}`,async({page})=>{
+        await openAdmin(page,{width,height:1000});
+        await page.locator(`${width<1024?'.admin-v2-mobile-dock':'.admin-sidebar'} [data-admin-v2-nav="foglalasok"]`).click();
+        const row=page.locator('#admin-foglalas-lista .admin-foglalas-fosor').first();
+        const geometry=await row.evaluate(row=>{const time=row.querySelector('.admin-foglalas-idopont').getBoundingClientRect(),details=row.querySelector('.admin-foglalas-nev-blokk').getBoundingClientRect();return{gap:details.left-time.right,grow:getComputedStyle(row.querySelector('.admin-foglalas-nev-blokk')).flexGrow};});
+        expect(geometry.grow).toBe('1');expect(geometry.gap).toBeLessThanOrEqual(17);
+        await page.screenshot({path:`.impeccable/review/admin-full-bookings-${width}.png`});
+    });
+}
+
+test('full studio content: conflicts, auth refresh and saved/publication states remain separate',async({page})=>{
+    await openAdmin(page,{width:1440,height:1000});
+    await page.locator('.admin-sidebar [data-admin-v2-nav="weboldal"]').click();
+    await page.locator('[data-cms-section]').first().click();
+    const sheet=page.locator('dialog.admin-editor-sheet[open]');
+    const field=sheet.locator('input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
+    await field.fill('Kizárólag helyi tesztadat');
+    const reads=await page.evaluate(()=>window.__adminReads.filter(table=>table==='site_settings').length);
+    await page.evaluate(()=>{window.__adminEmitAuth('TOKEN_REFRESHED');window.__adminSaveConflict=true;});
+    await expect(field).toHaveValue('Kizárólag helyi tesztadat');
+    expect(await page.evaluate(()=>window.__adminReads.filter(table=>table==='site_settings').length)).toBe(reads);
+    await sheet.locator('[data-editor-save]').click();
+    await expect(sheet.locator('.admin-editor-sheet-status')).toContainText('közben módosult');
+    await page.evaluate(()=>{window.__adminSaveConflict=false;});
+    await sheet.locator('[data-editor-save]').click();
+    await expect(sheet.locator('.admin-editor-sheet-status')).toContainText('mentve');
+    await expect(page.locator('#admin-publication-status')).toHaveAttribute('data-publication-state','pending');
+    await page.keyboard.press('Escape');await expect(sheet).toHaveCount(0);
+    await page.locator('[data-studio-refresh]').click();
+    await page.locator('[data-cms-section]').first().click();
+    await expect(field).toHaveValue('Kizárólag helyi tesztadat');
+});
+
+for (const width of [390, 768, 1440]) {
+    test(`full studio: reference structure and core flows at ${width}`, async ({ page }) => {
+        fs.mkdirSync('.impeccable/review', { recursive: true });
+        const errors = await openAdmin(page, { width, height: 1000 });
+        const capture = async name => page.screenshot({ path: `.impeccable/review/admin-full-${name}-${width}.png` });
+        const nav = async group => {
+            if(width < 1024){
+                const direct=page.locator(`.admin-v2-mobile-dock [data-admin-v2-nav="${group}"]`);
+                if(await direct.count()) await direct.click();
+                else { await page.getByRole('button',{name:'További menüpontok',exact:true}).click(); if(group==='arlista'){await expect(page.locator('dialog[open]')).not.toHaveAttribute('data-entering','');await capture('more');} await page.locator(`.admin-studio-more [data-admin-v2-nav="${group}"]`).click(); await expect(page.locator('dialog[open]')).toHaveCount(0); }
+            }else await page.locator(`.admin-sidebar [data-admin-v2-nav="${group}"]`).click();
+        };
+        await expect(page.getByRole('heading',{name:'A szalon ma',exact:true})).toBeVisible();
+        await expect(page.locator('[data-studio-revenue-week]')).toContainText('Ft');
+        await capture('overview');
+        await page.locator('.admin-workspace-main').evaluate(element=>element.scrollTop=element.scrollHeight);
+        await capture('statistics');
+        await page.locator('.admin-workspace-main').evaluate(element=>element.scrollTop=0);
+        await nav('foglalasok');
+        await capture('bookings');
+        await page.locator('[data-foglalas-nezet="naptar"]').click();
+        await capture('month');
+        await page.locator('[data-foglalas-nezet="het"]').click();
+        await expect(page.locator('#admin-studio-week')).toBeVisible();
+        await expect(page.locator('.studio-week-day-heading')).toHaveCount(7);
+        await capture('week');
+        const event=page.locator('.studio-week-event:visible, .studio-mobile-week-event:visible').first();
+        if(await event.count()){
+            await event.click();
+            await expect(page.locator('dialog.admin-editor-sheet[open]')).toBeVisible();
+            await page.keyboard.press('Escape');
+            await expect(page.locator('dialog[open]')).toHaveCount(0);
+        }
+        await nav('munkaido');
+        await expect(page.locator('.studio-schedule-day')).toHaveCount(7);
+        await capture('schedule');
+        await page.locator('.studio-schedule-day').first().click();
+        await expect(page.locator('dialog.admin-editor-sheet[open]')).toBeVisible();
+        await expect(page.locator('dialog[open]')).not.toHaveAttribute('data-entering','');
+        await capture('day-editor');
+        await page.keyboard.press('Escape');
+        await expect(page.locator('dialog[open]')).toHaveCount(0);
+        await nav('arlista');
+        await expect(page.locator('#admin-szolgaltatas-lista .admin-db-kartya')).toHaveCount(4);
+        await capture('prices');
+        await nav('weboldal');
+        await capture('content');
+        await nav('galeria');
+        await expect(page.locator('#admin-cms-root')).toHaveAttribute('data-lumi-cms-gallery-context','images');
+        await capture('gallery');
+        await nav('kuponok');
+        await capture('coupons');
+        await nav('beallitasok');
+        await capture('settings');
+        await page.locator('[data-admin-v2-dark-mode]').check();
+        await nav('attekintes');
+        await capture('dark');
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+        expect(errors).toEqual([]);
+    });
+}
+
+test('full studio: capture source reference without connecting its backend', async ({ page }) => {
+    const root='local-backups/admin-studio/reference';
+    await page.route('**/__studio-reference', route=>route.fulfill({contentType:'text/html',body:fs.readFileSync(`${root}/index.html`)}));
+    for(const file of ['script.js','script.css','reference.css']) await page.route(`**/${file}`,route=>route.fulfill({contentType:file.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync(`${root}/${file}`)}));
+    await page.goto('/__studio-reference');
+    await page.getByRole('heading',{name:'A szalon ma'}).waitFor();
+    for(const width of [390,1440]) {await page.setViewportSize({width,height:1000});await page.screenshot({path:`.impeccable/review/admin-source-overview-${width}.png`});}
+});
+
+test('full studio: saves booking and date availability through the existing boundaries in PWA', async ({ page }) => {
+    const errors=await openAdmin(page,{width:390,height:844},{standalone:true});
+    const go=async group=>{const direct=page.locator(`.admin-v2-mobile-dock [data-admin-v2-nav="${group}"]`);if(await direct.count())await direct.click();else{await page.getByRole('button',{name:'További menüpontok',exact:true}).click();await page.locator(`.admin-studio-more [data-admin-v2-nav="${group}"]`).click();await expect(page.locator('dialog[open]')).toHaveCount(0);}};
+    await expect(page.locator('.admin-v2-mobile-dock')).toBeVisible();
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content',/user-scalable=no/);
+    await go('foglalasok');
+    const card=page.locator('#admin-foglalas-lista .admin-foglalas-kartya').filter({hasText:'Nagy Anna'});
+    await card.locator('[data-foglalas-szerkesztes]').click();
+    const sheet=page.locator('dialog.admin-editor-sheet[open]');
+    await sheet.locator('[data-idopont-mezo="paid_amount"]').fill('7500');
+    await sheet.locator('[data-editor-save]').click();
+    await expect.poll(()=>page.evaluate(()=>window.__adminLastRpc?.args?.p_changes?.some(item=>item.paid_amount===7500))).toBe(true);
+    await expect(sheet).toHaveCount(0);
+    await card.locator('[data-foglalas-szerkesztes]').click();
+    await expect(sheet.locator('[data-idopont-mezo="paid_amount"]')).toHaveValue('7500');
+    await page.keyboard.press('Escape');
+    await expect(sheet).toHaveCount(0);
+    await go('munkaido');
+    const day=page.locator('.studio-schedule-day').first();
+    const date=await day.getAttribute('data-studio-schedule-day');
+    await day.click();
+    await sheet.locator('[data-day-start]').fill('08:30');
+    await sheet.locator('[data-day-end]').fill('17:00');
+    await page.keyboard.press('Escape');
+    await expect(sheet).toHaveCount(0);
+    await day.click();
+    expect(errors).toEqual([]);
+    await expect(sheet.locator('[data-day-start]')).toHaveValue('08:30');
+    await sheet.locator('[data-editor-save]').click();
+    await expect(sheet).toHaveCount(0);
+    await expect(page.locator(`.studio-schedule-day[data-studio-schedule-day="${date}"]`)).toContainText('08:30–17:00');
+    await day.click();
+    await sheet.locator('[data-mezo="start_time"]').fill('09:15');
+    await sheet.locator('[data-editor-save]').click();
+    await expect(sheet).toHaveCount(0);
+    await expect(day).toContainText('09:15–17:00');
+    await page.screenshot({path:'.impeccable/review/admin-full-populated-schedule-pwa-390.png'});
+    await go('galeria');
+    await expect(page.locator('#admin-cms-root')).toHaveAttribute('data-lumi-cms-gallery-context','images');
+    await expect(page.locator('.cms-gallery-editor')).toBeVisible();
+    await go('weboldal');
+    await expect(page.locator('#admin-cms-root')).not.toHaveAttribute('data-lumi-cms-gallery-context','images');
+    expect(errors).toEqual([]);
+});
 
 function isoAt(dayOffset, hour, minute = 0) {
     const date = new Date();
@@ -307,9 +475,17 @@ async function installSupabaseBoundaryMock(page) {
                 window.__adminLastInsert = clone({ table: this.table, values });
                 return this;
             }
-            update() { return this; }
-            upsert() { return this; }
-            delete() { return this; }
+            update(value) { this.patch = clone(value); return this; }
+            upsert(values, options = {}) {
+                for (const value of Array.isArray(values) ? values : [values]) {
+                    const keys = (options.onConflict || 'id').split(',');
+                    const row = (seed[this.table] || []).find(row => keys.every(key => row[key] === value[key]));
+                    if (row) Object.assign(row, clone(value));
+                    else this.insert(value);
+                }
+                return this;
+            }
+            delete() { this.deleting=true;return this; }
 
             eq(key, value) {
                 this.filters.push(row => String(row?.[key]) === String(value));
@@ -366,6 +542,11 @@ async function installSupabaseBoundaryMock(page) {
             }
 
             execute() {
+                if (this.patch) {
+                    for (const row of seed[this.table] || []) if (this.filters.every(filter => filter(row))) Object.assign(row, this.patch);
+                    this.patch = null;
+                }
+                if(this.deleting){window.__adminLastDelete={table:this.table};seed[this.table]=(seed[this.table]||[]).filter(row=>!this.filters.every(filter=>filter(row)));this.deleting=false;}
                 let rows = clone(seed[this.table] || []);
                 for (const filter of this.filters) rows = rows.filter(filter);
                 return {
@@ -408,6 +589,14 @@ async function installSupabaseBoundaryMock(page) {
                 }
                 if (name === 'is_lumi_admin') {
                     return { data: true, error: null };
+                }
+                if (name === 'save_public_services') {
+                    if (window.__adminServicesConflict) return { data: null, error: { code: '40001' } };
+                    for (const item of args.p_items) {
+                        const row = seed.services.find(service => service.id === item.id);
+                        if (row) Object.assign(row, clone(item.payload));
+                    }
+                    return { data: [], error: null };
                 }
                 if (name === 'admin_registered_customer_profiles') {
                     return { data: clone(seed.admin_registered_customer_profiles), error: null };
@@ -494,6 +683,120 @@ function expectHeadingTopsAligned(tops) {
     expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(1);
 }
 
+for (const width of [390, 768, 1440]) {
+    test(`studio reference: editor flow at ${width}px`, async ({ page }) => {
+        fs.mkdirSync('local-backups/admin-studio', { recursive: true });
+        const errors = await openAdmin(page, { width, height: 1000 });
+        const go = async group => {
+            if (width <= 900) {
+                const dock = page.locator(`.admin-v2-mobile-dock [data-admin-v2-nav="${group}"]`);
+                if (await dock.count()) { await dock.click(); return; }
+                await page.getByRole('button', { name: 'További menüpontok', exact: true }).click();
+            }
+            await page.locator(`.admin-v2-sidebar .admin-v2-nav-item[data-admin-v2-nav="${group}"]`).click();
+        };
+        await page.screenshot({ path: `local-backups/admin-studio/overview-${width}.png` });
+        await go('weboldal');
+        await expect(page.locator('.cms-section-index')).toBeVisible();
+        await page.locator('[data-cms-section]').first().click();
+        const dialog = page.locator('dialog.admin-editor-sheet[open]');
+        await expect(dialog).toBeVisible();
+        await expect(dialog.locator('h2')).toBeFocused();
+        const field = dialog.locator('input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
+        await field.fill('Helyi szerkesztési próba');
+        await page.keyboard.press('Escape');
+        await expect(dialog).toHaveCount(0);
+        await page.locator('[data-cms-section]').first().click();
+        await expect(field).toHaveValue('Helyi szerkesztési próba');
+        await dialog.locator('[data-editor-save]').click();
+        await expect(dialog.locator('.admin-editor-sheet-status')).toContainText('mentve');
+        await page.screenshot({ path: `local-backups/admin-studio/content-${width}.png` });
+        await dialog.locator('[data-editor-close]').click();
+        await expect(dialog).toHaveCount(0);
+        await page.locator('#admin-panel-szovegek [data-admin-v2-panel="szolgaltatasok"]').click();
+        const first = page.locator('#admin-szolgaltatas-lista .admin-db-kartya').first();
+        await first.locator('[data-admin-kartya-toggle]').click();
+        await expect(dialog).toBeVisible();
+        await expect(dialog).not.toHaveAttribute('data-entering', '');
+        await dialog.locator('[data-mezo="price_amount"]').fill('7200');
+        await page.screenshot({ path: `local-backups/admin-studio/price-${width}.png` });
+        const geometry = await dialog.locator('.admin-editor-sheet-body').boundingBox();
+        expect(geometry.x).toBeGreaterThanOrEqual(0);
+        expect(geometry.x + geometry.width).toBeLessThanOrEqual(width + 1);
+        expect(await dialog.locator('.admin-editor-sheet-content').evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+        await dialog.locator('[data-editor-save]').click();
+        await expect.poll(() => page.evaluate(() => window.__adminRpcs.filter(call => call.name === 'save_public_services').length)).toBe(1);
+        await expect(dialog).toHaveCount(0);
+        await first.locator('[data-admin-kartya-toggle]').click();
+        await expect(dialog.locator('[data-mezo="price_amount"]')).toHaveValue('7200');
+        await expect(dialog).not.toHaveAttribute('data-entering', '');
+        if (width === 390) {
+            const header = await dialog.locator('header').boundingBox();
+            await page.mouse.move(header.x + 30, header.y + 25);
+            await page.mouse.down();
+            await page.mouse.move(header.x + 30, header.y + 180, { steps: 8 });
+            await page.mouse.up();
+        } else await page.keyboard.press('Escape');
+        await expect(dialog).toHaveCount(0);
+        await expect(first.locator('[data-admin-kartya-toggle]')).toBeFocused();
+        await go('foglalasok');
+        const booking = page.locator('#admin-foglalas-lista .admin-foglalas-kartya').first();
+        await booking.locator('[data-foglalas-szerkesztes]').click();
+        await expect(dialog.locator('[data-idopont-mezo="date"]')).toBeEnabled();
+        await expect(dialog).not.toHaveAttribute('data-entering', '');
+        await expect(dialog.locator('[data-foglalas-statusz]')).toBeVisible();
+        await page.screenshot({ path: `local-backups/admin-studio/booking-${width}.png` });
+        await page.keyboard.press('Escape');
+        await expect(dialog).toHaveCount(0);
+        await go('beallitasok');
+        await page.locator('[data-admin-v2-dark-mode]').check();
+        await go('weboldal');
+        await page.screenshot({ path: `local-backups/admin-studio/dark-${width}.png` });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+        expect(errors).toEqual([]);
+    });
+}
+
+test('studio reference: gallery, nested preview and standalone preserve their controls', async ({ page }) => {
+    const errors = await openAdmin(page, { width: 390, height: 844 }, { standalone: true });
+    await page.evaluate(() => document.querySelector('.admin-sidebar [data-admin-v2-nav="weboldal"]').click());
+    await page.locator('[data-cms-section]').nth(2).click();
+    const sheet = page.locator('dialog.admin-editor-sheet[open]');
+    const preview = sheet.locator('.cms-image-preview').first();
+    await preview.evaluate(node => {
+        node.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2280%22%3E%3Crect width=%2260%22 height=%2280%22 fill=%22%23d9aaa7%22/%3E%3C/svg%3E" alt="Helyi tesztkép">';
+    });
+    await expect(preview).toHaveAttribute('role', 'button');
+    const imageGroup = preview.locator('xpath=ancestor::details[1]');
+    if (await imageGroup.count() && await imageGroup.getAttribute('open') === null) await imageGroup.locator('summary').click();
+    await preview.click();
+    await expect(page.locator('#cms-image-lightbox')).toBeVisible();
+    await expect(page.locator('dialog[open]')).toHaveCount(2);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#cms-image-lightbox')).toBeHidden();
+    await expect(sheet).toBeVisible();
+    await expect(preview).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(sheet).toHaveCount(0);
+    await page.locator('[data-lumi-cms-gallery-tab]').click();
+    await expect(page.locator('#admin-cms-root')).toHaveAttribute('data-lumi-cms-gallery-context', 'images');
+    await expect(page.locator('.cms-gallery-editor')).toBeVisible();
+    await expect(page.locator('.cms-section-index')).toBeHidden();
+    await page.locator('#admin-panel-szovegek [data-admin-v2-panel="kuponok"]').click();
+    const coupon = page.locator('#admin-kupon-lista .admin-db-kartya').first();
+    await coupon.locator('[data-admin-kartya-toggle]').click();
+    await expect(sheet.locator('[data-mezo="code"]')).toBeVisible();
+    await expect(sheet).not.toHaveAttribute('data-entering', '');
+    expect(await sheet.locator('.admin-editor-sheet-content').evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+    await page.screenshot({ path: 'local-backups/admin-studio/coupon-pwa.png' });
+    await page.keyboard.press('Escape');
+    await expect(sheet).toHaveCount(0);
+    await expect(page.locator('.pwa-admin-toolbar-dock')).toBeVisible();
+    await expect(page.locator('.admin-v2-mobile-dock')).toBeHidden();
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /user-scalable=no/);
+    expect(errors).toEqual([]);
+});
+
 test.describe('production admin redesign', () => {
     test('publication: admin loads opened panels only and retains editor drafts across token refreshes', async ({ page }) => {
         await openAdmin(page, { width: 1440, height: 1000 });
@@ -502,17 +805,21 @@ test.describe('production admin redesign', () => {
         expect(initialReads).not.toContain('coupons');
         expect(initialReads).not.toContain('site_settings');
         await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await page.locator('[data-cms-section]').first().click();
         const field = page.locator('#admin-cms-root input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
         await field.fill('Helyi szerkesztési próba');
         const readCount = await page.evaluate(() => window.__adminReads.length);
         const roleChecks = await page.evaluate(() => window.__adminRpcs.filter(call => call.name === 'is_lumi_admin').length);
         await page.evaluate(() => window.__adminEmitAuth('TOKEN_REFRESHED'));
+        await page.keyboard.press('Escape');
         await page.locator('.admin-v2-sidebar [data-admin-v2-nav="attekintes"]').click();
         await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await page.locator('[data-cms-section]').first().click();
         await expect(field).toHaveValue('Helyi szerkesztési próba');
         expect(await page.evaluate(() => window.__adminReads.filter(table => table === 'site_settings').length)).toBe(1);
         expect(await page.evaluate(() => window.__adminRpcs.filter(call => call.name === 'is_lumi_admin').length)).toBe(roleChecks);
         expect(readCount).toBeGreaterThan(0);
+        await page.keyboard.press('Escape');
         await page.locator('#admin-panel-szovegek [data-admin-v2-panel="szolgaltatasok"]').click();
         await expect(page.locator('#admin-szolgaltatas-lista .admin-db-kartya')).toHaveCount(4);
         const price = page.locator('#admin-szolgaltatas-lista [data-mezo="name"]').first();
@@ -528,22 +835,35 @@ test.describe('production admin redesign', () => {
         await openAdmin(page, { width: 390, height: 844 });
         await page.getByRole('button', { name: 'Navigáció megnyitása' }).click();
         await page.locator('.admin-v2-sidebar [data-admin-v2-nav="weboldal"]').click();
+        await page.locator('[data-cms-section]').first().click();
+        const sheet = page.locator('dialog.admin-editor-sheet[open]');
         const field = page.locator('#admin-cms-root input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();
         await field.fill('Csak helyi mockban mentett próba');
         await page.evaluate(() => { window.__adminSaveConflict = true; });
-        await page.locator('#admin-panel-szovegek [data-admin-v2-save]').click();
-        await expect(page.locator('#admin-online-status')).toContainText('közben módosult');
+        await sheet.locator('[data-editor-save]').click();
+        await expect(sheet.locator('.admin-editor-sheet-status')).toContainText('közben módosult');
         await expect(field).toHaveValue('Csak helyi mockban mentett próba');
         await page.evaluate(() => { window.__adminSaveConflict = false; });
-        await page.locator('#admin-panel-szovegek [data-admin-v2-save]').click();
+        await sheet.locator('[data-editor-save]').click();
         await expect(page.locator('#admin-online-status')).toHaveText('Tartalom mentve.');
         await expect(page.locator('#admin-publication-status')).toHaveAttribute('data-publication-state', 'pending');
         await expect(page.locator('#admin-publication-status')).not.toContainText('nyilvánosan megjelent');
         expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
         await page.screenshot({ path: 'test-results/publication-mobile.png' });
+        await page.keyboard.press('Escape');
         await page.locator('#admin-cms-reload').click();
         await expect(page.locator('#admin-online-status')).toHaveText('A weboldal tartalma betöltve.');
+        await page.locator('[data-cms-section]').first().click();
         await expect(field).toHaveValue('Csak helyi mockban mentett próba');
+        await page.keyboard.press('Escape');
+        await page.locator('#admin-panel-szovegek [data-admin-v2-panel="szolgaltatasok"]').click();
+        await page.locator('#admin-szolgaltatas-lista [data-admin-kartya-toggle]').first().click();
+        const price = sheet.locator('[data-mezo="price_amount"]');
+        await price.fill('7300');
+        await page.evaluate(() => { window.__adminServicesConflict = true; });
+        await sheet.locator('[data-editor-save]').click();
+        await expect(sheet.locator('.admin-editor-sheet-status')).toContainText('közben módosult');
+        await expect(price).toHaveValue('7300');
     });
 
     test('dashboard counts distinct future bookable dates', async ({ page }) => {
@@ -1513,4 +1833,95 @@ test.describe('production admin redesign', () => {
         });
     }
 
+});
+
+
+async function photoNav(page,group){
+ const dock=page.locator('.admin-v2-mobile-dock [data-admin-v2-nav="'+group+'"]');
+ if(await dock.isVisible()){await dock.click();return;}
+ if(await page.locator('.admin-sidebar').isVisible()){await page.locator('.admin-sidebar [data-admin-v2-nav="'+group+'"]').click();return;}
+ await page.getByRole('button',{name:'További menüpontok',exact:true}).click();await page.locator('dialog [data-admin-v2-nav="'+group+'"]').click();await expect(page.locator('dialog[open]:has([data-admin-v2-nav])')).toHaveCount(0);
+}
+test('photo parity: mobile controls and all destinations',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});
+ for(const group of ['foglalasok','munkaido','weboldal','arlista','galeria','vendegek','arkalkulator','kuponok','kommunikacio','beallitasok','attekintes']){
+  await photoNav(page,group);await page.waitForTimeout(150);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),group+' viewport').toBe(true);
+  const overflow=await page.locator('.admin-workspace-main').evaluate(root=>Array.from(root.querySelectorAll('input,select,button.admin-select-trigger')).filter(e=>e.getClientRects().length&&getComputedStyle(e).opacity!=='0'&&!e.closest('[hidden],.cms-view-tabs,.cms-section-index,dialog:not([open])')).filter(e=>{const r=e.getBoundingClientRect();return r.right>innerWidth+1||r.left< -1;}).map(e=>e.outerHTML.slice(0,120)));
+  expect(overflow,group+' controls').toEqual([]);
+  await page.screenshot({path:'.impeccable/review/admin-photo-'+group+'-390.png'});
+ }
+ expect(errors).toEqual([]);
+});
+test('photo parity: payment auto-completes online and manual, and keeps other drafts',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'foglalasok');
+ for(const [id,amount]of [['00000000-0000-4000-8000-000000000001','7200'],['00000000-0000-4000-8000-000000000100','5300']]){
+  await page.locator('#admin-foglalas-kereses').fill(id);
+  const card=page.locator('#admin-foglalas-lista .admin-foglalas-kartya').first();await card.locator('h3').click();
+  const dialog=page.locator('dialog.admin-editor-sheet[open]');const paid=dialog.locator('[data-idopont-mezo="paid_amount"]');await paid.fill(amount);await paid.press('Enter');
+  await expect.poll(()=>page.evaluate(()=>window.__adminLastRpc?.args?.p_changes?.[0]?.paid_amount)).toBe(Number(amount));
+  await expect(dialog.locator('[data-foglalas-statusz]')).toHaveValue('done');
+  await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+  await photoNav(page,'attekintes');await photoNav(page,'foglalasok');await page.locator('#admin-foglalas-kereses').fill(id);await expect(page.locator('#admin-foglalas-lista [data-foglalas-statusz]')).toHaveValue('done');
+ }
+ expect(errors).toEqual([]);
+});
+test('photo parity: inline content, block editor, conflict and durable save',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'weboldal');await page.locator('[data-cms-section="1"]').click();
+ await expect(page.locator('.cms-section-body')).toBeVisible();await expect(page.locator('dialog[open]')).toHaveCount(0);
+ const field=page.locator('[data-cms-path="hero.cim"]');const editable=page.locator('.cms-section-body input[data-cms-path]:not([type="checkbox"]):not([type="hidden"])').first();await editable.fill('Helyi referencia teszt');
+ await page.locator('.cms-block-edit').first().click();const dialog=page.locator('dialog.admin-editor-sheet[open]');await expect(dialog).toBeVisible();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+ await page.evaluate(()=>window.__adminSaveConflict=true);await page.locator('[data-studio-save]').click();await expect(page.locator('#admin-online-status')).toContainText('közben módosult');await expect(editable).toHaveValue('Helyi referencia teszt');
+ await page.evaluate(()=>window.__adminSaveConflict=false);await page.locator('[data-studio-save]').click();await expect(page.locator('#admin-online-status')).toContainText('mentve');await expect(page.locator('#admin-publication-status')).toHaveAttribute('data-publication-state','pending');expect(errors).toEqual([]);
+});
+test('photo parity: calendar opens editor in place, equal times and new item drafts',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'foglalasok');await page.locator('[data-foglalas-nezet="naptar"]').click();
+ await page.locator('[data-foglalas-naptar-ma]').click();const event=page.locator('[data-foglalas-naptar-megnyitas]:visible').first();await event.click();await expect(page.locator('dialog[open]')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);await expect(page.locator('#admin-foglalas-naptar')).toBeVisible();
+ await photoNav(page,'munkaido');await page.locator('.studio-bulk-schedule summary').click();const selected=page.locator('[data-naptar-datum]').first();if(await selected.count())await selected.click();
+ await photoNav(page,'arlista');const before=await page.evaluate(()=>window.__adminLastInsert||null);await page.locator('#admin-szolgaltatas-hozzaadas').click();await expect(page.locator('[data-draft-new]')).toHaveCount(1);expect(await page.evaluate(()=>window.__adminLastInsert||null)).toEqual(before);await page.keyboard.press('Escape');
+ expect(errors).toEqual([]);
+});
+
+
+test('photo fix verification: list drafts survive filtering and save through existing RPC',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'foglalasok');
+ const search=page.locator('#admin-foglalas-kereses');await search.fill('00000000-0000-4000-8000-000000000002');
+ await page.locator('#admin-foglalas-lista .admin-select-trigger--status').click();await page.getByRole('option',{name:'Teljesítve',exact:true}).click();
+ await expect(page.locator('[data-studio-save]')).toBeVisible();await search.fill('Nagy Anna');await search.fill('Kiss Dorka');await expect(page.locator('#admin-foglalas-lista [data-foglalas-statusz]')).toHaveValue('done');
+ await photoNav(page,'munkaido');await photoNav(page,'foglalasok');await expect(page.locator('#admin-foglalas-lista [data-foglalas-statusz]')).toHaveValue('done');await page.locator('[data-studio-save]').click();
+ await expect.poll(()=>page.evaluate(()=>window.__adminLastRpc?.args?.p_changes?.some(i=>i.id==='00000000-0000-4000-8000-000000000002'&&i.status==='done'))).toBe(true);await expect(page.locator('#admin-online-status')).toContainText('mentve');
+ expect(errors).toEqual([]);
+});
+test('photo fix verification: staged creation deletion and keyboard ordering',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'arlista');
+ let card=page.locator('#admin-szolgaltatas-lista .admin-db-kartya').first();const id=await card.getAttribute('data-id');await card.locator('[data-studio-sort]').press('ArrowDown');await expect(page.locator('[data-studio-save]')).toHaveClass(/has-draft/);
+ await page.locator('#admin-szolgaltatas-hozzaadas').click();let sheet=page.locator('dialog[open]');await sheet.locator('[data-mezo="name"]').fill('Csak helyi új tétel');await sheet.locator('[data-editor-save]').click();await expect(page.locator('#admin-online-status')).toContainText('mentve');await expect(page.locator('#admin-szolgaltatas-lista')).toContainText('Csak helyi új tétel');
+ // Existing delete only writes on Save; removing a new draft never reaches the database.
+ await page.locator('#admin-szolgaltatas-lista .admin-db-kartya').filter({hasText:'Csak helyi új tétel'}).locator('[data-admin-kartya-toggle]').click();page.once('dialog',d=>d.accept());await page.locator('dialog[open] [data-szolgaltatas-torles]').click();expect(await page.evaluate(()=>window.__adminLastDelete||null)).toBeNull();await page.locator('[data-studio-save]').click();await expect.poll(()=>page.evaluate(()=>window.__adminLastDelete?.table)).toBe('services');
+ await photoNav(page,'kuponok');await page.locator('#admin-kupon-hozzaadas').click();await page.locator('dialog[open] [data-mezo="code"]').fill('LOCALONLY');await page.locator('dialog[open] [data-editor-save]').click();await expect(page.locator('#admin-kupon-lista')).toContainText('LOCALONLY');expect((await page.evaluate(()=>window.__adminLastInsert)).table).toBe('coupons');
+ expect(errors).toEqual([]);
+});
+test('photo fix verification: swipe, drag duration and equal selected date times',async({page})=>{
+ const errors=await openAdmin(page,{width:1440,height:1000});await photoNav(page,'foglalasok');await page.locator('[data-foglalas-nezet="het"]').click();
+ const source=page.locator('.studio-week-event').first(),slot=page.locator('.studio-week-grid [data-studio-slot]').nth(40);const old=await source.getAttribute('data-foglalas-id');const a=await source.boundingBox(),b=await slot.boundingBox();await page.mouse.move(a.x+a.width/2,a.y+10);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});await page.mouse.up();
+ const dialog=page.locator('dialog[open]');await expect(dialog).toBeVisible();const start=await dialog.locator('[data-idopont-mezo="start_time"]').inputValue(),end=await dialog.locator('[data-idopont-mezo="end_time"]').inputValue();expect(start).toMatch(/^\d{2}:\d{2}$/);expect(end).toMatch(/^\d{2}:\d{2}$/);expect(end).not.toBe(start);expect(await page.evaluate(()=>window.__adminLastRpc||null)).toBeNull();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+ await page.setViewportSize({width:390,height:844});await photoNav(page,'munkaido');await page.locator('.studio-bulk-schedule summary').click();const day=page.locator('.admin-naptar-nap:not(:disabled)').first();await day.click();
+ const row=page.locator('.admin-naptar-sor').first();await expect(row).toBeVisible();const widths=await row.locator('.admin-temporal-control').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().width));expect(Math.abs(widths[0]-widths[1])).toBeLessThan(1);expect(Math.min(...widths)).toBeGreaterThan(100);await page.screenshot({path:'.impeccable/review/admin-photo-selected-times-390.png'});
+ // Stable root stays bound after week render; one gesture advances only the booking week.
+ await photoNav(page,'foglalasok');const before=await page.locator('#admin-studio-week .studio-week-toolbar strong').textContent();await page.locator('#admin-studio-week .studio-week-toolbar').evaluate(el=>{const event=(type,x)=>{const ev=new Event(type,{bubbles:true});Object.defineProperties(ev,{touches:{value:type==='touchend'?[]:[{clientX:x,clientY:10}]},changedTouches:{value:[{clientX:x,clientY:10}]}});el.dispatchEvent(ev);};event('touchstart',220);event('touchend',100);});await expect(page.locator('#admin-studio-week .studio-week-toolbar strong')).not.toHaveText(before);expect(errors).toEqual([]);
+});
+test('photo fix verification: gallery editor search order and responsive captures',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844});await photoNav(page,'galeria');await expect(page.locator('#admin-cms-root')).toHaveAttribute('data-lumi-cms-gallery-context','images');await page.locator('.cms-gallery-thumbnail').first().click();const dialog=page.locator('dialog[open]');await expect(dialog.locator('[data-cms-path$="kepAlt"]')).toBeVisible();await dialog.locator('[data-cms-path$="kepAlt"]').fill('Kereshető helyi képleírás');await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await page.locator('[data-gallery-filter]').fill('Kereshető');await expect(page.locator('.cms-gallery-item:visible')).toHaveCount(1);await page.locator('[data-gallery-filter]').fill('');await page.locator('.cms-gallery-item [data-studio-sort]').first().press('ArrowDown');
+ await page.screenshot({path:'.impeccable/review/admin-photo-gallery-final-390.png'});
+ for(const width of [320,768,1440]){await page.setViewportSize({width,height:1000});for(const group of ['attekintes','foglalasok','weboldal','munkaido']){await photoNav(page,group);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),group+' '+width).toBe(true);if(width!==320)await page.screenshot({path:'.impeccable/review/admin-photo-final-'+group+'-'+width+'.png'});}}
+ expect(errors).toEqual([]);
+});
+
+
+test('photo final: guests, touch ordering, appearance and final captures',async({page})=>{
+ const errors=await openAdmin(page,{width:390,height:844},{standalone:true});await photoNav(page,'vendegek');await page.locator('[data-guest-search]').fill('Nagy Anna');await expect(page.locator('.admin-vendeg-sor')).toHaveCount(1);await page.locator('[data-guest-email]').first().click();await expect(page.locator('dialog[open] .studio-history-record')).toHaveCount(1);await expect(page.locator('dialog[open] footer')).toBeHidden();await page.locator('[data-guest-rebook]').click();await expect(page.locator('dialog[open] #admin-tiltas-ok')).toHaveValue('Nagy Anna');await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);
+ await photoNav(page,'arlista');const first=page.locator('.admin-szolgaltatas-kartya').first(),second=page.locator('.admin-szolgaltatas-kartya').nth(1);const original=await first.getAttribute('data-id');const target=await second.boundingBox();await first.locator('[data-studio-sort]').dispatchEvent('pointerdown',{pointerType:'touch',pointerId:9,button:0});await page.locator('#admin-tartalom').dispatchEvent('pointermove',{pointerType:'touch',pointerId:9,clientX:target.x+target.width/2,clientY:target.y+target.height/2});await page.locator('#admin-tartalom').dispatchEvent('pointerup',{pointerType:'touch',pointerId:9});await expect(page.locator('.admin-szolgaltatas-kartya').nth(1)).toHaveAttribute('data-id',original);await expect(page.locator('[data-studio-save]')).toHaveClass(/has-draft/);await page.screenshot({path:'.impeccable/review/admin-photo-final-prices-390.png'});
+ await photoNav(page,'beallitasok');await page.getByRole('combobox',{name:/^Megjelenés:/}).click();await page.getByRole('option',{name:'Sötét',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-admin-theme','dark');await page.screenshot({path:'.impeccable/review/admin-photo-final-dark-390.png'});await page.getByRole('combobox',{name:/^Megjelenés:/}).click();await page.getByRole('option',{name:'Világos',exact:true}).click();await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content',/user-scalable=no/);
+ for(const width of [390,1440]){await page.setViewportSize({width,height:1000});for(const group of ['attekintes','foglalasok','weboldal','galeria']){await photoNav(page,group);await page.screenshot({path:'.impeccable/review/admin-photo-final-'+group+'-'+width+'.png'});}}
+ expect(errors).toEqual([]);
 });

@@ -1,0 +1,291 @@
+{
+  "reference": "Szalon-teszt frontend source only; no business data, content, environment or credentials",
+  "bookingCardMarkupSha256": "f09ad7a163caa6e5774119fd8b12eae82ffee4fbb10dd98deea5fcff192111e5",
+  "files": [
+    {
+      "file": "app/admin/viewport.module.css",
+      "sourceSha256": "c8b85ed640aef4c83273ca23c3378c137101b3105e075a65d83a07daacbb4cbf",
+      "localSha256": "c8b85ed640aef4c83273ca23c3378c137101b3105e075a65d83a07daacbb4cbf",
+      "exact": true
+    },
+    {
+      "file": "components/admin-appearance.tsx",
+      "sourceSha256": "c0cdb21a474251568ddde4b87071fc4d19b68b489088f5bcb3289393931059f5",
+      "localSha256": "c0cdb21a474251568ddde4b87071fc4d19b68b489088f5bcb3289393931059f5",
+      "exact": true
+    },
+    {
+      "file": "components/admin-auto-textarea.tsx",
+      "sourceSha256": "1c3e5873f40fd7028c11042a15a22987a6a8ed47e5f60953041776cf16196fdf",
+      "localSha256": "1c3e5873f40fd7028c11042a15a22987a6a8ed47e5f60953041776cf16196fdf",
+      "exact": true
+    },
+    {
+      "file": "components/admin-bookings-tab.tsx",
+      "sourceSha256": "4373825303d0d101b5cea62b6bcded6ffeb161f7ccf3a2dd0e0538a0aede912c",
+      "localSha256": "ee73993b5ce9ff3e46f3dfd8ecbdbe9a0b9e568453f8ae648e73de14f2644e55",
+      "exact": false
+    },
+    {
+      "file": "components/admin-detail-row.tsx",
+      "sourceSha256": "6304f11fbb21845312bfc7f14714dea70d9bedeb0edbcf45e140399e1b4a346a",
+      "localSha256": "6304f11fbb21845312bfc7f14714dea70d9bedeb0edbcf45e140399e1b4a346a",
+      "exact": true
+    },
+    {
+      "file": "components/admin-duration-input.tsx",
+      "sourceSha256": "49a534ad49c579c17efb70c88707f6ce68b0619421b9f063852bb1302dfc787f",
+      "localSha256": "49a534ad49c579c17efb70c88707f6ce68b0619421b9f063852bb1302dfc787f",
+      "exact": true
+    },
+    {
+      "file": "components/admin-editor-sheet.tsx",
+      "sourceSha256": "b0df67322235f9f10e467bb3ef431c509fe97443162b7b0741073962cecca5f6",
+      "localSha256": "b0df67322235f9f10e467bb3ef431c509fe97443162b7b0741073962cecca5f6",
+      "exact": true
+    },
+    {
+      "file": "components/admin-feedback.module.css",
+      "sourceSha256": "84240c5b4d0c571e6ee22377be48c6c518ed9886c7603801e823d8b3a360c795",
+      "localSha256": "84240c5b4d0c571e6ee22377be48c6c518ed9886c7603801e823d8b3a360c795",
+      "exact": true
+    },
+    {
+      "file": "components/admin-feedback.tsx",
+      "sourceSha256": "a71f28a019f78e5fb6eec12cf4bf9cc2316c5d34d0ebb07ab3393ea13ca040ee",
+      "localSha256": "a71f28a019f78e5fb6eec12cf4bf9cc2316c5d34d0ebb07ab3393ea13ca040ee",
+      "exact": true
+    },
+    {
+      "file": "components/admin-gallery-tab.tsx",
+      "sourceSha256": "9d067cf556bff1b5aca62e9ecd15e98e5af1b860c420664f183b5e8abf22475c",
+      "localSha256": "6f889ea509a755d7944b6ca60b61ebbd867bda41ff7b261f97949292d60d7ba1",
+      "exact": false
+    },
+    {
+      "file": "components/admin-icon.tsx",
+      "sourceSha256": "ed6a75037f92965b2b1574072fd1a75ac2ae6ae3340199a7140ced9790f4ebd3",
+      "localSha256": "ed6a75037f92965b2b1574072fd1a75ac2ae6ae3340199a7140ced9790f4ebd3",
+      "exact": true
+    },
+    {
+      "file": "components/admin-list-pagination.tsx",
+      "sourceSha256": "b7b7b824e05c83758c497d44c30ab98614a02b8b61af819cb622e61d9a373688",
+      "localSha256": "b7b7b824e05c83758c497d44c30ab98614a02b8b61af819cb622e61d9a373688",
+      "exact": true
+    },
+    {
+      "file": "components/admin-loading-state.tsx",
+      "sourceSha256": "fbc91da96b08d921a3e5a3bab8389611060868e95ec693815d82a02dc4d28687",
+      "localSha256": "fbc91da96b08d921a3e5a3bab8389611060868e95ec693815d82a02dc4d28687",
+      "exact": true
+    },
+    {
+      "file": "components/admin-login-form.tsx",
+      "sourceSha256": "c865d9b9e57264716306f85b339a0326e91e139c51972de8c8030a1892d687ef",
+      "localSha256": "1c0360f5da2a16395ae70a26b047bffa70c67cc55335cb3f78c4ef40b6e838fa",
+      "exact": false
+    },
+    {
+      "file": "components/admin-manual-booking-sheet.tsx",
+      "sourceSha256": "70a9085b0d85a2250f0cbe5b335539a4297ff9fc98ad5bbf3093b494744c3fa1",
+      "localSha256": "5433c97a5c771bde45f6838b1d159657a87545e48c9a5ff28374fd2b7ab1f913",
+      "exact": false
+    },
+    {
+      "file": "components/admin-overlays.module.css",
+      "sourceSha256": "64006081bec4dbee1f353878b779d035439e51bab49e2ba7a1a3d16bfcb543b7",
+      "localSha256": "64006081bec4dbee1f353878b779d035439e51bab49e2ba7a1a3d16bfcb543b7",
+      "exact": true
+    },
+    {
+      "file": "components/admin-overview.tsx",
+      "sourceSha256": "c71630f80995d7b88f77630d43477153d75be729cdcdb62b33e81d4aa735776b",
+      "localSha256": "c71630f80995d7b88f77630d43477153d75be729cdcdb62b33e81d4aa735776b",
+      "exact": true
+    },
+    {
+      "file": "components/admin-price-input.tsx",
+      "sourceSha256": "97efab777aa72ed901109542ba1548a3021ce3d2613f12f4874742e3ec3fe5fd",
+      "localSha256": "97efab777aa72ed901109542ba1548a3021ce3d2613f12f4874742e3ec3fe5fd",
+      "exact": true
+    },
+    {
+      "file": "components/admin-prices-tab.tsx",
+      "sourceSha256": "8f99d8ade16fd9a2583a600d65e72c5f73aa40a105739b1a7185c6772ae2e93f",
+      "localSha256": "0d4ae09896e78317d9c86faf1324689a1de309cc52659a229e60267e2c5171ca",
+      "exact": false
+    },
+    {
+      "file": "components/admin-search-input.module.css",
+      "sourceSha256": "58f3b27f762e4d81daba8b5b08f56432c9178898c273982e686ec079afcc2aea",
+      "localSha256": "58f3b27f762e4d81daba8b5b08f56432c9178898c273982e686ec079afcc2aea",
+      "exact": true
+    },
+    {
+      "file": "components/admin-search-input.tsx",
+      "sourceSha256": "f8e767f5ec33a6af0f72f2108a070911d2aac2617e3c23642e64625489e01b3b",
+      "localSha256": "f8e767f5ec33a6af0f72f2108a070911d2aac2617e3c23642e64625489e01b3b",
+      "exact": true
+    },
+    {
+      "file": "components/admin-select-menu.tsx",
+      "sourceSha256": "11acf78d0841745c70abadfd92a18fbb60d84f6ce105d8402da1e0e0dc1fec3d",
+      "localSha256": "11acf78d0841745c70abadfd92a18fbb60d84f6ce105d8402da1e0e0dc1fec3d",
+      "exact": true
+    },
+    {
+      "file": "components/admin-sortable.tsx",
+      "sourceSha256": "7e649b97c83af92b56945fb9f451458d37531aee6b73bd062474967a4004c14e",
+      "localSha256": "7e649b97c83af92b56945fb9f451458d37531aee6b73bd062474967a4004c14e",
+      "exact": true
+    },
+    {
+      "file": "components/admin-studio.module.css",
+      "sourceSha256": "ac9f9c1f4c261afd055b4a2ac3d67212a307862b1bbe1885a6ec965d92c04426",
+      "localSha256": "ac9f9c1f4c261afd055b4a2ac3d67212a307862b1bbe1885a6ec965d92c04426",
+      "exact": true
+    },
+    {
+      "file": "components/admin-temporal-input.tsx",
+      "sourceSha256": "132fec568ad1dbf477488505a2c171610ef81fe73d25fd10a3de636021bb28f3",
+      "localSha256": "132fec568ad1dbf477488505a2c171610ef81fe73d25fd10a3de636021bb28f3",
+      "exact": true
+    },
+    {
+      "file": "components/admin-ui.tsx",
+      "sourceSha256": "5dbacb8c7492dc890c6afc4e3b6072b469c4c1836cc5e762a1ef1eb014d30171",
+      "localSha256": "5dbacb8c7492dc890c6afc4e3b6072b469c4c1836cc5e762a1ef1eb014d30171",
+      "exact": true
+    },
+    {
+      "file": "components/admin-week-calendar-mobile.tsx",
+      "sourceSha256": "4b84019b897d3b7c5ee0d30209d3a196fbfaca5e795f72ed65363a87a83abe60",
+      "localSha256": "2a82eff621807a6b3c5cad925f1b013ed3e9ed300b857b2941624b2e0b3eccf7",
+      "exact": false
+    },
+    {
+      "file": "components/admin-week-calendar.tsx",
+      "sourceSha256": "c1cf5660c1c66841bf22895f11a784f9581f218234fc930b97de82ef457442ec",
+      "localSha256": "d1f6da9512bf8742488925a71d29bdea9ba5bc126da1005e1268e6f172f84fb3",
+      "exact": false
+    },
+    {
+      "file": "components/admin-week-picker.tsx",
+      "sourceSha256": "29a0c23b1c2ed3e9a9ce7d514bea3d59ac153d66234fc4a8e62d54a1179b254e",
+      "localSha256": "29a0c23b1c2ed3e9a9ce7d514bea3d59ac153d66234fc4a8e62d54a1179b254e",
+      "exact": true
+    },
+    {
+      "file": "components/list-pagination.tsx",
+      "sourceSha256": "dafe8f1c9a6b1614aecf455634fe7d3d4e1c6a9780428ed1ca3daca79c433b67",
+      "localSha256": "dafe8f1c9a6b1614aecf455634fe7d3d4e1c6a9780428ed1ca3daca79c433b67",
+      "exact": true
+    },
+    {
+      "file": "components/use-browser-search.ts",
+      "sourceSha256": "be663178587a434dea941a266ba11336dddc46fb04974bff1b9481f3e9d085da",
+      "localSha256": "be663178587a434dea941a266ba11336dddc46fb04974bff1b9481f3e9d085da",
+      "exact": true
+    },
+    {
+      "file": "components/use-dialog-alert-visibility.ts",
+      "sourceSha256": "8c9437074bcb997683bdbaf68b5e16c1aaee4dd2a257405a11df64624a085a5a",
+      "localSha256": "8c9437074bcb997683bdbaf68b5e16c1aaee4dd2a257405a11df64624a085a5a",
+      "exact": true
+    },
+    {
+      "file": "components/use-horizontal-swipe.ts",
+      "sourceSha256": "96da8e5a2421a3e13a80d8778bc48dc4e965227db2079862218d9e7dea9ab9f4",
+      "localSha256": "96da8e5a2421a3e13a80d8778bc48dc4e965227db2079862218d9e7dea9ab9f4",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-appearance.ts",
+      "sourceSha256": "8fe7a6a4911ee9a6a828090d5f6fcaaf9311cf56b6a50852663a0918ae0eafda",
+      "localSha256": "5a70d43d9411dd5060c2939f411e58ef8d41261b8c4db1499865cee1ab153920",
+      "exact": false
+    },
+    {
+      "file": "lib/admin-bookings.ts",
+      "sourceSha256": "446ba8592331867cb54373bb6f9d56973e2c5484f7f3f62afbca9a9ca59c6356",
+      "localSha256": "446ba8592331867cb54373bb6f9d56973e2c5484f7f3f62afbca9a9ca59c6356",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-focus.ts",
+      "sourceSha256": "43f8c90dc10b152fa90f4094349585883768fb297be6315ea7744c23f0792582",
+      "localSha256": "43f8c90dc10b152fa90f4094349585883768fb297be6315ea7744c23f0792582",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-image-summary.ts",
+      "sourceSha256": "23741760b18902130d0125ac595282bae85cc0c02fbfeb805b3dd6e846d36151",
+      "localSha256": "23741760b18902130d0125ac595282bae85cc0c02fbfeb805b3dd6e846d36151",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-navigation.ts",
+      "sourceSha256": "29b4682d2bf777867929afc7609a4a0ad8dddbca9734df1791162a52f07fe609",
+      "localSha256": "29b4682d2bf777867929afc7609a4a0ad8dddbca9734df1791162a52f07fe609",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-revenue.ts",
+      "sourceSha256": "bfb47d68bbc8348e41dafd2f27b90bbe9ad5e9a2dcc92f17503b958f462a13f8",
+      "localSha256": "bfb47d68bbc8348e41dafd2f27b90bbe9ad5e9a2dcc92f17503b958f462a13f8",
+      "exact": true
+    },
+    {
+      "file": "lib/admin-week-calendar-time.ts",
+      "sourceSha256": "2d97c782696cce7a0a7f7d698c6ec9b4ed76f8a41676e56ee6c8eeb308fb32ba",
+      "localSha256": "2d97c782696cce7a0a7f7d698c6ec9b4ed76f8a41676e56ee6c8eeb308fb32ba",
+      "exact": true
+    },
+    {
+      "file": "lib/booking-status.ts",
+      "sourceSha256": "e81bea3d96a399c800093d16528b86b33f1a564fc713ac9c60f48a05760ddc37",
+      "localSha256": "d6b143e135ac79a455a1ae64fa9fb1102f9e84d26389fce1ae1f8235c402c1b7",
+      "exact": false
+    },
+    {
+      "file": "lib/gallery.ts",
+      "sourceSha256": "e1a43ed553f6731acbb4917bd0f09d03b9632b83b7f9b405040240931746b875",
+      "localSha256": "7c2efab1994dfc432b00e1e7c9020387cd4c92ec162509c4e097d6e288d8c2b9",
+      "exact": false
+    },
+    {
+      "file": "lib/hungarian-phone.ts",
+      "sourceSha256": "0709af2a0a69b81e20c5cddd2b66a38bfe0935bd663c3e5efab1132ea25263f2",
+      "localSha256": "0709af2a0a69b81e20c5cddd2b66a38bfe0935bd663c3e5efab1132ea25263f2",
+      "exact": true
+    },
+    {
+      "file": "lib/list-order.ts",
+      "sourceSha256": "52386ca9ceba95aff533ce9862cd909e9a1ca312709720237d96761eaac80996",
+      "localSha256": "52386ca9ceba95aff533ce9862cd909e9a1ca312709720237d96761eaac80996",
+      "exact": true
+    },
+    {
+      "file": "lib/price-format.ts",
+      "sourceSha256": "b5054900b88307251d9db65155f49c553ce4a7d9757ae087f95727abdf6522fa",
+      "localSha256": "b5054900b88307251d9db65155f49c553ce4a7d9757ae087f95727abdf6522fa",
+      "exact": true
+    },
+    {
+      "file": "lib/service-catalog.ts",
+      "sourceSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
+      "localSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
+      "exact": true
+    }
+  ],
+  "extracted": [
+    {
+      "file": "components/admin-viewport-bridge.tsx",
+      "sourceFile": "components/admin-pwa-controls.tsx",
+      "sourceSha256": "9b05afd37b97fedb4e3bd33c4a61664e9ecd1c8ae67d7b38c9f1580728fcb616",
+      "localSha256": "5fb7610020e162b5fe295a14428a5a58b0368c7c7ba58682efac109d6dcac084",
+      "adaptation": "Viewport/focus bridge fitted to the visible iOS frame. Existing LumiNails service worker, push and whole-page zoom prohibition retained."
+    }
+  ]
+}

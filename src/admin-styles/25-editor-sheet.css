@@ -1,0 +1,77 @@
+/* Shared native editor sheet; feature files own the fields inside it. */
+.admin-body.admin-v2 .admin-editor-sheet {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: max(calc(16px * var(--admin-scale, 1)), env(safe-area-inset-top)) 0 0;
+  overflow: clip;
+  border: 0;
+  color: var(--admin-v2-ink);
+  background: transparent;
+}
+.admin-body.admin-v2 .admin-editor-sheet[open] { display: flex; flex-direction: column; justify-content: flex-end; }
+.admin-editor-sheet::backdrop { background: rgb(0 0 0 / var(--sheet-backdrop-opacity, .65)); }
+.admin-editor-sheet[open]::backdrop { animation: admin-sheet-backdrop-in 270ms ease-out both; }
+.admin-editor-sheet[data-closing]::backdrop { animation: admin-sheet-backdrop-out 220ms ease-in both; }
+.admin-editor-sheet[data-dragging]::backdrop { animation: none; }
+.admin-body.admin-v2 .admin-editor-sheet-body {
+  container: admin-workspace / inline-size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+  background: var(--admin-v2-surface);
+  box-shadow: 0 -16px 64px rgb(0 0 0 / .3);
+}
+.admin-editor-sheet[data-entering] .admin-editor-sheet-body { animation: admin-sheet-enter 270ms cubic-bezier(.2, .7, .2, 1) both; }
+.admin-body.admin-v2 .admin-editor-sheet-header {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: calc(12px * var(--admin-scale, 1));
+  padding: calc(20px * var(--admin-scale, 1)) calc(16px * var(--admin-scale, 1)) calc(12px * var(--admin-scale, 1));
+  border-bottom: 1px solid var(--admin-v2-border);
+  touch-action: none;
+}
+.admin-editor-sheet-header h2 { flex: 1; min-width: 0; margin: 0; font: 600 calc(18px * var(--admin-scale, 1))/1.35 'DM Sans', sans-serif; overflow-wrap: anywhere; }
+.admin-editor-sheet-header h2:focus { outline: none; }
+.admin-editor-sheet-header .admin-v2-icon-button { flex-shrink: 0; }
+.admin-editor-sheet-handle { position: absolute; top: 8px; left: calc(50% - 20px); width: 40px; height: 4px; border-radius: 4px; background: var(--admin-v2-border-strong); }
+.admin-body.admin-v2 .admin-editor-sheet-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(16px * var(--admin-scale, 1));
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-v2-border-strong) transparent;
+}
+.admin-body.admin-v2 .admin-editor-sheet-footer:not([hidden]) { flex-shrink: 0; display: grid; gap: calc(10px * var(--admin-scale, 1)); padding: calc(12px * var(--admin-scale, 1)) calc(16px * var(--admin-scale, 1)) max(calc(16px * var(--admin-scale, 1)), env(safe-area-inset-bottom)); border-top: 1px solid var(--admin-v2-border); background: var(--admin-v2-surface); }
+.admin-editor-sheet-footer p { margin: 0; color: var(--admin-v2-muted); font-size: calc(12px * var(--admin-scale, 1)); line-height: 1.5; }
+.admin-editor-sheet-status:empty { display: none; }
+.admin-editor-sheet-footer .admin-editor-sheet-status.is-error { color: var(--admin-v2-danger); }
+@media (min-width: 640px) {
+  .admin-body.admin-v2 .admin-editor-sheet { align-items: flex-end; padding: calc(12px * var(--admin-scale, 1)); }
+  .admin-body.admin-v2 .admin-editor-sheet-body { width: min(512px, 100%); height: 100%; border-radius: 16px; }
+  .admin-body.admin-v2 .admin-editor-sheet-header { padding-top: calc(12px * var(--admin-scale, 1)); touch-action: auto; }
+  .admin-editor-sheet-handle { display: none; }
+  .admin-editor-sheet[data-entering] .admin-editor-sheet-body { animation-name: admin-sheet-enter-side; }
+}
+@keyframes admin-sheet-enter { from { transform: translateY(calc(100% + 16px)); } to { transform: translateY(0); } }
+@keyframes admin-sheet-enter-side { from { transform: translateX(calc(100% + 16px)); } to { transform: translateX(0); } }
+@keyframes admin-sheet-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes admin-sheet-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .admin-editor-sheet[open]::backdrop,
+  .admin-editor-sheet[data-entering] .admin-editor-sheet-body { animation: none; }
+}
+
+

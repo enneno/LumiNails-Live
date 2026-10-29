@@ -199,7 +199,7 @@
 
     function foglalasNezetValtasa(ujNezet) {
         const elemek = adminElemek();
-        const nezet = ujNezet === 'naptar' ? 'naptar' : 'lista';
+        const nezet = ['naptar', 'het'].includes(ujNezet) ? ujNezet : 'lista';
         allapot.foglalasNezet = nezet;
 
         if (elemek.foglalasListaNezet) elemek.foglalasListaNezet.hidden = nezet !== 'lista';
@@ -210,6 +210,9 @@
             gomb.setAttribute('aria-pressed', String(aktiv));
         });
 
+        const week = document.getElementById('admin-studio-week');
+        if (week) week.hidden = nezet !== 'het';
+        if (nezet === 'het') adminStudioHetRender();
         if (nezet === 'naptar') {
             foglalasNaptarRenderelese();
             elemek.foglalasNaptarCim?.focus({ preventScroll: true });
@@ -261,28 +264,14 @@
         );
         if (!elem) return;
 
-        const keresesiErtek = elem.adat?.public_reference
-            || elem.adat?.id
-            || elem.adat?.customer_email
-            || foglalasNaptarElemNev(elem);
-        allapot.foglalasKereses = keresesiErtek;
-        allapot.foglalasStatuszSzuro = 'all';
-        allapot.foglalasOldal = 1;
+        adminStudioRekordMegnyitas(elem);
+    }
 
-        const elemek = adminElemek();
-        if (elemek.foglalasKereses) elemek.foglalasKereses.value = keresesiErtek;
-        foglalasKeresesTorlesGombFrissitese(elemek);
-        if (elemek.foglalasStatuszSzuro) elemek.foglalasStatuszSzuro.value = 'all';
-        foglalasListaRenderelese();
-        foglalasNezetValtasa('lista');
-
-        window.requestAnimationFrame(() => {
-            const kartya = Array.from(elemek.foglalasLista?.children || [])
-                .find(bejegyzes => bejegyzes.dataset.id === foglalasId);
-            if (!kartya) return;
-            foglalasReszletekKapcsolasa(kartya, true);
-            kartya.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
+    function adminStudioRekordMegnyitas(elem) {
+        const card=adminStudioFoglalasKartya(elem);
+        let host=document.querySelector('.admin-calendar-editor-host');if(!host){host=document.createElement('div');host.className='admin-calendar-editor-host';document.getElementById('admin-panel-foglalasok').append(host);}
+        const marker=document.createComment('calendar card');if(card.isConnected)card.before(marker);card._studioReturn=()=>{if(marker.parentNode)marker.replaceWith(card);else card.remove();};host.append(card);
+        foglalasSzerkesztesKapcsolasa(card);
     }
 
     function foglalasReszletekKapcsolasa(kartya, kenyszeritettAllapot) {

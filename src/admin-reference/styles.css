@@ -1,0 +1,176 @@
+@import "tailwindcss" source(none);
+/* Admin-only global rules copied from the reference globals.css. */
+
+
+:root {
+  --paper: #fffdfa;
+  --ink: #1f1c17;
+  --ink-muted: #625d54;
+  --gold-dark: #765315;
+  --gold-bright: #e4bd58;
+  --gold-line: #dfc98f;
+  --gold-soft: #faf5e8;
+  --admin-shell: #f3f0e8;
+  --admin-bg: #0b0f16;
+  --admin-surface: #131922;
+  --admin-raised: #1a222d;
+  --admin-field: #202a37;
+  --admin-border: #303c4c;
+  --admin-text: #f5f2e9;
+  --admin-muted: #9ba5b4;
+  --admin-accent: #d6b567;
+  --admin-accent-strong: #efd58e;
+  --admin-danger: #ff858c;
+  --admin-success: #55d6a7;
+  --admin-confirmed: #7aa7ff;
+  --admin-confirmed-text: #a8c7ff;
+  --admin-lashes: #c3a5d8;
+  --admin-laser: #67b7d8;
+  --admin-blocked: #e39a55;
+  --admin-weekend: #18222f;
+}
+
+html[data-admin-theme="light"] {
+  --admin-shell: #ece7dc;
+  --admin-bg: #f4f1e9;
+  --admin-surface: #fffdf8;
+  --admin-raised: #eee9de;
+  --admin-field: #e5ded1;
+  --admin-border: #cfc5b3;
+  --admin-text: #211e19;
+  --admin-muted: #6d665c;
+  --admin-accent: #87651f;
+  --admin-accent-strong: #6e4f13;
+  --admin-danger: #b23f4a;
+  --admin-success: #227a5c;
+  --admin-confirmed: #3569b7;
+  --admin-confirmed-text: #285493;
+  --admin-lashes: #795d8e;
+  --admin-laser: #2f7897;
+  --admin-blocked: #a45f28;
+  --admin-weekend: #d9d1c3;
+}
+
+html[data-admin-size="compact"]:has(.admin-theme) {
+  font-size: 13.5px;
+}
+
+html[data-admin-size="normal"]:has(.admin-theme) {
+  font-size: 15.5px;
+}
+
+html[data-admin-size="large"]:has(.admin-theme) {
+  font-size: 17px;
+}
+
+html[data-admin-size="auto"]:has(.admin-theme) {
+  font-size: clamp(14.5px, calc(13.95px + 0.14vw), 16.5px);
+}
+
+@media (max-height: 650px) {
+  html[data-admin-size="auto"]:has(.admin-theme) {
+    font-size: clamp(14px, calc(13.55px + 0.11vw), 15.5px);
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-line: var(--gold-line);
+  --color-gold-soft: var(--gold-soft);
+  --color-admin-shell: var(--admin-shell);
+  --color-admin-bg: var(--admin-bg);
+  --color-admin-surface: var(--admin-surface);
+  --color-admin-raised: var(--admin-raised);
+  --color-admin-field: var(--admin-field);
+  --color-admin-border: var(--admin-border);
+  --color-admin-text: var(--admin-text);
+  --color-admin-muted: var(--admin-muted);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-accent-strong: var(--admin-accent-strong);
+  --color-admin-danger: var(--admin-danger);
+  --color-admin-success: var(--admin-success);
+  --color-admin-confirmed: var(--admin-confirmed);
+  --color-admin-confirmed-text: var(--admin-confirmed-text);
+  --color-admin-lashes: var(--admin-lashes);
+  --color-admin-laser: var(--admin-laser);
+  --color-admin-blocked: var(--admin-blocked);
+  --color-admin-weekend: var(--admin-weekend);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-cormorant);
+  --font-public: var(--font-dm-sans);
+  --font-script: var(--font-tangerine);
+}
+
+.admin-theme {
+  --paper: var(--admin-surface);
+  --ink: var(--admin-text);
+  --ink-muted: var(--admin-muted);
+  --gold-dark: var(--admin-accent);
+  --gold-bright: var(--admin-accent-strong);
+  --gold-line: var(--admin-border);
+  --gold-soft: var(--admin-raised);
+  --admin-shell: var(--admin-bg);
+  color-scheme: dark;
+  font-size: 0.875rem;
+  caret-color: var(--admin-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-theme button,
+.admin-theme a,
+.admin-theme input,
+.admin-theme select,
+.admin-theme textarea {
+  touch-action: manipulation;
+}
+
+.admin-theme select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='m3 4.5 3 3 3-3' stroke='%23d6b567' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 0.75rem;
+  padding-right: 2rem;
+}
+
+.admin-theme input::placeholder,
+.admin-theme textarea::placeholder {
+  color: var(--admin-muted);
+}
+
+.admin-theme .admin-compact-control {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.admin-theme textarea.admin-compact-control {
+  line-height: 1.6;
+}
+
+html[data-admin-theme="light"] .admin-theme {
+  color-scheme: light;
+}
+
+html[data-admin-theme="light"] .admin-theme select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='m3 4.5 3 3 3-3' stroke='%2387651f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+html[data-admin-standalone] .admin-theme {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html[data-admin-standalone] .admin-theme :is(input, textarea, [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+:root { --font-manrope:'Manrope',sans-serif; --font-cormorant:'Cormorant Garamond',serif; --font-dm-sans:'DM Sans',sans-serif; }
+#admin-reference-root {font-family:var(--font-manrope);}
+body.admin-reference-active > :not(#admin-reference-root):not(script):not(link) {display:none;}
+

@@ -1,0 +1,76 @@
+.sheet {
+  position: fixed;
+  inset: var(--admin-viewport-top, 0px) 0 auto;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: var(--admin-viewport-height, var(--admin-display-height));
+  max-height: none;
+  overflow: clip;
+  padding: max(1rem, env(safe-area-inset-top)) 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--admin-text);
+}
+.sheet::backdrop { background: rgb(0 0 0 / .65); }
+.sheet[open] { display: flex; flex-direction: column; justify-content: flex-end; }
+.sheet[open]::backdrop { animation: sheet-backdrop-in 270ms ease-out both; }
+.sheet[open] .sheetBody { animation: sheet-enter 270ms cubic-bezier(.2,.7,.2,1) both; }
+.sheet[open][data-dragging="true"]::backdrop {
+  animation: none;
+  background: rgb(0 0 0 / var(--sheet-backdrop-opacity, .65));
+  transition: background-color 180ms ease-out;
+}
+.sheet[open][data-closing="true"]::backdrop { animation: sheet-backdrop-out 220ms ease-in both; }
+.sheet[open][data-closing="true"] .sheetBody { animation: none; }
+.sheetBody {
+  --sheet-travel: calc(100% + 1rem);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  min-height: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--admin-surface);
+  box-shadow: 0 -16px 64px rgb(0 0 0 / .35);
+  overflow: hidden;
+}
+.sheetHeader {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.25rem 1rem .875rem;
+}
+.sheetHeader[data-swipe-enabled="true"] { touch-action: none; cursor: grab; }
+.sheet[data-dragging="true"] .sheetHeader { cursor: grabbing; }
+.sheetHandle { position: absolute; top: .5rem; left: 50%; transform: translateX(-50%); height: .25rem; width: 2.5rem; border-radius: 1rem; background: var(--admin-border); transition: width 160ms ease, background-color 160ms ease; }
+.sheet[data-dragging="true"] .sheetHandle { width: 3rem; background: var(--admin-accent); }
+.sheetContent { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: .25rem 1rem max(1rem, env(safe-area-inset-bottom)); scrollbar-width: thin; }
+.menu {
+  position: fixed;
+  z-index: 90;
+  min-width: 10rem;
+  max-width: calc(100vw - 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: .25rem;
+  border-radius: .75rem;
+  background: var(--admin-field);
+  box-shadow: 0 8px 32px rgb(0 0 0 / .4);
+  animation: menu-enter 120ms ease-out;
+}
+@keyframes sheet-enter { from { transform: translateY(var(--sheet-travel)); } to { transform: translateY(0); } }
+@keyframes sheet-backdrop-in { from { background: rgb(0 0 0 / 0); } to { background: rgb(0 0 0 / .65); } }
+@keyframes sheet-backdrop-out { from { background: rgb(0 0 0 / var(--sheet-backdrop-close-start, .65)); } to { background: rgb(0 0 0 / 0); } }
+@keyframes menu-enter { from { opacity: .6; transform: translateY(-.25rem); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 640px) {
+  .sheet { padding: .75rem; align-items: flex-end; }
+  .sheetBody { width: min(32rem, 100%); height: 100%; max-height: 100%; border-radius: 1rem; }
+  .sheetHeader { padding-top: 1rem; }
+  .sheetHeader[data-swipe-enabled="true"] { touch-action: auto; cursor: default; }
+  .sheetHandle { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] .sheetBody, .sheet[open]::backdrop, .menu, .sheetHandle { animation: none; transition: none; }
+}

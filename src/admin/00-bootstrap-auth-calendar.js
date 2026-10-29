@@ -575,6 +575,7 @@
     }
 
     async function sessionAllapot(session, elemek, force = false) {
+        allapot.referenceAuthReady=true;
         const userKey = session?.user?.id || session?.user?.email || 'session';
         if (session && !force && allapot.adminVerified && allapot.adminUserKey === userKey) {
             allapot.session = session;
@@ -611,7 +612,7 @@
         elemek.tartalom.hidden = false;
         if (elemek.lebegoMentes) elemek.lebegoMentes.hidden = false;
         authStatusz(elemek, '');
-        adminTabValtas(allapot.aktivTab);
+        if(!window.LumiReferenceUiActive)adminTabValtas(allapot.aktivTab);
     }
 
     function adatokFrissitese() {

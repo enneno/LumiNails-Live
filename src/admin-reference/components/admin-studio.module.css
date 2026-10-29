@@ -1,0 +1,664 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  font-variant-numeric: tabular-nums;
+}
+.toastLayer {
+  position: fixed;
+  inset: calc(env(safe-area-inset-top) + 4rem) auto auto calc(env(safe-area-inset-left) + .75rem);
+  z-index: 100;
+  width: min(20rem, calc(100vw - 1.5rem));
+  max-height: min(12rem, calc(100dvh - 1.5rem));
+  margin: 0;
+  overflow-y: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+.toastLayer:popover-open { display: block; }
+
+.header {
+  flex-shrink: 0;
+  z-index: 30;
+  padding-top: env(safe-area-inset-top);
+  background: var(--admin-bg);
+}
+
+.toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  min-height: 3.25rem;
+  padding: .5rem 1rem;
+}
+.toolbar::after {
+  position: absolute;
+  right: 1rem;
+  bottom: 0;
+  left: 1rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--admin-accent), transparent);
+  content: "";
+  opacity: .45;
+  pointer-events: none;
+}
+.toolbarActivity {
+  position: absolute;
+  right: 1rem;
+  bottom: 0;
+  left: 1rem;
+  height: 2px;
+  background: var(--admin-accent);
+  animation: toolbarSweep 420ms cubic-bezier(.2,.7,.2,1) both;
+  transform-origin: left center;
+  pointer-events: none;
+}
+@keyframes toolbarSweep {
+  from { opacity: .95; transform: scaleX(0); }
+  to { opacity: 0; transform: scaleX(1); }
+}
+.brandMark { transition: background-color 200ms ease, box-shadow 200ms ease, transform 200ms cubic-bezier(.2,.7,.2,1); }
+.toolbar:hover .brandMark, .toolbar:focus-within .brandMark {
+  background: color-mix(in srgb, var(--admin-accent) 18%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--admin-accent) 20%, transparent);
+  transform: scale(1.04);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.workspace {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-color: var(--admin-border) transparent;
+  scrollbar-width: thin;
+}
+
+.page {
+  width: 100%;
+  max-width: 76rem;
+  min-height: 100%;
+  margin-inline: auto;
+  padding: .75rem 1rem 1rem;
+}
+
+.screenSlide[data-slide="forward"] { animation: screenSlideForward 260ms ease-in-out both; }
+.screenSlide[data-slide="backward"] { animation: screenSlideBackward 260ms ease-in-out both; }
+@keyframes screenSlideForward {
+  from { opacity: .82; transform: translateX(clamp(3rem, 18vw, 5rem)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes screenSlideBackward {
+  from { opacity: .82; transform: translateX(clamp(-5rem, -18vw, -3rem)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar { display: none; }
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  width: 100%;
+  min-width: 0;
+  border-radius: .625rem;
+  padding: .625rem .75rem;
+  font-size: .75rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--admin-muted);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.navItem:hover { background: var(--admin-surface); color: var(--admin-text); }
+.navItem[aria-pressed="true"] { background: var(--admin-raised); color: var(--admin-accent); }
+.navItem svg { transition: transform 200ms cubic-bezier(.2,.7,.2,1); }
+.navItem:hover svg, .navItem[aria-pressed="true"] svg { transform: translateX(2px); }
+.navItem:active svg { transform: scale(.92); }
+
+.dock {
+  flex-shrink: 0;
+  width: 100%;
+  z-index: 30;
+  padding: .375rem calc(.75rem + env(safe-area-inset-right)) max(.5rem, env(safe-area-inset-bottom)) calc(.75rem + env(safe-area-inset-left));
+  background: var(--admin-bg);
+  box-shadow: 0 -18px 44px rgb(0 0 0 / .34);
+}
+:global(html[data-admin-keyboard]) .dock { display: none; }
+.newItem { background: var(--admin-raised); outline: 1px solid var(--admin-accent); border-radius: .5rem; }
+.dock nav {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .25rem;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding: .1875rem;
+  border: 1px solid var(--admin-border);
+  border-radius: .875rem;
+  background: color-mix(in srgb, var(--admin-raised) 95%, transparent);
+  backdrop-filter: blur(1rem);
+}
+.dockSelection {
+  position: absolute;
+  z-index: 0;
+  top: .1875rem;
+  bottom: .1875rem;
+  left: .1875rem;
+  width: calc((100% - 1.375rem) / 5);
+  border: 1px solid color-mix(in srgb, var(--admin-accent) 36%, var(--admin-border));
+  border-radius: .625rem;
+  background: var(--admin-field);
+  box-shadow: 0 .125rem .625rem color-mix(in srgb, var(--admin-accent) 14%, transparent);
+  transition: transform 340ms cubic-bezier(.2,.7,.2,1);
+  pointer-events: none;
+}
+.dock nav[data-active="1"] .dockSelection { transform: translateX(calc(100% + .25rem)); }
+.dock nav[data-active="2"] .dockSelection { transform: translateX(calc(200% + .5rem)); }
+.dock nav[data-active="3"] .dockSelection { transform: translateX(calc(300% + .75rem)); }
+.dock nav[data-active="4"] .dockSelection { transform: translateX(calc(400% + 1rem)); }
+.dockItem {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: .125rem;
+  padding: .1875rem .25rem;
+  border-radius: .625rem;
+  color: var(--admin-muted);
+  font-size: .625rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: color 200ms ease, background-color 200ms ease, transform 200ms cubic-bezier(.2,.7,.2,1);
+}
+.dockItem[aria-pressed="true"], .dockItem[aria-expanded="true"] {
+  color: var(--admin-accent-strong);
+  font-weight: 700;
+}
+.dockAction { color: var(--admin-accent); }
+.dockAction svg {
+  border-radius: 999px;
+  background: var(--admin-accent);
+  color: var(--admin-bg);
+  padding: .1875rem;
+}
+.dockItem svg { transition: transform 220ms cubic-bezier(.2,.7,.2,1); }
+.dockItem[aria-pressed="true"] svg, .dockItem[aria-expanded="true"] svg { transform: translateY(-1px) scale(1.08); }
+.dockItem:not([aria-pressed="true"]):hover svg { transform: translateY(-1px); }
+.dockItem:active svg { transform: scale(.92); }
+.dockItem:active { transform: scale(.95); }
+.moreItem { transition: background-color 200ms ease, color 200ms ease, transform 200ms cubic-bezier(.2,.7,.2,1); }
+.moreItem:hover { background: var(--admin-field); transform: translateY(-2px); }
+.moreItem:active { transform: scale(.98); }
+.moreItem[aria-pressed="true"] { color: var(--admin-accent); }
+.navItem:focus-visible, .dockItem:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
+
+.contentSelector {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-top: 1rem;
+  padding-block: .5rem;
+  background: var(--admin-bg);
+}
+
+.contentTabs {
+  display: flex;
+  gap: .25rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: .1875rem;
+  border-radius: .75rem;
+  background: var(--admin-surface);
+  scrollbar-width: none;
+  scroll-snap-type: inline proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.contentTabs::-webkit-scrollbar { display: none; }
+.contentTab {
+  flex: 0 0 auto;
+  min-height: 2rem;
+  scroll-snap-align: center;
+  border-radius: .5625rem;
+  padding-inline: .75rem;
+  color: var(--admin-muted);
+  font-size: .6875rem;
+  font-weight: 700;
+  transition: color 200ms ease, background-color 200ms ease, box-shadow 200ms ease, transform 200ms cubic-bezier(.2,.7,.2,1);
+}
+.contentTab:not([aria-selected="true"]):hover { color: var(--admin-text); transform: translateY(-1px); }
+.contentTab:active { transform: scale(.96); }
+.contentTab[aria-selected="true"] {
+  color: var(--admin-text);
+  background: var(--admin-field);
+  box-shadow: 0 2px 5px rgb(0 0 0 / .15);
+  transform: scale(1.02);
+}
+.contentTab:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
+
+.segmented {
+  display: inline-flex;
+  gap: .125rem;
+  padding: .1875rem;
+  border-radius: .625rem;
+  background: var(--admin-surface);
+}
+.bookingViewSwitch {
+  --active-translate: 0;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 10.5rem;
+}
+.bookingViewSwitch[data-view="calendar"] { --active-translate: calc(100% + .125rem); }
+.bookingViewSwitch[data-view="week"] { --active-translate: calc(200% + .25rem); }
+.bookingViewSwitch::before {
+  position: absolute;
+  top: .1875rem;
+  bottom: .1875rem;
+  left: .1875rem;
+  width: calc((100% - .625rem) / 3);
+  border-radius: .4375rem;
+  border: 1px solid color-mix(in srgb, var(--admin-accent) 48%, transparent);
+  background: color-mix(in srgb, var(--admin-accent) 20%, var(--admin-field));
+  box-shadow: inset 0 -2px 0 var(--admin-accent), 0 2px 8px color-mix(in srgb, var(--admin-accent) 18%, transparent);
+  content: "";
+  transform: translateX(var(--active-translate));
+  transition: transform 300ms cubic-bezier(.2,.7,.2,1);
+  pointer-events: none;
+}
+.segmented button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+  min-height: 1.75rem;
+  padding-inline: .75rem;
+  border-radius: .4375rem;
+  color: var(--admin-muted);
+  font-size: .6875rem;
+  font-weight: 600;
+  transition: background-color 200ms ease, color 200ms ease, transform 240ms cubic-bezier(.2,.7,.2,1);
+}
+.segmented button:hover { color: var(--admin-accent-strong); }
+.segmented button:not([aria-pressed="true"]):hover { background: var(--admin-raised); transform: translateY(-1px); }
+.segmented button:active { transform: scale(.95); }
+.segmented button[aria-pressed="true"] {
+  color: var(--admin-accent-strong);
+  background: var(--admin-field);
+  box-shadow: inset 0 -2px 0 var(--admin-accent), 0 2px 5px rgb(0 0 0 / .15);
+  transform: scale(1.025);
+}
+.bookingViewSwitch button { padding-inline: .25rem; }
+.bookingViewSwitch button[aria-pressed="true"] { background: transparent; box-shadow: none; }
+.segmented button[aria-pressed="true"]:active { transform: scale(.98); }
+.segmented button:focus-visible { outline: 2px solid var(--admin-accent); }
+
+.bookingToolbar {
+  margin-top: .875rem;
+}
+.bookingFilters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9.75rem;
+  gap: .375rem;
+}
+.bookingFilterControl:hover,
+.bookingSizeControl:hover {
+  background: var(--admin-field);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--admin-accent) 40%, transparent);
+}
+.bookingFilterControl[aria-expanded="true"],
+.bookingSizeControl[aria-expanded="true"] {
+  background: var(--admin-field);
+  box-shadow: inset 0 0 0 1px var(--admin-accent);
+}
+.bookingResultCount { display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap; }
+.bookingResultCount span {
+  width: .35rem;
+  height: .35rem;
+  border-radius: 50%;
+  background: var(--admin-accent);
+  box-shadow: 0 0 0 .18rem color-mix(in srgb, var(--admin-accent) 12%, transparent);
+}
+
+.bookingListControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .625rem;
+}
+.bookingListSummary {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  color: var(--admin-muted);
+  font-size: .62rem;
+  font-weight: 600;
+}
+.bookingSizeControl { min-width: 3.5rem; }
+.listPagination { min-width: 0; margin-left: auto; }
+.listPaginationBottom { margin: .625rem auto 0; }
+.listPaginationControls { display: flex; align-items: center; justify-content: center; gap: .1875rem; }
+.listPageButton {
+  display: grid;
+  width: 1.875rem;
+  min-height: 1.875rem;
+  place-items: center;
+  border: 1px solid var(--admin-border);
+  border-radius: .4375rem;
+  background: var(--admin-raised);
+  color: var(--admin-accent-strong);
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+.listPageButton:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: var(--admin-accent);
+  background: var(--admin-field);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--admin-accent) 22%, transparent);
+}
+.listPageButton:not(:disabled):active {
+  transform: scale(.87);
+  background: var(--admin-accent);
+  color: var(--admin-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 25%, transparent);
+}
+.listPageButton:disabled { cursor: not-allowed; opacity: .35; }
+.listPageButton:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 2px; }
+.listPageNumber {
+  min-width: 3.375rem;
+  text-align: center;
+  color: var(--admin-text);
+  font-size: .68rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.bookingCalendarButton, .bookingAgendaButton {
+  transition: background-color 160ms, border-color 160ms, transform 160ms;
+}
+.bookingCalendarButton:hover { transform: translateY(-1px); border-color: var(--admin-accent); }
+.bookingCalendarButton:active { transform: scale(.95); }
+.bookingAgendaButton { border-radius: .5rem; }
+.bookingAgendaButton:hover { transform: translateX(.125rem); background: var(--admin-field); }
+.booking {
+  --booking-radius: .875rem;
+  position: relative;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--admin-border) 65%, transparent);
+  border-radius: var(--booking-radius);
+  background: var(--admin-surface);
+  animation: bookingCardEnter 340ms cubic-bezier(.2,.7,.2,1) backwards;
+  transition: background-color 200ms ease, opacity 200ms ease, border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+.booking:hover { transform: translateY(-2px); border-color: var(--admin-border); background: var(--admin-raised); }
+.booking:focus-within { border-color: var(--admin-accent); }
+.booking[data-status="new"] { box-shadow: inset 3px 0 0 var(--admin-accent); }
+.booking[data-status="confirmed"] { box-shadow: inset 3px 0 0 var(--admin-confirmed); }
+.booking[data-status="completed"] { box-shadow: inset 3px 0 0 var(--admin-success); }
+.booking[data-status="no_show"] { box-shadow: inset 3px 0 0 var(--admin-danger); }
+.booking[data-status="cancelled"],
+.booking[data-status="guest_cancelled"] { box-shadow: inset 3px 0 0 var(--admin-danger); }
+.booking[data-cancelled="true"] { --booking-enter-opacity: .8; opacity: .8; }
+.booking[data-needs-cancellation-ack="true"] {
+  --booking-enter-opacity: 1;
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--admin-danger) 52%, transparent), inset 3px 0 0 var(--admin-danger);
+}
+
+.booking[data-pending-status], .bookingStatusEditor[data-pending-status] {
+  --booking-pending-color: var(--admin-accent);
+  --booking-pending-text: var(--admin-accent-strong);
+}
+.booking[data-pending-status] {
+  border-color: color-mix(in srgb, var(--booking-pending-color) 55%, transparent);
+}
+.booking[data-pending-status="confirmed"], .bookingStatusEditor[data-pending-status="confirmed"] {
+  --booking-pending-color: var(--admin-confirmed);
+  --booking-pending-text: var(--admin-confirmed-text);
+}
+.booking[data-pending-status="completed"], .bookingStatusEditor[data-pending-status="completed"] {
+  --booking-pending-color: var(--admin-success);
+  --booking-pending-text: var(--admin-success);
+}
+.booking[data-pending-status="no_show"],
+.booking[data-pending-status="cancelled"],
+.booking[data-pending-status="guest_cancelled"],
+.bookingStatusEditor[data-pending-status="no_show"],
+.bookingStatusEditor[data-pending-status="cancelled"],
+.bookingStatusEditor[data-pending-status="guest_cancelled"] {
+  --booking-pending-color: var(--admin-danger);
+  --booking-pending-text: var(--admin-danger);
+}
+.bookingPendingOutline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.bookingPendingOutline rect {
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  rx: calc(var(--booking-radius) - 1px);
+  fill: none;
+  stroke: var(--booking-pending-color);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-dasharray: 16 84;
+  animation: bookingPendingFlow 3s linear infinite;
+}
+.bookingPendingStatus {
+  flex: none;
+  color: var(--booking-pending-text);
+  font-size: .6rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.bookingStatusEditor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: .5rem;
+}
+.bookingStatusEditor[data-pending-status] { grid-template-columns: auto minmax(0, 1fr); }
+.booking[data-pending-status] .bookingStatusButton,
+.bookingStatusEditor[data-pending-status] button {
+  background: color-mix(in srgb, var(--booking-pending-color) 12%, var(--admin-raised));
+  color: var(--booking-pending-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--booking-pending-color) 45%, transparent);
+}
+@keyframes bookingPendingFlow { to { stroke-dashoffset: -100; } }
+
+.bookingStatusButton {
+  width: max-content;
+  min-width: 9rem;
+  white-space: nowrap;
+}
+
+@keyframes bookingCardEnter {
+  from { opacity: 0; transform: translateY(-1.35rem) scale(.975); }
+  to { opacity: var(--booking-enter-opacity, 1); transform: none; }
+}
+
+.monthDay {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1.15;
+  padding: .375rem;
+  border-radius: .625rem;
+  text-align: center;
+  color: var(--admin-text);
+  font-size: .75rem;
+  font-weight: 600;
+  transition: background-color 240ms ease, color 240ms ease, transform 240ms cubic-bezier(.2,.7,.2,1), box-shadow 240ms ease;
+}
+.monthDay:hover { transform: translateY(-1px); background: var(--admin-field); }
+.monthDay:active { transform: scale(.96); }
+.monthDay[data-today="true"] { box-shadow: inset 0 0 0 1px var(--admin-accent); }
+.monthDay[aria-pressed="true"] {
+  background: var(--admin-accent);
+  color: var(--admin-bg);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--admin-accent) 24%, transparent);
+  transform: scale(1.04);
+}
+.monthDay[aria-pressed="true"]:active { transform: scale(.98); }
+.monthDay[data-outside="true"] { opacity: .35; }
+.monthDay:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .booking, .screenSlide[data-slide], .toolbarActivity { animation: none; }
+  .bookingPendingOutline rect { animation: none; }
+  .brandMark, .navItem, .navItem svg, .dockSelection, .dockItem, .dockItem svg, .moreItem, .contentTab, .bookingViewSwitch::before, .booking, .listPageButton, .segmented button, .bookingCalendarButton, .bookingAgendaButton, .monthDay { transition: none; }
+  .toolbar:hover .brandMark, .toolbar:focus-within .brandMark, .navItem:hover svg, .navItem[aria-pressed="true"] svg, .navItem:active svg, .dockItem[aria-pressed="true"] svg, .dockItem[aria-expanded="true"] svg, .dockItem:not([aria-pressed="true"]):hover svg, .dockItem:active svg, .moreItem:hover, .moreItem:active, .contentTab:not([aria-selected="true"]):hover, .contentTab:active, .contentTab[aria-selected="true"] { transform: none; }
+  .booking:hover, .listPageButton:not(:disabled):hover, .listPageButton:not(:disabled):active, .segmented button:hover, .segmented button:active, .segmented button[aria-pressed="true"], .segmented button[aria-pressed="true"]:active, .bookingCalendarButton:hover, .bookingCalendarButton:active, .bookingAgendaButton:hover, .monthDay:hover, .monthDay:active, .monthDay[aria-pressed="true"], .monthDay[aria-pressed="true"]:active { transform: none; }
+}
+
+@media (min-width: 640px) {
+  .page { padding: 1.25rem 1.5rem 1.5rem; }
+  .toolbar { padding-inline: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .body { grid-template-columns: 12.5rem minmax(0, 1fr); }
+  .toolbar { padding: .625rem 1.5rem; }
+  .sidebar { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem .75rem 1.25rem; overflow-y: auto; }
+  .workspace { background: var(--admin-surface); border-radius: 1rem 0 0 0; }
+  .page { padding: 1.5rem 2rem 2rem; }
+  .contentSelector { background: var(--admin-surface); }
+  .booking { background: var(--admin-raised); }
+  .dock { display: none; }
+}
+
+
+/* Booking cards should stay denser than the surrounding controls in auto/normal/large modes. */
+:global(html:not([data-admin-size="compact"])) .bookingList {
+  gap: .45rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .booking {
+  --booking-radius: .8rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingMeta {
+  gap: .45rem;
+  padding: .48rem .75rem 0;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingStatus {
+  gap: .4rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingStatusButton {
+  min-height: 1.8rem;
+  padding-inline: .55rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingMain {
+  gap: .65rem;
+  padding: .3rem .75rem .65rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingTime {
+  width: 2.9rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingService {
+  margin-top: .15rem;
+  line-height: .9rem;
+}
+
+:global(html:not([data-admin-size="compact"])) .bookingNote,
+:global(html:not([data-admin-size="compact"])) .bookingAdminComment {
+  margin-top: .15rem;
+  line-height: .9rem;
+}
+
+/* Compact booking list: keep the approved roughly-seven-card density even if the rest of compact mode scales down. */
+:global(html[data-admin-size="compact"]) .bookingList {
+  gap: 5.25px;
+}
+
+:global(html[data-admin-size="compact"]) .booking {
+  --booking-radius: 10.5px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingMeta {
+  gap: 5.25px;
+  padding: 4.2px 8.75px 0;
+}
+
+:global(html[data-admin-size="compact"]) .bookingMeta > :first-child {
+  font-size: 8.12px;
+  line-height: 12.6px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingStatus {
+  gap: 4.2px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingStatusButton {
+  min-height: 23.1px;
+  padding-inline: 6.3px;
+  font-size: 8.96px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingMain {
+  gap: 6.3px;
+  padding: 2.8px 8.75px 6.3px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingTime {
+  width: 39.2px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingTimeStart {
+  font-size: 10.92px;
+  line-height: 12.6px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingTimeEnd {
+  margin-top: .7px;
+  font-size: 7.84px;
+  line-height: 10.5px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingNameRow {
+  gap: 4.2px;
+  font-size: 9.66px;
+  line-height: 12.6px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingService {
+  margin-top: .7px;
+  max-height: 20.3px;
+  overflow: hidden;
+  font-size: 8.12px;
+  line-height: 10.08px;
+}
+
+:global(html[data-admin-size="compact"]) .bookingNote,
+:global(html[data-admin-size="compact"]) .bookingAdminComment {
+  margin-top: .7px;
+  font-size: 7.84px;
+  line-height: 10.08px;
+}

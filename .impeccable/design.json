@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-10T21:19:05.373Z",
+  "generatedAt": "2026-10-29T01:27:16.498Z",
   "title": "Design System: LumiNails",
   "extensions": {
     "colorMeta": {
@@ -139,274 +139,484 @@
           "oklch(95% 0.0098 61.18 / 0.42)"
         ]
       },
+      "admin-light-canvas": {
+        "role": "neutral",
+        "displayName": "Admin világos vászon",
+        "canonical": "#f4f1e9",
+        "tonalRamp": [
+          "oklch(15% 0.0111 89.72)",
+          "oklch(26.43% 0.0111 89.72)",
+          "oklch(37.86% 0.0111 89.72)",
+          "oklch(49.29% 0.0111 89.72)",
+          "oklch(60.71% 0.0111 89.72)",
+          "oklch(72.14% 0.0111 89.72)",
+          "oklch(83.57% 0.0111 89.72)",
+          "oklch(95% 0.0111 89.72)"
+        ]
+      },
+      "admin-light-surface": {
+        "role": "neutral",
+        "displayName": "Admin világos felület",
+        "canonical": "#fffdf8",
+        "tonalRamp": [
+          "oklch(15% 0.0069 88.64)",
+          "oklch(26.43% 0.0069 88.64)",
+          "oklch(37.86% 0.0069 88.64)",
+          "oklch(49.29% 0.0069 88.64)",
+          "oklch(60.71% 0.0069 88.64)",
+          "oklch(72.14% 0.0069 88.64)",
+          "oklch(83.57% 0.0069 88.64)",
+          "oklch(95% 0.0069 88.64)"
+        ]
+      },
+      "admin-light-accent": {
+        "role": "primary",
+        "displayName": "Admin világos arany",
+        "canonical": "#87651f",
+        "tonalRamp": [
+          "oklch(15% 0.0953 81.52)",
+          "oklch(26.43% 0.0953 81.52)",
+          "oklch(37.86% 0.0953 81.52)",
+          "oklch(49.29% 0.0953 81.52)",
+          "oklch(60.71% 0.0953 81.52)",
+          "oklch(72.14% 0.0953 81.52)",
+          "oklch(83.57% 0.0953 81.52)",
+          "oklch(95% 0.0953 81.52)"
+        ]
+      },
+      "admin-light-accent-hover": {
+        "role": "primary",
+        "displayName": "Admin világos erős arany",
+        "canonical": "#6e4f13",
+        "tonalRamp": [
+          "oklch(15% 0.0842 79.25)",
+          "oklch(26.43% 0.0842 79.25)",
+          "oklch(37.86% 0.0842 79.25)",
+          "oklch(49.29% 0.0842 79.25)",
+          "oklch(60.71% 0.0842 79.25)",
+          "oklch(72.14% 0.0842 79.25)",
+          "oklch(83.57% 0.0842 79.25)",
+          "oklch(95% 0.0842 79.25)"
+        ]
+      },
+      "admin-light-soft": {
+        "role": "neutral",
+        "displayName": "Admin világos emelt tónus",
+        "canonical": "#eee9de",
+        "tonalRamp": [
+          "oklch(15% 0.0156 86.43)",
+          "oklch(26.43% 0.0156 86.43)",
+          "oklch(37.86% 0.0156 86.43)",
+          "oklch(49.29% 0.0156 86.43)",
+          "oklch(60.71% 0.0156 86.43)",
+          "oklch(72.14% 0.0156 86.43)",
+          "oklch(83.57% 0.0156 86.43)",
+          "oklch(95% 0.0156 86.43)"
+        ]
+      },
+      "admin-light-ink": {
+        "role": "neutral",
+        "displayName": "Admin világos szöveg",
+        "canonical": "#211e19",
+        "tonalRamp": [
+          "oklch(15% 0.0104 80.60)",
+          "oklch(26.43% 0.0104 80.60)",
+          "oklch(37.86% 0.0104 80.60)",
+          "oklch(49.29% 0.0104 80.60)",
+          "oklch(60.71% 0.0104 80.60)",
+          "oklch(72.14% 0.0104 80.60)",
+          "oklch(83.57% 0.0104 80.60)",
+          "oklch(95% 0.0104 80.60)"
+        ]
+      },
+      "admin-light-muted": {
+        "role": "neutral",
+        "displayName": "Admin világos másodlagos szöveg",
+        "canonical": "#6d665c",
+        "tonalRamp": [
+          "oklch(15% 0.0178 76.95)",
+          "oklch(26.43% 0.0178 76.95)",
+          "oklch(37.86% 0.0178 76.95)",
+          "oklch(49.29% 0.0178 76.95)",
+          "oklch(60.71% 0.0178 76.95)",
+          "oklch(72.14% 0.0178 76.95)",
+          "oklch(83.57% 0.0178 76.95)",
+          "oklch(95% 0.0178 76.95)"
+        ]
+      },
+      "admin-light-line": {
+        "role": "neutral",
+        "displayName": "Admin világos keret",
+        "canonical": "#cfc5b3",
+        "tonalRamp": [
+          "oklch(15% 0.0270 82.37)",
+          "oklch(26.43% 0.0270 82.37)",
+          "oklch(37.86% 0.0270 82.37)",
+          "oklch(49.29% 0.0270 82.37)",
+          "oklch(60.71% 0.0270 82.37)",
+          "oklch(72.14% 0.0270 82.37)",
+          "oklch(83.57% 0.0270 82.37)",
+          "oklch(95% 0.0270 82.37)"
+        ]
+      },
+      "admin-light-control": {
+        "role": "neutral",
+        "displayName": "Admin világos mező",
+        "canonical": "#e5ded1",
+        "tonalRamp": [
+          "oklch(15% 0.0191 83.06)",
+          "oklch(26.43% 0.0191 83.06)",
+          "oklch(37.86% 0.0191 83.06)",
+          "oklch(49.29% 0.0191 83.06)",
+          "oklch(60.71% 0.0191 83.06)",
+          "oklch(72.14% 0.0191 83.06)",
+          "oklch(83.57% 0.0191 83.06)",
+          "oklch(95% 0.0191 83.06)"
+        ]
+      },
+      "admin-dark-canvas": {
+        "role": "neutral",
+        "displayName": "Admin sötét vászon",
+        "canonical": "#0b0f16",
+        "tonalRamp": [
+          "oklch(15% 0.0161 261.49)",
+          "oklch(26.43% 0.0161 261.49)",
+          "oklch(37.86% 0.0161 261.49)",
+          "oklch(49.29% 0.0161 261.49)",
+          "oklch(60.71% 0.0161 261.49)",
+          "oklch(72.14% 0.0161 261.49)",
+          "oklch(83.57% 0.0161 261.49)",
+          "oklch(95% 0.0161 261.49)"
+        ]
+      },
       "admin-dark-surface": {
         "role": "neutral",
-        "displayName": "Dark mixed card surface",
-        "canonical": "color-mix(in srgb, #3e3935 90%, #f6f3ee)",
+        "displayName": "Admin sötét felület",
+        "canonical": "#131922",
         "tonalRamp": [
-          "oklch(15% 0.0093 63.12)",
-          "oklch(26.43% 0.0093 63.12)",
-          "oklch(37.86% 0.0093 63.12)",
-          "oklch(49.29% 0.0093 63.12)",
-          "oklch(60.71% 0.0093 63.12)",
-          "oklch(72.14% 0.0093 63.12)",
-          "oklch(83.57% 0.0093 63.12)",
-          "oklch(95% 0.0093 63.12)"
+          "oklch(15% 0.0201 258.34)",
+          "oklch(26.43% 0.0201 258.34)",
+          "oklch(37.86% 0.0201 258.34)",
+          "oklch(49.29% 0.0201 258.34)",
+          "oklch(60.71% 0.0201 258.34)",
+          "oklch(72.14% 0.0201 258.34)",
+          "oklch(83.57% 0.0201 258.34)",
+          "oklch(95% 0.0201 258.34)"
         ]
       },
       "admin-dark-soft": {
         "role": "neutral",
-        "displayName": "Dark mixed support surface",
-        "canonical": "color-mix(in srgb, #3e3935 84%, #f6f3ee)",
+        "displayName": "Admin sötét emelt tónus",
+        "canonical": "#1a222d",
         "tonalRamp": [
-          "oklch(15% 0.0090 64.28)",
-          "oklch(26.43% 0.0090 64.28)",
-          "oklch(37.86% 0.0090 64.28)",
-          "oklch(49.29% 0.0090 64.28)",
-          "oklch(60.71% 0.0090 64.28)",
-          "oklch(72.14% 0.0090 64.28)",
-          "oklch(83.57% 0.0090 64.28)",
-          "oklch(95% 0.0090 64.28)"
+          "oklch(15% 0.0240 256.44)",
+          "oklch(26.43% 0.0240 256.44)",
+          "oklch(37.86% 0.0240 256.44)",
+          "oklch(49.29% 0.0240 256.44)",
+          "oklch(60.71% 0.0240 256.44)",
+          "oklch(72.14% 0.0240 256.44)",
+          "oklch(83.57% 0.0240 256.44)",
+          "oklch(95% 0.0240 256.44)"
+        ]
+      },
+      "admin-dark-accent": {
+        "role": "primary",
+        "displayName": "Admin pezsgőszín",
+        "canonical": "#d6b567",
+        "tonalRamp": [
+          "oklch(15% 0.1045 87.04)",
+          "oklch(26.43% 0.1045 87.04)",
+          "oklch(37.86% 0.1045 87.04)",
+          "oklch(49.29% 0.1045 87.04)",
+          "oklch(60.71% 0.1045 87.04)",
+          "oklch(72.14% 0.1045 87.04)",
+          "oklch(83.57% 0.1045 87.04)",
+          "oklch(95% 0.1045 87.04)"
+        ]
+      },
+      "admin-dark-accent-hover": {
+        "role": "primary",
+        "displayName": "Admin erős pezsgőszín",
+        "canonical": "#efd58e",
+        "tonalRamp": [
+          "oklch(15% 0.0942 90.16)",
+          "oklch(26.43% 0.0942 90.16)",
+          "oklch(37.86% 0.0942 90.16)",
+          "oklch(49.29% 0.0942 90.16)",
+          "oklch(60.71% 0.0942 90.16)",
+          "oklch(72.14% 0.0942 90.16)",
+          "oklch(83.57% 0.0942 90.16)",
+          "oklch(95% 0.0942 90.16)"
+        ]
+      },
+      "admin-dark-ink": {
+        "role": "neutral",
+        "displayName": "Admin sötét szöveg",
+        "canonical": "#f5f2e9",
+        "tonalRamp": [
+          "oklch(15% 0.0124 91.52)",
+          "oklch(26.43% 0.0124 91.52)",
+          "oklch(37.86% 0.0124 91.52)",
+          "oklch(49.29% 0.0124 91.52)",
+          "oklch(60.71% 0.0124 91.52)",
+          "oklch(72.14% 0.0124 91.52)",
+          "oklch(83.57% 0.0124 91.52)",
+          "oklch(95% 0.0124 91.52)"
+        ]
+      },
+      "admin-dark-muted": {
+        "role": "neutral",
+        "displayName": "Admin sötét másodlagos szöveg",
+        "canonical": "#9ba5b4",
+        "tonalRamp": [
+          "oklch(15% 0.0246 258.37)",
+          "oklch(26.43% 0.0246 258.37)",
+          "oklch(37.86% 0.0246 258.37)",
+          "oklch(49.29% 0.0246 258.37)",
+          "oklch(60.71% 0.0246 258.37)",
+          "oklch(72.14% 0.0246 258.37)",
+          "oklch(83.57% 0.0246 258.37)",
+          "oklch(95% 0.0246 258.37)"
+        ]
+      },
+      "admin-dark-line": {
+        "role": "neutral",
+        "displayName": "Admin sötét keret",
+        "canonical": "#303c4c",
+        "tonalRamp": [
+          "oklch(15% 0.0323 255.73)",
+          "oklch(26.43% 0.0323 255.73)",
+          "oklch(37.86% 0.0323 255.73)",
+          "oklch(49.29% 0.0323 255.73)",
+          "oklch(60.71% 0.0323 255.73)",
+          "oklch(72.14% 0.0323 255.73)",
+          "oklch(83.57% 0.0323 255.73)",
+          "oklch(95% 0.0323 255.73)"
+        ]
+      },
+      "admin-dark-control": {
+        "role": "neutral",
+        "displayName": "Admin sötét mező",
+        "canonical": "#202a37",
+        "tonalRamp": [
+          "oklch(15% 0.0279 255.18)",
+          "oklch(26.43% 0.0279 255.18)",
+          "oklch(37.86% 0.0279 255.18)",
+          "oklch(49.29% 0.0279 255.18)",
+          "oklch(60.71% 0.0279 255.18)",
+          "oklch(72.14% 0.0279 255.18)",
+          "oklch(83.57% 0.0279 255.18)",
+          "oklch(95% 0.0279 255.18)"
+        ]
+      },
+      "admin-track": {
+        "role": "semantic",
+        "displayName": "Köröm sáv",
+        "canonical": "#795d8e",
+        "tonalRamp": [
+          "oklch(15% 0.0817 309.92)",
+          "oklch(26.43% 0.0817 309.92)",
+          "oklch(37.86% 0.0817 309.92)",
+          "oklch(49.29% 0.0817 309.92)",
+          "oklch(60.71% 0.0817 309.92)",
+          "oklch(72.14% 0.0817 309.92)",
+          "oklch(83.57% 0.0817 309.92)",
+          "oklch(95% 0.0817 309.92)"
+        ]
+      },
+      "admin-blocked": {
+        "role": "semantic",
+        "displayName": "Kézi foglalt idő",
+        "canonical": "#a45f28",
+        "tonalRamp": [
+          "oklch(15% 0.1129 55.79)",
+          "oklch(26.43% 0.1129 55.79)",
+          "oklch(37.86% 0.1129 55.79)",
+          "oklch(49.29% 0.1129 55.79)",
+          "oklch(60.71% 0.1129 55.79)",
+          "oklch(72.14% 0.1129 55.79)",
+          "oklch(83.57% 0.1129 55.79)",
+          "oklch(95% 0.1129 55.79)"
+        ]
+      },
+      "admin-confirmed": {
+        "role": "semantic",
+        "displayName": "Megerősített állapot",
+        "canonical": "#3569b7",
+        "tonalRamp": [
+          "oklch(15% 0.1352 258.43)",
+          "oklch(26.43% 0.1352 258.43)",
+          "oklch(37.86% 0.1352 258.43)",
+          "oklch(49.29% 0.1352 258.43)",
+          "oklch(60.71% 0.1352 258.43)",
+          "oklch(72.14% 0.1352 258.43)",
+          "oklch(83.57% 0.1352 258.43)",
+          "oklch(95% 0.1352 258.43)"
+        ]
+      },
+      "admin-confirmed-text": {
+        "role": "semantic",
+        "displayName": "Megerősített felirat",
+        "canonical": "#285493",
+        "tonalRamp": [
+          "oklch(15% 0.1144 257.70)",
+          "oklch(26.43% 0.1144 257.70)",
+          "oklch(37.86% 0.1144 257.70)",
+          "oklch(49.29% 0.1144 257.70)",
+          "oklch(60.71% 0.1144 257.70)",
+          "oklch(72.14% 0.1144 257.70)",
+          "oklch(83.57% 0.1144 257.70)",
+          "oklch(95% 0.1144 257.70)"
+        ]
+      },
+      "admin-dark-track": {
+        "role": "semantic",
+        "displayName": "Köröm sáv sötét témában",
+        "canonical": "#c3a5d8",
+        "tonalRamp": [
+          "oklch(15% 0.0785 311.10)",
+          "oklch(26.43% 0.0785 311.10)",
+          "oklch(37.86% 0.0785 311.10)",
+          "oklch(49.29% 0.0785 311.10)",
+          "oklch(60.71% 0.0785 311.10)",
+          "oklch(72.14% 0.0785 311.10)",
+          "oklch(83.57% 0.0785 311.10)",
+          "oklch(95% 0.0785 311.10)"
+        ]
+      },
+      "admin-dark-blocked": {
+        "role": "semantic",
+        "displayName": "Kézi foglalt idő sötét témában",
+        "canonical": "#e39a55",
+        "tonalRamp": [
+          "oklch(15% 0.1222 62.43)",
+          "oklch(26.43% 0.1222 62.43)",
+          "oklch(37.86% 0.1222 62.43)",
+          "oklch(49.29% 0.1222 62.43)",
+          "oklch(60.71% 0.1222 62.43)",
+          "oklch(72.14% 0.1222 62.43)",
+          "oklch(83.57% 0.1222 62.43)",
+          "oklch(95% 0.1222 62.43)"
+        ]
+      },
+      "admin-dark-confirmed": {
+        "role": "semantic",
+        "displayName": "Megerősített állapot sötét témában",
+        "canonical": "#7aa7ff",
+        "tonalRamp": [
+          "oklch(15% 0.1374 262.86)",
+          "oklch(26.43% 0.1374 262.86)",
+          "oklch(37.86% 0.1374 262.86)",
+          "oklch(49.29% 0.1374 262.86)",
+          "oklch(60.71% 0.1374 262.86)",
+          "oklch(72.14% 0.1374 262.86)",
+          "oklch(83.57% 0.1374 262.86)",
+          "oklch(95% 0.1374 262.86)"
+        ]
+      },
+      "admin-dark-confirmed-text": {
+        "role": "semantic",
+        "displayName": "Megerősített felirat sötét témában",
+        "canonical": "#a8c7ff",
+        "tonalRamp": [
+          "oklch(15% 0.0861 262.06)",
+          "oklch(26.43% 0.0861 262.06)",
+          "oklch(37.86% 0.0861 262.06)",
+          "oklch(49.29% 0.0861 262.06)",
+          "oklch(60.71% 0.0861 262.06)",
+          "oklch(72.14% 0.0861 262.06)",
+          "oklch(83.57% 0.0861 262.06)",
+          "oklch(95% 0.0861 262.06)"
         ]
       },
       "admin-success": {
         "role": "semantic",
-        "displayName": "Admin Success",
-        "canonical": "#446f58",
+        "displayName": "Teljesített állapot",
+        "canonical": "#227a5c",
         "tonalRamp": [
-          "oklch(15% 0.0608 159.80)",
-          "oklch(26.43% 0.0608 159.80)",
-          "oklch(37.86% 0.0608 159.80)",
-          "oklch(49.29% 0.0608 159.80)",
-          "oklch(60.71% 0.0608 159.80)",
-          "oklch(72.14% 0.0608 159.80)",
-          "oklch(83.57% 0.0608 159.80)",
-          "oklch(95% 0.0608 159.80)"
-        ]
-      },
-      "admin-success-soft": {
-        "role": "semantic",
-        "displayName": "Admin Success Soft",
-        "canonical": "#e8f1eb",
-        "tonalRamp": [
-          "oklch(15% 0.0124 157.00)",
-          "oklch(26.43% 0.0124 157.00)",
-          "oklch(37.86% 0.0124 157.00)",
-          "oklch(49.29% 0.0124 157.00)",
-          "oklch(60.71% 0.0124 157.00)",
-          "oklch(72.14% 0.0124 157.00)",
-          "oklch(83.57% 0.0124 157.00)",
-          "oklch(95% 0.0124 157.00)"
-        ]
-      },
-      "admin-warning": {
-        "role": "semantic",
-        "displayName": "Admin Warning",
-        "canonical": "#916329",
-        "tonalRamp": [
-          "oklch(15% 0.0945 69.39)",
-          "oklch(26.43% 0.0945 69.39)",
-          "oklch(37.86% 0.0945 69.39)",
-          "oklch(49.29% 0.0945 69.39)",
-          "oklch(60.71% 0.0945 69.39)",
-          "oklch(72.14% 0.0945 69.39)",
-          "oklch(83.57% 0.0945 69.39)",
-          "oklch(95% 0.0945 69.39)"
-        ]
-      },
-      "admin-warning-soft": {
-        "role": "semantic",
-        "displayName": "Admin Warning Soft",
-        "canonical": "#f8edd9",
-        "tonalRamp": [
-          "oklch(15% 0.0290 82.60)",
-          "oklch(26.43% 0.0290 82.60)",
-          "oklch(37.86% 0.0290 82.60)",
-          "oklch(49.29% 0.0290 82.60)",
-          "oklch(60.71% 0.0290 82.60)",
-          "oklch(72.14% 0.0290 82.60)",
-          "oklch(83.57% 0.0290 82.60)",
-          "oklch(95% 0.0290 82.60)"
+          "oklch(15% 0.0952 165.88)",
+          "oklch(26.43% 0.0952 165.88)",
+          "oklch(37.86% 0.0952 165.88)",
+          "oklch(49.29% 0.0952 165.88)",
+          "oklch(60.71% 0.0952 165.88)",
+          "oklch(72.14% 0.0952 165.88)",
+          "oklch(83.57% 0.0952 165.88)",
+          "oklch(95% 0.0952 165.88)"
         ]
       },
       "admin-danger": {
         "role": "semantic",
-        "displayName": "Admin Danger",
-        "canonical": "#9c4d50",
+        "displayName": "Lemondás vagy hiba",
+        "canonical": "#b23f4a",
         "tonalRamp": [
-          "oklch(15% 0.1054 19.06)",
-          "oklch(26.43% 0.1054 19.06)",
-          "oklch(37.86% 0.1054 19.06)",
-          "oklch(49.29% 0.1054 19.06)",
-          "oklch(60.71% 0.1054 19.06)",
-          "oklch(72.14% 0.1054 19.06)",
-          "oklch(83.57% 0.1054 19.06)",
-          "oklch(95% 0.1054 19.06)"
-        ]
-      },
-      "admin-danger-soft": {
-        "role": "semantic",
-        "displayName": "Admin Danger Soft",
-        "canonical": "#f7e7e7",
-        "tonalRamp": [
-          "oklch(15% 0.0175 17.47)",
-          "oklch(26.43% 0.0175 17.47)",
-          "oklch(37.86% 0.0175 17.47)",
-          "oklch(49.29% 0.0175 17.47)",
-          "oklch(60.71% 0.0175 17.47)",
-          "oklch(72.14% 0.0175 17.47)",
-          "oklch(83.57% 0.0175 17.47)",
-          "oklch(95% 0.0175 17.47)"
-        ]
-      },
-      "admin-info": {
-        "role": "semantic",
-        "displayName": "Admin Info",
-        "canonical": "#4e667b",
-        "tonalRamp": [
-          "oklch(15% 0.0442 245.26)",
-          "oklch(26.43% 0.0442 245.26)",
-          "oklch(37.86% 0.0442 245.26)",
-          "oklch(49.29% 0.0442 245.26)",
-          "oklch(60.71% 0.0442 245.26)",
-          "oklch(72.14% 0.0442 245.26)",
-          "oklch(83.57% 0.0442 245.26)",
-          "oklch(95% 0.0442 245.26)"
-        ]
-      },
-      "admin-info-soft": {
-        "role": "semantic",
-        "displayName": "Admin Info Soft",
-        "canonical": "#e9eff4",
-        "tonalRamp": [
-          "oklch(15% 0.0093 242.84)",
-          "oklch(26.43% 0.0093 242.84)",
-          "oklch(37.86% 0.0093 242.84)",
-          "oklch(49.29% 0.0093 242.84)",
-          "oklch(60.71% 0.0093 242.84)",
-          "oklch(72.14% 0.0093 242.84)",
-          "oklch(83.57% 0.0093 242.84)",
-          "oklch(95% 0.0093 242.84)"
+          "oklch(15% 0.1492 18.24)",
+          "oklch(26.43% 0.1492 18.24)",
+          "oklch(37.86% 0.1492 18.24)",
+          "oklch(49.29% 0.1492 18.24)",
+          "oklch(60.71% 0.1492 18.24)",
+          "oklch(72.14% 0.1492 18.24)",
+          "oklch(83.57% 0.1492 18.24)",
+          "oklch(95% 0.1492 18.24)"
         ]
       },
       "admin-dark-success": {
         "role": "semantic",
-        "displayName": "Admin Dark Success",
-        "canonical": "#8fb99c",
+        "displayName": "Teljesített állapot sötét témában",
+        "canonical": "#55d6a7",
         "tonalRamp": [
-          "oklch(15% 0.0613 154.55)",
-          "oklch(26.43% 0.0613 154.55)",
-          "oklch(37.86% 0.0613 154.55)",
-          "oklch(49.29% 0.0613 154.55)",
-          "oklch(60.71% 0.0613 154.55)",
-          "oklch(72.14% 0.0613 154.55)",
-          "oklch(83.57% 0.0613 154.55)",
-          "oklch(95% 0.0613 154.55)"
-        ]
-      },
-      "admin-dark-success-soft": {
-        "role": "semantic",
-        "displayName": "Admin Dark Success Soft",
-        "canonical": "#2f4437",
-        "tonalRamp": [
-          "oklch(15% 0.0347 157.03)",
-          "oklch(26.43% 0.0347 157.03)",
-          "oklch(37.86% 0.0347 157.03)",
-          "oklch(49.29% 0.0347 157.03)",
-          "oklch(60.71% 0.0347 157.03)",
-          "oklch(72.14% 0.0347 157.03)",
-          "oklch(83.57% 0.0347 157.03)",
-          "oklch(95% 0.0347 157.03)"
-        ]
-      },
-      "admin-dark-warning": {
-        "role": "semantic",
-        "displayName": "Admin Dark Warning",
-        "canonical": "#d6aa72",
-        "tonalRamp": [
-          "oklch(15% 0.0892 72.55)",
-          "oklch(26.43% 0.0892 72.55)",
-          "oklch(37.86% 0.0892 72.55)",
-          "oklch(49.29% 0.0892 72.55)",
-          "oklch(60.71% 0.0892 72.55)",
-          "oklch(72.14% 0.0892 72.55)",
-          "oklch(83.57% 0.0892 72.55)",
-          "oklch(95% 0.0892 72.55)"
-        ]
-      },
-      "admin-dark-warning-soft": {
-        "role": "semantic",
-        "displayName": "Admin Dark Warning Soft",
-        "canonical": "#4a3c2c",
-        "tonalRamp": [
-          "oklch(15% 0.0325 70.28)",
-          "oklch(26.43% 0.0325 70.28)",
-          "oklch(37.86% 0.0325 70.28)",
-          "oklch(49.29% 0.0325 70.28)",
-          "oklch(60.71% 0.0325 70.28)",
-          "oklch(72.14% 0.0325 70.28)",
-          "oklch(83.57% 0.0325 70.28)",
-          "oklch(95% 0.0325 70.28)"
+          "oklch(15% 0.1332 165.78)",
+          "oklch(26.43% 0.1332 165.78)",
+          "oklch(37.86% 0.1332 165.78)",
+          "oklch(49.29% 0.1332 165.78)",
+          "oklch(60.71% 0.1332 165.78)",
+          "oklch(72.14% 0.1332 165.78)",
+          "oklch(83.57% 0.1332 165.78)",
+          "oklch(95% 0.1332 165.78)"
         ]
       },
       "admin-dark-danger": {
         "role": "semantic",
-        "displayName": "Admin Dark Danger",
-        "canonical": "#e29aa1",
+        "displayName": "Lemondás vagy hiba sötét témában",
+        "canonical": "#ff858c",
         "tonalRamp": [
-          "oklch(15% 0.0868 12.94)",
-          "oklch(26.43% 0.0868 12.94)",
-          "oklch(37.86% 0.0868 12.94)",
-          "oklch(49.29% 0.0868 12.94)",
-          "oklch(60.71% 0.0868 12.94)",
-          "oklch(72.14% 0.0868 12.94)",
-          "oklch(83.57% 0.0868 12.94)",
-          "oklch(95% 0.0868 12.94)"
+          "oklch(15% 0.1482 17.67)",
+          "oklch(26.43% 0.1482 17.67)",
+          "oklch(37.86% 0.1482 17.67)",
+          "oklch(49.29% 0.1482 17.67)",
+          "oklch(60.71% 0.1482 17.67)",
+          "oklch(72.14% 0.1482 17.67)",
+          "oklch(83.57% 0.1482 17.67)",
+          "oklch(95% 0.1482 17.67)"
         ]
       },
-      "admin-dark-danger-soft": {
-        "role": "semantic",
-        "displayName": "Admin Dark Danger Soft",
-        "canonical": "#503438",
+      "admin-weekend": {
+        "role": "neutral",
+        "displayName": "Világos hétvégejelölés",
+        "canonical": "#d9d1c3",
         "tonalRamp": [
-          "oklch(15% 0.0409 9.92)",
-          "oklch(26.43% 0.0409 9.92)",
-          "oklch(37.86% 0.0409 9.92)",
-          "oklch(49.29% 0.0409 9.92)",
-          "oklch(60.71% 0.0409 9.92)",
-          "oklch(72.14% 0.0409 9.92)",
-          "oklch(83.57% 0.0409 9.92)",
-          "oklch(95% 0.0409 9.92)"
+          "oklch(15% 0.0210 81.78)",
+          "oklch(26.43% 0.0210 81.78)",
+          "oklch(37.86% 0.0210 81.78)",
+          "oklch(49.29% 0.0210 81.78)",
+          "oklch(60.71% 0.0210 81.78)",
+          "oklch(72.14% 0.0210 81.78)",
+          "oklch(83.57% 0.0210 81.78)",
+          "oklch(95% 0.0210 81.78)"
         ]
       },
-      "admin-dark-info": {
-        "role": "semantic",
-        "displayName": "Admin Dark Info",
-        "canonical": "#9db9cc",
+      "admin-dark-weekend": {
+        "role": "neutral",
+        "displayName": "Sötét hétvégejelölés",
+        "canonical": "#18222f",
         "tonalRamp": [
-          "oklch(15% 0.0410 237.76)",
-          "oklch(26.43% 0.0410 237.76)",
-          "oklch(37.86% 0.0410 237.76)",
-          "oklch(49.29% 0.0410 237.76)",
-          "oklch(60.71% 0.0410 237.76)",
-          "oklch(72.14% 0.0410 237.76)",
-          "oklch(83.57% 0.0410 237.76)",
-          "oklch(95% 0.0410 237.76)"
-        ]
-      },
-      "admin-dark-info-soft": {
-        "role": "semantic",
-        "displayName": "Admin Dark Info Soft",
-        "canonical": "#324550",
-        "tonalRamp": [
-          "oklch(15% 0.0305 234.02)",
-          "oklch(26.43% 0.0305 234.02)",
-          "oklch(37.86% 0.0305 234.02)",
-          "oklch(49.29% 0.0305 234.02)",
-          "oklch(60.71% 0.0305 234.02)",
-          "oklch(72.14% 0.0305 234.02)",
-          "oklch(83.57% 0.0305 234.02)",
-          "oklch(95% 0.0305 234.02)"
+          "oklch(15% 0.0287 255.23)",
+          "oklch(26.43% 0.0287 255.23)",
+          "oklch(37.86% 0.0287 255.23)",
+          "oklch(49.29% 0.0287 255.23)",
+          "oklch(60.71% 0.0287 255.23)",
+          "oklch(72.14% 0.0287 255.23)",
+          "oklch(83.57% 0.0287 255.23)",
+          "oklch(95% 0.0287 255.23)"
         ]
       }
     },
@@ -443,17 +653,57 @@
         "displayName": "Studio Selector Mobile",
         "purpose": "The three phone homepage view controls only."
       },
-      "admin-heading": {
-        "displayName": "Admin Heading",
-        "purpose": "Operational page headings; 24px at 640px and below."
-      },
-      "admin-body": {
-        "displayName": "Admin Body",
-        "purpose": "Workspace content and task scanning."
-      },
       "wordmark": {
         "displayName": "Wordmark",
         "purpose": "Existing serif identity; header, footer and admin retain local variants."
+      },
+      "admin-heading": {
+        "displayName": "Admin lapcím",
+        "purpose": "700-as Manrope, 640px-től 1.25rem."
+      },
+      "admin-heading-mobile": {
+        "displayName": "Admin telefonos lapcím",
+        "purpose": "700-as Manrope, 1.125rem."
+      },
+      "admin-body": {
+        "displayName": "Admin felületalap",
+        "purpose": "A forrás 0.875rem alapja; a gyökér rem-mérete követi a mentett méretmódot."
+      },
+      "admin-control-label": {
+        "displayName": "Admin kompakt mező",
+        "purpose": "A közös mező 0.75rem/500 szerepe, 1.5 sorközzel."
+      },
+      "admin-native-input": {
+        "displayName": "Admin érintési időmező",
+        "purpose": "A közvetlenül látható natív mező max(16px, 1rem); nincs alatta külön hamis értékfelirat."
+      },
+      "admin-caption": {
+        "displayName": "Admin másodlagos felirat",
+        "purpose": "Visszatérő 0.68rem kísérőszöveg; a sűrű naptári helyi méretek nem globális szerepek."
+      },
+      "admin-navigation": {
+        "displayName": "Admin navigáció",
+        "purpose": "0.75rem/600 oldalsávfelirat."
+      },
+      "admin-content-tab": {
+        "displayName": "Admin tartalomfül",
+        "purpose": "A CSS-modul 0.6875rem/700 fülszerepe."
+      },
+      "admin-status": {
+        "displayName": "Admin passzív állapot",
+        "purpose": "0.6rem/600 felirat a szemantikus címkén; nem interaktív állapotválasztó."
+      },
+      "admin-action": {
+        "displayName": "Admin elsődleges művelet",
+        "purpose": "0.75rem/700 elsődleges gombfelirat."
+      },
+      "admin-secondary-action": {
+        "displayName": "Admin másodlagos művelet",
+        "purpose": "0.75rem/600 másodlagos gombfelirat."
+      },
+      "admin-choice-label": {
+        "displayName": "Admin választófelirat",
+        "purpose": "A React választógomb 0.75rem/600 szerepe, 1.5 sorközzel."
       }
     },
     "shadows": [
@@ -465,32 +715,12 @@
       {
         "name": "flat-shared",
         "value": "none",
-        "purpose": "Public button/soft surface and light workspace shadows."
+        "purpose": "Public button and soft-surface shadows; current admin flat surfaces are described separately."
       },
       {
         "name": "public-control-focus",
         "value": "0 0 0 3px rgba(62, 57, 53, 0.25)",
         "purpose": "Shared light field focus feedback."
-      },
-      {
-        "name": "admin-dark-control-focus",
-        "value": "0 0 0 3px rgba(226, 217, 208, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
-        "purpose": "Existing dark control focus treatment."
-      },
-      {
-        "name": "admin-dark-soft",
-        "value": "0 14px 34px rgba(0, 0, 0, 0.28)",
-        "purpose": "Foundation dark utility/field grouping exception."
-      },
-      {
-        "name": "admin-dark-workspace",
-        "value": "0 10px 30px rgba(0, 0, 0, 0.24)",
-        "purpose": "Existing dark workspace cards."
-      },
-      {
-        "name": "admin-compact-action",
-        "value": "0 1px 2px rgba(48, 30, 26, 0.04)",
-        "purpose": "Existing compact operational button detail."
       },
       {
         "name": "account-selected-tab",
@@ -506,6 +736,36 @@
         "name": "gallery-lightbox",
         "value": "0 24px 70px rgba(0, 0, 0, 0.38)",
         "purpose": "Image inside the gallery overlay."
+      },
+      {
+        "name": "admin-booking-state-edge",
+        "value": "inset 3px 0 0 var(--admin-confirmed)",
+        "purpose": "Megerősített kártya belső állapotéle; az állapot határozza meg a tényleges színt."
+      },
+      {
+        "name": "admin-button-hover",
+        "value": "0 3px 10px rgb(0 0 0 / .16)",
+        "purpose": "A másodlagos gomb forrásbeli hover visszajelzése."
+      },
+      {
+        "name": "admin-field-focus",
+        "value": "0 0 0 2px color-mix(in srgb, var(--admin-accent) 12%, transparent)",
+        "purpose": "A közös mező fókusza külön outline mellett."
+      },
+      {
+        "name": "admin-select-menu",
+        "value": "0 8px 32px rgb(0 0 0 / .4)",
+        "purpose": "A React választó saját lebegő menüje."
+      },
+      {
+        "name": "admin-editor-sheet",
+        "value": "0 -16px 64px rgb(0 0 0 / .35)",
+        "purpose": "A közös React-panelszerkesztő funkcionális mélysége."
+      },
+      {
+        "name": "admin-mobile-dock",
+        "value": "0 -18px 44px rgb(0 0 0 / .34)",
+        "purpose": "A mobil navigáció felső árnyéka."
       }
     ],
     "motion": [
@@ -525,19 +785,39 @@
         "purpose": "Color changes without positional lift."
       },
       {
-        "name": "admin-state",
-        "value": "160ms ease",
-        "purpose": "Operational color and selected-state feedback."
-      },
-      {
-        "name": "admin-drawer",
-        "value": "190ms ease",
-        "purpose": "Sidebar and backdrop transition."
-      },
-      {
         "name": "reduced-motion",
         "value": "none / 0.01ms",
         "purpose": "Studio reveal disabled; admin animation/transition duration minimized."
+      },
+      {
+        "name": "admin-state",
+        "value": "200ms ease-out",
+        "purpose": "A közös primitívek szín-, árnyék- és állapot-visszajelzése."
+      },
+      {
+        "name": "admin-screen-entry",
+        "value": "260ms ease-in-out",
+        "purpose": "Előre/hátra képernyőváltás."
+      },
+      {
+        "name": "admin-booking-entry",
+        "value": "340ms cubic-bezier(.2,.7,.2,1)",
+        "purpose": "A forrás foglaláskártyájának belépése."
+      },
+      {
+        "name": "admin-sheet-enter",
+        "value": "270ms cubic-bezier(.2,.7,.2,1)",
+        "purpose": "Alulról belépő panel telefonon és jobb oldalra igazítva is."
+      },
+      {
+        "name": "admin-sheet-close",
+        "value": "220ms cubic-bezier(.4,0,1,1)",
+        "purpose": "A dialog forrásbeli záróanimációja."
+      },
+      {
+        "name": "admin-reduced-motion",
+        "value": "none",
+        "purpose": "A forrásban megnevezett animációk, transitionök és elmozdulások kikapcsolása."
       }
     ],
     "breakpoints": [
@@ -554,12 +834,24 @@
         "value": "900px"
       },
       {
-        "name": "admin-drawer",
-        "value": "900px"
-      },
-      {
         "name": "gallery-and-admin-small",
         "value": "640px"
+      },
+      {
+        "name": "admin-wide-sheet-and-page-insets",
+        "value": "640px"
+      },
+      {
+        "name": "admin-sidebar",
+        "value": "1024px"
+      },
+      {
+        "name": "admin-phone-week-and-sheet-swipe",
+        "value": "639px"
+      },
+      {
+        "name": "admin-auto-short-height",
+        "value": "650px (max-height)"
       }
     ],
     "tonalRampPolicy": "All eight-step ramps are synthesized OKLCH preview metadata, dark to light at the extracted hue/chroma; alpha is retained for alpha tokens. They are not implemented palette tokens or permission to extend the five pinned brand colors.",
@@ -591,6 +883,53 @@
       "verification": "Twenty distinct targeted browser cases eventually passed; build/static/CSS checks passed. No full suite, Lighthouse, physical iPhone/Safari, or installed iOS PWA certification.",
       "fontMatch": "Reddit Sans Condensed 300 is an estimated comp match, limited to the three homepage selectors.",
       "thumbnailProvenance": "Embedded unchanged bytes from galeria/optimized/thumbs/image8.jpg."
+    },
+    "adminSnapshot": {
+      "scope": "2026-10-29-i helyi TEST-állapot. Tényleges referencia-React és CSS-modulok; a korábbi natív DOM-os közelítés adminadatait felváltja. A publikus szabályok változatlanok.",
+      "authority": "D:/Asztal/Szalon/Szalon-teszt/src tényleges forrása; docs/admin-studio-direction.md.",
+      "sourceManifest": "src/admin-reference/reference-source.json: 46 pár, 36 bájtpontosan átvett, 10 illesztett; a foglaláskártya JSX-e változatlan.",
+      "sources": [
+        "src/admin-reference/styles.css",
+        "src/admin-reference/components/admin-studio.module.css",
+        "src/admin-reference/components/admin-ui.tsx",
+        "src/admin-reference/components/admin-overlays.module.css",
+        "src/admin-reference/app/admin/viewport.module.css",
+        "src/admin-reference/studio.tsx",
+        "src/admin/35-reference-backend.js"
+      ],
+      "architecture": "React 19 statikus esbuild/Tailwind 4 böngészőcsomag; Next.js-szerver nélkül. Egyetlen aktív admin-CSS: admin-reference.css. A régi admin-v2.css és natív UI megmaradt, de inaktív.",
+      "density": {
+        "default": "auto",
+        "compact": "13.5px root",
+        "normal": "15.5px root",
+        "large": "17px root",
+        "auto": "clamp(14.5px, calc(13.95px + 0.14vw), 16.5px)",
+        "autoAtMaxHeight650": "clamp(14px, calc(13.55px + 0.11vw), 15.5px)",
+        "policy": "Rem-alapú forrásméretek, külön Kompakt kártyaág; nincs admin-scale szorzó vagy kényszerített Kompakt első látogatáskor. A mentett választás megmarad."
+      },
+      "layout": "3.25rem alapminimumú fejléc, 76rem lapmaximum, 12.5rem oldalsáv 1024px-től; alatta ötelemű dokk. Belső munkatérgörgetés és átvett viewport/fókusz bridge.",
+      "controls": "Saját React választógomb és menü. Közvetlen natív dátum/idő input; touch módban legalább 44px és max(16px, 1rem).",
+      "saveBoundaries": "Helyi piszkozatok a megfelelő Mentésig. A fizetett összeg támogatott megerősített online/kézi rekordnál blur/Enter mentéssel teljesítettre vált a meglévő tranzakciós RPC-ben. Más mentetlen foglalásmező mellett teljes mentésre vár. CMS-mentés és közzététel külön állapot.",
+      "calendar": "Egyetlen Köröm sáv. Telefonon napsorok és vízszintes óratengely, asztalon naposzlopok. Húzáskor időtartam és korábbi üzenetpiszkozat megmarad, csak a Mentés ír. Beosztás konkrét dátumokra. A beosztás havi naptárból nyíló napi/közös szerkesztőpanelt és külön idősávlistát használ; eredeti dátumos mentéssel.",
+      "data": "Meglévő saját Supabase RLS/RPC/auth/CMS/publication/Storage/nyugtázás. Nincs új staff/training/bulk-mail/no-show/privát emlékeztető-/megjegyzéstábla/atomi csere. A kézi blocked_times nem tárol emailt/telefont/több szolgáltatást. A referencia üzleti adatai, képei és környezete nem kerültek át.",
+      "evidence": [
+        "local-backups/admin-reference/finish-review-packet.json",
+        "local-backups/admin-reference/final-verification.json",
+        "local-backups/admin-reference/finish-full-review.md",
+        "local-backups/admin-reference/finish-verdict.md",
+        "local-backups/admin-reference/current-phone.png",
+        "local-backups/admin-reference/current-desktop.png",
+        "docs/admin-reference-files.md",
+        "local-backups/admin-reference/mobile-full-review.md",
+        "local-backups/admin-reference/mobile-full-verdict.md",
+        "local-backups/admin-reference/mobile-full-verification.json",
+        "local-backups/admin-reference/mobile-audit-captures.json",
+        "docs/admin-full-review.md"
+      ],
+      "verification": "A végleges, kizárólag adminra szűkített csomag 33/33 esete sikeres, 50.6 másodperc alatt. Az új regressziók a mai közelgő időpontot, a vendég-swipe-ot, a rövidülő vendég-/naplólistát és a LAN-os másolás sikeres/sikertelen ágát is ellenőrzik. WebKit, szintetikus Supabase-határ, blokkolt valódi Supabase HTTP. build:check, lint:css és git diff --check sikeres. 62 képi bizonyíték. Teljes publikus teszt és valódi iPhone-hardveres/billentyűzetes minősítés nem történt. A korábbi check-site20publikus verziójelzését nem futtattuk újra.",
+      "finish": "A teljes, 11 adminlapot és mobilműködést a tényleges Szalon-forrással összevető mobile-full-review öt hibáját javítottuk; ugyanazon reviewer mobile-full-verdict eredménye mind az öt javításra ship. Nem teljes hibamentességi vagy valódi készülékes minősítés. E dokumentálás nem futtatott új auditot vagy tesztet.",
+      "notCanonized": "A Kompakt foglaláskártyák apró részletméretei és naptári koordinátái komponenslokális forrásszabályok; nem általános törzsszövegtokenek. A nem támogatott no_show/sáv CSS nem új üzleti funkció.",
+      "release": "Éles projekt/site/adatbázis/valódi tartalom változatlan; nincs commit, push, deploy, migráció vagy távoli írás. A standalone PWA nagyítása tiltott. Új kiadott raszteres képi elem nem készült."
     }
   },
   "components": [
@@ -601,22 +940,6 @@
       "description": "Beige booking action with dark text and a dark hover; extracted from the public shared button.",
       "html": "<button class=\"ds-public-primary\" type=\"button\">Időpontfoglalás</button>",
       "css": ".ds-public-primary { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 22px; border:1px solid var(--ui-primary-border,#3e3935); border-radius:var(--lumi-radius-control,8px); background:var(--ui-primary,#e2d9d0); color:var(--ui-on-primary,#3e3935); font-family:\"DM Sans\",sans-serif; font-size:14px; font-weight:600; line-height:1.3; cursor:pointer; transition:background-color 200ms ease,color 200ms ease; } .ds-public-primary:hover { background:var(--ui-accent-text,#3e3935); color:var(--ui-on-primary-hover,#f6f3ee); } .ds-public-primary:focus-visible { outline:3px solid var(--ui-rose-dark,#3e3935); outline-offset:3px; } .ds-public-primary:active { background:var(--ui-accent-text,#3e3935); color:var(--ui-on-primary-hover,#f6f3ee); } .ds-public-primary:disabled { cursor:default; opacity:.6; } @media (prefers-reduced-motion:reduce) { .ds-public-primary { transition:none; } }"
-    },
-    {
-      "name": "Admin primary action",
-      "kind": "button",
-      "refersTo": "admin-button-primary",
-      "description": "Compact workspace action, theme-bound, with an extended 44px hit area.",
-      "html": "<button class=\"ds-admin-primary\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Kieső idő</button>",
-      "css": ".ds-admin-primary { position:relative; display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:34px; padding:0 13px; border:1px solid var(--admin-v2-brand-dark,#3e3935); border-radius:var(--admin-ui-control-radius,11px); background:var(--admin-v2-brand,#e2d9d0); color:var(--admin-v2-on-brand,#3e3935); font-family:\"DM Sans\",sans-serif; font-size:14px; font-weight:600; line-height:1.15; cursor:pointer; box-shadow:0 1px 2px rgba(48,30,26,.04); transition:color 160ms ease,border-color 160ms ease,background-color 160ms ease; } .ds-admin-primary::after { content:\"\"; position:absolute; inset:-5px 0; } .ds-admin-primary svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; } .ds-admin-primary:hover,.ds-admin-primary:active { background:var(--admin-v2-brand-dark,#3e3935); color:var(--admin-v2-on-brand-dark,#f6f3ee); } .ds-admin-primary:focus-visible { outline:3px solid var(--admin-v2-brand-dark,#3e3935); outline-offset:2px; } .ds-admin-primary:disabled { opacity:.45; cursor:default; } @media (prefers-reduced-motion:reduce) { .ds-admin-primary { transition-duration:.01ms; } }"
-    },
-    {
-      "name": "Admin secondary action",
-      "kind": "button",
-      "refersTo": "admin-button-secondary",
-      "description": "Outlined workspace action with the same compact geometry and theme roles.",
-      "html": "<button class=\"ds-admin-secondary\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 3v4M18 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z\"/></svg>Naptár</button>",
-      "css": ".ds-admin-secondary { position:relative; display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:34px; padding:0 13px; border:1px solid var(--admin-v2-border-strong,rgba(62,57,53,.32)); border-radius:var(--admin-ui-control-radius,11px); background:var(--admin-v2-surface,#f6f3ee); color:var(--admin-v2-ink,#3e3935); font-family:\"DM Sans\",sans-serif; font-size:14px; font-weight:600; line-height:1.15; cursor:pointer; box-shadow:0 1px 2px rgba(48,30,26,.04); transition:color 160ms ease,border-color 160ms ease,background-color 160ms ease; } .ds-admin-secondary::after { content:\"\"; position:absolute; inset:-5px 0; } .ds-admin-secondary svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; } .ds-admin-secondary:hover,.ds-admin-secondary:active { border-color:var(--admin-v2-brand,#e2d9d0); color:var(--admin-v2-brand-dark,#3e3935); } .ds-admin-secondary:focus-visible { outline:3px solid var(--admin-v2-brand-dark,#3e3935); outline-offset:2px; } .ds-admin-secondary:disabled { opacity:.45; cursor:default; } @media (prefers-reduced-motion:reduce) { .ds-admin-secondary { transition-duration:.01ms; } }"
     },
     {
       "name": "Public account field",
@@ -635,41 +958,73 @@
       "css": ".ds-studio-nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:clamp(16px,5vw,32px); } .ds-studio-tab { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:4px 0; border-bottom:2px solid transparent; color:var(--ui-ink,#3e3935); font-family:\"Reddit Sans Condensed\",\"DM Sans\",sans-serif; font-size:clamp(21px,5.7vw,28px); font-weight:300; line-height:1.2; text-decoration:none; } .ds-studio-tab:hover { border-color:var(--ui-taupe,#b8a89b); } .ds-studio-tab[aria-current=\"page\"],.ds-studio-tab:active { border-color:var(--ui-ink,#3e3935); } .ds-studio-tab:focus-visible { outline:3px solid var(--ui-rose-dark,#3e3935); outline-offset:3px; } @media (min-width:769px) { .ds-studio-nav { gap:clamp(64px,6.25vw,96px); } .ds-studio-tab { min-height:72px; padding-inline:16px; font-size:42px; } }"
     },
     {
-      "name": "Admin navigation row",
-      "kind": "nav",
-      "refersTo": "admin-navigation-active",
-      "description": "Labelled operational navigation, preserving the selected tone and edge marker.",
-      "html": "<nav class=\"ds-admin-nav\" aria-label=\"Admin munkaterület\"><button class=\"ds-admin-nav-row\" type=\"button\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z\"/></svg>Áttekintés</button></nav>",
-      "css": ".ds-admin-nav { padding-left:14px; } .ds-admin-nav-row { position:relative; display:flex; align-items:center; width:100%; min-height:40px; gap:10px; padding:9px 10px; border:0; border-radius:9px; background:transparent; color:var(--admin-v2-muted,#3e3935); font-family:\"DM Sans\",sans-serif; font-size:14px; font-weight:600; text-align:left; cursor:pointer; transition:color 160ms ease,background-color 160ms ease; } .ds-admin-nav-row svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; } .ds-admin-nav-row:hover { color:var(--admin-v2-ink,#3e3935); background:var(--admin-v2-surface-soft,#e2d9d0); } .ds-admin-nav-row[aria-current=\"page\"],.ds-admin-nav-row:active { color:var(--admin-v2-brand-dark,#3e3935); background:var(--admin-v2-brand-soft,#e2d9d0); } .ds-admin-nav-row[aria-current=\"page\"]::before { position:absolute; inset:8px auto 8px -14px; width:3px; border-radius:0 4px 4px 0; background:var(--admin-v2-brand,#e2d9d0); content:\"\"; } .ds-admin-nav-row:focus-visible { outline:3px solid var(--admin-v2-brand-dark,#3e3935); outline-offset:2px; } @media (max-width:900px) { .ds-admin-nav-row { min-height:44px; } } @media (prefers-reduced-motion:reduce) { .ds-admin-nav-row { transition-duration:.01ms; } }"
-    },
-    {
-      "name": "Admin information status",
-      "kind": "chip",
-      "refersTo": "admin-status-info",
-      "description": "Passive labelled status; it is not styled as an actionable filter.",
-      "html": "<span class=\"ds-status-info\">Foglalt</span>",
-      "css": ".ds-status-info { display:inline-flex; align-items:center; min-height:26px; padding:4px 8px; border:0; border-radius:999px; color:var(--admin-v2-info,#4e667b); background:var(--admin-v2-info-soft,#e9eff4); font-family:\"DM Sans\",sans-serif; font-size:11px; font-weight:600; white-space:nowrap; }"
-    },
-    {
-      "name": "Admin task card",
-      "kind": "card",
-      "refersTo": "admin-card",
-      "description": "One operational container with divided header and body; its existing dark-theme shadow stays theme-bound.",
-      "html": "<section class=\"ds-admin-card\"><header class=\"ds-admin-card-header\"><h2>Mai nap</h2><p>Időpontok időrendben</p></header><div class=\"ds-admin-card-body\">A napi foglalások és állapotuk egy helyen.</div></section>",
-      "css": ".ds-admin-card { overflow:hidden; border:1px solid var(--admin-v2-border,rgba(62,57,53,.16)); border-radius:var(--lumi-radius-card,16px); background:var(--admin-v2-surface,#f6f3ee); color:var(--admin-v2-ink,#3e3935); box-shadow:var(--admin-v2-shadow,none); font-family:\"DM Sans\",sans-serif; } .ds-admin-card-header { padding:12px 15px; border-bottom:1px solid var(--admin-v2-border,rgba(62,57,53,.16)); } .ds-admin-card-header h2 { margin:0; font-size:16px; font-weight:600; } .ds-admin-card-header p { margin:3px 0 0; color:var(--admin-v2-muted,#3e3935); font-size:12px; } .ds-admin-card-body { padding:13px 15px; font-size:14px; line-height:1.5; }"
-    },
-    {
       "name": "Selected portfolio thumbnail",
       "kind": "custom",
       "refersTo": "studio-thumbnail",
       "description": "Actual existing portfolio thumbnail, embedded for a self-contained preview; full-image selection behavior remains in the application.",
       "html": "<button class=\"ds-thumbnail\" type=\"button\" aria-label=\"Rövid natúr nude körmök megjelenítése\" aria-pressed=\"true\"><img src=\"data:image/jpeg;base64,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\" alt=\"Rövid natúr nude körmök fényes tejes rózsaszín árnyalattal.\"></button>",
       "css": ".ds-thumbnail { display:block; width:64px; height:48px; padding:0; overflow:hidden; border:1px solid transparent; border-radius:4px; background:var(--ui-soft,#e2d9d0); cursor:pointer; } .ds-thumbnail img { display:block; width:100%; height:100%; object-fit:cover; } .ds-thumbnail[aria-pressed=\"true\"] { border-color:var(--ui-ink,#3e3935); box-shadow:0 0 0 2px var(--ui-taupe,#b8a89b); } .ds-thumbnail:hover,.ds-thumbnail:active { border-color:var(--ui-ink,#3e3935); } .ds-thumbnail:focus-visible { outline:3px solid var(--ui-rose-dark,#3e3935); outline-offset:3px; }"
+    },
+    {
+      "name": "Admin primary action",
+      "kind": "button",
+      "refersTo": "admin-button-primary",
+      "description": "A forrás elsődleges művelete, rem-alapú Auto méretezéssel.",
+      "html": "<button class=\"ds-admin-primary\">Mentés</button>",
+      "css": ".ds-admin-primary{font-family:var(--font-manrope,Manrope,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:.375rem;min-height:2.25rem;padding:0 .75rem;border:0;border-radius:.5rem;background:var(--admin-accent,#87651f);color:var(--admin-bg,#f4f1e9);font-size:.75rem;font-weight:700;line-height:1rem;transition:background-color 200ms,box-shadow 200ms,transform 200ms}.ds-admin-primary:enabled:hover{background:var(--admin-accent-strong,#6e4f13);box-shadow:0 3px 12px color-mix(in srgb,var(--admin-accent,#87651f) 22%,transparent);transform:translateY(-1px)}.ds-admin-primary:enabled:active{transform:scale(.97)}.ds-admin-primary:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-primary:disabled{opacity:.45;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-admin-primary{transition:none}.ds-admin-primary:enabled:hover,.ds-admin-primary:enabled:active{transform:none}}"
+    },
+    {
+      "name": "Admin secondary action",
+      "kind": "button",
+      "refersTo": "admin-button-secondary",
+      "description": "A forrás másodlagos gombja saját 2rem minimummal.",
+      "html": "<button class=\"ds-admin-secondary\">Mégse</button>",
+      "css": ".ds-admin-secondary{font-family:var(--font-manrope,Manrope,sans-serif);display:inline-flex;align-items:center;justify-content:center;min-height:2rem;padding:0 .625rem;border:0;border-radius:.5rem;background:var(--admin-raised,#eee9de);color:var(--admin-text,#211e19);font-size:.75rem;font-weight:600;line-height:1rem;transition:background-color 200ms,box-shadow 200ms,transform 200ms}.ds-admin-secondary:enabled:hover{background:var(--admin-field,#e5ded1);box-shadow:0 3px 10px rgb(0 0 0 / .16);transform:translateY(-1px)}.ds-admin-secondary:enabled:active{transform:scale(.96)}.ds-admin-secondary:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-secondary:disabled{opacity:.45;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-admin-secondary{transition:none}.ds-admin-secondary:enabled:hover,.ds-admin-secondary:enabled:active{transform:none}}"
+    },
+    {
+      "name": "Admin navigation row",
+      "kind": "nav",
+      "refersTo": "admin-navigation-active",
+      "description": "Az átvett oldalsáv aktív sora; mobilon a közös dokk képviseli a célt.",
+      "html": "<nav aria-label=\"Admin előnézet\"><button class=\"ds-admin-nav\" aria-pressed=\"true\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg><span>Foglalások</span></button></nav>",
+      "css": ".ds-admin-nav{font-family:var(--font-manrope,Manrope,sans-serif);display:flex;align-items:center;gap:.625rem;width:100%;border:0;border-radius:.625rem;padding:.625rem .75rem;background:var(--admin-raised,#eee9de);color:var(--admin-accent,#87651f);font-size:.75rem;font-weight:600;text-align:left;transition:background-color 200ms,color 200ms}.ds-admin-nav:hover{background:var(--admin-surface,#fffdf8);color:var(--admin-text,#211e19)}.ds-admin-nav:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-nav:active svg{transform:scale(.92)}"
+    },
+    {
+      "name": "Admin confirmed status",
+      "kind": "chip",
+      "refersTo": "admin-status-confirmed",
+      "description": "Passzív állapotcímke; a kártya külön állapotválasztója nem ez a chip.",
+      "html": "<span class=\"ds-admin-status\">Megerősítve</span>",
+      "css": ".ds-admin-status{font-family:var(--font-manrope,Manrope,sans-serif);display:inline-flex;padding:.25rem .5rem;border-radius:.375rem;background:color-mix(in oklab,var(--admin-confirmed,#3569b7) 15%,transparent);color:var(--admin-confirmed-text,#285493);font-size:.6rem;font-weight:600;line-height:1rem}"
+    },
+    {
+      "name": "Admin booking card",
+      "kind": "card",
+      "refersTo": "admin-card",
+      "description": "A tényleges kártyaszerkezet két régiója; Auto/Normál/Nagy méretág.",
+      "html": "<article class=\"ds-admin-card\"><div class=\"ds-admin-meta\"><span>Köröm · 2026.10.29.</span><button class=\"ds-admin-state\">Megerősítve</button></div><button class=\"ds-admin-open\"><span class=\"ds-admin-time\">09:00<small>10:00</small></span><span class=\"ds-admin-guest\"><strong>Teszt vendég</strong><small>Gél lakk</small></span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg></button></article>",
+      "css": ".ds-admin-card{font-family:var(--font-manrope,Manrope,sans-serif);min-width:0;border:1px solid color-mix(in srgb,var(--admin-border,#cfc5b3) 65%,transparent);border-radius:.8rem;background:var(--admin-surface,#fffdf8);color:var(--admin-text,#211e19);box-shadow:inset 3px 0 0 var(--admin-confirmed,#3569b7);transition:background-color 200ms,transform 200ms,border-color 200ms}.ds-admin-card:hover{background:var(--admin-raised,#eee9de);transform:translateY(-2px)}.ds-admin-card:focus-within{border-color:var(--admin-accent,#87651f)}.ds-admin-meta{display:flex;align-items:center;justify-content:space-between;gap:.45rem;padding:.48rem .75rem 0;font-size:.62rem}.ds-admin-state{border:0;border-radius:.5rem;min-height:1.8rem;padding:0 .55rem;background:var(--admin-raised,#eee9de);color:var(--admin-confirmed-text,#285493);font-size:.75rem;font-weight:600}.ds-admin-open{display:flex;align-items:center;gap:.65rem;width:100%;padding:.3rem .75rem .65rem;border:0;background:transparent;color:inherit;text-align:left}.ds-admin-time{width:2.9rem;flex:none;font-size:.9rem;font-weight:700}.ds-admin-time small,.ds-admin-guest small{display:block;font-size:.68rem;font-weight:400;color:var(--admin-muted,#6d665c)}.ds-admin-guest{flex:1;min-width:0;font-size:.75rem}.ds-admin-state:focus-visible,.ds-admin-open:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-state:hover{background:var(--admin-field,#e5ded1)}.ds-admin-open:active{opacity:.8}@media(prefers-reduced-motion:reduce){.ds-admin-card{transition:none}.ds-admin-card:hover{transform:none}}"
+    },
+    {
+      "name": "Admin select menu control",
+      "kind": "input",
+      "refersTo": "admin-control-choice",
+      "description": "A React választó gombja; a menüt a futó alkalmazás kezeli, nincs elrejtett régi select.",
+      "html": "<button class=\"ds-admin-choice\" aria-haspopup=\"menu\" aria-expanded=\"false\"><span>Minden állapot</span><svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" aria-hidden=\"true\"><path d=\"m3 4.5 3 3 3-3\"/></svg></button>",
+      "css": ".ds-admin-choice{font-family:var(--font-manrope,Manrope,sans-serif);display:flex;align-items:center;justify-content:space-between;gap:.375rem;min-height:2rem;padding:0 .5rem;border:0;border-radius:.5rem;background:var(--admin-raised,#eee9de);color:var(--admin-text,#211e19);font-size:.75rem;font-weight:600;line-height:1.5;transition:background-color 200ms,transform 200ms}.ds-admin-choice:hover{background:var(--admin-field,#e5ded1)}.ds-admin-choice:active{transform:scale(.97)}.ds-admin-choice:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-choice:disabled{opacity:.45}"
+    },
+    {
+      "name": "Admin pagination",
+      "kind": "custom",
+      "refersTo": "admin-pagination-button",
+      "description": "A tényleges közös lapozó gomb- és oldalszámkezelésének statikus előnézete.",
+      "html": "<nav class=\"ds-admin-paging\" aria-label=\"Lapozás\"><button aria-label=\"Előző oldal\" disabled><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m15 5-7 7 7 7\"/></svg></button><span>1 / 3</span><button aria-label=\"Következő oldal\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg></button></nav>",
+      "css": ".ds-admin-paging{font-family:var(--font-manrope,Manrope,sans-serif);display:flex;align-items:center;justify-content:center;gap:.1875rem}.ds-admin-paging button{display:grid;place-items:center;width:1.875rem;min-height:1.875rem;border:1px solid var(--admin-border,#cfc5b3);border-radius:.4375rem;background:var(--admin-raised,#eee9de);color:var(--admin-accent-strong,#6e4f13);transition:transform 180ms,background-color 180ms,box-shadow 180ms}.ds-admin-paging span{min-width:3.375rem;text-align:center;color:var(--admin-text,#211e19);font-size:.68rem;font-weight:800;font-variant-numeric:tabular-nums}.ds-admin-paging button:enabled:hover{transform:translateY(-2px);background:var(--admin-field,#e5ded1);box-shadow:0 3px 10px color-mix(in srgb,var(--admin-accent,#87651f) 22%,transparent)}.ds-admin-paging button:enabled:active{transform:scale(.87);background:var(--admin-accent,#87651f);color:var(--admin-bg,#f4f1e9)}.ds-admin-paging button:focus-visible{outline:2px solid var(--admin-accent,#87651f);outline-offset:2px;}.ds-admin-paging button:disabled{opacity:.35;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-admin-paging button{transition:none}.ds-admin-paging button:enabled:hover,.ds-admin-paging button:enabled:active{transform:none}}"
     }
   ],
   "narrative": {
     "northStar": "Ivory & Taupe studio",
-    "overview": "\"Ivory & Taupe studio\" is a descriptive name for the implemented, user-selected visual world. Warm ivory and beige surfaces, charcoal text, restrained geometry, and the existing serif wordmark give authentic salon photographs room to lead. The five pinned brand colors govern the public site and both admin themes; semantic status colors retain their operational meaning.\n\nThe public interface is spacious and flat, while booking and admin use readable task sequences, compact controls, and explicit state labels. DM Sans carries general content and operations; a light condensed face is a local expression for the homepage selectors. Composition belongs to the surface brief: the three-view homepage is an implemented surface pattern, not a compulsory layout for every screen.",
+    "overview": "\"Ivory & Taupe studio\" is a descriptive name for the implemented, user-selected visual world. Warm ivory and beige surfaces, charcoal text, restrained geometry, and the existing serif wordmark give authentic salon photographs room to lead. The five pinned brand colors govern the public site. Current admin themes and semantic states follow the separate pinned Szalon-reference adaptation described in extensions.adminSnapshot.\n\nThe public interface is spacious and flat, while booking and admin use readable task sequences, compact controls, and explicit state labels. DM Sans carries public content; the current admin uses Manrope with its own density preference; a light condensed face is a local expression for the homepage selectors. Composition belongs to the surface brief: the three-view homepage is an implemented surface pattern, not a compulsory layout for every screen.",
     "keyCharacteristics": [
       "Warm pinned neutrals with readable charcoal-on-ivory text.",
       "Authentic photographs, clear framing, and no text overlay on the studio opening image.",
@@ -689,18 +1044,28 @@
       },
       {
         "name": "Type Ownership",
-        "body": "Use DM Sans for content and controls. Keep Reddit Sans Condensed local to the three homepage selectors and Playfair Display local to the existing wordmark.",
+        "body": "Use DM Sans for content and controls. Keep Reddit Sans Condensed local to the three homepage selectors and Playfair Display local to the existing wordmark. Current admin content follows its own Manrope-led source roles.",
         "section": "typography"
       },
       {
         "name": "Flat Public Structure",
-        "body": "The studio photograph, thumbnails, service rows, booking assistant, step wrappers, and summary do not acquire decorative elevation. Existing overlay, focus, validation, utility, and dark-admin exceptions retain their own owners.",
+        "body": "The studio photograph, thumbnails, service rows, booking assistant, step wrappers, and summary do not acquire decorative elevation. Existing overlay, focus, validation, utility, and current admin functional-elevation exceptions retain their own owners.",
         "section": "elevation"
       },
       {
         "name": "Radius Ownership",
         "body": "One component owns its outer shape. Preserved local field and control radii are component geometry, not new global radius tiers.",
         "section": "shapes"
+      },
+      {
+        "name": "Admin Source Authority",
+        "body": "Az admin új elemei az átvett komponens és a hozzá tartozó stílusforrás szerepeit használják; a régi natív UI és a publikus tokenek nem párhuzamos admin-dizájnforrások.",
+        "section": "colors"
+      },
+      {
+        "name": "Auto Size",
+        "body": "Új helyi munkamenetnek nem írunk elő Kompakt méretet. Az Auto forrásbeli viselkedését és a felhasználó kifejezetten mentett méretválasztását őrizzük meg.",
+        "section": "layout"
       }
     ],
     "dos": [
@@ -709,7 +1074,11 @@
       "Do keep the mobile studio image uncropped at 16:9 and selected portfolio images contained.",
       "Do preserve visible focus, explicit status text, public mobile field text of at least 16px, and existing touch targets.",
       "Do keep all factual panels and the shared footer's ten page links available without JavaScript.",
-      "Do respect component-local geometry and the separate public-browser and admin standalone-PWA zoom policies."
+      "Do respect component-local geometry and the separate public-browser and admin standalone-PWA zoom policies.",
+      "Do az adminhoz a tényleges Szalon-komponenst és CSS-modult használd a saját LumiNails-adapterrel.",
+      "Do tartsd láthatóan a statisztika adatlefedettségét és a telefonos hét vízszintes óratengelyét.",
+      "Do őrizd meg az Auto alapméretet, a mentett témát/méretet, a tényleges lapozót és a natív dátum-/időmezőt.",
+      "Do kezeld külön a felületméretet, a böngészőzoomot, a húzási javaslatot és a mentett időpontot."
     ],
     "donts": [
       "Don't revive the discarded palette or stacked homepage as authority for the selected studio world.",
@@ -717,7 +1086,9 @@
       "Don't reintroduce nested decorative booking panels or broad shadows beneath the flat contact rows.",
       "Don't turn the homepage selector font or a local radius exception into a global default.",
       "Don't add another CSS override layer, use !important, or edit generated bundles directly.",
-      "Don't infer complete accessibility certification, a passing numerical comp score, or release authorization from the finish verdict."
+      "Don't infer complete accessibility certification, a passing numerical comp score, or release authorization from the finish verdict.",
+      "Don't adj hozzá több munkatársat, nem támogatott állapotot, ismétlődő heti modellt, privát jegyzettáblát, atomi időpontcserét, oktatást vagy körlevelet a referencia utánzásához.",
+      "Don't engedélyezd az admin standalone PWA böngészőzoomját. A naptár saját időrácsa külön méretezhető a felhasználó kérése szerint."
     ]
   }
 }

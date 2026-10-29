@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: calc(6px * var(--admin-scale, 1));
 }
 .admin-body.admin-v2 #admin-panel-esemenynaplo .admin-lapozo-felso { margin: 4px 0 7px; }
 .admin-body.admin-v2 #admin-esemenynaplo-lista {
@@ -20,13 +20,13 @@
 .admin-body.admin-v2 #admin-esemenynaplo-lista .admin-db-kartya-fej {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: calc(12px * var(--admin-scale, 1));
 }
 .admin-body.admin-v2 #admin-esemenynaplo-lista .admin-db-kartya-fej > div {
   display: grid;
   grid-template-columns: 118px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: calc(12px * var(--admin-scale, 1));
 }
 .admin-body.admin-v2 #admin-esemenynaplo-lista .admin-esemeny-idopont {
   margin: 0;
@@ -48,7 +48,7 @@
   align-items: center;
   justify-content: center;
   min-height: 26px;
-  padding: 0 8px;
+  padding: 0 calc(8px * var(--admin-scale, 1));
   border: 1px solid rgba(185, 133, 143, .22);
   border-radius: 7px;
   color: var(--tinta);
@@ -61,7 +61,7 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 3px 16px;
+  gap: calc(3px * var(--admin-scale, 1)) calc(16px * var(--admin-scale, 1));
   margin-top: 5px;
   padding-left: 130px;
 }
@@ -83,8 +83,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 28px;
-  padding: 8px 2px 26px;
+  gap: calc(28px * var(--admin-scale, 1));
+  padding: calc(8px * var(--admin-scale, 1)) calc(2px * var(--admin-scale, 1)) calc(26px * var(--admin-scale, 1));
   border-bottom: 1px solid rgba(88, 68, 61, .16);
 }
 .admin-body.admin-v2 .admin-email-teszt-fej h2 {
@@ -114,7 +114,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   margin: 0;
-  padding: 18px 0 0;
+  padding: calc(18px * var(--admin-scale, 1)) 0 0;
   list-style: none;
   counter-reset: email-preview;
 }
@@ -122,7 +122,7 @@
   position: relative;
   counter-increment: email-preview;
   min-width: 0;
-  padding: 13px 18px 13px 38px;
+  padding: calc(13px * var(--admin-scale, 1)) calc(18px * var(--admin-scale, 1)) calc(13px * var(--admin-scale, 1)) calc(38px * var(--admin-scale, 1));
   border-bottom: 1px solid rgba(88, 68, 61, .12);
   color: var(--szin-szoveg);
   font-size: var(--lumi-font-body-small);
@@ -151,21 +151,21 @@
   .admin-body.admin-v2 .admin-email-teszt-fej {
     grid-template-columns: 1fr;
     align-items: stretch;
-    gap: 18px;
-    padding-top: 2px;
+    gap: calc(18px * var(--admin-scale, 1));
+    padding-top: calc(2px * var(--admin-scale, 1));
   }
   .admin-body.admin-v2 .admin-email-teszt-fej .admin-hozzaadas { width: 100%; min-width: 0; }
-  .admin-body.admin-v2 .admin-email-teszt-lista { grid-template-columns: 1fr; padding-top: 10px; }
-  .admin-body.admin-v2 .admin-email-teszt-lista li { padding-block: 11px; }
+  .admin-body.admin-v2 .admin-email-teszt-lista { grid-template-columns: 1fr; padding-top: calc(10px * var(--admin-scale, 1)); }
+  .admin-body.admin-v2 .admin-email-teszt-lista li { padding-block: calc(11px * var(--admin-scale, 1)); }
   .admin-body.admin-v2 .admin-email-teszt-lista li::before { top: 11px; }
 }
 
 @container admin-workspace (max-width: 480px) {
   .admin-body.admin-v2 #admin-panel-esemenynaplo > .admin-panel-akciok { margin-bottom: 4px; }
-  .admin-body.admin-v2 #admin-panel-esemenynaplo > .admin-panel-akciok .admin-panel-gombcsoport { gap: 5px; }
+  .admin-body.admin-v2 #admin-panel-esemenynaplo > .admin-panel-akciok .admin-panel-gombcsoport { gap: calc(5px * var(--admin-scale, 1)); }
   .admin-body.admin-v2 #admin-esemenynaplo-lista .admin-db-kartya-fej > div {
     grid-template-columns: 1fr;
-    gap: 2px;
+    gap: calc(2px * var(--admin-scale, 1));
   }
   .admin-body.admin-v2 #admin-esemenynaplo-lista .admin-esemeny-reszletek { padding-left: 0; }
 }

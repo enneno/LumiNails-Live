@@ -1,0 +1,30 @@
+:global(html):has(.viewport) {
+  --admin-display-height: 100dvh;
+}
+
+/* iOS standalone can report a 793px layout/dynamic viewport on an 852px
+   display, while lvh remains 852px. Size the document as well as its children:
+   leaving the overflow-hidden document at 100% would still clip the dock. */
+@media (display-mode: standalone) {
+  :global(html):has(.viewport) {
+    --admin-display-height: 100lvh;
+  }
+}
+
+:global(html):has(.viewport),
+:global(body):has(.viewport) {
+  height: var(--admin-display-height);
+  background: var(--admin-bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  scroll-behavior: auto;
+}
+
+.viewport {
+  position: fixed;
+  inset: var(--admin-viewport-top, 0px) 0 auto;
+  width: 100%;
+  height: var(--admin-viewport-height, var(--admin-display-height));
+  min-height: 0;
+  overflow: hidden;
+}

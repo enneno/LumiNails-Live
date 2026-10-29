@@ -113,7 +113,7 @@
         function removeLegacyTallTileControls() {
             root.querySelectorAll('.cms-gallery-item').forEach(item => {
                 Array.from(item.children).forEach(child => {
-                    if (child.querySelector?.('[data-cms-path$=".magas"]')) child.remove();
+                    if (child.matches?.('label') && child.querySelector('[data-cms-path$=".magas"]')) child.remove();
                 });
             });
         }
@@ -237,7 +237,7 @@
         let lightbox = document.getElementById('cms-image-lightbox');
         if (lightbox) return lightbox;
 
-        lightbox = document.createElement('div');
+        lightbox = document.createElement('dialog');
         lightbox.id = 'cms-image-lightbox';
         lightbox.className = 'cms-image-lightbox';
         lightbox.hidden = true;
@@ -257,8 +257,10 @@
             }
         });
 
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
+        lightbox.addEventListener('cancel', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeLightbox();
         });
 
         document.body.appendChild(lightbox);
@@ -275,6 +277,7 @@
         image.alt = source.alt || 'Nagyított kép';
         returnFocus = preview;
         lightbox.hidden = false;
+        lightbox.showModal();
         document.body.classList.add('cms-image-lightbox-open');
         requestAnimationFrame(() => lightbox.querySelector('[data-cms-image-lightbox-close]')?.focus({ preventScroll: true }));
     }
@@ -283,6 +286,7 @@
         const lightbox = document.getElementById('cms-image-lightbox');
         if (!lightbox || lightbox.hidden) return;
         lightbox.hidden = true;
+        lightbox.close();
         document.body.classList.remove('cms-image-lightbox-open');
         returnFocus?.focus?.({ preventScroll: true });
         returnFocus = null;

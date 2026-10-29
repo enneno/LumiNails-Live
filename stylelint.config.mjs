@@ -8,6 +8,12 @@ export default {
     'style.css',
     'admin-v2.css',
   ],
+  // The copied CSS Modules retain :global and canonical source shorthand syntax.
+  // Tailwind's source file uses its documented @theme and string @import grammar.
+  overrides: [
+    {files:['src/admin-reference/**/*.module.css'],rules:{'selector-pseudo-class-no-unknown':[true,{ignorePseudoClasses:['global']}],'shorthand-property-no-redundant-values':null}},
+    {files:['src/admin-reference/styles.css'],rules:{'at-rule-no-unknown':[true,{ignoreAtRules:['theme']}],'import-notation':'string'}}
+  ],
   rules: {
     'alpha-value-notation': null,
     'at-rule-empty-line-before': null,
