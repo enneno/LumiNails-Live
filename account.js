@@ -546,6 +546,8 @@
             form.hidden = true;
             trigger.hidden = false;
             textarea.value = '';
+            const consent = form.elements.cancellation_rules_accepted;
+            if (consent) consent.checked = false;
             setInlineStatus(status, '');
         });
         actionRow.append(submit, keep);
@@ -556,7 +558,10 @@
         status.setAttribute('aria-live', 'polite');
         status.hidden = true;
 
-        form.append(label, actionRow, status);
+        const consent = window.LumiHouseRules?.createConsent('cancellation', 'fiok-lemondas-hazirend-' + booking.booking_id);
+        form.append(label);
+        if (consent) form.append(consent);
+        form.append(actionRow, status);
         form.addEventListener('submit', event => handleAccountCancellation(event, booking, noteRequired, status));
         return form;
     }
@@ -567,6 +572,12 @@
         const textarea = form.elements.cancellation_note;
         const submit = form.querySelector('button[type="submit"]');
         const note = String(textarea.value || '').trim().slice(0, 500);
+        const consent = form.elements.cancellation_rules_accepted;
+        if (!consent?.checked) {
+            setInlineStatus(status, 'A lemondáshoz kérlek, olvasd el és fogadd el a lemondási feltételeket.', true);
+            consent?.focus();
+            return;
+        }
 
         if (noteRequired && !note) {
             setInlineStatus(status, 'A 24 órán belüli lemondáshoz írj rövid indokot.', true);
@@ -576,9 +587,11 @@
 
         setButtonBusy(submit, true, 'Lemondás…');
         setInlineStatus(status, 'A lemondás rögzítése…');
-        const { data, error } = await supabaseClient.rpc('cancel_my_booking', {
+        const { data, error } = await supabaseClient.rpc('cancel_my_booking_with_rules', {
             p_booking_id: booking.booking_id,
-            p_note: note
+            p_note: note,
+            p_rules_accepted: consent.checked,
+            p_rules_version: consent.value
         });
         const response = singleRow(data);
 

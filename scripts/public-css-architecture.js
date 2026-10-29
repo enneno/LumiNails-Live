@@ -12,6 +12,7 @@ const expectedFiles = [
   '11-price-page.css',
   '12-legal.css',
   '13-gallery-footer-navigation.css',
+  '13-house-rules.css',
   '14-promotions.css',
   '15-home-sections.css',
   '16-home-gallery.css',

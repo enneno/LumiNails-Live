@@ -1,18 +1,18 @@
-# AGENTS.md — LumiNails TEST fejlesztési szabályzat
+# AGENTS.md — LumiNails helyi fejlesztési és kiadási szabályzat
 
 Ez a fájl a `D:\Asztal\LumiNails_test` projektben végzett minden munkára kötelező szabályokat rögzíti.
 
 ## Környezetek és kötelező kiadási folyamat
 
-- A fejlesztési és ellenőrzési projekt: `D:\Asztal\LumiNails_test`.
-- Az éles helyi projekt útvonalát minden élesítés előtt külön, read-only ellenőrzéssel kell azonosítani; régi vagy feltételezett útvonalat tilos használni.
-- Minden fejlesztést először és kizárólag a TEST projektben kell elkészíteni.
-- A TEST-változtatásokat a kockázatukhoz arányosan kell átnézni; kis és egyértelmű változásnál a Git-diff és szükség esetén egy gyors vizuális ellenőrzés elegendő.
+- A fejlesztés és ellenőrzés helyben történik, a `D:\Asztal\LumiNails_test` mappában. A mappa neve örökölt; nem jelent külön TEST-repós kiadási lépést.
+- Minden módosítást először helyben kell elkészíteni és a kockázatához arányosan ellenőrizni; kis és egyértelmű változásnál a Git-diff és szükség esetén egy gyors vizuális ellenőrzés elegendő.
+- Felületet érintő változtatásnál helyi böngészős és mobilról is megnyitható előnézetet kell biztosítani. A mobilos linkhez az aktuális hálózati címet és a helyi kiszolgáló elérhetőségét ellenőrizni kell.
 - Az ellenőrzés eredményét röviden, pontosan jelenteni kell a felhasználónak.
-- A TEST-ben elkészült változtatás csak külön, kifejezett felhasználói jóváhagyás után vihető át az éles helyi projektbe vagy az éles `luminails.hu` oldalra.
-- A TEST-re adott fejlesztési kérés önmagában soha nem jelent engedélyt az éles projekt vagy az éles oldal módosítására, telepítésére vagy közzétételére.
-- Külön élesítési jóváhagyás nélkül az éles projekt alkalmazáskódját, konfigurációját, tartalmát és generált fájljait tilos módosítani.
-- Élesítés előtt ismét ellenőrizni kell a pontos változási kört; csak a jóváhagyott TEST-változtatások vihetők át.
+- A felhasználó helyben és mobilon is átnézheti az elkészült felületet. Csak a külön, kifejezett kiadási jelzésére, például „mehet élesre”, kerülhet a jóváhagyott változás közvetlenül az éles GitHub-repóba és onnan az éles `luminails.hu` oldalra.
+- Külön TEST GitHub-repóba pusholás, TEST Cloudflare-közzététel és sikeres TEST-deploy nem feltétele az élesítésnek. Ezeket csak a felhasználó külön kérésére szabad használni, nem automatikus köztes kiadási lépésként.
+- A helyi forráskód, konfiguráció és generált fájlok szerkesztése önmagában nem élesítés, akkor sem, ha a helyi példány az éles GitHub-repóhoz kapcsolódik. A fejlesztési kérés önmagában nem engedélyez éles GitHub-pusht, éles közzétételt vagy a közös éles Supabase-adatbázis módosítását.
+- Kiadás előtt read-only ellenőrzéssel azonosítani kell a pontos éles GitHub-repót, ágat és kapcsolódó Cloudflare-projektet. Az éles GitHub-cél az `enneno/LumiNails-Live` repó `main` ága; az `origin` nevéről tilos feltételezni, hogy erre mutat. Ha külön helyi kiadási példány szükséges, annak aktuális útvonalát is ellenőrizni kell.
+- Élesítés előtt ismét ellenőrizni kell a pontos változási kört; kizárólag a helyben ellenőrzött és a felhasználó által jóváhagyott változtatások kerülhetnek kiadásra.
 
 ## Kódtisztaság és CSS-felelősség
 
@@ -72,10 +72,11 @@ Ez a fájl a `D:\Asztal\LumiNails_test` projektben végzett minden munkára köt
 ## GitHub és kiadás
 
 - A GitHubon semmilyen automatikus teszt nem futhat.
-- A GitHub-folyamat kizárólag a helyileg már ellenőrzött és késznek ítélt TEST-verzió közzétételére szolgálhat.
+- A GitHub-folyamat kizárólag a helyileg már ellenőrzött, késznek ítélt és a felhasználó által élesítésre jóváhagyott változat közvetlen éles közzétételére szolgálhat.
 - GitHubra csak olyan változtatás tölthető fel, amelyet helyileg, a fenti kockázatalapú szabályok szerint már megfelelőnek ítéltünk.
 - A push vagy a GitHub Pages közzététel nem indíthat új tesztet, auditot vagy teljes ellenőrzést.
-- Az élesítés nem tesztel újra; kizárólag a felhasználó által külön jóváhagyott, helyileg ellenőrzött és sikeresen közzétett TEST commit emelhető át.
+- Az élesítés nem tesztel újra; a helyben már ellenőrzött és külön jóváhagyott változás közvetlenül az éles GitHub-repóba kerül. Előzetes TEST-push vagy TEST-közzététel nem szükséges.
+- A kapcsolt Cloudflare-projekt szokásos kiadási buildje és deployja a jóváhagyott éles push után futhat; ez nem jelent új tesztet vagy auditot.
 
 ## Ellenőrzés és jelentés
 

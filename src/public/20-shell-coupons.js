@@ -8,6 +8,7 @@ function tisztaUrlBeallitasa() {
         '/foglalas.html': '/foglalas/',
         '/foglalas/index.html': '/foglalas/',
         '/fiokom/index.html': '/fiokom/',
+        '/hazirend/index.html': '/hazirend/',
         '/admin.html': '/admin/',
         '/admin/index.html': '/admin/'
     };

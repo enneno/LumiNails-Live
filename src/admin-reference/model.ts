@@ -34,7 +34,6 @@ export function priceGroups(rows: any[]) {
     if (!group) {
       group = {
         id: "group-" + row.id,
-        track: "lashes",
         title,
         description: "",
         columns: [{ id: "price", label: "Ár" }],

@@ -45,7 +45,7 @@ type AdminWeekCalendarMobileProps = {
   movingBookingId: number | null;
   statusLabels: Record<AdminWeekCalendarStatus, string>;
   statusCardClasses: Record<AdminWeekCalendarStatus, string>;
-  trackCardClasses: Record<AdminWeekCalendarBooking["trackId"], string>;
+
   resolveMove: (
     booking: AdminWeekCalendarBooking,
     targetDate: string,
@@ -841,7 +841,7 @@ export function AdminWeekCalendarMobile(props: AdminWeekCalendarMobileProps) {
                       preview={dragPreview}
                       statusLabels={props.statusLabels}
                       statusCardClasses={props.statusCardClasses}
-                      trackCardClasses={props.trackCardClasses}
+
                       onOpenBooking={props.onOpenBooking}
                       onStartDrag={startBookingDrag}
                     />
@@ -922,7 +922,7 @@ function MobileBlockedBlock({
           <span className="block truncate text-[0.44rem] font-semibold leading-[0.6rem]" data-training-participants>{block.confirmedNames.join(", ")}</span>
         ) : null}
         <span className="block truncate text-[0.42rem] font-semibold leading-[0.6rem] text-ink-muted">
-          {block.kind === "training" ? `${formatGridTime(block.startMinutes)}–${formatGridTime(block.endMinutes)}` : block.track === "lashes" ? "Szempilla" : block.track === "laser" ? "Lézer" : "Mindkettő"}
+          {block.kind === "training" ? `${formatGridTime(block.startMinutes)}–${formatGridTime(block.endMinutes)}` : "Köröm"}
         </span>
       </button>
     </article>
@@ -938,7 +938,7 @@ function MobileBookingCard({
   preview,
   statusLabels,
   statusCardClasses,
-  trackCardClasses,
+
   onOpenBooking,
   onStartDrag,
 }: {
@@ -950,7 +950,7 @@ function MobileBookingCard({
   preview: DragPreview | null;
   statusLabels: Record<AdminWeekCalendarStatus, string>;
   statusCardClasses: Record<AdminWeekCalendarStatus, string>;
-  trackCardClasses: Record<AdminWeekCalendarBooking["trackId"], string>;
+
   onOpenBooking: (id: number) => void;
   onStartDrag: (
     booking: AdminWeekCalendarBooking,
@@ -982,10 +982,10 @@ function MobileBookingCard({
   return (
     <article
       data-mobile-booking-card={booking.id}
-      data-track={booking.trackId}
+
       data-status={booking.status}
       data-source={booking.source}
-      className={`admin-week-booking absolute top-0.5 z-10 h-[48px] overflow-hidden rounded-md border shadow-sm ${trackCardClasses[booking.trackId]} ${statusCardClasses[booking.status]} ${booking.pendingMove ? "ring-2 ring-inset ring-admin-accent/80" : ""} ${ownPreview ? "z-50 border-admin-accent ring-2 ring-admin-accent/80" : ""}`}
+      className={`admin-week-booking absolute top-0.5 z-10 h-[48px] overflow-hidden rounded-md border shadow-sm border-admin-service/70 bg-admin-service/20 ${statusCardClasses[booking.status]} ${booking.pendingMove ? "ring-2 ring-inset ring-admin-accent/80" : ""} ${ownPreview ? "z-50 border-admin-accent ring-2 ring-admin-accent/80" : ""}`}
       style={{
         left,
         width,

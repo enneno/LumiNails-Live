@@ -22,8 +22,6 @@ export type AdminBooking = {
   endTime: string;
   dateInput: string;
   timeInput: string;
-  trackId: "lashes" | "laser" | "mixed";
-  trackLabel: string;
   serviceLabel: string;
   serviceGroups: AdminBookingServiceGroup[];
   serviceIds: string[];
@@ -59,73 +57,6 @@ export type BookingDateDraft = {
   endTime: string;
   note: string;
 };
-
-export type BookingQueryRecord = {
-  id: number;
-  updated_at: string;
-  starts_at: string;
-  ends_at: string;
-  service_id: string;
-  track: string;
-  guest_name: string;
-  created_by: string | null;
-  guest_phone: string;
-  guest_email: string | null;
-  guest_note: string;
-  status: string;
-  cancelled_at: string | null;
-  cancellation_admin_acknowledged_at: string | null;
-  booking_source: string;
-  confirmation_code: string;
-  booking_admin_comments: { comment: string } | null;
-  booking_admin_payments: { amount_huf: number } | null;
-  services: { name: string; category: string } | null;
-  booking_services: Array<{
-    service_id: string;
-    service_name: string;
-    service_category: string;
-    service_track: string | null;
-    position: number;
-  }>;
-};
-
-export function toAdminBooking(booking: BookingQueryRecord): AdminBooking {
-  const serviceGroups = getAdminServiceGroups(booking.track, booking.services, booking.booking_services);
-  return {
-    id: booking.id,
-    updatedAt: booking.updated_at,
-    startsAt: booking.starts_at,
-    endsAt: booking.ends_at,
-    date: formatBookingPart(booking.starts_at, "date"),
-    time: formatBookingPart(booking.starts_at, "time"),
-    endTime: formatBookingPart(booking.ends_at, "time"),
-    dateInput: formatBookingInputPart(booking.starts_at, "date"),
-    timeInput: formatBookingInputPart(booking.starts_at, "time"),
-    trackId: booking.track as "lashes" | "laser" | "mixed",
-    trackLabel: booking.track === "lashes"
-      ? "Műszempilla"
-      : booking.track === "laser"
-        ? "Lézer"
-        : "Pilla + lézer",
-    serviceLabel: formatAdminServiceLabelFromGroups(serviceGroups),
-    serviceGroups,
-    serviceIds: booking.booking_services.length
-      ? [...booking.booking_services].sort((left, right) => left.position - right.position).map((item) => item.service_id)
-      : [booking.service_id],
-    guestName: booking.guest_name.trim() || "Névtelen vendég",
-    createdBy: booking.created_by,
-    phone: booking.guest_phone,
-    email: booking.guest_email ?? "",
-    note: booking.guest_note,
-    adminComment: booking.booking_admin_comments?.comment ?? "",
-    paidAmountHuf: booking.booking_admin_payments?.amount_huf ?? null,
-    status: booking.status as BookingStatus,
-    cancelledAt: booking.cancelled_at,
-    cancellationAcknowledgedAt: booking.cancellation_admin_acknowledged_at,
-    source: booking.booking_source === "manual" ? "manual" : "online",
-    confirmationCode: booking.confirmation_code,
-  };
-}
 
 export function createManualBookingDraft(serviceId = "", durationMinutes = 60): ManualBookingDraft {
   const step = 5 * 60 * 1000;
@@ -166,44 +97,6 @@ function parseTimeMinutes(value: string) {
   return hours * 60 + minutes;
 }
 
-export function isLashExtensionBooking(booking: Pick<AdminBooking, "serviceGroups">) {
-  return booking.serviceGroups.some((group) => {
-    const label = group.label.trim();
-    return label === "Műszempilla" || label.startsWith("Műszempilla · ");
-  });
-}
-
-export function buildPreviousLashBookingDaysById(bookings: AdminBooking[]) {
-  const result = new Map<number, number>();
-  const eligible = bookings
-    .filter((booking) =>
-      isLashExtensionBooking(booking)
-      && booking.email.trim()
-      && !["cancelled", "guest_cancelled", "no_show"].includes(booking.status),
-    )
-    .sort((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt));
-
-  const latestByEmail = new Map<string, AdminBooking>();
-  for (const booking of eligible) {
-    const email = booking.email.trim().toLocaleLowerCase("hu-HU");
-    const previous = latestByEmail.get(email);
-    if (previous) {
-      result.set(booking.id, Math.max(0, differenceInBudapestCalendarDays(previous.startsAt, booking.startsAt)));
-    }
-    latestByEmail.set(email, booking);
-  }
-
-  return result;
-}
-
-function differenceInBudapestCalendarDays(previousIso: string, currentIso: string) {
-  const previousDate = formatBookingInputPart(previousIso, "date");
-  const currentDate = formatBookingInputPart(currentIso, "date");
-  const previousUtc = Date.parse(`${previousDate}T00:00:00Z`);
-  const currentUtc = Date.parse(`${currentDate}T00:00:00Z`);
-  return Math.round((currentUtc - previousUtc) / (24 * 60 * 60 * 1000));
-}
-
 export function normalizeBookingSearch(value: string) {
   return value
     .toLocaleLowerCase("hu-HU")
@@ -212,54 +105,11 @@ export function normalizeBookingSearch(value: string) {
     .replace(/[^a-z0-9@.]+/g, "");
 }
 
-export function formatAdminServiceLabel(
-  track: string,
-  service: BookingQueryRecord["services"] | { name: string; category?: string },
-  snapshots: BookingQueryRecord["booking_services"] = [],
-) {
-  return formatAdminServiceLabelFromGroups(getAdminServiceGroups(track, service, snapshots));
-}
-
-function formatAdminServiceLabelFromGroups(groups: AdminBookingServiceGroup[]) {
-  return groups
-    .flatMap((group) => group.label ? [`${group.label}: ${group.names[0]}`, ...group.names.slice(1)] : group.names)
-    .join("\n");
-}
-
-function getAdminServiceGroups(
-  track: string,
-  service: BookingQueryRecord["services"] | { name: string; category?: string },
-  snapshots: BookingQueryRecord["booking_services"] = [],
-) {
-  const entries = snapshots.length
-    ? [...snapshots]
-      .sort((left, right) => left.position - right.position)
-      .map((snapshot) => formatAdminServiceLabelPart(snapshot.service_track ?? track, snapshot.service_name, snapshot.service_category))
-    : [formatAdminServiceLabelPart(track, service?.name, service?.category)];
-  const groups = new Map<string, { label: string; names: string[] }>();
-
-  for (const entry of entries) {
-    const key = entry.group.toLocaleLowerCase("hu-HU");
-    const group = groups.get(key) ?? { label: entry.group, names: [] };
-    if (!group.names.includes(entry.name)) group.names.push(entry.name);
-    groups.set(key, group);
-  }
-
-  return [...groups.values()];
-}
-
-function formatAdminServiceLabelPart(track: string, rawName?: string, rawCategory?: string) {
-  const rawServiceName = rawName?.trim() || "Kezelés";
-  const category = rawCategory?.trim() || "";
-  if (!category) return { group: track === "laser" ? "Lézeres kezelés" : "", name: rawServiceName };
-  if (category.localeCompare(rawServiceName, "hu-HU", { sensitivity: "base" }) === 0) return { group: "", name: rawServiceName };
-  const name = stripAdminServiceCategoryPrefix(rawServiceName, category);
-  const group = track === "laser"
-    ? /^szőrtelenítés(?:\s*·|$)/iu.test(category)
-      ? "Lézeres szőrtelenítés"
-      : category
-    : category;
-  return { group, name };
+export function formatAdminServiceLabel(service: {name: string; category?: string}) {
+  const name = service.name?.trim() || "Kezelés";
+  const category = service.category?.trim() || "";
+  if (!category || category.localeCompare(name, "hu-HU", { sensitivity: "base" }) === 0) return name;
+  return category + ": " + stripAdminServiceCategoryPrefix(name, category);
 }
 
 function stripAdminServiceCategoryPrefix(name: string, category: string) {
@@ -350,14 +200,6 @@ export function summarizeMonthlyBookingOutcomes(bookings: AdminBooking[], year: 
   const noShow = monthly.filter((booking) => booking.status === "no_show").length;
   const cancelled = monthly.filter((booking) => booking.status === "cancelled" || booking.status === "guest_cancelled").length;
   const scheduled = monthly.length - completed - noShow - cancelled;
-  const weeklyCounts = Array.from({ length: Math.ceil(new Date(Date.UTC(year, month, 0)).getUTCDate() / 7) }, () => 0);
-  const trackCounts = { lashes: 0, laser: 0, mixed: 0 };
-  for (const booking of monthly) {
-    weeklyCounts[Math.floor((Number(booking.dateInput.slice(8, 10)) - 1) / 7)] += 1;
-    if (booking.status !== "cancelled" && booking.status !== "guest_cancelled") {
-      trackCounts[booking.trackId] += 1;
-    }
-  }
   return {
     total: monthly.length,
     scheduled,
@@ -365,8 +207,6 @@ export function summarizeMonthlyBookingOutcomes(bookings: AdminBooking[], year: 
     noShow,
     cancelled,
     noShowPercent: completed + noShow ? Math.round(noShow * 100 / (completed + noShow)) : null,
-    weeklyCounts,
-    trackCounts,
   };
 }
 

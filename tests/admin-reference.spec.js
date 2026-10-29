@@ -60,6 +60,83 @@ async function navigate(page, name) {
   ).toHaveCount(0);
 }
 
+test('push categories: independent saved preferences, retained draft on failure and separate device controls', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings');
+  await page.evaluate(() => {
+    window.__pushActions = [];
+    window.LumiPWA = {
+      supportsNotifications: () => true,
+      enableAdminPush: async () => window.__pushActions.push('enable'),
+      disableAdminPush: async () => window.__pushActions.push('disable'),
+      testAdminPush: async () => window.__pushActions.push('test'),
+    };
+  });
+  await page.getByRole('navigation', { name: 'Mobil admin eszköztár' }).getByRole('button', { name: 'Továbbiak', exact: true }).click();
+  await page.locator('dialog[open]').getByRole('button', { name: 'Beállítások', exact: true }).click();
+  await expect(page.locator('#admin-reference-root main h1')).toHaveText('Beállítások');
+  const pushCard = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Telefonos értesítés', exact: true }) });
+  await expect(pushCard.getByRole('switch')).toHaveCount(4);
+  await pushCard.getByRole('switch', { name: 'Telefonos jelzés új foglalásról', exact: true }).uncheck();
+  await pushCard.getByRole('switch', { name: 'Telefonos jelzés új regisztrációról', exact: true }).uncheck();
+  await page.evaluate(() => window.__adminPushPreferencesFailure = true);
+  await page.locator('[data-admin-save]').click();
+  await expect(page.getByText('A telefonos értesítések beállításait nem sikerült menteni. Próbáld újra.', { exact: true })).toBeVisible();
+  await expect(page.locator('[data-admin-save]')).toBeVisible();
+  await expect(pushCard.getByRole('switch', { name: 'Telefonos jelzés új foglalásról', exact: true })).not.toBeChecked();
+  expect(await page.evaluate(() => window.__referenceSeed().site_settings.some(row => row.key === 'admin_push_preferences'))).toBe(false);
+  await page.evaluate(() => window.__adminPushPreferencesFailure = false);
+  await save(page);
+  const persisted = await page.evaluate(() => window.__referenceSeed().site_settings);
+  expect(persisted.find(row => row.key === 'admin_push_preferences').value).toEqual({ newBooking: false, cancellation: true, guestRegistration: false, bookingEmailFailure: true });
+  expect(await page.evaluate(() => window.__adminRpcs.filter(row => /save_public/.test(row.name)))).toEqual([]);
+  await pushCard.getByRole('button', { name: 'Háttérértesítések engedélyezése', exact: true }).click();
+  await pushCard.getByRole('button', { name: 'Próbaértesítés küldése', exact: true }).click();
+  await pushCard.getByRole('button', { name: 'Kikapcsolás ezen az eszközön', exact: true }).click();
+  expect(await page.evaluate(() => window.__pushActions)).toEqual(['enable', 'test', 'disable']);
+  await installSupabaseBoundaryMock(page, { ...fixtures(), site_settings: persisted });
+  await page.goto('/admin/?tab=settings');
+  await expect(pushCard.getByRole('switch', { name: 'Telefonos jelzés új regisztrációról', exact: true })).not.toBeChecked();
+  await expect(pushCard.getByRole('switch', { name: 'Telefonos jelzés vendéglemondásról', exact: true })).toBeChecked();
+  await page.screenshot({ path: '.impeccable/review/push-categories-390.png' });
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(pushCard.getByRole('switch')).toHaveCount(4);
+  await page.screenshot({ path: '.impeccable/review/push-categories-1280.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await expect(page.getByRole('dialog', { name: 'Értesítések', exact: true })).toContainText('Új foglalás · Kiss Dorka');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('manual statuses: owner and guest cancellation persist separately, no show requires an ended appointment', async ({ page }) => {
+  const seed = fixtures();
+  const pastStart = new Date(Date.now() - 2 * 86400000), pastEnd = new Date(pastStart.getTime() + 3600000);
+  seed.blocked_times[0].starts_at = pastStart.toISOString(); seed.blocked_times[0].ends_at = pastEnd.toISOString();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings', seed);
+  const manual = page.locator('#admin-reference-root main article').filter({ hasText: 'Adminisztracio' });
+  await choose(page, /Adminisztracio foglalási állapota/, 'Általam lemondva');
+  await save(page);
+  expect(await page.evaluate(() => window.__adminLastRpc.args.p_changes[0])).toMatchObject({ type: 'blocked', status: 'cancelled', email_notification: null });
+  await page.evaluate(() => window.LumiAdminBackend.load('bookings', true));
+  await expect(manual.getByRole('button', { name: /Adminisztracio foglalási állapota/ })).toContainText('Általam lemondva');
+  await choose(page, /Adminisztracio foglalási állapota/, 'Vendég mondta le');
+  await save(page);
+  expect(await page.evaluate(() => window.__referenceSeed().blocked_times[0].status)).toBe('cancelled_by_customer');
+  await choose(page, /Adminisztracio foglalási állapota/, 'Nem jelent meg');
+  await save(page);
+  await page.evaluate(() => window.LumiAdminBackend.load('bookings', true));
+  await expect(manual.getByRole('button', { name: /Adminisztracio foglalási állapota/ })).toContainText('Nem jelent meg');
+  expect(await page.evaluate(() => window.__referenceSeed().blocked_times[0].status)).toBe('no_show');
+  await page.getByRole('button', { name: /Szemelyes program foglalási állapota/ }).click();
+  await expect(page.getByRole('option', { name: 'Nem jelent meg', exact: true })).toHaveCount(0);
+  await page.getByRole('option', { name: 'Általam lemondva', exact: true }).click();
+  await save(page);
+  expect(await page.evaluate(() => window.__referenceSeed().blocked_times[1].status)).toBe('cancelled');
+});
+
 test("reference pagination, compact source geometry, dropdown and swipe", async ({
   page,
 }) => {
@@ -320,6 +397,55 @@ test("content persistence and CMS conflict retain the actual draft", async ({
 
 test("date schedule preserves step and per-day intervals on save",async({page})=>{
  const seed=fixtures(),date=new Date().toLocaleDateString('sv-SE');seed.availability_windows=[{id:'window-1',work_date:date,start_time:'09:00',end_time:'18:00',slot_step_minutes:20,active:true}];await page.setViewportSize({width:390,height:844});await openAdmin(page,'schedule',seed);await page.locator('[data-schedule-date="'+date+'"]').click();const dialog=page.locator('dialog[open]'),row=dialog.locator('[data-window-id="window-1"]');await expect(row.getByLabel('Kezdés',{exact:true})).toHaveValue('09:00');await row.getByLabel('Vége',{exact:true}).fill('17:30');const movedDate=new Date(Date.now()+86400000).toLocaleDateString('sv-SE');await row.getByLabel('Dátum',{exact:true}).fill(movedDate);await expect(row).toBeVisible();await dialog.getByRole('button',{name:'Mentés',exact:true}).click();await expect(dialog).not.toBeVisible();expect(await page.evaluate(()=>window.__referenceSeed().availability_windows[0])).toMatchObject({id:'window-1',work_date:movedDate,end_time:'17:30',slot_step_minutes:20});
+});
+
+test('navigation swaps calculator and schedule in desktop menu and mobile dock', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings');
+  const dock = page.getByRole('navigation', { name: 'Mobil admin eszköztár', exact: true });
+  await expect(dock.getByRole('button', { name: 'Beosztás', exact: true })).toHaveCount(0);
+  await dock.getByRole('button', { name: 'Árkalkulátor', exact: true }).click();
+  await expect(page.locator('#admin-reference-root main h1')).toHaveText('Árkalkulátor');
+  await expect(dock).toHaveAttribute('data-active', '3');
+  await expect(dock.getByRole('button', { name: 'Árkalkulátor', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await dock.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  await dock.getByRole('button', { name: 'Továbbiak', exact: true }).click();
+  const more = page.getByRole('dialog', { name: 'Továbbiak', exact: true });
+  await expect(more.getByRole('button', { name: 'Árkalkulátor', exact: true })).toHaveCount(0);
+  await more.getByRole('button', { name: 'Beosztás', exact: true }).click();
+  await expect(page.locator('#admin-reference-root main h1')).toHaveText('Beosztás');
+  await expect(dock).toHaveAttribute('data-active', '4');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: '.impeccable/review/swapped-admin-menu-390.png' });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const desktop = page.getByRole('navigation', { name: 'Admin menü', exact: true });
+  const labels = await desktop.locator('button[aria-pressed]').allTextContents();
+  expect(labels.findIndex(label => label.includes('Árkalkulátor'))).toBe(2);
+  expect(labels.findIndex(label => label.includes('Beosztás'))).toBe(8);
+  await desktop.getByRole('button', { name: 'Árkalkulátor', exact: true }).click();
+  await expect(page.locator('#admin-reference-root main h1')).toHaveText('Árkalkulátor');
+});
+
+test('calculator decoration quantity dropdown offers one through ten and updates the total', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'calculator');
+  const main = page.locator('#admin-reference-root main');
+  await main.getByRole('switch', { name: 'Francia', exact: true }).check();
+  const quantity = main.getByRole('button', { name: /Francia darabszáma/ });
+  await expect(quantity).toContainText('1');
+  await quantity.click();
+  await expect(page.getByRole('option')).toHaveText(['1','2','3','4','5','6','7','8','9','10']);
+  await page.getByRole('option', { name: '10', exact: true }).click();
+  await expect(quantity).toContainText('10');
+  await expect(main.locator('output')).toHaveText('16 500 Ft');
+  await quantity.click();
+  await page.getByRole('option', { name: '1', exact: true }).click();
+  await expect(main.locator('output')).toHaveText('7 500 Ft');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: '.impeccable/review/calculator-quantity-dropdown-390.png' });
+  await quantity.click();
+  await page.screenshot({ path: '.impeccable/review/calculator-quantity-options-390.png' });
 });
 
 test("own calculator, guests, coupons and theme are usable within the copied shell", async ({
@@ -685,6 +811,57 @@ test("lazy tab loading, request coalescing and standalone zoom guard", async ({
   );
 });
 
+test('overview: single service area keeps outcomes and revenue without the reference monthly distribution', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'overview');
+  const main = page.locator('#admin-reference-root main');
+  await expect(main.getByRole('heading', { name: 'Foglalások alakulása', exact: true })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Bevétel alakulása', exact: true })).toBeVisible();
+  await expect(main.locator('[aria-labelledby="admin-distribution-title"]')).toHaveCount(0);
+  await expect(main).not.toContainText(/Műszempilla|Lézer|Pilla \+ lézer|Havi megoszlás/);
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await main.getByRole('heading', { name: 'Foglalások alakulása', exact: true }).scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: `.impeccable/review/single-service-statistics-${width}.png` });
+  }
+});
+
+test('booking badge: only actionable online cancellations and new bookings count on mobile and desktop', async ({ page }) => {
+  const seed = fixtures();
+  seed.blocked_times = seed.blocked_times.map(row => ({ ...row, status: 'cancelled_by_customer' }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings', seed);
+  const mobileButton = page.getByRole('navigation', { name: 'Mobil admin eszköztár' }).getByRole('button', { name: /Foglalások/ });
+  const desktopButton = page.getByRole('navigation', { name: 'Admin menü', exact: true }).getByRole('button', { name: /Foglalások/ });
+  await expect(mobileButton.getByText('2', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(desktopButton.getByText('2', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await page.getByRole('dialog', { name: 'Értesítések', exact: true }).getByRole('button', { name: 'Mind olvasott', exact: true }).click();
+  await expect(mobileButton.getByText('2', { exact: true })).toHaveCount(1);
+  await closeEditor(page);
+  const cards = page.locator('#admin-reference-root main article');
+  await expect(cards.filter({ hasText: 'Adminisztracio' }).getByRole('button', { name: 'Nyugtázom', exact: true })).toHaveCount(0);
+  await cards.filter({ hasText: 'Farkas Petra' }).getByRole('button', { name: 'Nyugtázom', exact: true }).click();
+  await expect(mobileButton.getByText('1', { exact: true })).toBeVisible();
+  await choose(page, /Kiss Dorka foglalási állapota/, 'Megerősítve');
+  await save(page);
+  await expect(mobileButton.locator('span.absolute')).toHaveCount(0);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(desktopButton.getByText(/^\d+$/, { exact: true })).toHaveCount(0);
+  const saved = await page.evaluate(() => window.__referenceSeed());
+  expect(saved.blocked_times).toEqual(seed.blocked_times);
+  await installSupabaseBoundaryMock(page, saved);
+  await page.reload();
+  await expect(desktopButton).toBeVisible();
+  await expect(desktopButton.getByText(/^\d+$/, { exact: true })).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(mobileButton).toBeVisible();
+  await expect(mobileButton.locator('span.absolute')).toHaveCount(0);
+});
+
 test('notifications: cancellation is first until its own card is acknowledged, without a duplicate inbox event', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openAdmin(page);
@@ -788,6 +965,7 @@ test('notifications: a later guest cancellation becomes an unread priority again
 
 test('notifications: only guest events appear and open registration has no approval action', async ({ page }) => {
   const seed = fixtures(), now = new Date().toISOString();
+  seed.customer_profiles = [{ user_id: 'customer-anna', created_at: now }];
   seed.booking_events.push(
     { id: 'guest-edit', booking_id: seed.bookings[0].id, event_type: 'customer_booking_rescheduled', channel: 'customer_account', title: 'Vendég módosította az időpontját', message: 'Vendégmódosítás', created_at: now },
     { id: 'admin-edit', booking_id: seed.bookings[0].id, event_type: 'admin_booking_updated', channel: 'admin', title: 'Admin módosítása', created_at: now },
@@ -808,9 +986,16 @@ test('notifications: only guest events appear and open registration has no appro
   await expect(inbox.getByRole('button', { name: /Új foglalás · Kiss Dorka/ })).toHaveCount(1);
   await expect(inbox.getByRole('button', { name: /Foglalás rögzítve/ })).toHaveCount(0);
   await expect(inbox.getByRole('button', { name: /^(Jóváhagyás|Jóváhagyom|Elfogadás|Elutasítás)$/i })).toHaveCount(0);
+  await expect(inbox).toContainText('Új regisztráció · Nagy Anna');
+  await expect(inbox).toContainText('anna.nagy@example.test · +36 30 111 2233');
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: '.impeccable/review/named-notifications-390.png' });
+  await expect(inbox.getByRole('button', { name: /Vendég módosította az időpontját · Nagy Anna/ })).toContainText('Erositett gel lakk');
   await inbox.getByRole('button', { name: /Új regisztráció/ }).click();
   await expect(page.locator('#admin-reference-root main h1')).toHaveText('Vendégek');
-  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().notificationReadIds)).toContain('event:new-account');
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().notificationReadIds)).toContain('registration:customer-anna');
   expect(await page.evaluate(() => window.__referenceSeed().bookings)).toEqual(seed.bookings);
 });
 
@@ -827,7 +1012,7 @@ test('notifications: confirming a read new booking does not create a second unre
     window.__adminReplaceRows('bookings', seed.bookings);
     await window.LumiAdminBackend.load('notifications', true);
   });
-  await expect(inbox.getByRole('button', { name: /Foglalás rögzítve/ })).toHaveCount(1);
+  await expect(inbox.getByRole('button', { name: /Új foglalás · Kiss Dorka/ })).toHaveCount(1);
   await expect(inbox.getByRole('button', { name: 'Mind olvasott', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
 });

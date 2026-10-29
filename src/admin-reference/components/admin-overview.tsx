@@ -14,7 +14,6 @@ type AgendaBooking = {
   guestName: string;
   serviceLabel: string;
   serviceGroups: AdminBookingServiceGroup[];
-  trackId: "lashes" | "laser" | "mixed";
   status: BookingStatus;
 };
 
@@ -25,23 +24,15 @@ export function AdminBookingServiceLabel({ groups, className }: { groups: AdminB
     <span className={`block min-w-0 ${className ?? ""}`}>
       {groups.map((group) => {
         const [firstName, ...remainingNames] = group.names;
-        const lashLabel = splitLashAdminServiceLabel(group.label);
         return (
           <span
             key={`${group.label}-${group.names.join("|")}`}
-            className={`grid min-w-0 ${group.label ? "grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-2 sm:grid-cols-[minmax(0,9rem)_minmax(0,1fr)]" : "grid-cols-1"} ${lashLabel ? "items-end" : ""}`}
+            className={`grid min-w-0 ${group.label ? "grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-2 sm:grid-cols-[minmax(0,9rem)_minmax(0,1fr)]" : "grid-cols-1"}`}
           >
             {group.label ? (
-              lashLabel ? (
-                <span className="min-w-0 font-semibold text-ink">
-                  <span className="block">{lashLabel.title}</span>
-                  <span className="block whitespace-nowrap">{lashLabel.detail}:</span>
-                </span>
-              ) : (
                 <span className="min-w-0 break-words font-semibold text-ink">{group.label}:</span>
-              )
             ) : null}
-            <span className={`${group.label ? "col-start-2" : ""} min-w-0 break-words ${lashLabel ? "self-end" : ""}`}>{firstName}</span>
+            <span className={`${group.label ? "col-start-2" : ""} min-w-0 break-words`}>{firstName}</span>
             {remainingNames.map((name) => (
               <span key={name} className={`${group.label ? "col-start-2" : ""} min-w-0 break-words`}>{name}</span>
             ))}
@@ -50,14 +41,6 @@ export function AdminBookingServiceLabel({ groups, className }: { groups: AdminB
       })}
     </span>
   );
-}
-
-function splitLashAdminServiceLabel(label: string) {
-  const prefix = "Műszempilla · ";
-  if (!label.startsWith(prefix)) return null;
-
-  const detail = label.slice(prefix.length).trim();
-  return detail ? { title: "Műszempilla", detail } : null;
 }
 
 type AdminOverviewProps = {
@@ -99,8 +82,6 @@ export function AdminOverview({ today, todayBookings, upcomingBookings, pendingC
   const selectedMonth = monthSelection ?? currentMonth;
   const selectedOutcomeMonth = outcomeMonthSelection ?? currentMonth;
   const outcomes = summarizeMonthlyBookingOutcomes(outcomeBookings, selectedOutcomeMonth.year, selectedOutcomeMonth.month);
-  const maxWeeklyCount = Math.max(1, ...outcomes.weeklyCounts);
-  const daysInSelectedMonth = new Date(Date.UTC(selectedOutcomeMonth.year, selectedOutcomeMonth.month, 0)).getUTCDate();
   const weekStart = getIsoWeekStart(selectedWeek.year, selectedWeek.week);
   const weekEnd = new Date(`${weekStart}T12:00:00Z`);
   weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
@@ -239,7 +220,7 @@ export function AdminOverview({ today, todayBookings, upcomingBookings, pendingC
                   <span className="text-right text-xs font-semibold">{booking.time}<span className="mt-1 block text-[0.65rem] font-normal text-ink-muted">{booking.endTime}</span></span>
                   <span className="min-w-0">
                     <span className="block truncate text-xs font-bold">{booking.guestName}</span>
-                    <span className="mt-1 flex min-w-0 items-start gap-1.5 text-[0.68rem] leading-4 text-ink-muted"><TrackDot track={booking.trackId} /><AdminBookingServiceLabel groups={booking.serviceGroups} className="text-[0.68rem] leading-4 text-ink-muted" /></span>
+                    <span className="mt-1 flex min-w-0 items-start gap-1.5 text-[0.68rem] leading-4 text-ink-muted"><ServiceDot /><AdminBookingServiceLabel groups={booking.serviceGroups} className="text-[0.68rem] leading-4 text-ink-muted" /></span>
                   </span>
                   <span className={`rounded-md px-2 py-1 text-[0.6rem] font-semibold ${getBookingStatusBadgeClass(booking.status)}`}>{bookingStatusLabels[booking.status]}</span>
                 </button>
@@ -331,55 +312,6 @@ export function AdminOverview({ today, todayBookings, upcomingBookings, pendingC
         </div>
       </section>
 
-      <section aria-labelledby="admin-distribution-title" className="rounded-xl border border-admin-border/60 bg-admin-surface p-3 lg:col-span-2 lg:bg-admin-raised">
-        <h2 id="admin-distribution-title" className="text-xs font-bold">Havi megoszlás · {selectedOutcomeMonthLabel}</h2>
-        <div className="mt-3 grid gap-5 md:grid-cols-2">
-          <div>
-            <h3 className="text-[0.68rem] font-semibold">Időpontok hetenként</h3>
-            <p className="mt-0.5 text-[0.62rem] text-ink-muted">Az időpont dátuma szerint, a lemondásokkal együtt.</p>
-            {outcomes.total ? (
-              <div className="mt-3 grid grid-cols-5 gap-2" aria-label="Heti időpontok">
-                {outcomes.weeklyCounts.map((count, index) => {
-                  const firstDay = index * 7 + 1;
-                  const lastDay = Math.min(firstDay + 6, daysInSelectedMonth);
-                  return (
-                    <div key={firstDay} className="flex min-w-0 flex-col items-center gap-1 text-center">
-                      <span className="text-[0.65rem] font-bold tabular-nums text-gold-dark">{count}</span>
-                      <div className="flex h-20 w-full items-end border-b border-admin-border/60 px-1" aria-hidden="true">
-                        <span className="w-full rounded-t-sm bg-gold-dark/85" style={{ height: count ? `${Math.max(8, count / maxWeeklyCount * 100)}%` : 0 }} />
-                      </div>
-                      <span className="text-[0.58rem] tabular-nums text-ink-muted">{firstDay}–{lastDay}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : <p className="mt-3 text-[0.68rem] text-ink-muted">Ebben a hónapban nincs rögzített időpont.</p>}
-          </div>
-          <div>
-            <h3 className="text-[0.68rem] font-semibold">Szolgáltatási területek</h3>
-            <p className="mt-0.5 text-[0.62rem] text-ink-muted">Nem lemondott foglalások alapján.</p>
-            <div className="mt-3 grid gap-3">
-              {([
-                { key: "lashes" as const, label: "Műszempilla" },
-                { key: "laser" as const, label: "Lézer" },
-                { key: "mixed" as const, label: "Pilla + lézer" },
-              ]).map(({ key, label }) => {
-                const count = outcomes.trackCounts[key];
-                const total = outcomes.total - outcomes.cancelled;
-                return (
-                  <div key={key}>
-                    <div className="flex justify-between gap-2 text-[0.65rem]"><span>{label}</span><span className="font-semibold tabular-nums text-gold-dark">{count}</span></div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-admin-field" aria-hidden="true">
-                      <span className="block h-full rounded-full bg-gold-dark" style={{ width: total ? `${count / total * 100}%` : 0 }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <p className="mt-3 text-[0.6rem] text-ink-muted">A foglalási statisztikák a jelenleg tárolt időpontokból készülnek.</p>
-      </section>
       </div>
 
     </section>
@@ -442,13 +374,8 @@ function AdminMonthPicker({ ariaLabel, selectedMonth, latestMonth, earliestMonth
   );
 }
 
-export function TrackDot({ track }: { track: "lashes" | "laser" | "mixed" }) {
-  const dotClass = track === "lashes"
-    ? "bg-admin-lashes"
-    : track === "laser"
-      ? "bg-admin-laser"
-      : "bg-admin-accent";
-  return <span aria-hidden="true" className={`inline-block size-1.5 shrink-0 rounded-full ${dotClass}`} />;
+export function ServiceDot() {
+  return <span aria-hidden="true" className="inline-block size-1.5 shrink-0 rounded-full bg-admin-service" />;
 }
 
 export function Chevron() {

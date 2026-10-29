@@ -116,7 +116,7 @@ test('mobile fix: online cancellation labels stay distinct and only owner cancel
   });
   const ownerCancelled = articles.filter({ hasText: 'Toth Luca' });
   await ownerCancelled.getByRole('button', { name: /Toth Luca foglalási állapota/ }).click();
-  await expect(page.getByRole('option', { name: 'Vendég mondta le', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Vendég mondta le', exact: true })).toHaveCount(0);
   await page.getByRole('option', { name: 'Általam lemondva', exact: true }).click();
   await page.locator('[data-admin-save]').click();
   await expect(page.locator('[data-admin-save]')).toHaveCount(0);
@@ -126,13 +126,13 @@ test('mobile fix: online cancellation labels stay distinct and only owner cancel
   expect(await page.evaluate(() => window.__testEmailCalls.filter(call => call.name === 'send-booking-update-email').length)).toBe(1);
   await page.evaluate(() => { window.__testEmailJob = null; });
   const guestCancelled = articles.filter({ hasText: 'Nagy Anna' });
-  await guestCancelled.getByRole('button', { name: /Nagy Anna foglalási állapota/ }).click();
-  await page.getByRole('option', { name: 'Vendég mondta le', exact: true }).click();
-  await page.locator('[data-admin-save]').click();
-  await expect(page.locator('[data-admin-save]')).toHaveCount(0);
-  const guestChange = await page.evaluate(() => window.__adminLastRpc.args.p_changes[0]);
-  expect(guestChange.status).toBe('cancelled_by_customer');
-  expect(guestChange.email_notification).toBeNull();
+  // A real guest cancellation is received from the backend, not chosen by the admin.
+  await page.evaluate(async () => {
+    const rows = window.__referenceSeed().bookings;
+    rows.find(row => row.customer_name === 'Nagy Anna').status = 'cancelled_by_customer';
+    window.__adminReplaceRows('bookings', rows);
+    await window.LumiAdminBackend.load('bookings', true);
+  });
   expect(await page.evaluate(() => window.__testEmailCalls.filter(call => call.name === 'send-booking-update-email').length)).toBe(1);
   await page.evaluate(() => window.LumiAdminBackend.load('bookings', true));
   await expect(guestCancelled.getByRole('button', { name: /Nagy Anna foglalási állapota/ })).toContainText('Vendég mondta le');

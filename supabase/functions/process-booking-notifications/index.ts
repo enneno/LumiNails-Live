@@ -402,6 +402,7 @@ async function sendMonthlyReportEmail(options: {
   const completedMinutes = numberValue(online.completed_minutes) + numberValue(manual.completed_minutes);
   const cancellations = numberValue(online.cancelled_owner)
     + numberValue(online.cancelled_customer)
+    + numberValue(manual.cancelled_owner)
     + numberValue(manual.cancelled_customer);
   const variables = { honap: month };
   const template = emailTemplate(siteContent?.email?.haviStatisztika, {

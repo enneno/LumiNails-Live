@@ -1323,7 +1323,7 @@
         const foglalasok = aktivFoglalasok || allapot.foglalasElemek
             .filter(item => item.tipus === 'booking')
             .map(item => item.adat)
-            .filter(item => !['cancelled', 'cancelled_by_customer'].includes(item.status));
+            .filter(item => !['cancelled', 'cancelled_by_customer', 'no_show'].includes(item.status));
         const pending = foglalasok.filter(item => item.status === 'pending');
         const emailErrors = adminV2EmailHibasEsemenyek();
         const cancellations = adminV2OlvasatlanLemondasok();
@@ -1553,7 +1553,7 @@
         const bookings = allapot.foglalasElemek
             .filter(item => item.tipus === 'booking')
             .map(item => item.adat);
-        const activeBookings = bookings.filter(item => !['cancelled', 'cancelled_by_customer'].includes(item.status));
+        const activeBookings = bookings.filter(item => !['cancelled', 'cancelled_by_customer', 'no_show'].includes(item.status));
         const activeSchedule = allapot.foglalasElemek
             .map(adminV2AttekintesIdopont)
             .filter(Boolean);
@@ -1594,7 +1594,7 @@
 
         if (item?.tipus === 'booking') {
             const status = String(data.status || 'pending').toLowerCase();
-            if (['cancelled', 'cancelled_by_customer'].includes(status)) return null;
+            if (['cancelled', 'cancelled_by_customer', 'no_show'].includes(status)) return null;
 
             return {
                 tipus: 'booking',
@@ -1609,7 +1609,7 @@
 
         if (item?.tipus === 'blocked') {
             const status = tiltasStatuszErtek(data.status);
-            if (['done', 'cancelled_by_customer'].includes(status)) return null;
+            if (['done', 'cancelled', 'cancelled_by_customer', 'no_show'].includes(status)) return null;
 
             const cim = data.reason?.trim() || 'Kézzel felvett idő';
             return {
@@ -2573,11 +2573,11 @@ function arlistaFeliratokFrissitese() {
         const end = adminV2DatumKulcs(seven);
         panel.querySelector('[data-studio-week-count]').textContent = records.filter((record) => {
             const day = foglalasDatumKulcs(record.starts_at);
-            return day >= today && day < end && !['cancelled', 'cancelled_by_customer'].includes(record.status);
+            return day >= today && day < end && !['cancelled', 'cancelled_by_customer', 'no_show'].includes(record.status);
         }).length;
         const upcoming = records
             .filter(
-                (record) => new Date(record.ends_at) >= new Date() && !['cancelled', 'cancelled_by_customer', 'done'].includes(record.status)
+                (record) => new Date(record.ends_at) >= new Date() && !['cancelled', 'cancelled_by_customer', 'no_show', 'done'].includes(record.status)
             )
             .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))[0];
         panel.querySelector('[data-studio-next]').innerHTML = upcoming
@@ -3755,6 +3755,7 @@ function arlistaFeliratokFrissitese() {
                             ${statuszOption('done', 'Teljesítve', foglalas.status)}
                             ${statuszOption('cancelled', 'Általam lemondva', foglalas.status)}
                             ${statuszOption('cancelled_by_customer', 'Vendég mondta le', foglalas.status)}
+                            ${statuszOption('no_show', 'Nem jelent meg', foglalas.status)}
                         </select>
                         <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
                         <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
@@ -4027,6 +4028,8 @@ function arlistaFeliratokFrissitese() {
                             <option value="blocked" ${statusz === 'blocked' ? 'selected' : ''}>Foglalt</option>
                             <option value="done" ${statusz === 'done' ? 'selected' : ''}>Teljesítve</option>
                             <option value="cancelled_by_customer" ${statusz === 'cancelled_by_customer' ? 'selected' : ''}>Vendég mondta le</option>
+                            <option value="cancelled" ${statusz === 'cancelled' ? 'selected' : ''}>Általam lemondva</option>
+                            <option value="no_show" ${statusz === 'no_show' ? 'selected' : ''}>Nem jelent meg</option>
                         </select>
                         <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
                         <button type="button" class="admin-booking-icon-button admin-control-icon-button admin-kezi-ido-naptar" data-kezi-ido-naptar>Naptárba</button>
@@ -4379,7 +4382,7 @@ function arlistaFeliratokFrissitese() {
             return null;
         }
 
-        if (modositas.status === 'cancelled_by_customer') {
+        if (['cancelled_by_customer', 'no_show'].includes(modositas.status)) {
             return null;
         }
 
@@ -4916,7 +4919,7 @@ function arlistaFeliratokFrissitese() {
         const jovobeli = szurtElemek.filter(elem => {
             const statusz = String(elem.adat?.status || '').toLowerCase();
             return new Date(elem.datum).getTime() >= most
-                && !['cancelled', 'cancelled_by_customer', 'done'].includes(statusz);
+                && !['cancelled', 'cancelled_by_customer', 'no_show', 'done'].includes(statusz);
         }).length;
         const fuggoben = szurtElemek.filter(elem =>
             elem.tipus === 'booking' && foglalasFuggoben(elem.adat)
@@ -4962,7 +4965,7 @@ function arlistaFeliratokFrissitese() {
     }
 
     function foglalasNaptarbanLathato(elem) {
-        return !['cancelled', 'cancelled_by_customer'].includes(foglalasNaptarStatuszOsztaly(elem));
+        return !['cancelled', 'cancelled_by_customer', 'no_show'].includes(foglalasNaptarStatuszOsztaly(elem));
     }
 
     function foglalasNaptarStatuszFelirat(elem) {
@@ -6906,6 +6909,11 @@ function arlistaFeliratokFrissitese() {
     let referenceNotificationReadIds = new Set();
     let referenceNotificationsLoaded = false;
     let referenceGuestEvents = null;
+    let referenceRegistrations = [];
+    let referenceGuestEventsLoadedAt = 0;
+    const referencePushDefaults = {newBooking:true,cancellation:true,guestRegistration:true,bookingEmailFailure:true};
+    let referencePushPreferences = {...referencePushDefaults};
+    let referencePushPreferencesLoaded = false;
     let referenceLogState = {loaded:false,events:[],hasNew:false,lastSeen:0,error:null};
     function referenceNotificationState() {
         const owner = allapot.session?.user?.id || null;
@@ -6914,20 +6922,46 @@ function arlistaFeliratokFrissitese() {
             referenceNotificationReadIds = new Set();
             referenceNotificationsLoaded = false;
             referenceGuestEvents = null;
+            referenceRegistrations = [];
+            referenceGuestEventsLoadedAt = 0;
+            referencePushPreferences = {...referencePushDefaults};
+            referencePushPreferencesLoaded = false;
             referenceLogState = {loaded:false,events:[],hasNew:false,lastSeen:0,error:null};
         }
         return owner;
     }
-    async function referenceLoadGuestEvents() {
+    async function referenceLoadGuestEvents(force=false) {
         const owner=referenceNotificationState();
+        if(!force&&referenceGuestEventsLoadedAt>Date.now()-30000)return;
         const valid=adminKeresMunkamenetOr();
         await adminKeresOsszevonasa('referenceGuestEvents',async()=>{
-            const {data,error}=await allapot.kliens.from('booking_events')
+            const [events,profiles]=await Promise.all([allapot.kliens.from('booking_events')
                 .select('id,booking_id,event_type,channel,title,message,created_at')
-                .in('event_type',['booking_created','customer_cancelled','customer_registered','customer_booking_updated','customer_booking_rescheduled','customer_rescheduled','booking_rescheduled'])
-                .neq('channel','admin').order('created_at',{ascending:false}).limit(50);
-            if(error)throw new Error('Az értesítések nem tölthetők be. Próbáld újra.');
-            if(valid()&&referenceNotificationState()===owner)referenceGuestEvents=data || [];
+                .in('event_type',['booking_created','customer_cancelled','customer_booking_updated','customer_booking_rescheduled','customer_rescheduled','booking_rescheduled'])
+                .neq('channel','admin').order('created_at',{ascending:false}).limit(50),
+                allapot.kliens.rpc('admin_registered_customer_profiles')]);
+            if(events.error||profiles.error)throw new Error('Az értesítések nem tölthetők be. Próbáld újra.');
+            const registered=profiles.data || [];
+            // Match by the real user id; never guess a guest from an event's timestamp.
+            const dates=registered.length ? await allapot.kliens.from('customer_profiles').select('user_id,created_at').in('user_id',registered.map(row=>row.user_id)) : {data:[]};
+            if(dates.error)throw new Error('A regisztrációs értesítések nem tölthetők be. Próbáld újra.');
+            if(valid()&&referenceNotificationState()===owner){
+                referenceGuestEvents=events.data || [];
+                referenceRegistrations=registered.map(row=>({...row,created_at:dates.data.find(date=>date.user_id===row.user_id)?.created_at})).filter(row=>row.created_at);
+                referenceGuestEventsLoadedAt=Date.now();
+            }
+        });
+    }
+    function referenceNormalizePushPreferences(value) {
+        return Object.fromEntries(Object.entries(referencePushDefaults).map(([key,fallback])=>[key,typeof value?.[key]==='boolean'?value[key]:fallback]));
+    }
+    async function referenceLoadPushPreferences(force=false) {
+        const owner=referenceNotificationState(),valid=adminKeresMunkamenetOr();
+        if(referencePushPreferencesLoaded&&!force)return;
+        await adminKeresOsszevonasa('referencePushPreferences',async()=>{
+            const {data,error}=await allapot.kliens.from('site_settings').select('value').eq('key','admin_push_preferences').maybeSingle();
+            if(error)throw new Error('A telefonos értesítések beállításai nem tölthetők be. Próbáld újra.');
+            if(valid()&&referenceNotificationState()===owner){referencePushPreferences=referenceNormalizePushPreferences(data?.value);referencePushPreferencesLoaded=true;}
         });
     }
     async function referenceLoadErrorLogs(full=false,force=false) {
@@ -6990,10 +7024,10 @@ function arlistaFeliratokFrissitese() {
         if (!item) throw new Error('Az időpont már nem található. Frissítsd a listát.');
         return item;
     }
-    const referenceStatus = status => ({ pending:'new', confirmed:'confirmed', blocked:'confirmed', active:'confirmed', done:'completed', cancelled:'cancelled', cancelled_by_customer:'guest_cancelled' }[status] || 'confirmed');
+    const referenceStatus = status => ({ pending:'new', confirmed:'confirmed', blocked:'confirmed', active:'confirmed', done:'completed', no_show:'no_show', cancelled:'cancelled', cancelled_by_customer:'guest_cancelled' }[status] || 'confirmed');
     const originalStatus = (status, type) => type === 'blocked'
-        ? ({ completed:'done', guest_cancelled:'cancelled_by_customer', cancelled:'cancelled_by_customer' }[status] || 'blocked')
-        : ({ new:'pending', confirmed:'confirmed', completed:'done', cancelled:'cancelled', guest_cancelled:'cancelled_by_customer' }[status] || 'confirmed');
+        ? ({ completed:'done', no_show:'no_show', guest_cancelled:'cancelled_by_customer', cancelled:'cancelled' }[status] || 'blocked')
+        : ({ new:'pending', confirmed:'confirmed', completed:'done', no_show:'no_show', cancelled:'cancelled', guest_cancelled:'cancelled_by_customer' }[status] || 'confirmed');
     function referenceRequireAdmin() {
         if (!allapot.session || !allapot.adminVerified) throw new Error('A művelethez aktuális admin belépés szükséges.');
         onlineStatusz('');
@@ -7009,7 +7043,7 @@ function arlistaFeliratokFrissitese() {
         const cancellationAcknowledgedAt=acknowledgedAt && (!cancelled?.lemondas || Date.parse(acknowledgedAt)>=Date.parse(cancelled.lemondas)) ? acknowledgedAt : null;
         return { id:referenceId(item), notificationKey:referenceKey(item), createdAt:row.created_at, updatedAt:row.updated_at || row.created_at || '', startsAt:row.starts_at, endsAt:row.ends_at,
             date:new Date(row.starts_at).toLocaleDateString('hu-HU'), time:idoInputErtek(row.starts_at), endTime:idoInputErtek(row.ends_at),
-            dateInput:datumInputErtek(row.starts_at), timeInput:idoInputErtek(row.starts_at), trackId:'lashes', trackLabel:'Köröm',
+            dateInput:datumInputErtek(row.starts_at), timeInput:idoInputErtek(row.starts_at),
             serviceLabel:row.services?.name || row.services?.description || '', serviceGroups:[{label:'',names:[row.services?.name || row.services?.description || 'Kézi időpont']}],
             serviceIds:row.service_id?[row.service_id]:allapot.szolgaltatasok.filter(service=>service.name===row.services?.name).slice(0,1).map(service=>service.id), guestName:row.customer_name || row.reason || 'Kézi időpont', createdBy:null,
             phone:row.customer_phone || '', email:row.customer_email || '', note:item.tipus==='booking'?foglalasMegjegyzesMegjelenites(row):'', adminComment:'',
@@ -7034,6 +7068,7 @@ function arlistaFeliratokFrissitese() {
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
             emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
+            registrations:referenceRegistrations, pushPreferences:referencePushPreferences,
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }
     const referenceLoaders={overview:'attekintes',bookings:'foglalasok',prices:'szolgaltatasok',coupons:'kuponok',schedule:'idosavok',guests:'vendegek',logs:'esemenynaplo',settings:'beallitasok',calculator:'arkalkulator'};
@@ -7069,10 +7104,11 @@ function arlistaFeliratokFrissitese() {
         async load(scope,force=false) {
             referenceRequireAdmin();
             if(force&&['bookings','overview'].includes(scope))adminStudioFoglalasKartyak.clear();
-            if(['notifications','overview','bookings'].includes(scope))await Promise.all([adminPanelAdatokBetoltese('foglalasok',force),referenceLoadGuestEvents()]);
+            if(['notifications','overview','bookings'].includes(scope))await Promise.all([adminPanelAdatokBetoltese('foglalasok',force),referenceLoadGuestEvents(force||scope==='notifications')]);
             else if(scope==='logs')await referenceLoadErrorLogs(true,true);
             else if(scope==='content'||scope==='gallery'){await window.LumiAdminCms.load(force);referenceCheckCms();}
             else await adminPanelAdatokBetoltese(referenceLoaders[scope] || 'attekintes',force);
+            if(scope==='settings')await referenceLoadPushPreferences(force);
             if (['overview','bookings','notifications'].includes(scope)) await referenceLoadNotificationReads(force);
             if(scope!=='logs')await referenceLoadErrorLogs(false,force);
             referenceCheckStatus();
@@ -7152,6 +7188,16 @@ function arlistaFeliratokFrissitese() {
             await idosavokBetoltese();return referenceSnapshot();
         },
         async savePhone(visible){referenceRequireAdmin();adminElemek().telefonLathato.checked=visible;await beallitasokMentese();referenceCheckStatus();return referenceSnapshot();},
+        async savePushPreferences(value){
+            referenceRequireAdmin();
+            const owner=referenceNotificationState(),valid=adminKeresMunkamenetOr();
+            const preferences=referenceNormalizePushPreferences(value);
+            const {data,error}=await allapot.kliens.from('site_settings').upsert({key:'admin_push_preferences',value:preferences,updated_at:new Date().toISOString()},{onConflict:'key'}).select('value').single();
+            if(error||!data)throw new Error('A telefonos értesítések beállításait nem sikerült menteni. Próbáld újra.');
+            if(!valid()||referenceNotificationState()!==owner)throw new Error('A munkamenet megváltozott. Jelentkezz be újra.');
+            referencePushPreferences=referenceNormalizePushPreferences(data.value);referencePushPreferencesLoaded=true;
+            return referenceSnapshot();
+        },
         async saveContent(content){referenceRequireAdmin();window.LumiAdminCms.setData(content);await window.LumiAdminCms.save();referenceCheckCms();return referenceSnapshot();},
         async upload(path,file){referenceRequireAdmin();await window.LumiAdminCms.upload(path,file);referenceCheckCms();return referenceSnapshot();},
         exportBookings(ids){referenceRequireAdmin();allapot.referenceExportBookings=(ids||referenceSnapshot().bookings.map(row=>row.id)).map(id=>{const item=referenceItem(id);return {...item.adat,__tipus:item.tipus};});try{document.querySelector('[data-admin-export="foglalasok"]')?.click();}finally{allapot.referenceExportBookings=null;}},
@@ -7406,7 +7452,7 @@ function arlistaFeliratokFrissitese() {
 
     function tiltasStatuszErtek(statusz) {
         const ertek = String(statusz || '').toLowerCase();
-        return ['done', 'cancelled_by_customer'].includes(ertek) ? ertek : 'blocked';
+        return ['done', 'no_show', 'cancelled', 'cancelled_by_customer'].includes(ertek) ? ertek : 'blocked';
     }
 
     function keziSzolgaltatasAdat(tiltas) {
@@ -7846,7 +7892,7 @@ function arlistaFeliratokFrissitese() {
     async function idopontUtkozesHiba({ tipus, id = '', nev = '', startsAt, endsAt, statusz }) {
         const aktivBejegyzes = tipus === 'booking'
             ? ['pending', 'confirmed', 'done'].includes(statusz)
-            : tiltasStatuszErtek(statusz) !== 'cancelled_by_customer';
+            : ['blocked', 'done'].includes(tiltasStatuszErtek(statusz));
 
         if (!aktivBejegyzes) {
             return '';
@@ -7886,7 +7932,7 @@ function arlistaFeliratokFrissitese() {
                 .limit(1);
 
             if (statuszOszloppal) {
-                query = query.neq('status', 'cancelled_by_customer');
+                query = query.in('status', ['blocked', 'done']);
             }
 
             if (tipus === 'blocked' && id) {

@@ -1,6 +1,6 @@
 {
   "reference": "Szalon-teszt frontend source only; no business data, content, environment or credentials",
-  "bookingCardMarkupSha256": "f09ad7a163caa6e5774119fd8b12eae82ffee4fbb10dd98deea5fcff192111e5",
+  "bookingCardMarkupSha256": "8b97952cdf83597f280721391f7a50363997268043f5358bcc0d3e72ab808e72",
   "files": [
     {
       "file": "app/admin/viewport.module.css",
@@ -23,8 +23,9 @@
     {
       "file": "components/admin-bookings-tab.tsx",
       "sourceSha256": "4373825303d0d101b5cea62b6bcded6ffeb161f7ccf3a2dd0e0538a0aede912c",
-      "localSha256": "ee73993b5ce9ff3e46f3dfd8ecbdbe9a0b9e568453f8ae648e73de14f2644e55",
-      "exact": false
+      "localSha256": "40d4bb6b4986745b99ddef260be4ea8cc85ebdf2596f997f9b624ff19a4984cf",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-detail-row.tsx",
@@ -59,8 +60,9 @@
     {
       "file": "components/admin-gallery-tab.tsx",
       "sourceSha256": "9d067cf556bff1b5aca62e9ecd15e98e5af1b860c420664f183b5e8abf22475c",
-      "localSha256": "6f889ea509a755d7944b6ca60b61ebbd867bda41ff7b261f97949292d60d7ba1",
-      "exact": false
+      "localSha256": "4d7252e92cb4cee1a927e701c07badc2ece3df23e04b6d870bad1d41233668e6",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-icon.tsx",
@@ -89,8 +91,9 @@
     {
       "file": "components/admin-manual-booking-sheet.tsx",
       "sourceSha256": "70a9085b0d85a2250f0cbe5b335539a4297ff9fc98ad5bbf3093b494744c3fa1",
-      "localSha256": "5433c97a5c771bde45f6838b1d159657a87545e48c9a5ff28374fd2b7ab1f913",
-      "exact": false
+      "localSha256": "f94913e4ac1c202a708e44807da4ee913e7baffb8e8726ef26e35730041ef127",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-overlays.module.css",
@@ -101,8 +104,9 @@
     {
       "file": "components/admin-overview.tsx",
       "sourceSha256": "c71630f80995d7b88f77630d43477153d75be729cdcdb62b33e81d4aa735776b",
-      "localSha256": "c71630f80995d7b88f77630d43477153d75be729cdcdb62b33e81d4aa735776b",
-      "exact": true
+      "localSha256": "010f3193c8e07a0a49f38549fd65a3ca2cb9e9e8a5b650495c874356053351d4",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-price-input.tsx",
@@ -113,8 +117,9 @@
     {
       "file": "components/admin-prices-tab.tsx",
       "sourceSha256": "8f99d8ade16fd9a2583a600d65e72c5f73aa40a105739b1a7185c6772ae2e93f",
-      "localSha256": "0d4ae09896e78317d9c86faf1324689a1de309cc52659a229e60267e2c5171ca",
-      "exact": false
+      "localSha256": "3f67637fe90e36dd32a2eae0f65c52e183b471c165534bd139ee5f23b8c1aec1",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-search-input.module.css",
@@ -161,14 +166,16 @@
     {
       "file": "components/admin-week-calendar-mobile.tsx",
       "sourceSha256": "4b84019b897d3b7c5ee0d30209d3a196fbfaca5e795f72ed65363a87a83abe60",
-      "localSha256": "2a82eff621807a6b3c5cad925f1b013ed3e9ed300b857b2941624b2e0b3eccf7",
-      "exact": false
+      "localSha256": "f872c68cd485e1c5a5b0dfd22fd971537074e4a7bab59694876e4e63703164d7",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-week-calendar.tsx",
       "sourceSha256": "c1cf5660c1c66841bf22895f11a784f9581f218234fc930b97de82ef457442ec",
-      "localSha256": "d1f6da9512bf8742488925a71d29bdea9ba5bc126da1005e1268e6f172f84fb3",
-      "exact": false
+      "localSha256": "027df97d648df1bb35cbe8a4b6e0b17576c30825b93d01ee04129942449ded44",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-week-picker.tsx",
@@ -209,8 +216,9 @@
     {
       "file": "lib/admin-bookings.ts",
       "sourceSha256": "446ba8592331867cb54373bb6f9d56973e2c5484f7f3f62afbca9a9ca59c6356",
-      "localSha256": "446ba8592331867cb54373bb6f9d56973e2c5484f7f3f62afbca9a9ca59c6356",
-      "exact": true
+      "localSha256": "42980f3972ec04c076d3596449355c3d3edd69497942c4d162ff7bca264eada6",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "lib/admin-focus.ts",
@@ -251,19 +259,14 @@
     {
       "file": "lib/gallery.ts",
       "sourceSha256": "e1a43ed553f6731acbb4917bd0f09d03b9632b83b7f9b405040240931746b875",
-      "localSha256": "7c2efab1994dfc432b00e1e7c9020387cd4c92ec162509c4e097d6e288d8c2b9",
-      "exact": false
+      "localSha256": "bcf79f869a8fcff66c0dd22e486d468e6dcb55f8ac979d8f796513333336ac2b",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "lib/hungarian-phone.ts",
       "sourceSha256": "0709af2a0a69b81e20c5cddd2b66a38bfe0935bd663c3e5efab1132ea25263f2",
       "localSha256": "0709af2a0a69b81e20c5cddd2b66a38bfe0935bd663c3e5efab1132ea25263f2",
-      "exact": true
-    },
-    {
-      "file": "lib/list-order.ts",
-      "sourceSha256": "52386ca9ceba95aff533ce9862cd909e9a1ca312709720237d96761eaac80996",
-      "localSha256": "52386ca9ceba95aff533ce9862cd909e9a1ca312709720237d96761eaac80996",
       "exact": true
     },
     {
@@ -275,8 +278,9 @@
     {
       "file": "lib/service-catalog.ts",
       "sourceSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
-      "localSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
-      "exact": true
+      "localSha256": "5ae61485ecb45405f2750827072dc7073b87cf41a82763989bea60f2159e0ff0",
+      "exact": false,
+      "adaptation": "Single-service LumiNails admin: removed reference service-area branches while retaining the active UI and data adapter."
     },
     {
       "file": "components/admin-logs-tab.tsx",
@@ -293,5 +297,13 @@
       "localSha256": "5fb7610020e162b5fe295a14428a5a58b0368c7c7ba58682efac109d6dcac084",
       "adaptation": "Viewport/focus bridge fitted to the visible iOS frame. Existing LumiNails service worker, push and whole-page zoom prohibition retained."
     }
-  ]
+  ],
+  "removedFiles": [
+    {
+      "file": "lib/list-order.ts",
+      "sourceSha256": "52386ca9ceba95aff533ce9862cd909e9a1ca312709720237d96761eaac80996",
+      "reason": "Unused reference-only two-calendar ordering; LumiNails preserves its own saved service order."
+    }
+  ],
+  "sourceBookingCardMarkupSha256": "f09ad7a163caa6e5774119fd8b12eae82ffee4fbb10dd98deea5fcff192111e5"
 }

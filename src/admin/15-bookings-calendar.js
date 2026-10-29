@@ -7,7 +7,7 @@
         const jovobeli = szurtElemek.filter(elem => {
             const statusz = String(elem.adat?.status || '').toLowerCase();
             return new Date(elem.datum).getTime() >= most
-                && !['cancelled', 'cancelled_by_customer', 'done'].includes(statusz);
+                && !['cancelled', 'cancelled_by_customer', 'no_show', 'done'].includes(statusz);
         }).length;
         const fuggoben = szurtElemek.filter(elem =>
             elem.tipus === 'booking' && foglalasFuggoben(elem.adat)
@@ -53,7 +53,7 @@
     }
 
     function foglalasNaptarbanLathato(elem) {
-        return !['cancelled', 'cancelled_by_customer'].includes(foglalasNaptarStatuszOsztaly(elem));
+        return !['cancelled', 'cancelled_by_customer', 'no_show'].includes(foglalasNaptarStatuszOsztaly(elem));
     }
 
     function foglalasNaptarStatuszFelirat(elem) {

@@ -30,7 +30,7 @@ function fooldalStudioBekotese() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let step = 0, maximum = 0, frame = 0, lastTime = 0, remainder = 0;
     let inView = false, openingImage = false;
-    let pointer = null, suppressClickUntil = 0;
+    let pointer = null, touching = false, suppressClickUntil = 0;
     strip.classList.add('is-flowing');
 
     function applyPosition(position) {
@@ -44,7 +44,7 @@ function fooldalStudioBekotese() {
     }
     function canAnimate() {
         return inView && !document.hidden && !reducedMotion.matches
-            && !pointer && !openingImage && maximum > step + 1
+            && !pointer && !touching && !openingImage && maximum > step + 1
             && !document.getElementById('galeria-lightbox')?.classList.contains('nyitva');
     }
     function animate(now) {
@@ -74,39 +74,68 @@ function fooldalStudioBekotese() {
         syncMotion();
     }
     strip.addEventListener('pointerdown', event => {
-        if (!event.isPrimary || event.button !== 0) return;
-        pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false };
+        // Touch uses its own stream: iOS can cancel Pointer Events when it starts a gesture.
+        if (event.pointerType === 'touch' || !event.isPrimary || event.button !== 0) return;
+        pointer = { kind: 'pointer', id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false };
         syncMotion();
     });
-    strip.addEventListener('pointermove', event => {
-        if (pointer?.id !== event.pointerId) return;
-        const dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
+    function moveDrag(x, y, capture) {
+        const dx = x - pointer.x, dy = y - pointer.y;
         if (!pointer.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
             pointer.dragging = true;
-            strip.setPointerCapture(event.pointerId);
+            capture?.();
             strip.classList.add('is-dragging');
         }
-        if (pointer.dragging) {
-            event.preventDefault();
-            applyPosition(strip.scrollLeft - (event.clientX - pointer.lastX));
-        }
-        pointer.lastX = event.clientX;
+        if (pointer.dragging) applyPosition(strip.scrollLeft - (x - pointer.lastX));
+        pointer.lastX = x;
+        return pointer.dragging;
+    }
+    strip.addEventListener('pointermove', event => {
+        if (pointer?.kind !== 'pointer' || pointer.id !== event.pointerId) return;
+        if (moveDrag(event.clientX, event.clientY, () => strip.setPointerCapture(event.pointerId))) event.preventDefault();
     });
-    function finishPointer(event) {
-        if (pointer?.id !== event.pointerId) return;
+    function finishDrag() {
+        if (!pointer) { syncMotion(); return; }
         const wasDragging = pointer.dragging;
+        const capturedId = pointer.kind === 'pointer' ? pointer.id : null;
         pointer = null;
         strip.classList.remove('is-dragging');
-        if (strip.hasPointerCapture(event.pointerId)) strip.releasePointerCapture(event.pointerId);
+        if (capturedId !== null && strip.hasPointerCapture(capturedId)) strip.releasePointerCapture(capturedId);
         if (wasDragging) suppressClickUntil = performance.now() + 250;
         syncMotion();
+    }
+    function finishPointer(event) {
+        if (pointer?.kind === 'pointer' && pointer.id === event.pointerId) finishDrag();
     }
     strip.addEventListener('pointerup', finishPointer);
     strip.addEventListener('pointercancel', finishPointer);
     strip.addEventListener('lostpointercapture', event => {
-        // Touch capture moving from the photo to the row is not the end of the drag.
+        // A descendant's capture change does not end the row's drag.
         if (event.target === strip) finishPointer(event);
     });
+    strip.addEventListener('touchstart', event => {
+        touching = true;
+        if (event.touches.length !== 1) { finishDrag(); return; }
+        const touch = event.touches[0];
+        pointer = { kind: 'touch', id: touch.identifier, x: touch.clientX, y: touch.clientY, lastX: touch.clientX, dragging: false };
+        syncMotion();
+    }, { passive: true });
+    strip.addEventListener('touchmove', event => {
+        if (pointer?.kind !== 'touch') return;
+        const touch = Array.from(event.touches).find(touch => touch.identifier === pointer.id);
+        if (!touch) return;
+        const dx = touch.clientX - pointer.x, dy = touch.clientY - pointer.y;
+        // Let a vertical gesture scroll the page, and leave multi-touch zoom to the browser.
+        if (!pointer.dragging && Math.abs(dy) > 6 && Math.abs(dy) >= Math.abs(dx)) { finishDrag(); return; }
+        if (moveDrag(touch.clientX, touch.clientY) && event.cancelable) event.preventDefault();
+    }, { passive: false });
+    function finishTouch(event) {
+        touching = event.touches.length > 0;
+        if (pointer?.kind === 'touch') finishDrag();
+        else syncMotion();
+    }
+    strip.addEventListener('touchend', finishTouch, { passive: true });
+    strip.addEventListener('touchcancel', finishTouch, { passive: true });
     strip.addEventListener('wheel', event => {
         if (Math.abs(event.deltaX) <= Math.abs(event.deltaY) && !event.shiftKey) return;
         event.preventDefault();

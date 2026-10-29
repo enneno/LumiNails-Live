@@ -17,7 +17,8 @@ const HTML_FILES = [
     'galeria/index.html',
     'foglalas/index.html',
     'fiokom/index.html',
-    'adatkezeles/index.html'
+    'adatkezeles/index.html',
+    'hazirend/index.html'
 ];
 const NOT_FOUND_FILE = '404.html';
 const JS_FILES = [

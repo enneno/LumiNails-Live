@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { hasCurrentRulesConsent } from "../_shared/house-rules-policy.mjs";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,10 +78,15 @@ serve(async (req) => {
     }
 
     if (action === "cancel") {
-      const { data, error } = await supabase.rpc("cancel_booking_by_verified_contact", {
+      if (!hasCurrentRulesConsent(body.house_rules_accepted, body.house_rules_version)) {
+        return json({ ok: false, code: "rules_consent_required", message: "A lemondáshoz fogadd el az aktuális lemondási feltételeket. Szükség esetén frissítsd az oldalt." }, 400);
+      }
+      const { data, error } = await supabase.rpc("cancel_booking_verified_with_rules", {
         p_reference: reference,
         p_contact: contact,
         p_note: note,
+        p_rules_accepted: body.house_rules_accepted,
+        p_rules_version: body.house_rules_version,
       });
       if (error) {
         console.error("manage-booking cancel error", error.message);

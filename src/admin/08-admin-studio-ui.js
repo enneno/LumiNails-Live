@@ -375,11 +375,11 @@
         const end = adminV2DatumKulcs(seven);
         panel.querySelector('[data-studio-week-count]').textContent = records.filter((record) => {
             const day = foglalasDatumKulcs(record.starts_at);
-            return day >= today && day < end && !['cancelled', 'cancelled_by_customer'].includes(record.status);
+            return day >= today && day < end && !['cancelled', 'cancelled_by_customer', 'no_show'].includes(record.status);
         }).length;
         const upcoming = records
             .filter(
-                (record) => new Date(record.ends_at) >= new Date() && !['cancelled', 'cancelled_by_customer', 'done'].includes(record.status)
+                (record) => new Date(record.ends_at) >= new Date() && !['cancelled', 'cancelled_by_customer', 'no_show', 'done'].includes(record.status)
             )
             .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))[0];
         panel.querySelector('[data-studio-next]').innerHTML = upcoming

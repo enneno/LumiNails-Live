@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { injectHouseRules } = require('./house-rules');
 const { parseHTML } = require("linkedom");
 const { publicPageImages, appendGalleryMetadata, imageSitemapEntries } = require("./image-seo");
 
@@ -17,6 +18,7 @@ const PAGE_PATHS = [
   ["arlista/index.html", "/arlista/"],
   ["fiokom/index.html", "/fiokom/"],
   ["foglalas/index.html", "/foglalas/"],
+  ["hazirend/index.html", "/hazirend/"],
   ["galeria/index.html", "/galeria/"],
   ["gel-lakk-tatabanya/index.html", "/gel-lakk-tatabanya/"],
   [
@@ -35,9 +37,11 @@ const SITEMAP_PATHS = [
   "/arlista/",
   "/galeria/",
   "/foglalas/",
+  "/hazirend/",
 ];
 const RENDER_SOURCES = [
   "src/public/10-default-content.js",
+  "src/public/12-house-rules.js",
   "src/public/20-shell-coupons.js",
   "src/public/30-content-rendering.js",
   "src/public/40-footer-forms.js",
@@ -132,8 +136,9 @@ function renderPage({
     clearTimeout,
   });
   for (const sourcePath of RENDER_SOURCES) {
-    vm.runInContext(read(sourcePath), context, { filename: sourcePath });
+    vm.runInContext(injectHouseRules(read(sourcePath)), context, { filename: sourcePath });
   }
+  context.houseRulesMount();
 
   const defaults = context.lumiAlapOldalAdatok();
   const content = context.oldalAdatokNormalizalasa(

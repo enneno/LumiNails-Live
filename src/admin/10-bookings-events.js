@@ -823,6 +823,7 @@
                             ${statuszOption('done', 'Teljesítve', foglalas.status)}
                             ${statuszOption('cancelled', 'Általam lemondva', foglalas.status)}
                             ${statuszOption('cancelled_by_customer', 'Vendég mondta le', foglalas.status)}
+                            ${statuszOption('no_show', 'Nem jelent meg', foglalas.status)}
                         </select>
                         <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
                         <button type="button" class="admin-booking-icon-button admin-control-icon-button" data-foglalas-szerkesztes>Szerkesztés</button>
@@ -1095,6 +1096,8 @@
                             <option value="blocked" ${statusz === 'blocked' ? 'selected' : ''}>Foglalt</option>
                             <option value="done" ${statusz === 'done' ? 'selected' : ''}>Teljesítve</option>
                             <option value="cancelled_by_customer" ${statusz === 'cancelled_by_customer' ? 'selected' : ''}>Vendég mondta le</option>
+                            <option value="cancelled" ${statusz === 'cancelled' ? 'selected' : ''}>Általam lemondva</option>
+                            <option value="no_show" ${statusz === 'no_show' ? 'selected' : ''}>Nem jelent meg</option>
                         </select>
                         <button type="button" class="admin-booking-details-trigger" data-foglalas-reszletek aria-expanded="false">Részletek</button>
                         <button type="button" class="admin-booking-icon-button admin-control-icon-button admin-kezi-ido-naptar" data-kezi-ido-naptar>Naptárba</button>
@@ -1447,7 +1450,7 @@
             return null;
         }
 
-        if (modositas.status === 'cancelled_by_customer') {
+        if (['cancelled_by_customer', 'no_show'].includes(modositas.status)) {
             return null;
         }
 

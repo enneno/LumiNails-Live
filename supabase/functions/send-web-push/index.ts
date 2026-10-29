@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sendPushNotification } from "npm:@mmmike/web-push@1.3.0/send";
+import { normalizePushPreferences, pushKind, pushPayload } from "../_shared/admin-push-policy.mjs";
 
 type PushSubscriptionRow = {
   id: string;
@@ -16,8 +17,6 @@ type BookingRecord = {
   status?: string;
   service_id?: string;
 };
-
-const CANCELLED_STATUSES = new Set(['cancelled', 'cancelled_by_customer']);
 
 serve(async (req) => {
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
@@ -45,8 +44,32 @@ serve(async (req) => {
     const record = normalizeBooking(body.record);
     const oldRecord = normalizeBooking(body.old_record);
 
-    const notificationKind = bookingNotificationKind(eventType, record, oldRecord);
+    const notificationKind = pushKind({ ...body, type: eventType, record, old_record: oldRecord });
     if (!notificationKind) return json({ ok: true, skipped: true });
+
+    const { data: preferences, error: preferencesError } = await supabase.from("site_settings")
+      .select("value").eq("key", "admin_push_preferences").maybeSingle();
+    if (preferencesError) return json({ ok: false, error: "preferences_lookup_failed" }, 503);
+    if (!normalizePushPreferences(preferences?.value)[notificationKind]) return json({ ok: true, skipped: true, reason: "category_disabled" });
+
+    let payloadRecord: any = record;
+    if (notificationKind === "guestRegistration") {
+      const userId = String(body.record?.user_id || "");
+      if (!userId) return json({ ok: false, error: "invalid_registration" }, 400);
+      const [profile, account] = await Promise.all([
+        supabase.from("customer_profiles").select("user_id,full_name").eq("user_id", userId).maybeSingle(),
+        supabase.auth.admin.getUserById(userId),
+      ]);
+      const user = account.data?.user;
+      if (profile.error || account.error) return json({ ok: false, error: "registration_lookup_failed" }, 503);
+      if (!profile.data || !user?.email_confirmed_at || user.is_anonymous || user.deleted_at || (user.banned_until && Date.parse(user.banned_until) > Date.now())) return json({ ok: true, skipped: true });
+      payloadRecord = { ...profile.data, customer_email: user.email };
+    } else if (notificationKind === "bookingEmailFailure") {
+      const { data: failure, error } = await supabase.from("admin_error_events").select("id,source,title,detail").eq("id", body.record?.id).maybeSingle();
+      if (error) return json({ ok: false, error: "failure_lookup_failed" }, 503);
+      if (!failure || !["booking_email", "reminder_email", "review_email", "monthly_report"].includes(failure.source)) return json({ ok: true, skipped: true });
+      payloadRecord = failure;
+    }
 
     let serviceName = "Időpont";
     if (record.service_id) {
@@ -58,7 +81,7 @@ serve(async (req) => {
       serviceName = String(data?.name || serviceName);
     }
 
-    const payload = createPayload(notificationKind, record, serviceName);
+    const payload = pushPayload(notificationKind, payloadRecord, serviceName);
     const { data: rows, error: subscriptionsError } = await supabase
       .from("web_push_subscriptions")
       .select("id,endpoint,p256dh,auth_secret")
@@ -125,55 +148,6 @@ async function loadPushConfig(client: any) {
     subject: String(value.vapid_subject || "mailto:luminails.xx@gmail.com").trim(),
     webhookSecret: String(value.webhook_secret || "").trim(),
   };
-}
-
-function bookingNotificationKind(eventType: string, record: BookingRecord, oldRecord: BookingRecord) {
-  if (eventType === "INSERT") return "new_booking";
-  if (
-    eventType === "UPDATE"
-    && CANCELLED_STATUSES.has(String(record.status || ''))
-    && !CANCELLED_STATUSES.has(String(oldRecord.status || ''))
-  ) {
-    return "cancelled";
-  }
-  return "";
-}
-
-function createPayload(kind: string, booking: BookingRecord, serviceName: string) {
-  const customer = String(booking.customer_name || "Vendég").trim() || "Vendég";
-  const appointment = formatBudapestDate(booking.starts_at);
-
-  if (kind === "cancelled") {
-    return {
-      title: "Foglalás lemondva",
-      body: `${customer} · ${serviceName}${appointment ? ` · ${appointment}` : ""}`,
-      icon: "/kepek/favicon-192.png",
-      badge: "/kepek/favicon-96.png",
-      tag: booking.id ? `booking-cancelled-${booking.id}` : "booking-cancelled",
-      data: { url: "/admin/" },
-    };
-  }
-
-  return {
-    title: "Új Lumi Nails foglalás",
-    body: `${customer} · ${serviceName}${appointment ? ` · ${appointment}` : ""}`,
-    icon: "/kepek/favicon-192.png",
-    badge: "/kepek/favicon-96.png",
-    tag: booking.id ? `booking-new-${booking.id}` : "booking-new",
-    data: { url: "/admin/" },
-  };
-}
-
-function formatBudapestDate(value: unknown) {
-  const date = new Date(String(value || ""));
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("hu-HU", {
-    timeZone: "Europe/Budapest",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
 }
 
 function normalizeBooking(value: unknown): BookingRecord {

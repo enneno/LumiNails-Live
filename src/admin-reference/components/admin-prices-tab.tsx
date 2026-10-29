@@ -4,7 +4,6 @@
 import { AdminDurationInput } from "@/components/admin-duration-input";
 import { AdminEditorSheet } from "@/components/admin-editor-sheet";
 import { AdminPriceInput } from "@/components/admin-price-input";
-import { AdminSelectField } from "@/components/admin-select-menu";
 import { AdminSortContext, AdminSortItem } from "@/components/admin-sortable";
 import { AdminDangerButton, adminDescriptionClass, adminFieldClass, adminHeadingClass, adminPressableClass } from "@/components/admin-ui";
 import type { PriceGroup } from "@/data/site-content";
@@ -14,11 +13,6 @@ const inputClassName = `${adminFieldClass} mt-1`;
 const sectionTitleClassName = adminHeadingClass;
 const sectionDescriptionClassName = adminDescriptionClass;
 
-const priceTrackSections = [
-  { id: "lashes", label: "Köröm", description: "A LumiNails szolgáltatásai" },
-
-] as const;
-
 type AdminPricesTabProps = {
   priceGroups: PriceGroup[];
   renderRowExtras?: (item: any) => React.ReactNode;
@@ -26,13 +20,13 @@ type AdminPricesTabProps = {
   newPriceRowId: string | null;
   onEditingPriceGroupIdChange: (id: string | null) => void;
   onNewPriceRowIdChange: (id: string | null) => void;
-  onAddPriceGroup: (track: PriceGroup["track"]) => void;
+  onAddPriceGroup: () => void;
   onReorderPriceGroups: (fromId: string, toId: string) => void;
-  onUpdatePriceGroup: (groupId: string, field: "title" | "description" | "track", value: string) => void;
+  onUpdatePriceGroup: (groupId: string, field: "title" | "description", value: string) => void;
   onAddPriceRow: (groupId: string) => void;
   onReorderPriceRows: (groupId: string, fromId: string, toId: string) => void;
   onUpdatePriceRow: (groupId: string, rowId: string, field: "name" | "note", value: string) => void;
-  onUpdatePriceDuration: (groupId: string, rowId: string, value: number, size?: "regular" | "small") => void;
+  onUpdatePriceDuration: (groupId: string, rowId: string, value: number) => void;
   onUpdatePriceValue: (groupId: string, rowId: string, columnId: string, value: string) => void;
   onRemovePriceRow: (groupId: string, rowId: string, rowName: string) => void;
   onRemovePriceGroup: (groupId: string, groupTitle: string) => void;
@@ -65,31 +59,27 @@ export function AdminPricesTab({
         Ez az egyetlen szolgáltatáslista: az itt szereplő tételek jelennek meg az árlistán és a foglalóban is.
       </p>
       <div className="mt-3 grid gap-4">
-        {priceTrackSections.map((section) => {
-          const groups = priceGroups.filter((group) => group.track === section.id);
-
-          return (
-            <section key={section.id} aria-labelledby={`price-track-${section.id}`}>
+            <section aria-labelledby="price-categories-title">
               <div className="flex items-center justify-between gap-3 border-b border-gold-line pb-1.5">
                 <div className="min-w-0">
-                  <h2 id={`price-track-${section.id}`} className="text-sm font-extrabold">
-                    {section.label}
+                  <h2 id="price-categories-title" className="text-sm font-extrabold">
+                    Köröm
                   </h2>
                   <p className="truncate text-[0.6rem] font-medium text-ink-muted">
-                    {section.description} · {groups.length} kategória
+                    A LumiNails szolgáltatásai · {priceGroups.length} kategória
                   </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => addPriceGroup(section.id)}
+                  onClick={() => addPriceGroup()}
                   className={`${adminPressableClass} inline-flex min-h-8 shrink-0 items-center justify-center rounded-md border border-gold-line bg-admin-raised px-2.5 text-[0.64rem] font-extrabold text-gold-dark hover:border-gold-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-dark`}
                 >
                   + Kategória
                 </button>
               </div>
-              <AdminSortContext ids={groups.map((group) => group.id)} onMove={reorderPriceGroups}>
+              <AdminSortContext ids={priceGroups.map((group) => group.id)} onMove={reorderPriceGroups}>
               <div className="divide-y divide-gold-line">
-                {groups.map((group, groupIndex) => (
+                {priceGroups.map((group, groupIndex) => (
                   <AdminSortItem key={group.id} id={group.id} label={group.title} className="flex min-w-0 items-center gap-1.5">
                   {(handle) => <>
                   <span className="w-4 shrink-0 text-center text-[0.56rem] font-extrabold tabular-nums text-ink-muted" aria-label={`${groupIndex + 1}. hely`}>{groupIndex + 1}</span>
@@ -113,7 +103,7 @@ export function AdminPricesTab({
                   </>}
                   </AdminSortItem>
                 ))}
-                {groups.length === 0 ? (
+                {priceGroups.length === 0 ? (
                   <p className="px-1 py-3 text-[0.66rem] font-medium text-ink-muted">
                     Még nincs kategória ebben a csoportban.
                   </p>
@@ -121,8 +111,6 @@ export function AdminPricesTab({
               </div>
               </AdminSortContext>
             </section>
-          );
-        })}
       </div>
 
       <AdminEditorSheet
@@ -163,7 +151,6 @@ export function AdminPricesTab({
             <div className="divide-y divide-gold-line border-b border-gold-line">
               {editingPriceGroup.items.map((item, itemIndex) => {
                 const hasSinglePrice = editingPriceGroup.columns.length === 1;
-                const hasLashSizes = editingPriceGroup.id === "lashes";
 
                 return (
                   <AdminSortItem key={item.id} id={item.id} label={item.name} isNew={item.id === newPriceRowId} className={`relative py-2 pl-9 ${item.id === newPriceRowId ? styles.newItem : ""}`}>
@@ -207,7 +194,7 @@ export function AdminPricesTab({
                       </div>
                     ) : (
                       <>
-                        <div className={`grid gap-1.5 ${hasLashSizes ? "grid-cols-[minmax(0,1fr)_2.6rem_2.6rem_2rem]" : "grid-cols-[minmax(0,1fr)_2.75rem_2rem]"}`}>
+                        <div className="grid grid-cols-[minmax(0,1fr)_2.75rem_2rem] gap-1.5">
                           <label className="min-w-0 text-[0.58rem] font-bold text-ink-muted">
                             Szolgáltatás
                             <input
@@ -216,23 +203,12 @@ export function AdminPricesTab({
                               className={inputClassName}
                             />
                           </label>
-                          {hasLashSizes ? (
-                            <label className="min-w-0 text-center text-[0.55rem] font-bold text-ink-muted">
-                              S idő
-                              <AdminDurationInput
-                                value={item.durationMinutesS ?? 90}
-                                onCommit={(nextValue) => updatePriceDuration(editingPriceGroup.id, item.id, nextValue, "small")}
-                                aria-label={`${item.name} S méret ideje percben`}
-                                className={`${inputClassName} px-1 text-center`}
-                              />
-                            </label>
-                          ) : null}
                           <label className="min-w-0 text-center text-[0.55rem] font-bold text-ink-muted">
-                            {hasLashSizes ? "M idő" : "Idő"}
+                            Idő
                             <AdminDurationInput
                               value={item.durationMinutes}
                               onCommit={(nextValue) => updatePriceDuration(editingPriceGroup.id, item.id, nextValue)}
-                              aria-label={`${item.name} ${hasLashSizes ? "M méret " : ""}ideje percben`}
+                              aria-label={`${item.name} ideje percben`}
                               className={`${inputClassName} px-1 text-center`}
                             />
                           </label>

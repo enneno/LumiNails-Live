@@ -91,7 +91,7 @@ async function installCustomerAccountMock(page, options = {}) {
                     return { data: state.profile, error: null };
                 }
                 if (name === 'get_my_booking_history') return { data: state.bookings, error: null };
-                if (name === 'cancel_my_booking') {
+                if (name === 'cancel_my_booking_with_rules') {
                     const booking = state.bookings.find(item => item.booking_id === args.p_booking_id);
                     if (!booking) {
                         return { data: [{ success: false, result: 'not_found', message: 'Nem található ez a foglalás.' }], error: null };
@@ -277,17 +277,29 @@ test('a 24 órán belüli fiókos lemondás indok nélkül nem indul el, indokka
     await expect(cancellationForm).toContainText('24 órán belül kötelező');
 
     await cancellationForm.getByRole('button', { name: 'Biztosan lemondom' }).click();
-    let cancellationCalls = await page.evaluate(() => window.__customerAccountMock.calls.filter(call => call.method === 'rpc' && call.name === 'cancel_my_booking'));
+    let cancellationCalls = await page.evaluate(() => window.__customerAccountMock.calls.filter(call => call.method === 'rpc' && call.name === 'cancel_my_booking_with_rules'));
     expect(cancellationCalls).toHaveLength(0);
 
     await note.fill('Betegség miatt nem tudok elmenni.');
     await cancellationForm.getByRole('button', { name: 'Biztosan lemondom' }).click();
+    expect(await page.evaluate(() => window.__customerAccountMock.calls.filter(call => call.name === 'cancel_my_booking_with_rules'))).toHaveLength(0);
+    await cancellationForm.getByRole('link', { name: 'lemondási feltételeket', exact: true }).click();
+    const rulesDialog = page.getByRole('dialog', { name: 'Lemondási feltételek', exact: true });
+    await expect(rulesDialog).toContainText('24 órán belüli lemondás');
+    await expect(rulesDialog).not.toContainText('Allergia');
+    await rulesDialog.getByRole('button', { name: 'Házirend bezárása', exact: true }).click();
+    const consent = cancellationForm.getByRole('checkbox', { name: /lemondási feltételeket/ });
+    await expect(consent).not.toBeChecked();
+    await consent.check();
+    await cancellationForm.getByRole('button', { name: 'Biztosan lemondom' }).click();
     await expect(page.locator('#fiok-globalis-statusz')).toContainText('Sikeresen lemondtad az időpontodat');
-    cancellationCalls = await page.evaluate(() => window.__customerAccountMock.calls.filter(call => call.method === 'rpc' && call.name === 'cancel_my_booking'));
+    cancellationCalls = await page.evaluate(() => window.__customerAccountMock.calls.filter(call => call.method === 'rpc' && call.name === 'cancel_my_booking_with_rules'));
     expect(cancellationCalls).toHaveLength(1);
     expect(cancellationCalls[0].args).toEqual({
         p_booking_id: 'booking-soon',
-        p_note: 'Betegség miatt nem tudok elmenni.'
+        p_note: 'Betegség miatt nem tudok elmenni.',
+        p_rules_accepted: true,
+        p_rules_version: require('../supabase/functions/_shared/house-rules.json').version
     });
     await expect(page.locator('#fiok-korabbi-lista')).toContainText('Általad lemondva');
 });

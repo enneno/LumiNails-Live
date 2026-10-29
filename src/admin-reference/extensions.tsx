@@ -23,6 +23,13 @@ export function SettingsPanel({ data, drafts, stage, run, report }: any) {
     [pushBusy, setPushBusy] = useState(false),
     [pushMessage, setPushMessage] = useState(""),
     [pushSupported, setPushSupported] = useState(false);
+  const preferences = drafts.pushPreferences ?? data.pushPreferences ?? {};
+  const pushOptions = [
+    ["newBooking", "Telefonos jelzés új foglalásról"],
+    ["cancellation", "Telefonos jelzés vendéglemondásról"],
+    ["guestRegistration", "Telefonos jelzés új regisztrációról"],
+    ["bookingEmailFailure", "Telefonos jelzés foglalási e-mail hibáról"],
+  ];
   useEffect(() => {
     let alive = true;
     const pwa = (window as any).LumiPWA;
@@ -77,6 +84,17 @@ export function SettingsPanel({ data, drafts, stage, run, report }: any) {
       setPushBusy(false);
     }
   }
+  async function testPush() {
+    setPushBusy(true);
+    try {
+      await (window as any).LumiPWA.testAdminPush();
+      setPushMessage("A próbaértesítést elküldtük erre az eszközre.");
+    } catch (error) {
+      setPushMessage(error instanceof Error ? error.message : "A próbaértesítés nem sikerült.");
+    } finally {
+      setPushBusy(false);
+    }
+  }
   return (
     <section>
       <h1 className={adminHeadingClass}>Beállítások</h1>
@@ -91,19 +109,6 @@ export function SettingsPanel({ data, drafts, stage, run, report }: any) {
             onChange={(event: any) => stage("settings", event.target.checked)}
           />
         </label>
-        <label className="flex items-center justify-between gap-3 text-xs font-bold">
-          Értesítések ezen az eszközön
-          <AdminSwitch
-            checked={push}
-            disabled={!pushSupported || pushBusy}
-            onChange={(event: any) => void changePush(event.target.checked)}
-          />
-        </label>
-        {pushMessage ? (
-          <p role="status" className="text-[0.68rem] text-ink-muted">
-            {pushMessage}
-          </p>
-        ) : null}
         <p className="text-[0.68rem] leading-relaxed text-ink-muted">
           Mobilon a böngésző Megosztás menüjében add az adminoldalt a
           Főképernyőhöz. Az alkalmazásból az értesítéseket is bekapcsolhatod.
@@ -116,6 +121,34 @@ export function SettingsPanel({ data, drafts, stage, run, report }: any) {
           Jelszó módosítása
         </button>
       </section>
+      <article className="mt-3 rounded-xl bg-admin-raised p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-bold leading-none">Telefonos értesítés</h2>
+            <p className="mt-1 text-[0.66rem] leading-4 text-ink-muted">
+              A kapcsolók az egyes telefonos jelzéseket szabályozzák. Az értesítések a csengőben kikapcsolt telefonos jelzés mellett is megmaradnak. A jelzésekhez ezen az eszközön külön engedélyezd a háttérértesítéseket.
+            </p>
+          </div>
+          <span className={`shrink-0 rounded-md px-2 py-1 text-[0.62rem] font-bold ${push ? "bg-gold-dark text-admin-bg" : "bg-admin-field text-ink-muted"}`}>{push ? "Bekapcsolva" : "Kikapcsolva"}</span>
+        </div>
+        <div className="mt-3 divide-y divide-gold-line border-y border-gold-line">
+          {pushOptions.map(([key, label]) => (
+            <label key={key} className="flex min-h-11 items-center justify-between gap-3 px-1 text-xs font-bold">
+              <span className="min-w-0">{label}</span>
+              <AdminSwitch name={`notification-${key}`} checked={preferences[key] !== false}
+                onChange={(event) => stage("pushPreferences", { ...preferences, [key]: event.target.checked })} />
+            </label>
+          ))}
+        </div>
+        <p className="mt-2 text-[0.66rem] leading-4 text-ink-muted">A kapcsolók módosítását a felső Mentés gombbal véglegesítsd. A telefon néma módja vagy Fókusz beállítása késleltetheti a jelzést.</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {push ? <>
+            <button type="button" onClick={() => void testPush()} disabled={pushBusy} className={`${adminButtonClass} sm:col-span-2`}>Próbaértesítés küldése</button>
+            <button type="button" onClick={() => void changePush(false)} disabled={pushBusy} className="min-h-9 text-xs text-ink-muted sm:col-span-2">Kikapcsolás ezen az eszközön</button>
+          </> : <button type="button" onClick={() => void changePush(true)} disabled={!pushSupported || pushBusy} className={`${adminPrimaryButtonClass} sm:col-span-2`}>{pushBusy ? "Beállítás…" : "Háttérértesítések engedélyezése"}</button>}
+        </div>
+        {pushMessage ? <p role="status" className="mt-2 text-xs text-ink-muted">{pushMessage}</p> : null}
+      </article>
       <AdminEditorSheet
         open={passwordOpen}
         title="Jelszó módosítása"
@@ -187,6 +220,11 @@ export function SettingsPanel({ data, drafts, stage, run, report }: any) {
   );
 }
 
+const decorationQuantityOptions = Array.from({ length: 10 }, (_, index) => ({
+  value: index + 1,
+  label: String(index + 1),
+}));
+
 export function CalculatorPanel({ data, run }: any) {
   const calc = data.calculator || {},
     change = (action: string, value?: any) =>
@@ -250,16 +288,15 @@ export function CalculatorPanel({ data, run }: any) {
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         <label className="min-w-0 text-[0.62rem] text-ink-muted">
                           Darab
-                          <input
-                            type="number"
-                            min={1}
-                            max={99}
+                          <AdminSelectMenu
+                            ariaLabel={item.label + " darabszáma"}
                             value={extra.count}
-                            className={`${adminFieldClass} mt-1`}
-                            onChange={(event) =>
+                            options={decorationQuantityOptions}
+                            buttonClassName="mt-1 w-full"
+                            onChange={(value) =>
                               change("extra", {
                                 id: item.id,
-                                count: event.target.value,
+                                count: value,
                               })
                             }
                           />

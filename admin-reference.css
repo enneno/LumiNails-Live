@@ -280,9 +280,6 @@
   .right-1\.5 {
     right: calc(var(--spacing) * 1.5);
   }
-  .right-\[51\%\] {
-    right: 51%;
-  }
   .bottom-0 {
     bottom: 0px;
   }
@@ -306,9 +303,6 @@
   }
   .left-2\.5 {
     left: calc(var(--spacing) * 2.5);
-  }
-  .left-\[51\%\] {
-    left: 51%;
   }
   .z-0 {
     z-index: 0;
@@ -515,9 +509,6 @@
   .h-5 {
     height: calc(var(--spacing) * 5);
   }
-  .h-20 {
-    height: calc(var(--spacing) * 20);
-  }
   .h-\[48px\] {
     height: 48px;
   }
@@ -562,9 +553,6 @@
   }
   .min-h-13 {
     min-height: calc(var(--spacing) * 13);
-  }
-  .min-h-32 {
-    min-height: calc(var(--spacing) * 32);
   }
   .min-h-48 {
     min-height: calc(var(--spacing) * 48);
@@ -698,9 +686,6 @@
   .resize-none {
     resize: none;
   }
-  .resize-y {
-    resize: vertical;
-  }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
@@ -712,9 +697,6 @@
   }
   .grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .grid-cols-5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
   .grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -733,9 +715,6 @@
   }
   .grid-cols-\[auto_minmax\(0\,1fr\)_auto\] {
     grid-template-columns: auto minmax(0,1fr) auto;
-  }
-  .grid-cols-\[minmax\(0\,1fr\)_2\.6rem_2\.6rem_2rem\] {
-    grid-template-columns: minmax(0,1fr) 2.6rem 2.6rem 2rem;
   }
   .grid-cols-\[minmax\(0\,1fr\)_2\.75rem_2rem\] {
     grid-template-columns: minmax(0,1fr) 2.75rem 2rem;
@@ -854,9 +833,6 @@
   :where(.divide-gold-line > :not(:last-child)) {
     border-color: var(--gold-line);
   }
-  .self-end {
-    align-self: flex-end;
-  }
   .self-start {
     align-self: flex-start;
   }
@@ -914,10 +890,6 @@
     border-top-left-radius: 0.875rem;
     border-top-right-radius: 0.875rem;
   }
-  .rounded-t-sm {
-    border-top-left-radius: var(--radius-sm);
-    border-top-right-radius: var(--radius-sm);
-  }
   .rounded-r-lg {
     border-top-right-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-lg);
@@ -933,6 +905,10 @@
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
+  }
+  .border-y {
+    border-block-style: var(--tw-border-style);
+    border-block-width: 1px;
   }
   .border-t {
     border-top-style: var(--tw-border-style);
@@ -1013,16 +989,10 @@
   .border-admin-field {
     border-color: var(--admin-field);
   }
-  .border-admin-laser\/70 {
-    border-color: var(--admin-laser);
+  .border-admin-service\/70 {
+    border-color: var(--admin-service);
     @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--admin-laser) 70%, transparent);
-    }
-  }
-  .border-admin-lashes\/70 {
-    border-color: var(--admin-lashes);
-    @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--admin-lashes) 70%, transparent);
+      border-color: color-mix(in oklab, var(--admin-service) 70%, transparent);
     }
   }
   .border-admin-success\/30 {
@@ -1071,12 +1041,6 @@
     background-color: var(--admin-accent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--admin-accent) 20%, transparent);
-    }
-  }
-  .bg-admin-accent\/35 {
-    background-color: var(--admin-accent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--admin-accent) 35%, transparent);
     }
   }
   .bg-admin-bg {
@@ -1136,32 +1100,23 @@
   .bg-admin-field {
     background-color: var(--admin-field);
   }
-  .bg-admin-laser {
-    background-color: var(--admin-laser);
-  }
-  .bg-admin-laser\/20 {
-    background-color: var(--admin-laser);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--admin-laser) 20%, transparent);
-    }
-  }
-  .bg-admin-lashes {
-    background-color: var(--admin-lashes);
-  }
-  .bg-admin-lashes\/20 {
-    background-color: var(--admin-lashes);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--admin-lashes) 20%, transparent);
-    }
-  }
-  .bg-admin-lashes\/35 {
-    background-color: var(--admin-lashes);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--admin-lashes) 35%, transparent);
-    }
-  }
   .bg-admin-raised {
     background-color: var(--admin-raised);
+  }
+  .bg-admin-service {
+    background-color: var(--admin-service);
+  }
+  .bg-admin-service\/20 {
+    background-color: var(--admin-service);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--admin-service) 20%, transparent);
+    }
+  }
+  .bg-admin-service\/35 {
+    background-color: var(--admin-service);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--admin-service) 35%, transparent);
+    }
   }
   .bg-admin-shell {
     background-color: var(--admin-shell);
@@ -1197,12 +1152,6 @@
     background-color: var(--gold-dark);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--gold-dark) 10%, transparent);
-    }
-  }
-  .bg-gold-dark\/85 {
-    background-color: var(--gold-dark);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--gold-dark) 85%, transparent);
     }
   }
   .bg-gold-line {
@@ -2100,9 +2049,6 @@
       clip-path: none;
       white-space: normal;
     }
-    .md\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
   @media (width >= 64rem) {
     .lg\:col-span-2 {
@@ -2162,8 +2108,7 @@
   --admin-success: #55d6a7;
   --admin-confirmed: #7aa7ff;
   --admin-confirmed-text: #a8c7ff;
-  --admin-lashes: #c3a5d8;
-  --admin-laser: #67b7d8;
+  --admin-service: #c3a5d8;
   --admin-blocked: #e39a55;
   --admin-weekend: #18222f;
 }
@@ -2182,8 +2127,7 @@ html[data-admin-theme="light"] {
   --admin-success: #227a5c;
   --admin-confirmed: #3569b7;
   --admin-confirmed-text: #285493;
-  --admin-lashes: #795d8e;
-  --admin-laser: #2f7897;
+  --admin-service: #795d8e;
   --admin-blocked: #a45f28;
   --admin-weekend: #d9d1c3;
 }

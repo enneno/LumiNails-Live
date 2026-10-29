@@ -218,6 +218,7 @@
             datum: document.getElementById('foglalas-datum'),
             ido: document.getElementById('foglalas-ido'),
             komment: document.getElementById('foglalas-komment'),
+            hazirend: document.getElementById('foglalas-hazirend'),
             kuldes: document.getElementById('foglalas-kuldes'),
             statusz: document.getElementById('foglalas-status'),
             szolgaltatasKartyak: document.getElementById('foglalas-szolgaltatas-kartyak'),
@@ -810,7 +811,9 @@
                         note: adatok.megjegyzes,
                         starts_at: adatok.startsAt,
                         coupon_id: adatok.kupon?.id || null,
-                        coupon_code: adatok.kupon?.code || null
+                        coupon_code: adatok.kupon?.code || null,
+                        house_rules_accepted: adatok.hazirendElfogadva,
+                        house_rules_version: adatok.hazirendVerzio
                     }
                 }),
                 FOGLALASI_KULDES_IDOKERET_MS,
@@ -963,6 +966,8 @@
             startsAt: elemek.ido.value,
             koromStilus,
             eredetiMegjegyzes,
+            hazirendElfogadva: Boolean(elemek.hazirend?.checked),
+            hazirendVerzio: elemek.hazirend?.value || '',
             megjegyzes,
             kepFiles: Array.from(elemek.kepInput?.files || [])
         };
@@ -1020,6 +1025,10 @@
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adatok.email)) {
             return hibaAdat('Kérlek valós email címet adj meg.', '[data-step="5"]', elemek.email, elemek.email);
+        }
+
+        if (!adatok.hazirendElfogadva) {
+            return hibaAdat('A foglaláshoz kérlek, olvasd el és fogadd el a házirendet.', '[data-step="5"]', elemek.hazirend?.closest('.house-rules-consent'), elemek.hazirend);
         }
 
         if (elemek.kuponInput?.value.trim() && !adatok.kupon?.code) {

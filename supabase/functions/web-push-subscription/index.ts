@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendPushNotification } from "npm:@mmmike/web-push@1.3.0/send";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,9 +16,8 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
-    const adminEmail = (Deno.env.get("ADMIN_EMAIL") || "llevisimon@gmail.com").trim().toLowerCase();
 
-    if (!supabaseUrl || !serviceRoleKey || !anonKey || !adminEmail) {
+    if (!supabaseUrl || !serviceRoleKey || !anonKey) {
       return json({ ok: false, error: "missing_environment" }, 500);
     }
 
@@ -31,7 +31,11 @@ serve(async (req) => {
     const { data: authData, error: authError } = await authClient.auth.getUser(token);
     const user = authError ? null : authData?.user;
 
-    if (!user?.id || !user.email || user.email.toLowerCase() !== adminEmail) {
+    if (!user?.id) {
+      return json({ ok: false, error: "not_authorized" }, 403);
+    }
+    const { data: isAdmin, error: roleError } = await authClient.rpc("is_lumi_admin");
+    if (roleError || isAdmin !== true) {
       return json({ ok: false, error: "not_authorized" }, 403);
     }
 
@@ -46,6 +50,23 @@ serve(async (req) => {
 
     if (action === "config") {
       return json({ ok: true, vapid_public_key: config.publicKey });
+    }
+
+    if (action === "test") {
+      const endpoint = String(body.endpoint || "").trim();
+      if (!validEndpoint(endpoint)) return json({ ok: false, error: "invalid_endpoint" }, 400);
+      const { data: subscription, error } = await adminClient.from("web_push_subscriptions")
+        .select("endpoint,p256dh,auth_secret").eq("user_id", user.id).eq("endpoint", endpoint).is("disabled_at", null).maybeSingle();
+      if (error) return json({ ok: false, error: "subscription_lookup_failed" }, 503);
+      if (!subscription) return json({ ok: false, error: "subscription_not_found" }, 404);
+      if (!config.privateKey) return json({ ok: false, error: "push_not_configured" }, 503);
+      const sent = await sendPushNotification({ endpoint: subscription.endpoint,
+        keys: { p256dh: subscription.p256dh, auth: subscription.auth_secret } }, {
+        title: "Lumi Nails próbaértesítés", body: "A telefonos értesítések működnek ezen az eszközön.",
+        icon: "/kepek/favicon-192.png", badge: "/kepek/favicon-96.png", tag: "lumi-admin-push-test", data: { url: "/admin/?tab=settings" },
+      }, { publicKey: config.publicKey, privateKey: config.privateKey, subject: config.subject });
+      if (!sent) return json({ ok: false, error: "push_delivery_failed" }, 502);
+      return json({ ok: true });
     }
 
     if (action === "subscribe") {
@@ -101,7 +122,7 @@ async function loadPushConfig(client: any) {
   const { data, error } = await client.rpc("get_web_push_server_config");
   if (error) throw new Error(`push_config: ${error.message}`);
   const value = data && typeof data === "object" ? data : {};
-  return { publicKey: String(value.vapid_public_key || "").trim() };
+  return { publicKey: String(value.vapid_public_key || "").trim(), privateKey: String(value.vapid_private_key || "").trim(), subject: String(value.vapid_subject || "").trim() };
 }
 
 function normalizeSubscription(value: unknown) {

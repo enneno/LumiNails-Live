@@ -14,6 +14,7 @@ import {
 import { AdminManualBookingSheet } from "./components/admin-manual-booking-sheet";
 import {
   getAdminBookingTasks,
+  isUnacknowledgedGuestCancellation,
   normalizeBookingSearch,
   sortAdminBookings,
 } from "./lib/admin-bookings";
@@ -39,13 +40,13 @@ import {
 const tabs = [
   { id: "overview", label: "Áttekintés", icon: "overview" },
   { id: "bookings", label: "Foglalások", icon: "bookings" },
-  { id: "schedule", label: "Beosztás", icon: "schedule" },
+  { id: "calculator", label: "Árkalkulátor", icon: "prices" },
   { id: "content", label: "Weboldal", icon: "content" },
   { id: "prices", label: "Árlista", icon: "prices" },
   { id: "gallery", label: "Galéria", icon: "gallery" },
   { id: "guests", label: "Vendégek", icon: "approvals" },
   { id: "coupons", label: "Kuponok", icon: "prices" },
-  { id: "calculator", label: "Árkalkulátor", icon: "prices" },
+  { id: "schedule", label: "Beosztás", icon: "schedule" },
   { id: "logs", label: "Logs", icon: "logs" },
   { id: "settings", label: "Beállítások", icon: "notifications" },
 ];
@@ -328,6 +329,8 @@ export function LumiAdminStudio() {
               ? () => { const rows = scheduleRowsForSave(value, data.windows); return api().saveWindows(rows, value.removed.filter((id: string) => !rows.some((row: any) => row.id === id))); }
               : scope === "settings"
                 ? () => api().savePhone(value)
+                : scope === "pushPreferences"
+                  ? () => api().savePushPreferences(value)
                 : () => api().saveContent(value);
       if (!(await run(fn, "Mentve."))) return false;
       setDrafts((old: any) => {
@@ -413,16 +416,13 @@ export function LumiAdminStudio() {
     [data, statuses, dates, nowTimestamp],
   );
   const pending = effective.filter((row: any) => row.status === "new").length,
-    unack = effective.filter(
-      (row: any) =>
-        row.status === "guest_cancelled" && !row.cancellationAcknowledgedAt,
-    ).length;
+    unack = effective.filter(isUnacknowledgedGuestCancellation).length;
   const dockIndex =
     activeTab === "overview"
       ? 0
       : activeTab === "bookings"
         ? 1
-        : activeTab === "schedule"
+        : activeTab === "calculator"
           ? 3
           : 4;
   if (!authorized)
@@ -704,9 +704,6 @@ export function LumiAdminStudio() {
                   savingBookingCommentId={null}
                   savingBookingPaymentIds={savingPayments}
                   isSaving={busy}
-                  editingWeekExceptionId={null}
-                  weekExceptionForm={null}
-                  weekExceptionError=""
                   bookingSearch={search}
                   bookingStatusFilter={filter}
                   bookingPageSize={size}
@@ -727,10 +724,6 @@ export function LumiAdminStudio() {
                   onEditingBookingIdChange={setEditing}
                   onOpenWeekExceptionEditor={() => navigate("schedule")}
                   onOpenTraining={() => {}}
-                  onCloseWeekExceptionEditor={() => {}}
-                  onUpdateWeekExceptionForm={() => {}}
-                  onApplyWeekExceptionEdit={() => {}}
-                  onRemoveWeekException={() => {}}
                   onStageWeekExceptionMove={() => {}}
                   onUpdateBookingStatus={updateStatus}
                   onDeleteBooking={async (booking) => {
@@ -832,7 +825,7 @@ export function LumiAdminStudio() {
           <div className="grid grid-cols-2 gap-2">
             {tabs
               .filter(
-                (tab) => !["overview", "bookings", "schedule"].includes(tab.id),
+                (tab) => !["overview", "bookings", "calculator"].includes(tab.id),
               )
               .map((tab) => (
                 <button
@@ -908,12 +901,12 @@ export function LumiAdminStudio() {
             </button>
             <button
               type="button"
-              onClick={() => navigate("schedule")}
-              aria-pressed={activeTab === "schedule" && !isMoreOpen}
+              onClick={() => navigate("calculator")}
+              aria-pressed={activeTab === "calculator" && !isMoreOpen}
               className={styles.dockItem}
             >
-              <AdminIcon name="schedule" className="size-5" />
-              <span>Beosztás</span>
+              <AdminIcon name="prices" className="size-5" />
+              <span>Árkalkulátor</span>
             </button>
             <button
               type="button"
@@ -935,7 +928,6 @@ export function LumiAdminStudio() {
             .filter((row: any) => row.active && row.booking_enabled)
             .map((row: any) => ({
               id: row.id,
-              track: "lashes",
               category: "Köröm",
               name: row.name,
               durationMinutes: row.duration_minutes,

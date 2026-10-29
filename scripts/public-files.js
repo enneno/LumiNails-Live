@@ -42,6 +42,7 @@ const PUBLIC_DIRECTORIES = new Set([
     'arlista',
     'fiokom',
     'foglalas',
+    'hazirend',
     'galeria',
     'gel-lakk-tatabanya',
     'kepek',

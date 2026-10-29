@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { hasCurrentRulesConsent } from "../_shared/house-rules-policy.mjs";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,6 +43,10 @@ serve(async (req) => {
     }
     if (note.length > 2000 || (couponId && !isUuid(couponId)) || couponCode.length > 80) {
       return json({ ok: false, error: "A foglalási adatok nem megfelelőek." }, 400);
+    }
+
+    if (!hasCurrentRulesConsent(body.house_rules_accepted, body.house_rules_version)) {
+      return json({ ok: false, error: "A foglaláshoz fogadd el az aktuális házirendet. Szükség esetén frissítsd az oldalt." }, 400);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -106,10 +111,10 @@ serve(async (req) => {
       p_starts_at: startsAt,
       p_coupon_id: couponId || null,
       p_coupon_code: couponCode || null,
+      p_rules_accepted: body.house_rules_accepted,
+      p_rules_version: body.house_rules_version,
     };
-    const bookingRpcName = customerUserId
-      ? "create_booking_idempotent_for_user"
-      : "create_booking_idempotent";
+    const bookingRpcName = "create_booking_with_rules";
     if (customerUserId) bookingRpcBody.p_customer_user_id = customerUserId;
 
     const { data: bookingId, error } = await supabase.rpc(bookingRpcName, bookingRpcBody);

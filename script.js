@@ -549,6 +549,135 @@ function lumiAlapOldalAdatok() {
 
 window.lumiAlapOldalAdatok = lumiAlapOldalAdatok;
 
+// The build and prerenderer inject the same versioned text used by the server.
+const lumiHouseRules = {"version":"2026-10-29-v1","title":"Házirend","sections":[{"id":"idopont","title":"Időpont","paragraphs":["Az időpontodra időben, vagy legfeljebb 5 perccel hamarabb érkezz.","24 órán belüli lemondás, meg nem jelenés esetén az elmulasztott szett 50% kerül felszámolásra a következő időpontnál."]},{"id":"betegseg","title":"Betegség","paragraphs":["Betegség esetén kérlek ne érkezz az időpontodra. Szólj nyugodtan, és keresünk neked másik időpontot."]},{"id":"allergia","title":"Allergia/érzékenység","paragraphs":["Ha bármilyen allergiád, érzékenységed van, ezt előre jelezd nekem."]},{"id":"kisero","title":"Kísérő","paragraphs":["Az időpontodra kérlek kísérő nélkül érkezz."]},{"id":"mintak","title":"Minták","paragraphs":["Ha különlegesebb, bonyolultabb mintát szeretnél, előre jelezd, hogy ennek megfelelően tudjam beosztani az időt."]},{"id":"mas-munkaja","title":"Más munkája","paragraphs":["Ha más körmös által készített munkával érkezel, ezt foglaláskor előre jelezd."]},{"id":"visszajelzes","title":"Visszajelzés","paragraphs":["Ha valami nem tetszik, vagy szeretnél változtatni rajta, nyugodtan szólj! Ez a te körmöd, te fizetsz érte és te viseled hetekig, ezért fontos számomra, hogy végül tényleg elégedett legyél vele."]},{"id":"bejelentkezes","title":"Bejelentkezés","paragraphs":["Bejelentkezni üzenetben vagy a luminails.hu oldalon lehet. Üzenetes bejelentkezés esetén türelmeteket kérem, lehet, hogy később válaszolok az üzenetekre."]},{"id":"fontos","title":"Fontos","paragraphs":["A szolgáltatás alatt kérlek ne feszítsd a kezed, ez megnehezíti a munkám."]}],"cancellation":{"sectionId":"idopont","paragraphIndex":1},"closing":"Időpontfoglalással a házirendet automatikusan elfogadod!"};
+let houseRulesDialog = null;
+let houseRulesReturnFocus = null;
+
+function houseRulesSections(scope) {
+    if (scope !== 'cancellation') return lumiHouseRules.sections;
+    const section = lumiHouseRules.sections.find(row => row.id === lumiHouseRules.cancellation.sectionId);
+    return [{ id: 'lemondas', title: 'Lemondási feltételek', paragraphs: [section.paragraphs[lumiHouseRules.cancellation.paragraphIndex]] }];
+}
+
+function houseRulesRender(container, scope = 'booking') {
+    const fragment = document.createDocumentFragment();
+    const isDialog = container.classList.contains('house-rules-dialog-body');
+    for (const row of houseRulesSections(scope)) {
+        const section = document.createElement('section');
+        section.className = 'house-rules-section';
+        section.id = (isDialog ? 'house-rules-dialog-' : 'hazirend-') + row.id;
+        const title = document.createElement('h2');
+        title.textContent = row.title;
+        section.append(title);
+        row.paragraphs.forEach((text, index) => {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = text;
+            if (!isDialog && row.id === lumiHouseRules.cancellation.sectionId && index === lumiHouseRules.cancellation.paragraphIndex) paragraph.id = 'lemondas';
+            section.append(paragraph);
+        });
+        fragment.append(section);
+    }
+    if (scope !== 'cancellation') {
+        const closing = document.createElement('p');
+        closing.className = 'house-rules-closing';
+        closing.textContent = lumiHouseRules.closing;
+        fragment.append(closing);
+    }
+    container.replaceChildren(fragment);
+}
+
+function houseRulesConsent(scope, id) {
+    const label = document.createElement('label');
+    label.className = 'house-rules-consent';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    checkbox.name = scope === 'cancellation' ? 'cancellation_rules_accepted' : 'house_rules_accepted';
+    checkbox.setAttribute('required', '');
+    checkbox.value = lumiHouseRules.version;
+    const text = document.createElement('span');
+    text.append('Elolvastam és elfogadom a ');
+    const link = document.createElement('a');
+    link.href = scope === 'cancellation' ? '/hazirend/#lemondas' : '/hazirend/';
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.dataset.houseRules = scope;
+    link.textContent = scope === 'cancellation' ? 'lemondási feltételeket' : 'házirendet';
+    text.append(link, '.');
+    label.append(checkbox, text);
+    return label;
+}
+
+function houseRulesOpen(scope, trigger) {
+    if (!houseRulesDialog) {
+        houseRulesDialog = document.createElement('dialog');
+        houseRulesDialog.className = 'house-rules-dialog';
+        houseRulesDialog.setAttribute('aria-labelledby', 'house-rules-dialog-title');
+        const header = document.createElement('div');
+        header.className = 'house-rules-dialog-header';
+        const title = document.createElement('h2');
+        title.id = 'house-rules-dialog-title';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'house-rules-close';
+        close.setAttribute('aria-label', 'Házirend bezárása');
+        close.textContent = '×';
+        close.addEventListener('click', () => houseRulesDialog.close());
+        header.append(title, close);
+        const body = document.createElement('div');
+        body.className = 'house-rules-dialog-body';
+        houseRulesDialog.append(header, body);
+        houseRulesDialog.addEventListener('close', () => {
+            oldalGorgetesZarolasa('house-rules', false);
+            houseRulesReturnFocus?.focus({ preventScroll: true });
+            houseRulesReturnFocus = null;
+        });
+        houseRulesDialog.addEventListener('click', event => {
+            if (event.target !== houseRulesDialog) return;
+            const bounds = houseRulesDialog.getBoundingClientRect();
+            if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) houseRulesDialog.close();
+        });
+        document.body.append(houseRulesDialog);
+    }
+    if (typeof houseRulesDialog.showModal !== 'function') return false;
+    houseRulesDialog.querySelector('#house-rules-dialog-title').textContent = scope === 'cancellation' ? 'Lemondási feltételek' : 'Házirend';
+    const content = houseRulesDialog.querySelector('.house-rules-dialog-body');
+    houseRulesRender(content, scope);
+    houseRulesReturnFocus = trigger;
+    if (!houseRulesDialog.open) houseRulesDialog.showModal();
+    content.scrollTop = 0;
+    oldalGorgetesZarolasa('house-rules', true);
+    return true;
+}
+
+function houseRulesMount() {
+    document.querySelectorAll('[data-house-rules-page]').forEach(element => houseRulesRender(element));
+    const form = document.getElementById('foglalas-urlap');
+    const actions = form?.querySelector('.foglalas-kuldes-akciok');
+    const existingConsent = document.getElementById('foglalas-hazirend');
+    if (existingConsent && existingConsent.value !== lumiHouseRules.version) existingConsent.closest('.house-rules-consent').replaceWith(houseRulesConsent('booking', 'foglalas-hazirend'));
+    else if (actions && !existingConsent) actions.before(houseRulesConsent('booking', 'foglalas-hazirend'));
+    const footer = document.querySelector('.footer-oldalak');
+    if (footer && !footer.querySelector('a[href="/hazirend/"]')) {
+        const link = document.createElement('a');
+        link.href = '/hazirend/';
+        link.textContent = 'Házirend';
+        footer.append(link);
+    }
+}
+
+window.LumiHouseRules = Object.freeze({ version: lumiHouseRules.version, createConsent: houseRulesConsent, open: houseRulesOpen });
+document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[data-house-rules]');
+    if (link && houseRulesOpen(link.dataset.houseRules, link)) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+});
+document.addEventListener('DOMContentLoaded', houseRulesMount);
+document.addEventListener('lumi:tartalom-kesz', houseRulesMount);
+
 // Only public, build-produced data. Personal/account/booking requests bypass this cache.
 let lumiPublicSnapshotPromise = null;
 
@@ -582,6 +711,7 @@ function tisztaUrlBeallitasa() {
         '/foglalas.html': '/foglalas/',
         '/foglalas/index.html': '/foglalas/',
         '/fiokom/index.html': '/fiokom/',
+        '/hazirend/index.html': '/hazirend/',
         '/admin.html': '/admin/',
         '/admin/index.html': '/admin/'
     };
@@ -2513,7 +2643,7 @@ function fooldalStudioBekotese() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let step = 0, maximum = 0, frame = 0, lastTime = 0, remainder = 0;
     let inView = false, openingImage = false;
-    let pointer = null, suppressClickUntil = 0;
+    let pointer = null, touching = false, suppressClickUntil = 0;
     strip.classList.add('is-flowing');
 
     function applyPosition(position) {
@@ -2527,7 +2657,7 @@ function fooldalStudioBekotese() {
     }
     function canAnimate() {
         return inView && !document.hidden && !reducedMotion.matches
-            && !pointer && !openingImage && maximum > step + 1
+            && !pointer && !touching && !openingImage && maximum > step + 1
             && !document.getElementById('galeria-lightbox')?.classList.contains('nyitva');
     }
     function animate(now) {
@@ -2557,39 +2687,68 @@ function fooldalStudioBekotese() {
         syncMotion();
     }
     strip.addEventListener('pointerdown', event => {
-        if (!event.isPrimary || event.button !== 0) return;
-        pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false };
+        // Touch uses its own stream: iOS can cancel Pointer Events when it starts a gesture.
+        if (event.pointerType === 'touch' || !event.isPrimary || event.button !== 0) return;
+        pointer = { kind: 'pointer', id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false };
         syncMotion();
     });
-    strip.addEventListener('pointermove', event => {
-        if (pointer?.id !== event.pointerId) return;
-        const dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
+    function moveDrag(x, y, capture) {
+        const dx = x - pointer.x, dy = y - pointer.y;
         if (!pointer.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
             pointer.dragging = true;
-            strip.setPointerCapture(event.pointerId);
+            capture?.();
             strip.classList.add('is-dragging');
         }
-        if (pointer.dragging) {
-            event.preventDefault();
-            applyPosition(strip.scrollLeft - (event.clientX - pointer.lastX));
-        }
-        pointer.lastX = event.clientX;
+        if (pointer.dragging) applyPosition(strip.scrollLeft - (x - pointer.lastX));
+        pointer.lastX = x;
+        return pointer.dragging;
+    }
+    strip.addEventListener('pointermove', event => {
+        if (pointer?.kind !== 'pointer' || pointer.id !== event.pointerId) return;
+        if (moveDrag(event.clientX, event.clientY, () => strip.setPointerCapture(event.pointerId))) event.preventDefault();
     });
-    function finishPointer(event) {
-        if (pointer?.id !== event.pointerId) return;
+    function finishDrag() {
+        if (!pointer) { syncMotion(); return; }
         const wasDragging = pointer.dragging;
+        const capturedId = pointer.kind === 'pointer' ? pointer.id : null;
         pointer = null;
         strip.classList.remove('is-dragging');
-        if (strip.hasPointerCapture(event.pointerId)) strip.releasePointerCapture(event.pointerId);
+        if (capturedId !== null && strip.hasPointerCapture(capturedId)) strip.releasePointerCapture(capturedId);
         if (wasDragging) suppressClickUntil = performance.now() + 250;
         syncMotion();
+    }
+    function finishPointer(event) {
+        if (pointer?.kind === 'pointer' && pointer.id === event.pointerId) finishDrag();
     }
     strip.addEventListener('pointerup', finishPointer);
     strip.addEventListener('pointercancel', finishPointer);
     strip.addEventListener('lostpointercapture', event => {
-        // Touch capture moving from the photo to the row is not the end of the drag.
+        // A descendant's capture change does not end the row's drag.
         if (event.target === strip) finishPointer(event);
     });
+    strip.addEventListener('touchstart', event => {
+        touching = true;
+        if (event.touches.length !== 1) { finishDrag(); return; }
+        const touch = event.touches[0];
+        pointer = { kind: 'touch', id: touch.identifier, x: touch.clientX, y: touch.clientY, lastX: touch.clientX, dragging: false };
+        syncMotion();
+    }, { passive: true });
+    strip.addEventListener('touchmove', event => {
+        if (pointer?.kind !== 'touch') return;
+        const touch = Array.from(event.touches).find(touch => touch.identifier === pointer.id);
+        if (!touch) return;
+        const dx = touch.clientX - pointer.x, dy = touch.clientY - pointer.y;
+        // Let a vertical gesture scroll the page, and leave multi-touch zoom to the browser.
+        if (!pointer.dragging && Math.abs(dy) > 6 && Math.abs(dy) >= Math.abs(dx)) { finishDrag(); return; }
+        if (moveDrag(touch.clientX, touch.clientY) && event.cancelable) event.preventDefault();
+    }, { passive: false });
+    function finishTouch(event) {
+        touching = event.touches.length > 0;
+        if (pointer?.kind === 'touch') finishDrag();
+        else syncMotion();
+    }
+    strip.addEventListener('touchend', finishTouch, { passive: true });
+    strip.addEventListener('touchcancel', finishTouch, { passive: true });
     strip.addEventListener('wheel', event => {
         if (Math.abs(event.deltaX) <= Math.abs(event.deltaY) && !event.shiftKey) return;
         event.preventDefault();

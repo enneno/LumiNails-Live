@@ -4,11 +4,11 @@ import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import type { TrainingCalendarSession } from "@/lib/training";
 
 import { AdminAutoTextarea } from "@/components/admin-auto-textarea";
-import { AdminBookingServiceLabel, Chevron, TrackDot } from "@/components/admin-overview";
+import { AdminBookingServiceLabel, Chevron, ServiceDot } from "@/components/admin-overview";
 import { AdminEditorSheet } from "@/components/admin-editor-sheet";
 import { AdminListPagination } from "@/components/admin-list-pagination";
 import { AdminSearchInput } from "@/components/admin-search-input";
-import { AdminSelectField, AdminSelectMenu, type AdminSelectOption } from "@/components/admin-select-menu";
+import { AdminSelectMenu, type AdminSelectOption } from "@/components/admin-select-menu";
 import { AdminTemporalInput } from "@/components/admin-temporal-input";
 import { adminButtonClass, AdminDangerButton, adminFieldClass, adminHeadingClass } from "@/components/admin-ui";
 import { AdminWeekCalendar, type AdminWeekCalendarBlock, type AdminWeekCalendarBooking } from "@/components/admin-week-calendar";
@@ -17,12 +17,10 @@ import {
   adminBookingNeedsAttention,
   buildBookingCalendarDays,
   buildBookingMonthOptions,
-  buildPreviousLashBookingDaysById,
   clampScheduleExceptionDateToMonth,
   formatBookingCalendarDate,
   formatBookingPart,
   getGuestBookingHistory,
-  isLashExtensionBooking,
   isUnacknowledgedGuestCancellation,
   isOverdueAdminBooking,
   normalizeBookingSearch,
@@ -39,7 +37,6 @@ import {
 import { bookingStatusLabels, getBookingStatusBadgeClass, getBookingStatusDotClass, type BookingStatus } from "@/lib/booking-status";
 import type { AdminDraft } from "@/lib/admin-studio-draft";
 import { getAdminViewDirection, type AdminViewDirection } from "@/lib/admin-navigation";
-import type { ScheduleException, ScheduleExceptionKind } from "@/lib/scheduling";
 import styles from "./admin-studio.module.css";
 
 const inputClassName = `${adminFieldClass} mt-1`;
@@ -51,6 +48,7 @@ const bookingStatusFilterOptions = [
   { value: "new", label: "Új", shortLabel: "Új" },
   { value: "confirmed", label: "Megerősítve", shortLabel: "Meger." },
   { value: "completed", label: "Teljesítve", shortLabel: "Kész" },
+  { value: "no_show", label: "Nem jelent meg", shortLabel: "Nem jött" },
   { value: "cancelled", label: "Általam lemondva", shortLabel: "Általam" },
   { value: "guest_cancelled", label: "Vendég mondta le", shortLabel: "Vendég" },
 ] satisfies readonly AdminSelectOption<BookingStatusFilter>[];
@@ -72,10 +70,11 @@ const manualBookingStatusOptions = (["confirmed", "completed", "no_show", "guest
   label: bookingStatusLabels[value],
 })) satisfies readonly AdminSelectOption<BookingStatus>[];
 
-function statusOptionsForBooking(booking: AdminBooking, _nowTimestamp: number) {
+function statusOptionsForBooking(booking: AdminBooking, nowTimestamp: number) {
   const options = booking.source === "manual" ? manualBookingStatusOptions : bookingStatusOptions;
   return options.filter((option) =>
-    option.value !== "no_show" && !(booking.source === "manual" && option.value === "cancelled"),
+    (option.value !== "guest_cancelled" || booking.source === "manual" || booking.status === "guest_cancelled") &&
+    (option.value !== "no_show" || Date.parse(booking.endsAt) <= nowTimestamp || booking.status === "no_show"),
   );
 }
 
@@ -158,9 +157,6 @@ type AdminBookingsTabProps = {
   savingBookingCommentId: number | null;
   savingBookingPaymentIds: number[];
   isSaving: boolean;
-  editingWeekExceptionId: string | null;
-  weekExceptionForm: ScheduleException | null;
-  weekExceptionError: string;
   bookingSearch: string;
   bookingStatusFilter: BookingStatusFilter;
   bookingPageSize: BookingPageSize;
@@ -181,10 +177,6 @@ type AdminBookingsTabProps = {
   onEditingBookingIdChange: (id: number | null) => void;
   onOpenWeekExceptionEditor: (id: string) => void;
   onOpenTraining: () => void;
-  onCloseWeekExceptionEditor: () => void;
-  onUpdateWeekExceptionForm: <K extends keyof ScheduleException>(field: K, value: ScheduleException[K]) => void;
-  onApplyWeekExceptionEdit: () => void;
-  onRemoveWeekException: () => void;
   onStageWeekExceptionMove: (block: AdminWeekCalendarBlock, dateInput: string, startTime: string, endTime: string) => void;
   onUpdateBookingStatus: (id: number, status: BookingStatus) => void;
   onDeleteBooking: (booking: AdminBooking) => Promise<void>;
@@ -212,9 +204,6 @@ export function AdminBookingsTab({
   savingBookingCommentId,
   savingBookingPaymentIds,
   isSaving,
-  editingWeekExceptionId,
-  weekExceptionForm,
-  weekExceptionError,
   bookingSearch,
   bookingStatusFilter,
   bookingPageSize,
@@ -235,10 +224,6 @@ export function AdminBookingsTab({
   onEditingBookingIdChange: setEditingBookingId,
   onOpenWeekExceptionEditor: openWeekExceptionEditor,
   onOpenTraining,
-  onCloseWeekExceptionEditor: closeWeekExceptionEditor,
-  onUpdateWeekExceptionForm: updateWeekExceptionForm,
-  onApplyWeekExceptionEdit: applyWeekExceptionEdit,
-  onRemoveWeekException: removeWeekException,
   onStageWeekExceptionMove: stageWeekExceptionMove,
   onUpdateBookingStatus: updateBookingStatus,
   onDeleteBooking: deleteBooking,
@@ -260,7 +245,6 @@ export function AdminBookingsTab({
   const [weekSlide, setWeekSlide] = useState<AdminViewDirection | null>(null);
   const [pageSlide, setPageSlide] = useState<{ page: number; direction: AdminViewDirection } | null>(null);
   const [profileBookingId, setProfileBookingId] = useState<number | null>(null);
-  const previousLashBookingDaysById = buildPreviousLashBookingDaysById(bookings);
   const editingBooking = bookings.find((booking) => booking.id === editingBookingId);
   const profileBooking = bookings.find((booking) => booking.id === profileBookingId);
   const guestHistory = profileBooking ? getGuestBookingHistory(bookings, profileBooking) : [];
@@ -574,7 +558,7 @@ export function AdminBookingsTab({
                       </div>
                     ) : null}
                     <div className={`flex items-center justify-between gap-2 px-3 pb-1 pt-3 ${styles.bookingMeta}`}>
-                      <span className="flex min-w-0 flex-1 items-center gap-1.5 text-[0.65rem] text-ink-muted"><TrackDot track={booking.trackId} /><span className="min-w-0 truncate">{booking.trackLabel} · {booking.date}</span></span>
+                      <span className="flex min-w-0 flex-1 items-center gap-1.5 text-[0.65rem] text-ink-muted"><ServiceDot /><span className="min-w-0 truncate">Köröm · {booking.date}</span></span>
                       <span className={`flex shrink-0 items-center gap-1.5 ${styles.bookingStatus}`}>
                         <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${getBookingStatusDotClass(displayedStatus)}`} />
                         {pendingStatus ? <span className={styles.bookingPendingStatus}>Mentésre vár:</span> : null}
@@ -598,21 +582,6 @@ export function AdminBookingsTab({
                       <span className={`min-w-0 flex-1 ${styles.bookingDetails}`}>
                         <span className={`flex min-w-0 items-center gap-1.5 text-xs font-bold ${styles.bookingNameRow}`}>
                           <span className="min-w-0 truncate">{booking.guestName}</span>
-                          {isLashExtensionBooking(booking) ? (
-                            <span
-                              className="shrink-0 rounded bg-gold-dark/10 px-1.5 py-0.5 text-[0.5rem] font-extrabold text-gold-dark"
-                              title={previousLashBookingDaysById.has(booking.id)
-                                ? `Utolsó pillás foglalás óta: ${previousLashBookingDaysById.get(booking.id)} nap`
-                                : "Nincs korábbi pillás foglalás"}
-                              aria-label={previousLashBookingDaysById.has(booking.id)
-                                ? `Utolsó pillás foglalás óta ${previousLashBookingDaysById.get(booking.id)} nap`
-                                : "Nincs korábbi pillás foglalás"}
-                            >
-                              {previousLashBookingDaysById.has(booking.id)
-                                ? `${previousLashBookingDaysById.get(booking.id)} nap`
-                                : "Első pilla"}
-                            </span>
-                          ) : null}
                           <span className="shrink-0 rounded bg-admin-field px-1 py-0.5 text-[0.48rem] font-extrabold uppercase tracking-[0.05em] text-ink-muted">
                             {booking.source === "manual" ? "Kézzel felvett" : `#${booking.confirmationCode}`}
                           </span>
@@ -695,8 +664,6 @@ export function AdminBookingsTab({
                 const dayItemCount = dayBookings.length + dayExceptions.length;
                 const isSelected = day.dateInput === bookingCalendar.selectedDate;
                 const isToday = day.dateInput === todayDateInput;
-                const hasLashes = dayBookings.some((booking) => booking.trackId === "lashes" || booking.trackId === "mixed");
-                const hasLaser = dayBookings.some((booking) => booking.trackId === "laser" || booking.trackId === "mixed");
 
                 return (
                   <button
@@ -716,8 +683,7 @@ export function AdminBookingsTab({
                           {dayItemCount}
                         </span>
                         <span className="absolute bottom-1 left-1 flex gap-0.5" aria-hidden="true">
-                          {hasLashes ? <span className={`size-1 rounded-full ${isSelected ? "bg-admin-bg" : "bg-gold-dark"}`} /> : null}
-                          {hasLaser ? <span className="size-1 rounded-full bg-admin-success" /> : null}
+                          {dayBookings.length > 0 ? <span className={`size-1 rounded-full ${isSelected ? "bg-admin-bg" : "bg-gold-dark"}`} /> : null}
                           {dayExceptions.length ? <span className={`size-1 rounded-[1px] ${isSelected ? "bg-admin-bg" : "bg-admin-danger"}`} /> : null}
                         </span>
                       </>
@@ -751,9 +717,6 @@ export function AdminBookingsTab({
                     const timeLabel = exception.kind === "vacation" || (exception.kind === "personal" && !exception.startTime)
                       ? "Egész nap"
                       : `${exception.startTime ?? "—"}–${exception.endTime ?? "—"}`;
-                    const trackLabel = exception.track === "all"
-                      ? "Mindkét naptár"
-                      : exception.track === "lashes" ? "Műszempilla" : "Lézer";
 
                     return (
                       <article
@@ -763,7 +726,7 @@ export function AdminBookingsTab({
                         <span className="text-[0.64rem] font-extrabold text-gold-dark">{timeLabel}</span>
                         <span className="min-w-0">
                           <span className={`block text-[0.68rem] font-extrabold ${exception.kind === "personal" ? "whitespace-pre-wrap break-words" : "truncate"}`}>{exception.title}</span>
-                          {exception.kind !== "personal" ? <span className="block text-[0.58rem] leading-3.5 text-ink-muted">{trackLabel}</span> : null}
+                          {exception.kind !== "personal" ? <span className="block text-[0.58rem] leading-3.5 text-ink-muted">Köröm</span> : null}
                         </span>
                         <span className="max-w-[5.5rem] rounded-md bg-admin-danger/10 px-1.5 py-1 text-right text-[0.5rem] font-extrabold leading-3 text-ink-muted">
                           {calendarExceptionLabels[exception.kind]}
@@ -831,142 +794,7 @@ export function AdminBookingsTab({
           />
         </div>
       )}
-      <AdminEditorSheet
-        open={Boolean(editingWeekExceptionId && weekExceptionForm)}
-        title={weekExceptionForm?.kind === "personal" ? "Emlékeztető szerkesztése" : "Naptárbejegyzés szerkesztése"}
-        description={weekExceptionForm
-          ? `${calendarExceptionLabels[weekExceptionForm.kind]} · ${weekExceptionForm.startDate}`
-          : undefined}
-        onClose={closeWeekExceptionEditor}
-      >
-        {weekExceptionForm ? (
-          <div className="grid gap-3">
-            <div className="grid gap-2 sm:grid-cols-2">
-              {weekExceptionForm.kind !== "personal" ? <label className="text-[0.64rem] font-bold text-ink-muted">
-                Típus
-                <AdminSelectField
-                  ariaLabel="Naptárbejegyzés típusa"
-                  value={weekExceptionForm.kind}
-                  onChange={(value) => updateWeekExceptionForm("kind", value as ScheduleExceptionKind)}
-                  className="mt-1"
-                >
-                  <option value="blocked">Kieső idő</option>
-                  <option value="vacation">Szabadság / zárva</option>
-                  <option value="custom-hours">Egyedi nyitvatartás</option>
-                  <option value="personal">Saját emlékeztető</option>
-                </AdminSelectField>
-              </label> : null}
-              {weekExceptionForm.kind !== "personal" ? <label className="text-[0.64rem] font-bold text-ink-muted">
-                Naptár
-                <AdminSelectField
-                  ariaLabel="Érintett naptár"
-                  value={weekExceptionForm.track}
-                  onChange={(value) => updateWeekExceptionForm("track", value as ScheduleException["track"])}
-                  className="mt-1"
-                >
-                  <option value="all">Mindkettő</option>
-                  <option value="lashes">Műszempilla</option>
-                  <option value="laser">Lézer</option>
-                </AdminSelectField>
-              </label> : null}
-            </div>
 
-            <label className="text-[0.64rem] font-bold text-ink-muted">
-              {weekExceptionForm.kind === "personal" ? "Emlékeztető szövege" : "Naptárbejegyzés neve"}
-              {weekExceptionForm.kind === "personal" ? <textarea
-                value={weekExceptionForm.title}
-                onChange={(event) => updateWeekExceptionForm("title", event.target.value)}
-                maxLength={1000}
-                rows={5}
-                className={`${inputClassName} min-h-32 resize-y py-2`}
-              /> : <input
-                value={weekExceptionForm.title}
-                onChange={(event) => updateWeekExceptionForm("title", event.target.value)}
-                maxLength={120}
-                className={inputClassName}
-              />}
-            </label>
-
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="text-[0.64rem] font-bold text-ink-muted">
-                {weekExceptionForm.kind === "vacation" ? "Első nap" : "Nap"}
-                <AdminTemporalInput
-                  type="date"
-                  value={weekExceptionForm.startDate}
-                  onChange={(event) => updateWeekExceptionForm("startDate", event.target.value)}
-                  containerClassName="mt-1"
-                  className="font-normal"
-                />
-              </label>
-              {weekExceptionForm.kind === "vacation" ? (
-                <label className="text-[0.64rem] font-bold text-ink-muted">
-                  Utolsó nap
-                  <AdminTemporalInput
-                    type="date"
-                    value={weekExceptionForm.endDate}
-                    min={weekExceptionForm.startDate}
-                    onChange={(event) => updateWeekExceptionForm("endDate", event.target.value)}
-                    containerClassName="mt-1"
-                    className="font-normal"
-                  />
-                </label>
-              ) : null}
-            </div>
-
-            {weekExceptionForm.kind !== "vacation" && weekExceptionForm.kind !== "personal" ? (
-              <div className="grid grid-cols-2 gap-2">
-                <label className="text-[0.64rem] font-bold text-ink-muted">
-                  Kezdés
-                  <AdminTemporalInput
-                    type="time"
-                    step={300}
-                    value={weekExceptionForm.startTime ?? ""}
-                    onChange={(event) => updateWeekExceptionForm("startTime", event.target.value)}
-                    containerClassName="mt-1"
-                    className="font-normal"
-                  />
-                </label>
-                <label className="text-[0.64rem] font-bold text-ink-muted">
-                  Befejezés
-                  <AdminTemporalInput
-                    type="time"
-                    step={300}
-                    value={weekExceptionForm.endTime ?? ""}
-                    onChange={(event) => updateWeekExceptionForm("endTime", event.target.value)}
-                    containerClassName="mt-1"
-                    className="font-normal"
-                  />
-                </label>
-              </div>
-            ) : null}
-
-            {weekExceptionError ? (
-              <p role="alert" className="text-[0.64rem] font-semibold text-admin-danger">
-                {weekExceptionError}
-              </p>
-            ) : null}
-
-            <button
-              type="button"
-              onClick={applyWeekExceptionEdit}
-              disabled={isSaving}
-              className="min-h-9 w-full rounded-lg bg-gold-dark px-3 text-xs font-extrabold text-admin-bg disabled:opacity-45"
-            >
-              Módosítás alkalmazása
-            </button>
-            <AdminDangerButton
-              onClick={removeWeekException}
-              disabled={isSaving}
-              className="w-full"
-            >
-              Bejegyzés törlése
-            </AdminDangerButton>
-            <p className="text-center text-[0.62rem] text-ink-muted">
-              A módosítások a felső Mentés gombbal kerülnek véglegesen a naptárba.
-            </p>
-          </div>
-        ) : null}
-      </AdminEditorSheet>
 
       <AdminEditorSheet
         open={Boolean(editingBooking || profileBooking)}

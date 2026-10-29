@@ -593,7 +593,7 @@
         const foglalasok = aktivFoglalasok || allapot.foglalasElemek
             .filter(item => item.tipus === 'booking')
             .map(item => item.adat)
-            .filter(item => !['cancelled', 'cancelled_by_customer'].includes(item.status));
+            .filter(item => !['cancelled', 'cancelled_by_customer', 'no_show'].includes(item.status));
         const pending = foglalasok.filter(item => item.status === 'pending');
         const emailErrors = adminV2EmailHibasEsemenyek();
         const cancellations = adminV2OlvasatlanLemondasok();
@@ -823,7 +823,7 @@
         const bookings = allapot.foglalasElemek
             .filter(item => item.tipus === 'booking')
             .map(item => item.adat);
-        const activeBookings = bookings.filter(item => !['cancelled', 'cancelled_by_customer'].includes(item.status));
+        const activeBookings = bookings.filter(item => !['cancelled', 'cancelled_by_customer', 'no_show'].includes(item.status));
         const activeSchedule = allapot.foglalasElemek
             .map(adminV2AttekintesIdopont)
             .filter(Boolean);
@@ -864,7 +864,7 @@
 
         if (item?.tipus === 'booking') {
             const status = String(data.status || 'pending').toLowerCase();
-            if (['cancelled', 'cancelled_by_customer'].includes(status)) return null;
+            if (['cancelled', 'cancelled_by_customer', 'no_show'].includes(status)) return null;
 
             return {
                 tipus: 'booking',
@@ -879,7 +879,7 @@
 
         if (item?.tipus === 'blocked') {
             const status = tiltasStatuszErtek(data.status);
-            if (['done', 'cancelled_by_customer'].includes(status)) return null;
+            if (['done', 'cancelled', 'cancelled_by_customer', 'no_show'].includes(status)) return null;
 
             const cim = data.reason?.trim() || 'Kézzel felvett idő';
             return {

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { injectHouseRules } = require('./house-rules');
 
 const root = path.resolve(__dirname, '..');
 
@@ -90,7 +91,7 @@ function renderBundle(bundle) {
     const files = sourceFiles(bundle);
     if (!files.length) throw new Error(`No sources found in ${bundle.sourceDir}`);
     let body = files
-        .map(file => fs.readFileSync(file, 'utf8').replace(/\r\n?/g, '\n').trimEnd())
+        .map(file => injectHouseRules(fs.readFileSync(file, 'utf8')).replace(/\r\n?/g, '\n').trimEnd())
         .join('\n\n');
     if (bundle.stripComments) {
         body = body.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n{3,}/g, '\n\n').trim();

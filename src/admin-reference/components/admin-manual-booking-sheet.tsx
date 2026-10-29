@@ -70,7 +70,7 @@ export function AdminManualBookingSheet({
   const selectedServices = services.filter((service) => draft.serviceIds.includes(service.id));
   const normalizedServiceSearch = normalizeBookingSearch(serviceSearch);
   const availableServices = services.filter((service) => !draft.serviceIds.includes(service.id)
-    && normalizeBookingSearch(`${formatAdminServiceLabel(service.track, service)} · ${service.durationLabel}`).includes(normalizedServiceSearch));
+    && normalizeBookingSearch(`${formatAdminServiceLabel(service)} · ${service.durationLabel}`).includes(normalizedServiceSearch));
   const durationMinutes = getTimeDifferenceMinutes(draft.time, draft.endTime);
   const isShorter = Boolean(
     selectedServices.length
@@ -91,7 +91,7 @@ export function AdminManualBookingSheet({
         className={`min-h-10 rounded-md border px-2 py-1.5 text-left text-[0.64rem] font-bold transition-[background-color,border-color,transform] duration-200 ease-out motion-safe:hover:-translate-y-px motion-safe:active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-gold-dark ${isSelected ? "border-gold-dark bg-gold-soft text-ink" : "border-transparent text-ink-muted hover:border-gold-line hover:bg-admin-raised"}`}
       >
         <span className="flex items-start justify-between gap-2">
-          <span className="min-w-0">{formatAdminServiceLabel(service.track, service)} · {service.durationLabel}</span>
+          <span className="min-w-0">{formatAdminServiceLabel(service)} · {service.durationLabel}</span>
           <span aria-hidden="true" className={`flex size-4 shrink-0 items-center justify-center rounded-full border text-[0.55rem] ${isSelected ? "border-gold-dark bg-gold-dark text-white" : "border-gold-line text-transparent"}`}>✓</span>
         </span>
       </button>

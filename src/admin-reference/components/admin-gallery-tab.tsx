@@ -9,28 +9,25 @@ import { AdminSearchInput } from "@/components/admin-search-input";
 import { Chevron } from "@/components/admin-overview";
 import { AdminSortContext, AdminSortItem } from "@/components/admin-sortable";
 import { adminButtonClass, adminDescriptionClass, adminFieldClass, adminHeadingClass } from "@/components/admin-ui";
-import { galleryTrackLabels, type GalleryTrack } from "@/lib/gallery";
-import { getFallbackGalleryImage, type AdminDraft } from "@/lib/admin-studio-draft";
+import type { AdminGalleryImage } from "@/lib/gallery";
+import { getFallbackGalleryImage } from "@/lib/admin-studio-draft";
 import { formatPreparedImageSummary } from "@/lib/admin-image-summary";
 import type { PreparedUploadImage } from "@/lib/admin-studio-save";
-import styles from "./admin-studio.module.css";
 
-const galleryTracks = ["lashes"] as const satisfies readonly GalleryTrack[];
 const inputClassName = `${adminFieldClass} mt-1`;
 const textareaClassName = `${inputClassName} py-1.5`;
 
 type AdminGalleryTabProps = {
-  gallery: AdminDraft["gallery"];
+  gallery: AdminGalleryImage[];
   extraEditorFields?: React.ReactNode;
   previewUrls: Record<string, string>;
   selectedFiles: Record<string, PreparedUploadImage>;
   editingGalleryId: string | null;
   onEditingGalleryIdChange: (id: string | null) => void;
-  onAddGalleryItem: (track: GalleryTrack) => void;
+  onAddGalleryItem: () => void;
   onReorderGallery: (fromId: string, toId: string) => void;
-  onUpdateGalleryTrack: (id: string, track: GalleryTrack) => void;
   onUpdateGalleryText: (id: string, field: "title" | "description", value: string) => void;
-  onRemoveGalleryItem: (item: AdminDraft["gallery"][number]) => void;
+  onRemoveGalleryItem: (item: AdminGalleryImage) => void;
   onSelectPreview: (id: string, event: ChangeEvent<HTMLInputElement>) => Promise<void>;
 };
 
@@ -43,7 +40,6 @@ export function AdminGalleryTab({
   onEditingGalleryIdChange,
   onAddGalleryItem,
   onReorderGallery,
-  onUpdateGalleryTrack,
   onUpdateGalleryText,
   onRemoveGalleryItem,
   onSelectPreview,
@@ -58,29 +54,24 @@ export function AdminGalleryTab({
     .map((item, index) => ({
       item,
       index,
-      categoryIndex: gallery.slice(0, index).filter((candidate) => candidate.track === item.track).length,
+      categoryIndex: index,
     }))
     .filter(({ item, categoryIndex }) => {
       if (!normalizedGallerySearch) return true;
-      return `${categoryIndex + 1} ${galleryTrackLabels[item.track]} ${item.title} ${item.description}`
+      return `${categoryIndex + 1} Köröm ${item.title} ${item.description}`
         .toLocaleLowerCase("hu-HU")
         .includes(normalizedGallerySearch);
     });
-  const gallerySections = galleryTracks.map((track) => ({
-    track,
-    entries: visibleGalleryEntries.filter(({ item }) => item.track === track),
-    total: gallery.filter((item) => item.track === track).length,
-  }));
 
   return (
     <section aria-labelledby="admin-gallery-title">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 id="admin-gallery-title" className={adminHeadingClass}>Galéria</h1>
-          <p className={adminDescriptionClass}>{gallery.length} kép · kategóriánként rendezhető</p>
+          <p className={adminDescriptionClass}>{gallery.length} kép · húzással rendezhető</p>
         </div>
         <div className="flex shrink-0 gap-1.5">
-          <button type="button" onClick={() => onAddGalleryItem("lashes")} className="min-h-8 rounded-lg bg-admin-accent px-2.5 text-[0.62rem] font-bold text-admin-bg">
+          <button type="button" onClick={() => onAddGalleryItem()} className="min-h-8 rounded-lg bg-admin-accent px-2.5 text-[0.62rem] font-bold text-admin-bg">
             + Kép
           </button>
           
@@ -100,16 +91,15 @@ export function AdminGalleryTab({
         </span>
       </div>
       <div className="mt-3 min-h-48 space-y-4 rounded-xl bg-admin-surface p-2 pr-2.5">
-        {gallerySections.map(({ track, entries, total }) => (
-          <section key={track} aria-labelledby={`admin-gallery-${track}`}>
+          <section aria-labelledby="admin-gallery-images">
             <div className="mb-2 flex items-center gap-2 border-b border-gold-line pb-2">
-              <span className={`size-2 rounded-full ${track === "lashes" ? "bg-admin-lashes" : "bg-admin-laser"}`} aria-hidden="true" />
-              <h2 id={`admin-gallery-${track}`} className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-ink">{galleryTrackLabels[track]}</h2>
-              <span className="ml-auto rounded-md bg-admin-raised px-1.5 py-0.5 text-[0.58rem] font-bold text-ink-muted">{entries.length}/{total}</span>
+              <span className="size-2 rounded-full bg-admin-service" aria-hidden="true" />
+              <h2 id="admin-gallery-images" className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-ink">Köröm</h2>
+              <span className="ml-auto rounded-md bg-admin-raised px-1.5 py-0.5 text-[0.58rem] font-bold text-ink-muted">{visibleGalleryEntries.length}/{gallery.length}</span>
             </div>
-            <AdminSortContext ids={entries.map(({ item }) => item.id)} onMove={onReorderGallery}>
+            <AdminSortContext ids={visibleGalleryEntries.map(({ item }) => item.id)} onMove={onReorderGallery}>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
-                {entries.map(({ item, index, categoryIndex }) => {
+                {visibleGalleryEntries.map(({ item, index, categoryIndex }) => {
                   const source = previewUrls[item.id] ?? getFallbackGalleryImage(item.fallbackKey, index);
                   return (
                     <AdminSortItem key={item.id} id={item.id} label={item.title || `${categoryIndex + 1}. kép`} className="relative min-w-0">
@@ -128,9 +118,8 @@ export function AdminGalleryTab({
                 })}
               </div>
             </AdminSortContext>
-            {entries.length === 0 ? <p className="rounded-lg bg-admin-raised px-3 py-5 text-center text-[0.65rem] text-ink-muted">{normalizedGallerySearch && total ? "Nincs találat ebben a kategóriában." : `Még nincs ${galleryTrackLabels[track].toLocaleLowerCase("hu-HU")} kép.`}</p> : null}
+            {visibleGalleryEntries.length === 0 ? <p className="rounded-lg bg-admin-raised px-3 py-5 text-center text-[0.65rem] text-ink-muted">{normalizedGallerySearch && gallery.length ? "Nincs találat ebben a kategóriában." : "Még nincs köröm kép."}</p> : null}
           </section>
-        ))}
       </div>
       <AdminEditorSheet open={Boolean(editingGallery)} title="Kép szerkesztése" onClose={() => onEditingGalleryIdChange(null)}>
         {editingGallery ? (
@@ -144,14 +133,6 @@ export function AdminGalleryTab({
                 {selectedFiles[editingGallery.id] ? <p className="line-clamp-3 text-[0.6rem] leading-4 text-ink-muted">{formatPreparedImageSummary(selectedFiles[editingGallery.id])}</p> : null}
               </div>
             </div>
-            {galleryTracks.length>1?<div>
-              <p className="mb-1.5 text-xs font-semibold text-ink-muted">Kategória</p>
-              <div className={styles.segmented} role="group" aria-label="Galériakép kategóriája">
-                {galleryTracks.map((track) => (
-                  <button key={track} type="button" aria-pressed={editingGallery.track === track} onClick={() => onUpdateGalleryTrack(editingGallery.id, track)}>{galleryTrackLabels[track]}</button>
-                ))}
-              </div>
-            </div>:null}
             <label className="text-xs font-semibold text-ink-muted">Képleírás / alternatív szöveg<AdminAutoTextarea maxLength={500} value={editingGallery.description} onChange={(event) => onUpdateGalleryText(editingGallery.id, "description", event.target.value)} className={textareaClassName} /></label>
             {extraEditorFields}
             <button type="button" onClick={() => onRemoveGalleryItem(editingGallery)} className="mt-1 min-h-8 rounded-lg bg-admin-danger/10 px-3 text-xs font-semibold text-admin-danger">Kép törlése</button>

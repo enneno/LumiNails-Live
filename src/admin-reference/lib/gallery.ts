@@ -1,11 +1,10 @@
-export type GalleryTrack = "lashes" | "laser";
-
-export const galleryTrackLabels: Record<GalleryTrack, string> = {
-  lashes: "Köröm",
-  laser: "Lézer",
+// Frontend view of a LumiNails gallery image. Persistence stays in the existing CMS adapter.
+export type AdminGalleryImage = {
+  id: string;
+  title: string;
+  description: string;
+  fallbackKey: string | null;
+  storagePath: string | null;
+  alt?: string;
+  position?: string;
 };
-
-export function inferGalleryTrack(fallbackKey?: string | null, id?: string | null): GalleryTrack {
-  if (fallbackKey === "laser-treatment" || id?.startsWith("laser")) return "laser";
-  return "lashes";
-}

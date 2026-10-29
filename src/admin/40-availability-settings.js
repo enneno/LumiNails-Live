@@ -232,7 +232,7 @@
 
     function tiltasStatuszErtek(statusz) {
         const ertek = String(statusz || '').toLowerCase();
-        return ['done', 'cancelled_by_customer'].includes(ertek) ? ertek : 'blocked';
+        return ['done', 'no_show', 'cancelled', 'cancelled_by_customer'].includes(ertek) ? ertek : 'blocked';
     }
 
     function keziSzolgaltatasAdat(tiltas) {
@@ -672,7 +672,7 @@
     async function idopontUtkozesHiba({ tipus, id = '', nev = '', startsAt, endsAt, statusz }) {
         const aktivBejegyzes = tipus === 'booking'
             ? ['pending', 'confirmed', 'done'].includes(statusz)
-            : tiltasStatuszErtek(statusz) !== 'cancelled_by_customer';
+            : ['blocked', 'done'].includes(tiltasStatuszErtek(statusz));
 
         if (!aktivBejegyzes) {
             return '';
@@ -712,7 +712,7 @@
                 .limit(1);
 
             if (statuszOszloppal) {
-                query = query.neq('status', 'cancelled_by_customer');
+                query = query.in('status', ['blocked', 'done']);
             }
 
             if (tipus === 'blocked' && id) {

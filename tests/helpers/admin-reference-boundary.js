@@ -97,6 +97,7 @@ function fixtures() {
             { user_id: 'customer-luca', customer_name: 'Toth Luca', customer_email: 'luca.toth@example.test', customer_phone: '+36 70 333 4455' },
             { user_id: 'customer-petra', customer_name: 'Farkas Petra', customer_email: 'petra.farkas@example.test', customer_phone: '+36 30 444 5566' }
         ],
+        customer_profiles: [],
         blocked_times: [
             {
                 id: '00000000-0000-4000-8000-000000000100',
@@ -316,12 +317,19 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
             update(value) { this.patch = clone(value); return this; }
             upsert(values, options = {}) {
+                if (this.table === 'site_settings' && window.__adminPushPreferencesFailure &&
+                    (Array.isArray(values) ? values : [values]).some(row => row.key === 'admin_push_preferences')) {
+                    this.insertError = { message: 'Synthetic push preferences save failure' };
+                    return this;
+                }
+                const changed = [];
                 for (const value of Array.isArray(values) ? values : [values]) {
                     const keys = (options.onConflict || 'id').split(',');
                     const row = (seed[this.table] || []).find(row => keys.every(key => row[key] === value[key]));
-                    if (row) Object.assign(row, clone(value));
-                    else this.insert(value);
+                    if (row) { Object.assign(row, clone(value)); changed.push(row); }
+                    else { this.insert(value); changed.push(...this.insertedRecords); }
                 }
+                this.insertedRecords = changed;
                 return this;
             }
             delete() { this.deleting=true;return this; }

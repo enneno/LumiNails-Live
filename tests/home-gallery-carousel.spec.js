@@ -45,6 +45,12 @@ for (const width of [390, 1440]) {
                 await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
                 expect(await strip.evaluate(element => element.scrollLeft)).toBeGreaterThan(beforeSwipe + 50);
                 await expect(page.locator('#galeria-lightbox')).not.toHaveClass(/nyitva/);
+                const beforeScroll = await page.evaluate(() => scrollY);
+                await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: startX, y }] });
+                for (const dy of [25, 50, 90, 130]) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: startX, y: y - dy }] });
+                await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+                await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(beforeScroll + 20);
+                await strip.scrollIntoViewIfNeeded();
             }
             await strip.focus();
             // Cross the loop boundary; no duplicate pictures or focusable clones are needed.
@@ -133,4 +139,54 @@ test('without JavaScript the original links remain manually scrollable', async (
     await expect(page.locator('#home-gallery-strip')).toHaveCSS('overflow-x', 'auto');
     await expect(page.locator('.home-gallery-pause')).toHaveCount(0);
     await context.close();
+});
+
+test.describe('touch stream on the homepage row', () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+    test('horizontal drag survives pointer cancellation; vertical gestures, zoom, taps and automatic restart remain available', async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        const strip = await readyRow(page);
+        await strip.evaluate(element => element.scrollLeft = 250);
+        const photo = await strip.locator('img').nth(1).elementHandle();
+        const box = await strip.boundingBox();
+        const x = box.x + 220, y = box.y + 140;
+        // Replay the Touch Events stream separately from Pointer Events, including an interrupted pointer stream.
+        async function touch(type, points) {
+            return photo.evaluate((element, { type, points }) => {
+                const event = new Event(type, { bubbles: true, cancelable: true });
+                Object.defineProperty(event, 'touches', { value: points });
+                element.dispatchEvent(event);
+                return event.defaultPrevented;
+            }, { type, points });
+        }
+        const point = (dx = 0, dy = 0) => ({ identifier: 1, clientX: x + dx, clientY: y + dy });
+        const before = await strip.evaluate(element => element.scrollLeft);
+        await touch('touchstart', [point()]);
+        await photo.dispatchEvent('pointercancel', { pointerId: 1, pointerType: 'touch', isPrimary: true });
+        expect(await touch('touchmove', [point(-40)])).toBe(true);
+        expect(await touch('touchmove', [point(-100)])).toBe(true);
+        expect(await strip.evaluate(element => element.scrollLeft)).toBeGreaterThan(before + 80);
+        await expect(strip).toHaveClass(/is-dragging/);
+        await touch('touchcancel', []);
+        await expect(strip).not.toHaveClass(/is-dragging/);
+        await expect(page.locator('#galeria-lightbox')).not.toHaveClass(/nyitva/);
+        const afterDrag = await strip.evaluate(element => element.scrollLeft);
+        await touch('touchstart', [point()]);
+        expect(await touch('touchmove', [point(2, 70)])).toBe(false);
+        expect(await strip.evaluate(element => element.scrollLeft)).toBe(afterDrag);
+        await touch('touchend', []);
+        await touch('touchstart', [point(), { identifier: 2, clientX: x + 40, clientY: y }]);
+        expect(await touch('touchmove', [point(-10), { identifier: 2, clientX: x + 70, clientY: y }])).toBe(false);
+        await touch('touchend', []);
+        await page.waitForTimeout(260); // Only the accidental drag-click guard; animation has no resume delay.
+        const opener = strip.locator('.studio-thumbnail').nth(1);
+        await opener.tap();
+        await expect(page.locator('#galeria-lightbox')).toHaveClass(/nyitva/);
+        await page.locator('.galeria-lightbox-bezar').tap();
+        await expect(page.locator('#galeria-lightbox')).not.toHaveClass(/nyitva/);
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        const movingPhoto = await strip.locator('.studio-thumbnail').nth(1).elementHandle();
+        const position = await movingPhoto.evaluate(element => element.getBoundingClientRect().left);
+        await expect.poll(() => movingPhoto.evaluate(element => element.getBoundingClientRect().left), { timeout: 1000 }).toBeGreaterThan(position + 8);
+    });
 });

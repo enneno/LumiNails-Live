@@ -258,7 +258,7 @@ textarea:focus-visible {
 }
 
 @media screen and (min-width: 769px) and (max-width: 900px) {
-    .fooldal .menu-pontok {
+    .menu-pontok {
         gap: 8px;
     }
 }

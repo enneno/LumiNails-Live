@@ -15,6 +15,7 @@ import { bookingStatusLabels, type BookingStatus } from "@/lib/booking-status";
 import type { AdminViewDirection } from "@/lib/admin-navigation";
 import { resolveManualBookingHourStart } from "@/lib/admin-week-calendar-time";
 import type { TrainingCalendarSession } from "@/lib/training";
+import type { ScheduleException } from "@/lib/scheduling";
 
 import { AdminWeekCalendarMobile } from "./admin-week-calendar-mobile";
 import { AdminWeekPicker, adminWeekNavigationButtonClass as navigationButtonClass } from "./admin-week-picker";
@@ -31,23 +32,13 @@ export type AdminWeekCalendarBooking = {
   endTime: string;
   guestName: string;
   serviceLabel: string;
-  trackId: "lashes" | "laser" | "mixed";
   status: AdminWeekCalendarStatus;
   source: "online" | "manual";
   movable: boolean;
   pendingMove?: boolean;
 };
 
-export type AdminWeekCalendarException = {
-  id: string;
-  title: string;
-  kind: "vacation" | "blocked" | "custom-hours" | "personal";
-  track: "lashes" | "laser" | "all";
-  startDate: string;
-  endDate: string;
-  startTime?: string;
-  endTime?: string;
-};
+export type AdminWeekCalendarException = ScheduleException;
 
 export type AdminWeekCalendarBlock = {
   id: string;
@@ -56,7 +47,6 @@ export type AdminWeekCalendarBlock = {
   title: string;
   confirmedNames?: string[];
   kind: "vacation" | "blocked" | "personal" | "training";
-  track: "lashes" | "laser" | "all";
   startMinutes: number;
   endMinutes: number;
 };
@@ -99,12 +89,6 @@ const statusCardClasses: Record<AdminWeekCalendarStatus, string> = {
   no_show: "opacity-60",
   cancelled: "opacity-60",
   guest_cancelled: "opacity-60",
-};
-
-const trackCardClasses: Record<AdminWeekCalendarBooking["trackId"], string> = {
-  lashes: "border-admin-lashes/70 bg-admin-lashes/20",
-  laser: "border-admin-laser/70 bg-admin-laser/20",
-  mixed: "border-admin-accent/70 bg-admin-accent/20",
 };
 
 export function AdminWeekCalendar({
@@ -151,7 +135,7 @@ export function AdminWeekCalendar({
     () => [...buildWeekBlocks(exceptions, weekDays, startMinutes, endMinutes),
       ...trainingSessions.filter((session) => weekDays.includes(session.session_date)).map((session): AdminWeekCalendarBlock => ({
         id: `training/${session.id}`, exceptionId: `training/${session.id}`, dateInput: session.session_date,
-        title: `Oktatás · ${session.title}`, kind: "training", track: "all",
+        title: `Oktatás · ${session.title}`, kind: "training",
         confirmedNames: session.confirmedNames,
         startMinutes: parseTimeMinutes(session.start_time ?? "") ?? startMinutes,
         endMinutes: parseTimeMinutes(session.end_time ?? "") ?? endMinutes,
@@ -335,15 +319,9 @@ export function AdminWeekCalendar({
 
         <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[0.56rem] font-semibold text-ink-muted" aria-label="Naptár jelmagyarázata">
           <span className="inline-flex items-center gap-1">
-            <span className="size-2 rounded-sm border border-admin-lashes/70 bg-admin-lashes/35" aria-hidden="true" />
+            <span className="size-2 rounded-sm border border-admin-service/70 bg-admin-service/35" aria-hidden="true" />
             Köröm
           </span>
-          {weekBookings.some((booking) => booking.trackId === "mixed") ? (
-            <span className="inline-flex items-center gap-1">
-              <span className="size-2 rounded-sm border border-admin-accent/70 bg-admin-accent/35" aria-hidden="true" />
-              Pilla + lézer
-            </span>
-          ) : null}
           <span className="inline-flex items-center gap-1">
             <span className="size-2 rounded-sm border border-admin-blocked/70 bg-admin-blocked/35" aria-hidden="true" />
             Kieső idő
@@ -389,7 +367,7 @@ export function AdminWeekCalendar({
             movingBookingId={movingBookingId}
             statusLabels={bookingStatusLabels}
             statusCardClasses={statusCardClasses}
-            trackCardClasses={trackCardClasses}
+
             resolveMove={resolveMoveTarget}
             onSelectedDateChange={onSelectedDateChange}
             onOpenBooking={onOpenBooking}
@@ -414,7 +392,7 @@ export function AdminWeekCalendar({
             pixelsPerMinute={pixelsPerMinute}
             currentClock={currentClock}
             movingBookingId={movingBookingId}
-            trackCardClasses={trackCardClasses}
+
             onOpenBooking={onOpenBooking}
             onOpenException={onOpenException}
             onCreateManualBookingAtMinute={openManualBookingAtHour}
@@ -437,7 +415,7 @@ function TimeGrid({
   pixelsPerMinute,
   currentClock,
   movingBookingId,
-  trackCardClasses,
+
   onOpenBooking,
   onOpenException,
   onCreateManualBookingAtMinute,
@@ -453,7 +431,7 @@ function TimeGrid({
   pixelsPerMinute: number;
   currentClock: { dateInput: string; minutes: number };
   movingBookingId: number | null;
-  trackCardClasses: Record<AdminWeekCalendarBooking["trackId"], string>;
+
   onOpenBooking: (id: number) => void;
   onOpenException: (id: string) => void;
   onCreateManualBookingAtMinute: (date: string, minute: number) => void;
@@ -593,7 +571,7 @@ function TimeGrid({
                     ? Math.max(5, (parseTimeMinutes(slots[1]) ?? 0) - (parseTimeMinutes(slots[0]) ?? 0))
                     : 30}
                   moving={movingBookingId === booking.id}
-                  trackCardClasses={trackCardClasses}
+
                   onOpenBooking={onOpenBooking}
                 />
               ))}
@@ -644,18 +622,13 @@ function WeekBlockedBlock({
   const transformStyle = transform
     ? `translate3d(${translatedX}px, ${translatedY}px, 0)`
     : undefined;
-  const trackClass = block.track === "lashes"
-    ? "left-1 right-[51%]"
-    : block.track === "laser"
-      ? "left-[51%] right-1"
-      : "left-1 right-1";
 
   return (
     <article
       ref={setNodeRef}
       {...(canMove ? attributes : {})}
       {...(canMove ? listeners : {})}
-      className={`absolute z-[5] overflow-hidden rounded-md border text-[0.48rem] font-bold leading-3 text-ink shadow-sm ${block.kind === "training" ? "border-admin-accent/70 bg-admin-accent/20" : block.kind === "personal" ? "border-gold-line bg-gold-soft" : "border-admin-blocked/70 bg-admin-blocked/20"} ${trackClass} ${canMove ? "cursor-grab active:cursor-grabbing" : ""} ${isDragging ? "z-40 ring-2 ring-admin-blocked/80" : ""}`}
+      className={`absolute z-[5] overflow-hidden rounded-md border text-[0.48rem] font-bold leading-3 text-ink shadow-sm ${block.kind === "training" ? "border-admin-accent/70 bg-admin-accent/20" : block.kind === "personal" ? "border-gold-line bg-gold-soft" : "border-admin-blocked/70 bg-admin-blocked/20"} left-1 right-1 ${canMove ? "cursor-grab active:cursor-grabbing" : ""} ${isDragging ? "z-40 ring-2 ring-admin-blocked/80" : ""}`}
       style={{ top, height, transform: transformStyle, touchAction: canMove ? "none" : undefined } as CSSProperties}
       data-week-exception={block.exceptionId}
       data-training-calendar={block.kind === "training" ? block.id : undefined}
@@ -679,7 +652,7 @@ function WeekBlockedBlock({
         ) : null}
         {height >= 34 ? (
           <span className="block truncate text-[0.44rem] font-semibold text-ink-muted">
-            {block.kind === "training" ? `${minutesToTime(block.startMinutes)}–${minutesToTime(block.endMinutes)}` : block.track === "lashes" ? "Szempilla" : block.track === "laser" ? "Lézer" : "Mindkettő"}
+            {block.kind === "training" ? `${minutesToTime(block.startMinutes)}–${minutesToTime(block.endMinutes)}` : "Köröm"}
           </span>
         ) : null}
       </button>
@@ -724,7 +697,7 @@ function WeekBookingBlock({
   columnWidth,
   slotIntervalMinutes,
   moving,
-  trackCardClasses,
+
   onOpenBooking,
 }: {
   booking: AdminWeekCalendarBooking;
@@ -733,7 +706,7 @@ function WeekBookingBlock({
   columnWidth: number;
   slotIntervalMinutes: number;
   moving: boolean;
-  trackCardClasses: Record<AdminWeekCalendarBooking["trackId"], string>;
+
   onOpenBooking: (id: number) => void;
 }) {
   // Movement eligibility is prepared by the admin workspace and deliberately
@@ -777,10 +750,10 @@ function WeekBookingBlock({
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`admin-week-booking absolute left-1 right-1 overflow-hidden rounded-md border shadow-sm transition-[border-color,box-shadow] duration-100 ${canMove ? "cursor-grab active:cursor-grabbing" : ""} ${trackCardClasses[booking.trackId]} ${statusCardClasses[booking.status]} ${booking.pendingMove ? "ring-2 ring-inset ring-admin-accent/80" : ""} ${isDragging ? "z-40 border-admin-accent ring-2 ring-admin-accent/80" : "z-10"}`}
+      className={`admin-week-booking absolute left-1 right-1 overflow-hidden rounded-md border shadow-sm transition-[border-color,box-shadow] duration-100 ${canMove ? "cursor-grab active:cursor-grabbing" : ""} border-admin-service/70 bg-admin-service/20 ${statusCardClasses[booking.status]} ${booking.pendingMove ? "ring-2 ring-inset ring-admin-accent/80" : ""} ${isDragging ? "z-40 border-admin-accent ring-2 ring-admin-accent/80" : "z-10"}`}
       style={{ top, height, transform: transformStyle, touchAction: canMove ? "none" : undefined } as CSSProperties}
       data-status={booking.status}
-      data-track={booking.trackId}
+
       data-source={booking.source}
       data-week-drag-card={canMove || undefined}
     >
@@ -888,8 +861,7 @@ function resolveNonOverlappingStart(
 
   const exceptionBlockers = blockingIntervals
     .filter((block) =>
-      block.dateInput === targetDate
-      && tracksOverlap(block.track, booking.trackId),
+      block.dateInput === targetDate,
     )
     .map((block) => ({ start: block.startMinutes, end: block.endMinutes }));
 
@@ -923,13 +895,6 @@ function resolveNonOverlappingStart(
   return valid[0] ?? null;
 }
 
-function tracksOverlap(
-  left: AdminWeekCalendarBlock["track"],
-  right: AdminWeekCalendarBlock["track"] | AdminWeekCalendarBooking["trackId"],
-) {
-  return left === "all" || right === "all" || right === "mixed" || left === right;
-}
-
 function resolveNonOverlappingBlockStart(
   block: AdminWeekCalendarBlock,
   targetDate: string,
@@ -944,8 +909,7 @@ function resolveNonOverlappingBlockStart(
   const bookingBlockers = blockingBookings
     .filter((booking) =>
       booking.dateInput === targetDate
-      && (booking.status === "new" || booking.status === "confirmed")
-      && tracksOverlap(block.track, booking.trackId),
+      && (booking.status === "new" || booking.status === "confirmed"),
     )
     .map((booking) => ({
       start: parseTimeMinutes(booking.timeInput) ?? 0,
@@ -955,8 +919,7 @@ function resolveNonOverlappingBlockStart(
   const exceptionBlockers = blockingIntervals
     .filter((other) =>
       other.exceptionId !== block.exceptionId
-      && other.dateInput === targetDate
-      && tracksOverlap(block.track, other.track),
+      && other.dateInput === targetDate,
     )
     .map((other) => ({
       start: other.startMinutes,
@@ -1050,7 +1013,6 @@ function buildWeekBlocks(
         dateInput,
         title: exception.title,
         kind: exception.kind,
-        track: exception.track,
         startMinutes: blockStart,
         endMinutes: blockEnd,
       });

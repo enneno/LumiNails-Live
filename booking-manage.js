@@ -99,6 +99,13 @@
         if (!input || !kontakt || !eredmeny || !statusz || !lemondas || !lemondasMegjegyzesBlokk || !lemondasMegjegyzes || !kuldes) return;
 
         const elemek = { input, kontakt, eredmeny, statusz, lemondas, lemondasMegjegyzesBlokk, lemondasMegjegyzes, kuldes };
+        elemek.hazirendBlokk = window.LumiHouseRules?.createConsent('cancellation', 'foglalas-lemondas-hazirend');
+        elemek.hazirend = elemek.hazirendBlokk?.querySelector('input');
+        // This is a lookup form too; only the explicit cancellation action requires consent.
+        if (elemek.hazirend) {
+            elemek.hazirend.required = false;
+            elemek.hazirend.setAttribute('aria-required', 'true');
+        }
 
         form.addEventListener('submit', event => {
             event.preventDefault();
@@ -170,6 +177,11 @@
             elemek.lemondasMegjegyzes.focus();
             return;
         }
+        if (!elemek.hazirend?.checked) {
+            uzenet(elemek.statusz, 'A lemondáshoz kérlek, olvasd el és fogadd el a lemondási feltételeket.', true);
+            elemek.hazirend?.focus();
+            return;
+        }
         if (!window.confirm('Biztosan lemondod ezt a foglalást? Ez a művelet nem vonható vissza.')) return;
 
         elemek.lemondas.disabled = true;
@@ -208,7 +220,8 @@
                     'apikey': config.publishableKey,
                     'x-client-info': 'luminails-booking-manager/1'
                 },
-                body: JSON.stringify({ action, reference, contact, note }),
+                body: JSON.stringify({ action, reference, contact, note,
+                    ...(action === 'cancel' ? { house_rules_accepted: true, house_rules_version: window.LumiHouseRules?.version || '' } : {}) }),
                 cache: 'no-store'
             });
             const data = await response.json().catch(() => ({}));
@@ -268,6 +281,11 @@
             <p class="foglalas-lemondas-hatarido">${html(lemondasSzoveg)}</p>
         `;
         elemek.eredmeny.appendChild(elemek.lemondasMegjegyzesBlokk);
+        if (elemek.hazirendBlokk) {
+            elemek.hazirend.checked = false;
+            elemek.hazirendBlokk.hidden = !foglalas.can_cancel;
+            elemek.eredmeny.appendChild(elemek.hazirendBlokk);
+        }
         elemek.eredmeny.appendChild(elemek.lemondas);
         elemek.lemondasMegjegyzesBlokk.hidden = !foglalas.can_cancel;
         const megjegyzesCimke = elemek.lemondasMegjegyzesBlokk.querySelector('span');

@@ -8,10 +8,22 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const manifest=JSON.parse(read('src/admin-reference/reference-source.json'));
 
 test('shared reference components and CSS are the actual copied sources',()=>{
- expect(manifest.files.filter(file=>file.exact).length).toBeGreaterThanOrEqual(36);
+ // Single-service adapters replace the reference's catalog, category colors and lash-specific card extras.
+ expect(manifest.files.filter(file=>file.exact).length).toBeGreaterThanOrEqual(32);
  for(const file of manifest.files){const bytes=fs.readFileSync(path.join(source,file.file));expect(hash(bytes),file.file).toBe(file.localSha256);if(file.exact)expect(hash(bytes),file.file).toBe(file.sourceSha256);}
- for(const file of ['components/admin-studio.module.css','components/admin-overlays.module.css','components/admin-editor-sheet.tsx','components/admin-overview.tsx','components/admin-list-pagination.tsx','components/admin-select-menu.tsx','components/admin-temporal-input.tsx','components/admin-week-picker.tsx'])expect(manifest.files.find(row=>row.file===file)?.exact,file).toBe(true);
+ for(const file of ['components/admin-studio.module.css','components/admin-overlays.module.css','components/admin-editor-sheet.tsx','components/admin-list-pagination.tsx','components/admin-select-menu.tsx','components/admin-temporal-input.tsx','components/admin-week-picker.tsx'])expect(manifest.files.find(row=>row.file===file)?.exact,file).toBe(true);
+ // LumiNails has one service area; the reference overview's multi-area distribution was intentionally removed.
+ expect(manifest.files.find(row=>row.file==='components/admin-overview.tsx')?.exact).toBe(false);
  const bookings=read('src/admin-reference/components/admin-bookings-tab.tsx').replace(/\r\n/g,'\n'),start=bookings.indexOf('<article'),card=bookings.slice(start,bookings.indexOf('</article>',start)+10);expect(hash(card)).toBe(manifest.bookingCardMarkupSha256);
+});
+
+test('single-service admin sources contain no reference service-area branches',()=>{
+ const sources=fs.readdirSync(source,{recursive:true}).filter(file=>/\.(?:ts|tsx|css)$/.test(file));
+ for(const file of sources)expect(fs.readFileSync(path.join(source,file),'utf8'),file).not.toMatch(/\b(?:lashes|laser|mixed|trackId|trackLabel|trackCounts|tracksOverlap|GalleryTrack|hasLashSizes)\b|műszempilla|szempilla|első pilla|lézer|mindkét naptár|mindkettő/iu);
+ expect(read('src/admin/35-reference-backend.js')).not.toMatch(/\b(?:lashes|laser|mixed|trackId|trackLabel)\b/);
+ expect(fs.existsSync(path.join(source,'lib/list-order.ts'))).toBe(false);
+ expect(read('src/admin-reference/components/admin-bookings-tab.tsx')).not.toContain('weekExceptionForm');
+ expect(manifest.sourceBookingCardMarkupSha256).toBe('f09ad7a163caa6e5774119fd8b12eae82ffee4fbb10dd98deea5fcff192111e5');
 });
 
 test('the admin has one active stylesheet and static React assets in the release allowlist',()=>{

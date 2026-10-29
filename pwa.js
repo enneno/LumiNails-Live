@@ -84,12 +84,23 @@
       if (!subscription) return true;
 
       const client = getSupabaseClient();
-      const { error } = await client.functions.invoke('web-push-subscription', {
+      const { data, error } = await client.functions.invoke('web-push-subscription', {
         body: { action: 'unsubscribe', endpoint: subscription.endpoint }
       });
-      if (error) throw new Error('A push feliratkozás törlése nem sikerült.');
+      if (error || !data?.ok) throw new Error('A push feliratkozás törlése nem sikerült.');
 
       await subscription.unsubscribe();
+      return true;
+    },
+    async testAdminPush() {
+      if (!this.supportsNotifications()) throw new Error('Ezen az eszközön a Web Push nem támogatott.');
+      const registration = this.registration || await navigator.serviceWorker.getRegistration();
+      const subscription = await registration?.pushManager.getSubscription();
+      if (!subscription) throw new Error('Előbb engedélyezd az értesítéseket ezen az eszközön.');
+      const { data, error } = await getSupabaseClient().functions.invoke('web-push-subscription', {
+        body: { action: 'test', endpoint: subscription.endpoint }
+      });
+      if (error || !data?.ok) throw new Error('A próbaértesítés nem sikerült. Ellenőrizd az eszköz feliratkozását.');
       return true;
     },
     async hasPushSubscription() {

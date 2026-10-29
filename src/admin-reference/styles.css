@@ -24,8 +24,7 @@
   --admin-success: #55d6a7;
   --admin-confirmed: #7aa7ff;
   --admin-confirmed-text: #a8c7ff;
-  --admin-lashes: #c3a5d8;
-  --admin-laser: #67b7d8;
+  --admin-service: #c3a5d8;
   --admin-blocked: #e39a55;
   --admin-weekend: #18222f;
 }
@@ -45,8 +44,7 @@ html[data-admin-theme="light"] {
   --admin-success: #227a5c;
   --admin-confirmed: #3569b7;
   --admin-confirmed-text: #285493;
-  --admin-lashes: #795d8e;
-  --admin-laser: #2f7897;
+  --admin-service: #795d8e;
   --admin-blocked: #a45f28;
   --admin-weekend: #d9d1c3;
 }
@@ -95,8 +93,7 @@ html[data-admin-size="auto"]:has(.admin-theme) {
   --color-admin-success: var(--admin-success);
   --color-admin-confirmed: var(--admin-confirmed);
   --color-admin-confirmed-text: var(--admin-confirmed-text);
-  --color-admin-lashes: var(--admin-lashes);
-  --color-admin-laser: var(--admin-laser);
+  --color-admin-service: var(--admin-service);
   --color-admin-blocked: var(--admin-blocked);
   --color-admin-weekend: var(--admin-weekend);
   --font-sans: var(--font-manrope);

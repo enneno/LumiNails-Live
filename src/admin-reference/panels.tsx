@@ -220,7 +220,6 @@ export function GalleryPanel({ data, drafts, stage, run, report }: Shared) {
     [editing, setEditing] = useState<string | null>(null);
   const gallery = items.map((row: any, index: number) => ({
     id: row.id || row.kep || "image-" + index,
-    track: "lashes",
     title: row.kepAlt || `Kép ${index + 1}`,
     description: row.kepAlt || "",
     fallbackKey: row.kep,
@@ -287,7 +286,6 @@ export function GalleryPanel({ data, drafts, stage, run, report }: Shared) {
           ),
         )
       }
-      onUpdateGalleryTrack={() => {}}
       onUpdateGalleryText={(id, _, value) => {
         const next = clone(items);
         next[indexOf(id)].kepAlt = value;

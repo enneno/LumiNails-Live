@@ -1,0 +1,20 @@
+{
+  "version": "2026-10-29-v1",
+  "title": "Házirend",
+  "sections": [
+    { "id": "idopont", "title": "Időpont", "paragraphs": [
+      "Az időpontodra időben, vagy legfeljebb 5 perccel hamarabb érkezz.",
+      "24 órán belüli lemondás, meg nem jelenés esetén az elmulasztott szett 50% kerül felszámolásra a következő időpontnál."
+    ] },
+    { "id": "betegseg", "title": "Betegség", "paragraphs": ["Betegség esetén kérlek ne érkezz az időpontodra. Szólj nyugodtan, és keresünk neked másik időpontot."] },
+    { "id": "allergia", "title": "Allergia/érzékenység", "paragraphs": ["Ha bármilyen allergiád, érzékenységed van, ezt előre jelezd nekem."] },
+    { "id": "kisero", "title": "Kísérő", "paragraphs": ["Az időpontodra kérlek kísérő nélkül érkezz."] },
+    { "id": "mintak", "title": "Minták", "paragraphs": ["Ha különlegesebb, bonyolultabb mintát szeretnél, előre jelezd, hogy ennek megfelelően tudjam beosztani az időt."] },
+    { "id": "mas-munkaja", "title": "Más munkája", "paragraphs": ["Ha más körmös által készített munkával érkezel, ezt foglaláskor előre jelezd."] },
+    { "id": "visszajelzes", "title": "Visszajelzés", "paragraphs": ["Ha valami nem tetszik, vagy szeretnél változtatni rajta, nyugodtan szólj! Ez a te körmöd, te fizetsz érte és te viseled hetekig, ezért fontos számomra, hogy végül tényleg elégedett legyél vele."] },
+    { "id": "bejelentkezes", "title": "Bejelentkezés", "paragraphs": ["Bejelentkezni üzenetben vagy a luminails.hu oldalon lehet. Üzenetes bejelentkezés esetén türelmeteket kérem, lehet, hogy később válaszolok az üzenetekre."] },
+    { "id": "fontos", "title": "Fontos", "paragraphs": ["A szolgáltatás alatt kérlek ne feszítsd a kezed, ez megnehezíti a munkám."] }
+  ],
+  "cancellation": { "sectionId": "idopont", "paragraphIndex": 1 },
+  "closing": "Időpontfoglalással a házirendet automatikusan elfogadod!"
+}
