@@ -12,6 +12,7 @@ import {
   adminPressableClass,
 } from "./components/admin-ui";
 import { api } from "./model";
+import { adminNotifications } from "./lib/admin-notifications";
 
 export function SettingsPanel({ data, drafts, stage, run, report }: any) {
   const [password, setPassword] = useState(""),
@@ -327,47 +328,18 @@ export function CalculatorPanel({ data, run }: any) {
 }
 
 // The notification layout is copied from AdminNotifications; entries use LumiNails' existing events.
-export function Inbox({ data, onOpen, onLoad, onOpenLogs, run }: any) {
+export function Inbox({ data, onOpen, onLoad, onOpenBookings, onOpenGuests, run }: any) {
   const [open, setOpen] = useState(false);
   const [ackBusy, setAckBusy] = useState(false);
-  async function acknowledge(work: () => Promise<any>) {
+  async function saveReading(work: () => Promise<any>, message?: string) {
     setAckBusy(true);
     try {
-      await run(work, "Nyugtázás mentve.");
+      return await run(work, message);
     } finally {
       setAckBusy(false);
     }
   }
-  const bookings = data.bookings || [];
-  const tasks = bookings
-    .filter(
-      (row: any) =>
-        row.status === "new" ||
-        (row.status === "guest_cancelled" && !row.cancellationAcknowledgedAt),
-    )
-    .map((row: any) => ({
-      id: "booking-" + row.id,
-      title:
-        row.status === "new"
-          ? "Új foglalás · " + row.guestName
-          : "Vendéglemondás · " + row.guestName,
-      body: row.date + " · " + row.time + " · " + row.serviceLabel,
-      attention: true,
-      bookingId: row.id,
-      created: row.startsAt,
-    }));
-  const events = (data.events || []).slice(0, 50).map((row: any) => ({
-    id: row.id,
-    title: row.title,
-    body: row.message,
-    attention: (data.emailErrors || []).includes(row.id),
-    emailError: ["error", "failed", "failure"].includes(
-      String(row.status).toLowerCase(),
-    ),
-    bookingId: row.referenceBookingId,
-    created: row.created_at,
-  }));
-  const notices = [...tasks, ...events],
+  const notices = adminNotifications(data),
     attention = notices.filter((row: any) => row.attention).length;
   return (
     <>
@@ -400,51 +372,30 @@ export function Inbox({ data, onOpen, onLoad, onOpenLogs, run }: any) {
         open={open}
         onClose={() => setOpen(false)}
         title="Értesítések"
-        description="Foglalási teendők és e-mail jelzések."
+        description="Új foglalások, vendéglemondások, vendégmódosítások és regisztrációk."
       >
         <div className="mb-3 flex flex-wrap gap-2">
-          {data.emailErrors?.length ? (
-            <button
-              type="button"
-              disabled={ackBusy}
-              className={adminButtonClass}
-              onClick={() => acknowledge(() => api().acknowledgeEmailErrors())}
-            >
-              E-mailhibák nyugtázása
-            </button>
-          ) : null}
-          {bookings.some(
-            (row: any) =>
-              row.status === "guest_cancelled" &&
-              !row.cancellationAcknowledgedAt,
-          ) ? (
-            <button
-              type="button"
-              disabled={ackBusy}
-              className={adminButtonClass}
-              onClick={() =>
-                acknowledge(() => api().acknowledgeCancellations())
-              }
-            >
-              Lemondások nyugtázása
-            </button>
-          ) : null}
+          <button
+            type="button"
+            disabled={ackBusy || !attention}
+            className={adminButtonClass}
+            onClick={() => saveReading(() => api().markNotificationsRead(notices.map(row => row.id)), "Minden értesítés olvasott.")}
+          >
+            Mind olvasott
+          </button>
         </div>
         <div className="grid gap-2">
           {notices.map((notice: any) => (
             <button
               key={notice.id}
               type="button"
-              onClick={() => {
-                if (notice.emailError) {
+              disabled={ackBusy}
+              onClick={async () => {
+                if (await saveReading(() => api().markNotificationsRead([notice.id]))) {
                   setOpen(false);
-                  onOpenLogs();
-                } else if (notice.bookingId) {
-                  setOpen(false);
-                  onOpen(notice.bookingId);
-                } else {
-                  setOpen(false);
-                  onOpenLogs();
+                  if (notice.target === "guests") onOpenGuests();
+                  else if (notice.bookingId) onOpen(notice.bookingId);
+                  else onOpenBookings();
                 }
               }}
               className={`${adminPressableClass} rounded-xl border p-3 text-left hover:border-gold-dark/60 hover:shadow-[0_4px_14px_rgb(0_0_0_/_0.14)] ${notice.attention ? "border-gold-dark/40 bg-admin-field" : "border-transparent bg-admin-raised"}`}

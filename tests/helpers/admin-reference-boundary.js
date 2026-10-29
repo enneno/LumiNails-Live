@@ -288,12 +288,17 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
 
             select() { return this; }
-            order() { return this; }
-            limit() { return this; }
+            order(key, options = {}) { (this.sorts ||= []).push({ key, ascending: options.ascending !== false }); return this; }
+            limit(count) { this.rowLimit = count; return this; }
             range() { return this; }
             abortSignal() { return this; }
             throwOnError() { return this; }
             insert(values) {
+                if (this.table === 'booking_events' && window.__adminNotificationReadFailure &&
+                    (Array.isArray(values) ? values : [values]).some(row => row.event_type === 'admin_notifications_read')) {
+                    this.insertError = { message: 'Synthetic read-state write failure' };
+                    return this;
+                }
                 const records = (Array.isArray(values) ? values : [values]).map((value, index) => {
                     const record = clone(value);
                     if(this.table==='booking_events'&&!record.created_at)record.created_at=new Date().toISOString();
@@ -322,7 +327,7 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             delete() { this.deleting=true;return this; }
 
             eq(key, value) {
-                this.filters.push(row => String(row?.[key]) === String(value));
+                this.filters.push(row => String(key.includes('->>') ? row?.[key.split('->>')[0]]?.[key.split('->>')[1]] : row?.[key]) === String(value));
                 return this;
             }
 
@@ -376,6 +381,8 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
 
             execute() {
+                if (this.insertError) return { data: null, error: this.insertError };
+                if (this.table === 'admin_error_events' && window.__adminErrorLogLoadFailure) return { data: null, error: { message: 'Synthetic log read failure' } };
                 if (this.patch) {
                     for (const row of seed[this.table] || []) if (this.filters.every(filter => filter(row))) Object.assign(row, this.patch);
                     this.patch = null;
@@ -383,6 +390,14 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
                 if(this.deleting){window.__adminLastDelete={table:this.table};seed[this.table]=(seed[this.table]||[]).filter(row=>!this.filters.every(filter=>filter(row)));this.deleting=false;}
                 let rows = clone(this.insertedRecords || seed[this.table] || []);
                 for (const filter of this.filters) rows = rows.filter(filter);
+                if (this.sorts) rows.sort((a, b) => {
+                    for (const { key, ascending } of this.sorts) {
+                        if (a[key] === b[key]) continue;
+                        return (a[key] > b[key] ? 1 : -1) * (ascending ? 1 : -1);
+                    }
+                    return 0;
+                });
+                if (this.rowLimit !== undefined) rows = rows.slice(0, this.rowLimit);
                 return {
                     data: this.singleResult ? (rows[0] || null) : rows,
                     error: null,
@@ -423,6 +438,15 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
                 }
                 if (name === 'is_lumi_admin') {
                     return { data: true, error: null };
+                }
+                if (name === 'admin_mark_error_logs_read') {
+                    if(window.__adminErrorLogReadFailure)return {data:null,error:{message:'Synthetic log cursor failure'}};
+                    const last=Math.min(Number(args.p_last_seen_id),Math.max(0,...(seed.admin_error_events || []).map(row=>Number(row.id))));
+                    seed.admin_error_log_reads ||= [];
+                    let row=seed.admin_error_log_reads.find(row=>row.user_id===session.user.id);
+                    if(!row){row={user_id:session.user.id,last_seen_id:0};seed.admin_error_log_reads.push(row);}
+                    row.last_seen_id=Math.max(row.last_seen_id,last);
+                    return {data:null,error:null};
                 }
                 if(name==='clear_booking_inspiration'){const row=seed.bookings.find(row=>row.id===args.p_booking_id);if(row){row.inspiration_images=[];row.inspiration_image_url=null;}return {data:true,error:null};}
                 if (name === 'save_public_services') {

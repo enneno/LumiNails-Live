@@ -491,7 +491,7 @@ test("review evidence across existing admin tabs, sheets and calendar views", as
     ["Vendégek", "guests"],
     ["Kuponok", "coupons"],
     ["Árkalkulátor", "calculator"],
-    ["Kommunikáció", "logs"],
+    ["Logs", "logs"],
     ["Beállítások", "settings"],
   ];
   for (const [label, id] of tabs) {
@@ -685,8 +685,211 @@ test("lazy tab loading, request coalescing and standalone zoom guard", async ({
   );
 });
 
-test('email error and cancellation acknowledgement persist after reloading own data',async({page})=>{
- await page.setViewportSize({width:390,height:844});await openAdmin(page,'overview');await page.getByRole('button',{name:/Értesítések/}).click();let dialog=page.locator('dialog[open]');await dialog.getByRole('button',{name:'E-mailhibák nyugtázása',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.LumiAdminBackend.snapshot().emailErrors.length)).toBe(0);await dialog.getByRole('button',{name:'Lemondások nyugtázása',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.LumiAdminBackend.snapshot().bookings.find(row=>row.guestName==='Farkas Petra').cancellationAcknowledgedAt)).toBeTruthy();await page.evaluate(()=>Promise.all([window.LumiAdminBackend.load('logs',true),window.LumiAdminBackend.load('bookings',true)]));expect(await page.evaluate(()=>window.LumiAdminBackend.snapshot().emailErrors)).toEqual([]);expect(await page.evaluate(()=>window.LumiAdminBackend.snapshot().bookings.find(row=>row.guestName==='Farkas Petra').cancellationAcknowledgedAt)).toBeTruthy();const records=await page.evaluate(()=>window.__referenceSeed().booking_events);expect(records.some(row=>row.event_type==='admin_email_errors_acknowledged')).toBe(true);expect(records.some(row=>row.event_type==='customer_cancellation_acknowledged')).toBe(true);
+test('notifications: cancellation is first until its own card is acknowledged, without a duplicate inbox event', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page);
+  const cards = page.locator('#admin-reference-root main article');
+  await expect(cards.first()).toContainText('Farkas Petra');
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const inbox = page.getByRole('dialog', { name: 'Értesítések', exact: true });
+  await expect(inbox.getByRole('button', { name: /Vendéglemondás · Farkas Petra/ })).toHaveCount(1);
+  await expect(inbox.getByText('Vendeg lemondta', { exact: true })).toHaveCount(0);
+  await closeEditor(page);
+  await cards.first().getByRole('button', { name: 'Nyugtázom', exact: true }).click();
+  await expect(cards.filter({ hasText: 'Farkas Petra' })).toHaveAttribute('data-needs-cancellation-ack', 'false');
+  await expect(cards.first()).not.toContainText('Farkas Petra');
+  await expect(cards.last()).toContainText('Farkas Petra');
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await expect(inbox).not.toContainText('Vendéglemondás · Farkas Petra');
+  await expect(inbox).not.toContainText('Vendeg lemondta');
+  await expect(inbox).not.toContainText('Vendéglemondás tudomásul véve');
+  const saved = await page.evaluate(() => window.__referenceSeed());
+  await installSupabaseBoundaryMock(page, saved);
+  await page.reload();
+  await expect(cards.last()).toContainText('Farkas Petra');
+  await expect(cards.filter({ hasText: 'Farkas Petra' })).toHaveAttribute('data-needs-cancellation-ack', 'false');
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await expect(inbox).not.toContainText('Farkas Petra');
+  expect(await page.evaluate(() => window.__referenceSeed().bookings)).toEqual(saved.bookings);
+});
+
+test('notifications: mark all read persists per admin and leaves booking actions and email errors unresolved', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await openAdmin(page);
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const inbox = page.getByRole('dialog', { name: 'Értesítések', exact: true });
+  const mark = inbox.getByRole('button', { name: 'Mind olvasott', exact: true });
+  await expect(mark).toBeEnabled();
+  const before = await page.evaluate(() => window.__referenceSeed());
+  await mark.click();
+  await expect(mark).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+  await expect(inbox).toContainText('Vendéglemondás · Farkas Petra');
+  expect(await page.evaluate(() => window.__referenceSeed().bookings)).toEqual(before.bookings);
+  expect(await page.evaluate(() => window.__referenceSeed().booking_events.filter(row => row.event_type === 'admin_email_errors_acknowledged'))).toEqual([]);
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().bookings.find(row => row.guestName === 'Farkas Petra').cancellationAcknowledgedAt)).toBeNull();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: '.impeccable/review/notifications-read-320.png' });
+  const saved = await page.evaluate(() => window.__referenceSeed());
+  const marker = saved.booking_events.find(row => row.event_type === 'admin_notifications_read');
+  expect(marker.metadata.admin_user_id).toBe('admin-demo');
+  expect(marker.metadata.read_notice_ids.some(id => id.includes(before.bookings[3].id))).toBe(true);
+  await installSupabaseBoundaryMock(page, saved);
+  await page.reload();
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await expect(mark).toBeDisabled();
+  await expect(inbox).not.toContainText('Értesítések olvasottnak jelölve');
+  await closeEditor(page);
+  await expect(page.locator('#admin-reference-root main article').first()).toContainText('Farkas Petra');
+  // A different admin's marker does not mark this admin's newly arriving notice as read.
+  await page.evaluate(() => {
+    const seed = window.__referenceSeed();
+    seed.booking_events.push({ id: 'new-guest-change', event_type: 'customer_booking_rescheduled', channel: 'customer_account', title: 'Új jelzés', status: 'success', created_at: new Date().toISOString(), metadata: {} });
+    seed.booking_events.push({ id: 'other-admin', event_type: 'admin_notifications_read', created_at: new Date().toISOString(), metadata: { admin_user_id: 'another-admin', read_notice_ids: ['event:new-guest-change'] } });
+    window.__adminReplaceRows('booking_events', seed.booking_events);
+  });
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  await expect(inbox).toContainText('Új jelzés');
+  await expect(page.getByRole('button', { name: 'Értesítések, 1 jelzés', exact: true })).toBeVisible();
+  await expect(mark).toBeEnabled();
+});
+
+test('notifications: failed read-state save preserves unread badge and can be retried', async ({ page }) => {
+  await openAdmin(page);
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const mark = page.getByRole('dialog', { name: 'Értesítések', exact: true }).getByRole('button', { name: 'Mind olvasott', exact: true });
+  await expect(mark).toBeEnabled();
+  const label = await page.getByRole('button', { name: /Értesítések/ }).getAttribute('aria-label');
+  await page.evaluate(() => window.__adminNotificationReadFailure = true);
+  await mark.click();
+  await expect(page.getByText('Az értesítések olvasottsága nem menthető. Próbáld újra.', { exact: true })).toBeVisible();
+  await expect(mark).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Értesítések/ })).toHaveAttribute('aria-label', label);
+  expect(await page.evaluate(() => window.__referenceSeed().booking_events.filter(row => row.event_type === 'admin_notifications_read'))).toEqual([]);
+  await page.evaluate(() => window.__adminNotificationReadFailure = false);
+  await mark.click();
+  await expect(mark).toBeDisabled();
+});
+
+test('notifications: a later guest cancellation becomes an unread priority again after an earlier acknowledgement', async ({ page }) => {
+  const seed = fixtures();
+  seed.booking_events.find(row => row.event_type === 'customer_cancelled').created_at = '2026-01-01T10:00:00Z';
+  seed.booking_events.push({ id: 'old-ack', booking_id: seed.bookings[3].id, event_type: 'customer_cancellation_acknowledged', created_at: '2026-01-02T10:00:00Z', metadata: {} });
+  seed.booking_events.push({ id: 'new-cancel', booking_id: seed.bookings[3].id, event_type: 'customer_cancelled', created_at: '2026-01-03T10:00:00Z', metadata: {} });
+  seed.booking_events.push({ id: 'old-read', event_type: 'admin_notifications_read', created_at: '2026-01-02T11:00:00Z', metadata: { admin_user_id: 'admin-demo', read_notice_ids: [`cancellation:booking:${seed.bookings[3].id}:2026-01-01T10:00:00Z`] } });
+  await openAdmin(page, 'bookings', seed);
+  await expect(page.locator('#admin-reference-root main article').first()).toContainText('Farkas Petra');
+  await expect(page.locator('#admin-reference-root main article').first().getByRole('button', { name: 'Nyugtázom', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const notice = page.getByRole('dialog', { name: 'Értesítések', exact: true }).getByRole('button', { name: /Vendéglemondás · Farkas Petra/ });
+  await expect(notice).toHaveCount(1);
+  await expect(notice.locator('p').first().locator('span')).toHaveCount(1);
+});
+
+test('notifications: only guest events appear and open registration has no approval action', async ({ page }) => {
+  const seed = fixtures(), now = new Date().toISOString();
+  seed.booking_events.push(
+    { id: 'guest-edit', booking_id: seed.bookings[0].id, event_type: 'customer_booking_rescheduled', channel: 'customer_account', title: 'Vendég módosította az időpontját', message: 'Vendégmódosítás', created_at: now },
+    { id: 'admin-edit', booking_id: seed.bookings[0].id, event_type: 'admin_booking_updated', channel: 'admin', title: 'Admin módosítása', created_at: now },
+    { id: 'fake-guest', booking_id: seed.bookings[0].id, event_type: 'customer_booking_rescheduled', channel: 'admin', title: 'Admin másik módosítása', created_at: now },
+    { id: 'new-account', event_type: 'customer_registered', channel: 'customer_account', title: 'Új regisztráció', message: 'A regisztráció automatikus, nincs jóváhagyási teendő.', created_at: now },
+    { id: 'created-pending', booking_id: seed.bookings[1].id, event_type: 'booking_created', channel: 'booking', title: 'Foglalás rögzítve', message: 'Kiss Dorka', created_at: seed.bookings[1].created_at },
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings', seed);
+  await expect(page.getByRole('button', { name: 'Értesítések, 4 jelzés', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const inbox = page.getByRole('dialog', { name: 'Értesítések', exact: true });
+  await expect(inbox).toContainText('Vendég módosította az időpontját');
+  await expect(inbox).not.toContainText('Email kuldesi hiba');
+  await expect(inbox).not.toContainText('Foglalas visszaigazolva');
+  await expect(inbox).not.toContainText('Admin módosítása');
+  await expect(inbox).not.toContainText('Admin másik módosítása');
+  await expect(inbox.getByRole('button', { name: /Új foglalás · Kiss Dorka/ })).toHaveCount(1);
+  await expect(inbox.getByRole('button', { name: /Foglalás rögzítve/ })).toHaveCount(0);
+  await expect(inbox.getByRole('button', { name: /^(Jóváhagyás|Jóváhagyom|Elfogadás|Elutasítás)$/i })).toHaveCount(0);
+  await inbox.getByRole('button', { name: /Új regisztráció/ }).click();
+  await expect(page.locator('#admin-reference-root main h1')).toHaveText('Vendégek');
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().notificationReadIds)).toContain('event:new-account');
+  expect(await page.evaluate(() => window.__referenceSeed().bookings)).toEqual(seed.bookings);
+});
+
+test('notifications: confirming a read new booking does not create a second unread notice', async ({ page }) => {
+  const seed = fixtures();
+  seed.booking_events.push({ id: 'created-pending', booking_id: seed.bookings[1].id, event_type: 'booking_created', channel: 'booking', title: 'Foglalás rögzítve', message: 'Kiss Dorka', created_at: seed.bookings[1].created_at });
+  await openAdmin(page, 'bookings', seed);
+  await page.getByRole('button', { name: /Értesítések/ }).click();
+  const inbox = page.getByRole('dialog', { name: 'Értesítések', exact: true });
+  await inbox.getByRole('button', { name: 'Mind olvasott', exact: true }).click();
+  await expect(inbox.getByRole('button', { name: 'Mind olvasott', exact: true })).toBeDisabled();
+  await page.evaluate(async () => {
+    const seed = window.__referenceSeed(); seed.bookings.find(row => row.customer_name === 'Kiss Dorka').status = 'confirmed';
+    window.__adminReplaceRows('bookings', seed.bookings);
+    await window.LumiAdminBackend.load('notifications', true);
+  });
+  await expect(inbox.getByRole('button', { name: /Foglalás rögzítve/ })).toHaveCount(1);
+  await expect(inbox.getByRole('button', { name: 'Mind olvasott', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+});
+
+test('notifications: an inbox containing only email history has one empty state', async ({ page }) => {
+  const seed = fixtures();
+  seed.bookings = seed.bookings.map(row => ({ ...row, status: 'confirmed' }));
+  seed.booking_events = seed.booking_events.filter(row => row.channel === 'email');
+  await openAdmin(page, 'bookings', seed);
+  await page.getByRole('button', { name: 'Értesítések', exact: true }).click();
+  const inbox = page.getByRole('dialog', { name: 'Értesítések', exact: true });
+  await expect(inbox.getByText('Még nincs értesítés.', { exact: true })).toHaveCount(1);
+  await expect(inbox.getByRole('button', { name: 'Mind olvasott', exact: true })).toBeDisabled();
+});
+
+test('logs: source layout, unread dot, durable read cursor, copy and recovery on mobile and desktop', async ({ page }) => {
+  const seed = fixtures();
+  seed.admin_error_events = [{ id: 1, source: 'booking_email', occurred_at: new Date().toISOString(), title: 'Foglalási e-mail küldése sikertelen', detail: 'Kísérlet: 8/8. A küldési szolgáltatás kiszolgálóhibát jelzett.' }];
+  await page.addInitScript(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => window.__copiedErrorReport = text } }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openAdmin(page, 'bookings', seed);
+  const dock = page.getByRole('navigation', { name: 'Mobil admin eszköztár', exact: true });
+  await expect(dock.getByLabel('Új naplóhiba')).toBeVisible();
+  await dock.getByRole('button', { name: /Továbbiak/ }).click();
+  await page.getByRole('dialog', { name: 'Továbbiak', exact: true }).getByRole('button', { name: /Logs/ }).click();
+  const main = page.locator('#admin-reference-root main');
+  await expect(main.getByRole('heading', { name: 'Logs', exact: true })).toBeVisible();
+  await expect(main).toContainText('Kísérlet: 8/8');
+  await expect(main).not.toContainText('Email kuldesi hiba');
+  await expect(main.getByRole('button', { name: /Teszt e-mailek|Excel export|nyugtázás/i })).toHaveCount(0);
+  await expect(dock.getByLabel('Új naplóhiba')).toHaveCount(0);
+  expect(await page.evaluate(() => window.__referenceSeed().admin_error_log_reads)).toEqual([{ user_id: 'admin-demo', last_seen_id: 1 }]);
+  await main.getByRole('button', { name: 'Hibalista másolása', exact: true }).click();
+  expect(await page.evaluate(() => window.__copiedErrorReport)).toContain('LumiNails – hibás háttérfutások');
+  for (const width of [320, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: '.impeccable/review/logs-source-' + width + '.png' });
+  }
+  await page.evaluate(() => window.__adminReplaceRows('admin_error_events', []));
+  await main.getByRole('button', { name: 'Frissítés', exact: true }).click();
+  await expect(main).toContainText('Nincs rögzített hiba.');
+  await expect(main.getByRole('button', { name: 'Hibalista másolása', exact: true })).toBeDisabled();
+});
+
+test('logs: failed loading and failed cursor save stay visible and can be retried', async ({ page }) => {
+  const seed = fixtures();
+  seed.admin_error_events = [{ id: 3, source: 'cron', occurred_at: new Date().toISOString(), title: 'Tartós időzített feladathiba', detail: 'Legalább egy órája hibás.' }];
+  await page.addInitScript(() => window.__adminErrorLogReadFailure = true);
+  await openAdmin(page, 'logs', seed);
+  const main = page.locator('#admin-reference-root main');
+  await expect(main.getByRole('alert')).toContainText('A hibák olvasottságát nem sikerült menteni.');
+  await expect(main).toContainText('Tartós időzített feladathiba');
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().hasNewLogErrors)).toBe(true);
+  await page.evaluate(() => window.__adminErrorLogReadFailure = false);
+  await main.getByRole('button', { name: 'Frissítés', exact: true }).click();
+  await expect(main.getByRole('alert')).toHaveCount(0);
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().hasNewLogErrors)).toBe(false);
+  await page.evaluate(() => window.__adminErrorLogLoadFailure = true);
+  await main.getByRole('button', { name: 'Frissítés', exact: true }).click();
+  await expect(main.getByRole('alert')).toContainText('A hibalista nem érhető el.');
+  await expect(main).not.toContainText('Nincs rögzített hiba.');
 });
 
 test('multiple-day planning and shared interval preserve bookings and other windows',async({page})=>{

@@ -262,6 +262,9 @@
   .-right-1 {
     right: calc(var(--spacing) * -1);
   }
+  .-right-2 {
+    right: calc(var(--spacing) * -2);
+  }
   .-right-2\.5 {
     right: calc(var(--spacing) * -2.5);
   }
@@ -1247,6 +1250,9 @@
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
+  .p-5 {
+    padding: calc(var(--spacing) * 5);
+  }
   .px-0\.5 {
     padding-inline: calc(var(--spacing) * 0.5);
   }
@@ -1574,6 +1580,9 @@
   .text-admin-danger {
     color: var(--admin-danger);
   }
+  .text-admin-muted {
+    color: var(--admin-muted);
+  }
   .text-admin-success {
     color: var(--admin-success);
   }
@@ -1642,6 +1651,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       --tw-ring-color: color-mix(in oklab, var(--admin-accent) 80%, transparent);
     }
+  }
+  .ring-admin-bg {
+    --tw-ring-color: var(--admin-bg);
   }
   .ring-admin-blocked\/80 {
     --tw-ring-color: var(--admin-blocked);

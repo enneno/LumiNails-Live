@@ -46,7 +46,7 @@ const tabs = [
   { id: "guests", label: "Vendégek", icon: "approvals" },
   { id: "coupons", label: "Kuponok", icon: "prices" },
   { id: "calculator", label: "Árkalkulátor", icon: "prices" },
-  { id: "logs", label: "Kommunikáció", icon: "logs" },
+  { id: "logs", label: "Logs", icon: "logs" },
   { id: "settings", label: "Beállítások", icon: "notifications" },
 ];
 const emptyManual = () => ({
@@ -487,12 +487,13 @@ export function LumiAdminStudio() {
             <Inbox
               data={data}
               run={run}
-              onOpenLogs={() => navigate("logs")}
+              onOpenBookings={() => navigate("bookings")}
+              onOpenGuests={() => navigate("guests")}
               onOpen={(id: number) => {
                 navigate("bookings");
                 setEditing(id);
               }}
-              onLoad={() => Promise.all([load("logs"), load("bookings")])}
+              onLoad={() => load("notifications")}
               report={report}
             />
             <button
@@ -552,6 +553,7 @@ export function LumiAdminStudio() {
                     className="size-[1.125rem] shrink-0"
                   />
                   <span className="min-w-0 flex-1 truncate">{tab.label}</span>
+                  {tab.id === "logs" && data.hasNewLogErrors ? <span className="size-2.5 shrink-0 rounded-full bg-admin-danger" aria-label="Új naplóhiba" /> : null}
                   {tab.id === "bookings" && pending + unack > 0 ? (
                     <span className="rounded-full bg-gold-dark px-1.5 py-0.5 text-[0.6rem] font-bold text-admin-bg">
                       {pending + unack}
@@ -810,7 +812,7 @@ export function LumiAdminStudio() {
                 />
               ) : null}
               {activeTab === "settings" ? <SettingsPanel {...shared} /> : null}
-              {activeTab === "logs" ? <LogsPanel {...shared} /> : null}
+              {activeTab === "logs" ? <LogsPanel data={data} loading={loading} onRefresh={() => void load("logs", true)} /> : null}
               {activeTab === "calculator" ? (
                 <CalculatorPanel {...shared} />
               ) : null}
@@ -842,6 +844,7 @@ export function LumiAdminStudio() {
                 >
                   <AdminIcon name={tab.icon as any} className="size-4" />
                   {tab.label}
+                  {tab.id === "logs" && data.hasNewLogErrors ? <span className="ml-auto size-2.5 shrink-0 rounded-full bg-admin-danger" aria-label="Új naplóhiba" /> : null}
                 </button>
               ))}
           </div>
@@ -919,7 +922,7 @@ export function LumiAdminStudio() {
               aria-pressed={dockIndex === 4}
               className={styles.dockItem}
             >
-              <AdminIcon name="more" className="size-5" />
+              <span className="relative"><AdminIcon name="more" className="size-5" />{data.hasNewLogErrors ? <span className="absolute -right-2 -top-1 size-2.5 rounded-full bg-admin-danger ring-2 ring-admin-bg" aria-label="Új naplóhiba" /> : null}</span>
               <span>Továbbiak</span>
             </button>
           </nav>

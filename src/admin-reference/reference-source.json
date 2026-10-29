@@ -277,6 +277,12 @@
       "sourceSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
       "localSha256": "36798418c86d74664c98edaccdf4fb5a708a07295e751b7b9113598fa1066a52",
       "exact": true
+    },
+    {
+      "file": "components/admin-logs-tab.tsx",
+      "sourceSha256": "7a7f1661199fb4950ffc1f7016abcaed7eea0cb56b6f4ac64bcfdf254949b7d8",
+      "localSha256": "327facad882a1a6f068b4622db46f02873a9d1b92864ef87b8013ee5a5b86c9c",
+      "exact": false
     }
   ],
   "extracted": [

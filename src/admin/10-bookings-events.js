@@ -275,7 +275,7 @@
 
         const { data, error } = await allapot.kliens
             .from('booking_events')
-            .select('booking_id,event_type,message,metadata,created_at')
+            .select('booking_id,event_type,channel,message,metadata,created_at')
             .in('booking_id', foglalasIds)
             .in('event_type', ['customer_cancelled', 'customer_cancellation_acknowledged'])
             .order('created_at', { ascending: true });
@@ -295,6 +295,7 @@
             const allapotAdat = allapot.lemondasEsemenyek.get(bookingId) || {};
             if (esemeny.event_type === 'customer_cancelled') {
                 allapotAdat.lemondas = esemeny.created_at;
+                allapotAdat.lemondasCsatorna = esemeny.channel;
                 allapotAdat.megjegyzes = vendegLemondasMegjegyzesEsemenybol(esemeny);
             }
             if (esemeny.event_type === 'customer_cancellation_acknowledged') {

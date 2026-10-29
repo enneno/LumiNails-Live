@@ -3207,7 +3207,7 @@ function arlistaFeliratokFrissitese() {
 
         const { data, error } = await allapot.kliens
             .from('booking_events')
-            .select('booking_id,event_type,message,metadata,created_at')
+            .select('booking_id,event_type,channel,message,metadata,created_at')
             .in('booking_id', foglalasIds)
             .in('event_type', ['customer_cancelled', 'customer_cancellation_acknowledged'])
             .order('created_at', { ascending: true });
@@ -3227,6 +3227,7 @@ function arlistaFeliratokFrissitese() {
             const allapotAdat = allapot.lemondasEsemenyek.get(bookingId) || {};
             if (esemeny.event_type === 'customer_cancelled') {
                 allapotAdat.lemondas = esemeny.created_at;
+                allapotAdat.lemondasCsatorna = esemeny.channel;
                 allapotAdat.megjegyzes = vendegLemondasMegjegyzesEsemenybol(esemeny);
             }
             if (esemeny.event_type === 'customer_cancellation_acknowledged') {
@@ -6901,6 +6902,83 @@ function arlistaFeliratokFrissitese() {
     // No reference-project schema, environment value or content crosses this boundary.
     const referenceRecordIds = new Map();
     let referenceNextId = 1;
+    let referenceNotificationOwner = null;
+    let referenceNotificationReadIds = new Set();
+    let referenceNotificationsLoaded = false;
+    let referenceGuestEvents = null;
+    let referenceLogState = {loaded:false,events:[],hasNew:false,lastSeen:0,error:null};
+    function referenceNotificationState() {
+        const owner = allapot.session?.user?.id || null;
+        if (owner !== referenceNotificationOwner) {
+            referenceNotificationOwner = owner;
+            referenceNotificationReadIds = new Set();
+            referenceNotificationsLoaded = false;
+            referenceGuestEvents = null;
+            referenceLogState = {loaded:false,events:[],hasNew:false,lastSeen:0,error:null};
+        }
+        return owner;
+    }
+    async function referenceLoadGuestEvents() {
+        const owner=referenceNotificationState();
+        const valid=adminKeresMunkamenetOr();
+        await adminKeresOsszevonasa('referenceGuestEvents',async()=>{
+            const {data,error}=await allapot.kliens.from('booking_events')
+                .select('id,booking_id,event_type,channel,title,message,created_at')
+                .in('event_type',['booking_created','customer_cancelled','customer_registered','customer_booking_updated','customer_booking_rescheduled','customer_rescheduled','booking_rescheduled'])
+                .neq('channel','admin').order('created_at',{ascending:false}).limit(50);
+            if(error)throw new Error('Az értesítések nem tölthetők be. Próbáld újra.');
+            if(valid()&&referenceNotificationState()===owner)referenceGuestEvents=data || [];
+        });
+    }
+    async function referenceLoadErrorLogs(full=false,force=false) {
+        const owner=referenceNotificationState();
+        if(!owner)return;
+        const key=`referenceErrorLogs:${owner}`;
+        const pending=adminFolyamatbanLevoKeresek.get(key);
+        if(pending){await pending;if(!full)return;}
+        if(!full&&referenceLogState.loaded&&!force)return;
+        const valid=adminKeresMunkamenetOr();
+        await adminKeresOsszevonasa(key,async()=>{
+            const [events,read]=await Promise.all([
+                allapot.kliens.from('admin_error_events').select(full?'id,source,occurred_at,title,detail':'id').order('id',{ascending:false}).limit(full?200:1),
+                allapot.kliens.from('admin_error_log_reads').select('last_seen_id').eq('user_id',owner).maybeSingle()
+            ]);
+            if(!valid()||referenceNotificationState()!==owner)return;
+            referenceLogState.loaded=true;
+            if(events.error||read.error){referenceLogState.error='A hibalista nem érhető el. Próbáld újra később.';return;}
+            const latest=Number(events.data?.[0]?.id || 0),lastSeen=Number(read.data?.last_seen_id || 0);
+            referenceLogState.hasNew=latest>lastSeen;
+            referenceLogState.lastSeen=lastSeen;
+            referenceLogState.error=null;
+            if(full){
+                referenceLogState.events=events.data || [];
+                if(latest>lastSeen){
+                    const {error}=await allapot.kliens.rpc('admin_mark_error_logs_read',{p_last_seen_id:latest});
+                    if(!valid()||referenceNotificationState()!==owner)return;
+                    if(error){referenceLogState.error='A hibák olvasottságát nem sikerült menteni. Próbáld újra.';return;}
+                    referenceLogState.lastSeen=latest;referenceLogState.hasNew=false;
+                }
+            }
+        });
+    }
+    async function referenceLoadNotificationReads(force = false) {
+        const owner = referenceNotificationState();
+        if (!owner) return;
+        const pending=adminFolyamatbanLevoKeresek.get(`referenceNotificationReads:${owner}`);
+        if(pending){await pending;return;}
+        if(referenceNotificationsLoaded && !force)return;
+        await adminKeresOsszevonasa(`referenceNotificationReads:${owner}`, async () => {
+            const { data, error } = await allapot.kliens.from('booking_events')
+                .select('metadata,created_at').eq('event_type', 'admin_notifications_read')
+                .eq('metadata->>admin_user_id', owner).order('created_at', { ascending: false }).limit(50);
+            if (error) throw new Error('Az értesítések olvasottsága nem tölthető be. Próbáld újra.');
+            if (referenceNotificationState() !== owner) return;
+            // Merge recent markers too, so simultaneous browser sessions do not undo each other's reads.
+            const ids=(data || []).slice().reverse().flatMap(row=>Array.isArray(row.metadata?.read_notice_ids)?row.metadata.read_notice_ids:[]);
+            referenceNotificationReadIds = new Set(Array.from(new Set(ids.filter(id => typeof id === 'string'))).slice(-5000));
+            referenceNotificationsLoaded = true;
+        });
+    }
     const referenceKey = item => `${item.tipus}:${item.adat.id}`;
     function referenceId(item) {
         const key = referenceKey(item);
@@ -6927,15 +7005,17 @@ function arlistaFeliratokFrissitese() {
     function referenceCheckCms(){const result=window.LumiAdminCms?.result?.();if(result?.error)throw new Error(result.message);}
     function referenceBooking(item) {
         const row=item.adat, cancelled=allapot.lemondasEsemenyek.get(String(row.id));
-        return { id:referenceId(item), updatedAt:row.updated_at || row.created_at || '', startsAt:row.starts_at, endsAt:row.ends_at,
+        const acknowledgedAt=cancelled?.tudomasulvetel;
+        const cancellationAcknowledgedAt=acknowledgedAt && (!cancelled?.lemondas || Date.parse(acknowledgedAt)>=Date.parse(cancelled.lemondas)) ? acknowledgedAt : null;
+        return { id:referenceId(item), notificationKey:referenceKey(item), createdAt:row.created_at, updatedAt:row.updated_at || row.created_at || '', startsAt:row.starts_at, endsAt:row.ends_at,
             date:new Date(row.starts_at).toLocaleDateString('hu-HU'), time:idoInputErtek(row.starts_at), endTime:idoInputErtek(row.ends_at),
             dateInput:datumInputErtek(row.starts_at), timeInput:idoInputErtek(row.starts_at), trackId:'lashes', trackLabel:'Köröm',
             serviceLabel:row.services?.name || row.services?.description || '', serviceGroups:[{label:'',names:[row.services?.name || row.services?.description || 'Kézi időpont']}],
             serviceIds:row.service_id?[row.service_id]:allapot.szolgaltatasok.filter(service=>service.name===row.services?.name).slice(0,1).map(service=>service.id), guestName:row.customer_name || row.reason || 'Kézi időpont', createdBy:null,
             phone:row.customer_phone || '', email:row.customer_email || '', note:item.tipus==='booking'?foglalasMegjegyzesMegjelenites(row):'', adminComment:'',
-            paidAmountHuf:row.paid_amount ?? null, status:referenceStatus(row.status), cancelledAt:cancelled?.lemondas || null,
+            paidAmountHuf:row.paid_amount ?? null, status:referenceStatus(row.status), cancelledAt:cancelled?.lemondas || null, cancellationByAdmin:cancelled?.lemondasCsatorna==='admin',
             inspirations:item.tipus==='booking'?foglalasInspiracioKepek(row):[], coupon:[row.coupon_code,row.coupon_title].filter(Boolean).join(' · '), nailStyle:[row.nail_style,row.nail_style_note].filter(Boolean).join(' · '),
-            cancellationAcknowledgedAt:cancelled?.tudomasulvetel || null, source:item.tipus==='blocked'?'manual':'online', confirmationCode:row.public_reference || '' };
+            cancellationAcknowledgedAt, source:item.tipus==='blocked'?'manual':'online', confirmationCode:row.public_reference || '' };
     }
     function referenceWindowRows() {
         if(allapot.referenceWindows)return allapot.referenceWindows.map(row=>({...row}));
@@ -6945,13 +7025,15 @@ function arlistaFeliratokFrissitese() {
         }));
     }
     function referenceSnapshot() {
+        referenceNotificationState();
         const authorized=Boolean(allapot.session && allapot.adminVerified);
         if (!authorized) return { authorized:false, ready:Boolean(allapot.referenceAuthReady), pending:Boolean(allapot.session&&!allapot.adminVerified), authError:document.getElementById('admin-auth-status')?.classList.contains('hiba')?document.getElementById('admin-auth-status').textContent:'' };
         return { authorized, bookings:allapot.foglalasElemek.map(referenceBooking), services:allapot.szolgaltatasok, coupons:allapot.kuponok || [],
-            guests:allapot.vendegProfilok || [], events:(allapot.esemenynaploElemek || []).map(event=>({...event,referenceBookingId:allapot.foglalasElemek.find(item=>item.adat.id===event.booking_id)?referenceId(allapot.foglalasElemek.find(item=>item.adat.id===event.booking_id)):null})), windows:referenceWindowRows(),
+            guests:allapot.vendegProfilok || [], events:(referenceGuestEvents || allapot.esemenynaploElemek || []).map(event=>{const item=allapot.foglalasElemek.find(item=>item.tipus==='booking'&&item.adat.id===event.booking_id);return {...event,referenceBookingId:item?referenceId(item):null,referenceBookingKey:item?referenceKey(item):null};}), windows:referenceWindowRows(),
+            errorLogs:referenceLogState.events,hasNewLogErrors:referenceLogState.hasNew,logError:referenceLogState.error,
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
-            emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id),
+            emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }
     const referenceLoaders={overview:'attekintes',bookings:'foglalasok',prices:'szolgaltatasok',coupons:'kuponok',schedule:'idosavok',guests:'vendegek',logs:'esemenynaplo',settings:'beallitasok',calculator:'arkalkulator'};
@@ -6987,8 +7069,12 @@ function arlistaFeliratokFrissitese() {
         async load(scope,force=false) {
             referenceRequireAdmin();
             if(force&&['bookings','overview'].includes(scope))adminStudioFoglalasKartyak.clear();
-            if(scope==='content'||scope==='gallery'){await window.LumiAdminCms.load(force);referenceCheckCms();}
+            if(['notifications','overview','bookings'].includes(scope))await Promise.all([adminPanelAdatokBetoltese('foglalasok',force),referenceLoadGuestEvents()]);
+            else if(scope==='logs')await referenceLoadErrorLogs(true,true);
+            else if(scope==='content'||scope==='gallery'){await window.LumiAdminCms.load(force);referenceCheckCms();}
             else await adminPanelAdatokBetoltese(referenceLoaders[scope] || 'attekintes',force);
+            if (['overview','bookings','notifications'].includes(scope)) await referenceLoadNotificationReads(force);
+            if(scope!=='logs')await referenceLoadErrorLogs(false,force);
             referenceCheckStatus();
             return referenceSnapshot();
         },
@@ -7016,8 +7102,33 @@ function arlistaFeliratokFrissitese() {
         async removeInspirations(id){referenceRequireAdmin();const item=referenceItem(id);if(item.tipus!=='booking')return referenceSnapshot();if(!await foglalasInspiraciokTorlese(adminStudioFoglalasKartya(item)))throw new Error('Az inspirációs képek törlése nem sikerült.');await foglalasokBetoltese();return referenceSnapshot();},
         async acknowledge(id) {
             referenceRequireAdmin();const item=referenceItem(id);if(item.tipus!=='booking')return referenceSnapshot();
+            const booking=referenceBooking(item);
+            if(booking.status!=='guest_cancelled'||booking.cancellationAcknowledgedAt)return referenceSnapshot();
             const {error}=await allapot.kliens.from('booking_events').insert({booking_id:item.adat.id,event_type:'customer_cancellation_acknowledged',channel:'admin',status:'success',title:'Vendéglemondás tudomásul véve',message:'Az admin a lemondást átnézte és tudomásul vette.',metadata:{}});
-            if(error)throw new Error('A nyugtázás nem sikerült.');await foglalasokBetoltese();return referenceSnapshot();
+            if(error)throw new Error('A nyugtázás nem sikerült.');
+            // A refresh that began before the insert cannot confirm this write.
+            const pending=adminFolyamatbanLevoKeresek.get('foglalasokBetoltese');
+            if(pending)await pending;
+            await foglalasokBetoltese();referenceCheckStatus();return referenceSnapshot();
+        },
+        async markNotificationsRead(ids) {
+            referenceRequireAdmin();
+            const owner=referenceNotificationState();
+            await referenceLoadNotificationReads();
+            referenceRequireAdmin();
+            if(referenceNotificationState()!==owner)throw new Error('A belépés megváltozott. Nyisd meg újra az értesítéseket.');
+            const next=new Set(referenceNotificationReadIds);
+            for(const id of ids)if(typeof id==='string')next.add(id);
+            if(next.size===referenceNotificationReadIds.size)return referenceSnapshot();
+            const readIds=Array.from(next).slice(-5000);
+            const {error}=await allapot.kliens.from('booking_events').insert({
+                booking_id:null,event_type:'admin_notifications_read',channel:'admin',status:'success',
+                title:'Értesítések olvasottnak jelölve',message:'A megnyitott értesítések olvasottsága mentve.',
+                metadata:{admin_user_id:owner,read_notice_ids:readIds}
+            });
+            if(error)throw new Error('Az értesítések olvasottsága nem menthető. Próbáld újra.');
+            if(referenceNotificationState()===owner){referenceNotificationReadIds=new Set(readIds);referenceNotificationsLoaded=true;}
+            return referenceSnapshot();
         },
         async createManual(form) {
             referenceRequireAdmin();await szolgaltatasokBetoltese();const e=adminElemek();
