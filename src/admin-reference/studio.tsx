@@ -334,6 +334,8 @@ export function LumiAdminStudio() {
                 : () => api().saveContent(value);
       if (!(await run(fn, "Mentve."))) return false;
       setDrafts((old: any) => {
+        // A native editor dialog can still receive edits while this request is pending.
+        if (old[scope] !== value) return old;
         const next = { ...old };
         delete next[scope];
         return next;
@@ -395,18 +397,17 @@ export function LumiAdminStudio() {
   }
   async function payment(booking: any, amount: number | null) {
     if (dates[booking.id] || statuses[booking.id]) {
-      report(
-        "Előbb mentsd az időpont vagy állapot függő módosítását.",
-        "error",
-      );
-      return;
+      const message = "Előbb mentsd az időpont vagy állapot függő módosítását.";
+      report(message, "error");
+      throw new Error(message);
     }
     setSavingPayments((old) => [...old, booking.id]);
     try {
-      await run(
+      const saved = await run(
         () => api().savePayment(booking.id, amount),
         "Fizetett összeg mentve.",
       );
+      if (!saved) throw new Error("A fizetett összeg mentése nem sikerült.");
     } finally {
       setSavingPayments((old) => old.filter((id) => id !== booking.id));
     }

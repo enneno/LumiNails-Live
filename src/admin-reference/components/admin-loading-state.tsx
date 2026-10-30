@@ -18,7 +18,7 @@ export function AdminLoadingState({
   return (
     <div className={embedded ? "flex items-center justify-center py-6" : `${styles.shell} items-center justify-center py-6`}>
       <section className="grid w-full max-w-md gap-4 px-6 text-center" aria-busy={isLoading}>
-        <p className="text-sm font-bold text-gold-dark">Golden Studio</p>
+        <p className="text-sm font-bold text-gold-dark">LumiNails</p>
         <h1 className={adminHeadingClass}>
           {isLoading ? "Admin adatok betöltése…" : "Az adminadatok nem töltődtek be"}
         </h1>

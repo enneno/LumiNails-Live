@@ -9,7 +9,8 @@ const manifest=JSON.parse(read('src/admin-reference/reference-source.json'));
 
 test('shared reference components and CSS are the actual copied sources',()=>{
  // Single-service adapters replace the reference's catalog, category colors and lash-specific card extras.
- expect(manifest.files.filter(file=>file.exact).length).toBeGreaterThanOrEqual(32);
+ // The shared loading/error screen also carries LumiNails' own brand name.
+ expect(manifest.files.filter(file=>file.exact).length).toBeGreaterThanOrEqual(31);
  for(const file of manifest.files){const bytes=fs.readFileSync(path.join(source,file.file));expect(hash(bytes),file.file).toBe(file.localSha256);if(file.exact)expect(hash(bytes),file.file).toBe(file.sourceSha256);}
  for(const file of ['components/admin-studio.module.css','components/admin-overlays.module.css','components/admin-editor-sheet.tsx','components/admin-list-pagination.tsx','components/admin-select-menu.tsx','components/admin-temporal-input.tsx','components/admin-week-picker.tsx'])expect(manifest.files.find(row=>row.file===file)?.exact,file).toBe(true);
  // LumiNails has one service area; the reference overview's multi-area distribution was intentionally removed.

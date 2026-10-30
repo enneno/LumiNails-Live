@@ -59,7 +59,10 @@ export function AdminLoginForm({externalError=""}:{externalError?:string}) {
 
   return (
     <form
-      onSubmit={(event) => event.preventDefault()}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (event.currentTarget.reportValidity()) void handleSubmit(event.currentTarget);
+      }}
       aria-busy={isSubmitting}
       className="mt-5 grid gap-3.5"
     >
@@ -93,11 +96,7 @@ export function AdminLoginForm({externalError=""}:{externalError?:string}) {
         </p>
       ) : null}
       <button
-        type="button"
-        onClick={(event) => {
-          const form = event.currentTarget.form;
-          if (form?.reportValidity()) void handleSubmit(form);
-        }}
+        type="submit"
         disabled={isSubmitting}
         className={adminPrimaryButtonClass}
       >

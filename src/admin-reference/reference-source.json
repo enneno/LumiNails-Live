@@ -79,13 +79,14 @@
     {
       "file": "components/admin-loading-state.tsx",
       "sourceSha256": "fbc91da96b08d921a3e5a3bab8389611060868e95ec693815d82a02dc4d28687",
-      "localSha256": "fbc91da96b08d921a3e5a3bab8389611060868e95ec693815d82a02dc4d28687",
-      "exact": true
+      "localSha256": "a4c1363967f62bdf51acdb0f24fdc199c97566906989645b2ec8eaf224aa0add",
+      "exact": false,
+      "adaptation": "LumiNails branding in the shared loading and error screen; layout and behavior retained."
     },
     {
       "file": "components/admin-login-form.tsx",
       "sourceSha256": "c865d9b9e57264716306f85b339a0326e91e139c51972de8c8030a1892d687ef",
-      "localSha256": "1c0360f5da2a16395ae70a26b047bffa70c67cc55335cb3f78c4ef40b6e838fa",
+      "localSha256": "586360e71e1c07dd7817725b0bf0c77092a3eaf52877347759083bb47b38c4ac",
       "exact": false
     },
     {

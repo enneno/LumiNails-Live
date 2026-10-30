@@ -214,7 +214,7 @@ export function PricesPanel({ data, drafts, stage }: Shared) {
   );
 }
 
-export function GalleryPanel({ data, drafts, stage, run, report }: Shared) {
+export function GalleryPanel({ data, drafts, stage, run, report, busy }: Shared) {
   const content = drafts.content || data.cms?.content || {},
     items = content.galeria?.elemek || [],
     [editing, setEditing] = useState<string | null>(null);
@@ -263,6 +263,7 @@ export function GalleryPanel({ data, drafts, stage, run, report }: Shared) {
     stage("content", value);
   }
   return (
+    <fieldset disabled={busy} className="m-0 min-w-0 border-0 p-0">
     <AdminGalleryTab
       gallery={gallery}
       previewUrls={urls}
@@ -376,6 +377,7 @@ export function GalleryPanel({ data, drafts, stage, run, report }: Shared) {
         ) : null
       }
     />
+    </fieldset>
   );
 }
 
@@ -442,6 +444,7 @@ export function ContentPanel({ data, drafts, stage, run, busy }: Shared) {
     stage("content", next);
   }
   function fieldView(def: any) {
+    if (def.path === "navigacio.foglalasom") return null;
     const value = getPath(content, def.path);
     if (def.type === "image")
       return (
