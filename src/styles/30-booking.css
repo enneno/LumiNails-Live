@@ -28,16 +28,13 @@
 .foglalas-lepes-fej h3 {
     margin: 0 0 6px;
     color: var(--barna);
-    font-family: var(--font-display);
-    font-size: 28px;
-    line-height: 1.05;
 }
 
 .foglalas-lepes-fej p {
     margin: 0;
     color: var(--szoveg);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.55;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .foglalas-lepes-szam {
@@ -252,9 +249,6 @@
 .foglalas-osszefoglalo h3 {
     margin: 0 0 10px;
     color: var(--barna);
-    font-family: var(--font-display);
-    font-size: 26px;
-    line-height: 1;
 }
 
 .foglalas-osszefoglalo p {
@@ -347,9 +341,6 @@
 }
 
 @media screen and (max-width: 640px) {
-    .foglalas-lepes-fej h3 {
-        font-size: 24px;
-    }
 
     .foglalas-mini-kartya,
     .foglalas-idopont-gomb {
@@ -586,12 +577,7 @@
 .foglalas-asszisztens-fej h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
     max-width: 24ch;
-    font-size: clamp(36px, 4.5vw, 60px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.96;
     text-align: left;
     text-wrap: balance;
     overflow-wrap: anywhere;
@@ -660,18 +646,18 @@
 .foglalas-ut-cim {
     display: block;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: 28px;
+    font-family: var(--lumi-heading-family);
+    font-size: var(--lumi-font-section-title);
     font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    letter-spacing: -0.035em;
+    line-height: var(--lumi-heading-leading);
 }
 
 .foglalas-ut-leiras {
     display: block;
     color: var(--ui-muted);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .foglalas-ut-gomb {
@@ -1069,7 +1055,6 @@
     box-shadow: none;
 }
 
-
 .foglalas-oldal input,
 .foglalas-oldal select,
 .foglalas-oldal textarea {
@@ -1097,9 +1082,6 @@
 }
 
 @media screen and (max-width: 768px) {
-    .foglalas-asszisztens-fej h2 {
-        font-size: clamp(42px, 11vw, 50px);
-    }
 
     .foglalas-oldal {
         width: calc(100% - 32px);
@@ -1138,15 +1120,6 @@
 }
 
 @media screen and (max-width: 480px) {
-    .foglalas-nyito h1 {
-        font-size: clamp(42px, 11.5vw, 48px);
-        line-height: 1;
-    }
-
-    .foglalas-asszisztens-fej h2 {
-        font-size: clamp(40px, 10.8vw, 46px);
-        line-height: 1;
-    }
 
     .foglalas-lepes {
         padding: 24px 0;
@@ -1226,8 +1199,8 @@
 
     .foglalas-ut-leiras {
         grid-row: 2;
-        font-size: var(--lumi-font-body-small);
-        line-height: 1.45;
+        font-size: var(--lumi-font-body);
+        line-height: 1.75;
     }
 
     .foglalas-ut-gomb {
@@ -1258,11 +1231,6 @@
 .foglalas-kezelo-bevezeto h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(46px, 5vw, 68px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.94;
 }
 
 .foglalas-kezelo-bevezeto > p:last-child,
@@ -1515,11 +1483,6 @@
         padding: 32px 0;
     }
 
-    .foglalas-kezelo-bevezeto h2 {
-        font-size: calc(clamp(36px, 10vw, 42px) + 2px);
-        line-height: 1;
-    }
-
     .foglalas-kezelo-bevitel {
         grid-template-columns: 1fr;
     }
@@ -1527,7 +1490,6 @@
     .foglalas-kezelo-bevitel .gomb {
         width: 100%;
     }
-
 
 }
 

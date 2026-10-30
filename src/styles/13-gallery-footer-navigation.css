@@ -21,11 +21,6 @@
 .galeria-oldal-fej h1 {
     margin: 12px 0 0;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.82;
     text-align: left;
 }
 
@@ -155,13 +150,8 @@
         padding: 0 4px 20px;
     }
 
-    .galeria-oldal-fej h1 {
-        font-size: clamp(38px, 11vw, 52px);
-    }
-
     .galeria-oldal-fej .szekcio-leiras {
         max-width: none;
-        font-size: var(--lumi-font-body-small);
     }
 
     .galeria-racs {

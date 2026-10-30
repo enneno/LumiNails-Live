@@ -18,9 +18,6 @@
 
 .house-rules-section h2 {
     margin: 0 0 .5rem;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(1.2rem, 3vw, 1.5rem);
-    line-height: 1.25;
 }
 
 .house-rules-section p,
@@ -106,8 +103,6 @@
 
 .house-rules-dialog-header h2 {
     margin: 0;
-    font-size: 1.35rem;
-    line-height: 1.2;
 }
 
 .house-rules-close {

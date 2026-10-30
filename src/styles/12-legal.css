@@ -8,11 +8,6 @@
 .jogi-fejlec h1 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: clamp(68px, 9vw, 116px);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 0.9;
     text-align: left;
 }
 
@@ -141,29 +136,20 @@
 .jogi-tartalom h2 {
     margin: 0 0 18px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: 40px;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
     text-align: left;
 }
 
 .jogi-tartalom h3 {
     margin: 0 0 8px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.1;
 }
 
 .jogi-tartalom p,
 .jogi-tartalom li,
 .jogi-tartalom span {
     color: var(--ui-muted);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.85;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .jogi-tartalom p {
@@ -308,10 +294,6 @@
     .jogi-elrendezes {
         gap: 38px;
         margin-top: 40px;
-    }
-
-    .jogi-tartalom h2 {
-        font-size: 42px;
     }
 
     .jogi-szekcio {

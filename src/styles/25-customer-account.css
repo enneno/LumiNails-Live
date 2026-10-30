@@ -29,13 +29,6 @@
 .fiok-auth-bevezeto h2 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: var(--font-display);
-    font-weight: 600;
-    line-height: 1.02;
-}
-
-.fiok-hero h1 {
-    font-size: clamp(36px, 4.5vw, 60px);
 }
 
 .fiok-hero > p,
@@ -46,8 +39,8 @@
     margin: 0;
     color: var(--ui-muted, #756a65);
     font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.72;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .fiok-kicker {
@@ -90,7 +83,6 @@
 
 .fiok-auth-bevezeto h2 {
     max-width: 460px;
-    font-size: clamp(32px, 4vw, 48px);
 }
 
 .fiok-auth-bevezeto > p:not(.fiok-kicker) {
@@ -172,11 +164,6 @@
 
 .fiok-panel-fej {
     margin-bottom: 26px;
-}
-
-.fiok-panel-fej h2,
-.fiok-egyszeru-panel h2 {
-    font-size: clamp(34px, 4vw, 46px);
 }
 
 .fiok-panel-fej p:not(.fiok-kicker) {
@@ -408,10 +395,6 @@
     align-items: center;
 }
 
-.fiok-dashboard-fej h2 {
-    font-size: clamp(32px, 4vw, 48px);
-}
-
 .fiok-dashboard-fej .fiok-akciosor {
     justify-content: flex-end;
     margin: 0;
@@ -472,10 +455,6 @@
 .fiok-foglalas-fej h3 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: var(--font-display);
-    font-size: 25px;
-    font-weight: 600;
-    line-height: 1.1;
 }
 
 .fiok-foglalas-fej p,
@@ -677,19 +656,10 @@
         padding-bottom: 30px;
     }
 
-    .fiok-hero h1 {
-        font-size: 48px;
-    }
-
     .fiok-auth-elrendezes,
     .fiok-dashboard {
         min-height: 0;
         margin-top: 0;
-    }
-
-    .fiok-auth-bevezeto h2,
-    .fiok-dashboard-fej h2 {
-        font-size: 40px;
     }
 
     .fiok-auth-bevezeto ul {

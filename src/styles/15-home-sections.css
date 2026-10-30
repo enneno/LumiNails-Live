@@ -20,10 +20,6 @@
 }
 #szolgaltatasok h2 {
     margin: 0;
-    font-family: 'Reddit Sans Condensed', 'DM Sans', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 300;
-    line-height: 1.2;
     text-align: left;
 }
 .szolgaltatas-bevezeto {
@@ -37,8 +33,8 @@
     max-width: 65ch;
     margin: 0;
     color: var(--ui-ink);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 .szolgaltatas-lista {
     display: grid;
@@ -68,17 +64,13 @@
     grid-column: 2;
     margin: 0 0 8px;
     color: var(--ui-ink);
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
 }
 .szolgaltatas-kartya p {
     grid-column: 2;
     margin: 0;
     color: var(--ui-ink);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     hyphens: none;
 }
 .szolgaltatas-kartya p br { display: none; }
@@ -137,16 +129,13 @@
 .bemutatkozas-szoveg { min-width: 0; }
 .bemutatkozas-szoveg h2 {
     margin: 0 0 20px;
-    font-size: clamp(36px, 4.8vw, 56px);
-    font-weight: 400;
-    line-height: 1.15;
 }
 .bemutatkozas-szoveg p {
     max-width: 65ch;
     margin: 0 0 20px;
     color: var(--ui-ink);
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     text-align: left;
     hyphens: none;
 }
@@ -161,10 +150,6 @@
 .kapcsolat-tartalom h2 {
     max-width: 22ch;
     margin: 0 0 20px;
-    font-family: 'Reddit Sans Condensed', 'DM Sans', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 300;
-    line-height: 1.2;
     text-align: left;
 }
 .kapcsolat-tartalom .szekcio-leiras {
@@ -276,8 +261,7 @@ html:has(.home-sticky-header) {
         height: 52px;
         padding: 12px;
     }
-    .szolgaltatas-kartya h3 { grid-column: 2; margin: 0; font-size: 28px; }
-    .szolgaltatas-kartya p { grid-column: 2; font-size: 15px; }
+    .szolgaltatas-kartya h3 { grid-column: 2; margin: 0; }
     .szolgaltatas-kartya > a { grid-area: 1 / 3 / 3 / 4; }
     .bemutatkozas-belso {
         grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);

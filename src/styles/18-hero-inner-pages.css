@@ -41,11 +41,6 @@
 .hero-copy h1 {
     margin: 0;
     color: inherit;
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(68px, 12vw, 96px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 0.95;
     text-align: left;
 }
 .hero-title-line { display: block; }
@@ -53,8 +48,8 @@
     max-width: 34ch;
     margin: 0;
     color: inherit;
-    font-size: 16px;
-    line-height: 1.65;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 .hero-booking {
     gap: 24px;
@@ -94,7 +89,6 @@
     }
     .hero-copy > p {
         grid-column: 2;
-        font-size: 18px;
     }
     .hero-booking {
         grid-column: 2;

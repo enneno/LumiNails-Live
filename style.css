@@ -77,6 +77,16 @@
     --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%233e3935' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
+/* Public headings share the established house-rules typography. */
+body:not(.admin-body) {
+    --lumi-heading-family: 'Playfair Display', serif;
+    --lumi-font-page-title: clamp(68px, 9vw, 116px);
+    --lumi-font-section-title: clamp(1.2rem, 3vw, 1.5rem);
+    --lumi-title-leading: 0.9;
+    --lumi-title-tracking: -0.045em;
+    --lumi-heading-leading: 1.25;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -363,27 +373,33 @@ body.fooldal #fo-tartalom > section[hidden] {
 
 /* FŐCÍM STÍLUSA */
 h1 {
-    font-family: var(--font-display);
+    font-family: var(--lumi-heading-family, var(--font-display));
     color: var(--ui-ink);
-    font-size: clamp(40px, 5vw, 72px);
+    font-size: var(--lumi-font-page-title, clamp(40px, 5vw, 72px));
     margin-bottom: 16px;
     font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.08;
+    letter-spacing: var(--lumi-title-tracking, -0.04em);
+    line-height: var(--lumi-title-leading, 1.08);
     text-align: left;
 }
 
 /* SZOLGÁLTATÁSOK STÍLUSA */
-h2 {
-    font-family: var(--font-display);
+h2,
+:where(body:not(.admin-body)) h3 {
+    font-family: var(--lumi-heading-family, var(--font-display));
     color: var(--ui-ink);
-    font-size: clamp(28px, 3.5vw, 48px);
+    font-size: var(--lumi-font-section-title, clamp(28px, 3.5vw, 48px));
     font-weight: 600;
-    line-height: 1.12;
+    line-height: var(--lumi-heading-leading, 1.12);
     text-align: left;
     margin: 0 0 var(--lumi-heading-description-gap);
     letter-spacing: -0.035em;
     text-transform: none;
+}
+
+:where(body:not(.admin-body)) h1 {
+    overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .szekcio-leiras {
@@ -716,11 +732,6 @@ select.urlap-mezo:invalid {
 .arlista-oldal > h1 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
     text-align: left;
 }
 
@@ -781,11 +792,6 @@ select.urlap-mezo:invalid {
 .arlista-csoport h3 {
     margin: 0 0 20px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3vw, 36px);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
     text-align: left;
 }
 
@@ -799,10 +805,9 @@ select.urlap-mezo:invalid {
     border-bottom: 1px solid var(--ui-line);
     color: var(--ui-ink);
     font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.45;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
-
 
 .arlista-sor > span {
     min-width: 0;
@@ -912,11 +917,6 @@ select.urlap-mezo:invalid {
 .jogi-fejlec h1 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: clamp(68px, 9vw, 116px);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 0.9;
     text-align: left;
 }
 
@@ -1045,29 +1045,20 @@ select.urlap-mezo:invalid {
 .jogi-tartalom h2 {
     margin: 0 0 18px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: 40px;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
     text-align: left;
 }
 
 .jogi-tartalom h3 {
     margin: 0 0 8px;
     color: var(--ui-ink);
-    font-family: "Playfair Display", serif;
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.1;
 }
 
 .jogi-tartalom p,
 .jogi-tartalom li,
 .jogi-tartalom span {
     color: var(--ui-muted);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.85;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .jogi-tartalom p {
@@ -1214,10 +1205,6 @@ select.urlap-mezo:invalid {
         margin-top: 40px;
     }
 
-    .jogi-tartalom h2 {
-        font-size: 42px;
-    }
-
     .jogi-szekcio {
         padding-bottom: 40px;
     }
@@ -1277,11 +1264,6 @@ select.urlap-mezo:invalid {
 .galeria-oldal-fej h1 {
     margin: 12px 0 0;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.82;
     text-align: left;
 }
 
@@ -1411,13 +1393,8 @@ select.urlap-mezo:invalid {
         padding: 0 4px 20px;
     }
 
-    .galeria-oldal-fej h1 {
-        font-size: clamp(38px, 11vw, 52px);
-    }
-
     .galeria-oldal-fej .szekcio-leiras {
         max-width: none;
-        font-size: var(--lumi-font-body-small);
     }
 
     .galeria-racs {
@@ -1870,9 +1847,6 @@ select.urlap-mezo:invalid {
 
 .house-rules-section h2 {
     margin: 0 0 .5rem;
-    font-family: "Playfair Display", serif;
-    font-size: clamp(1.2rem, 3vw, 1.5rem);
-    line-height: 1.25;
 }
 
 .house-rules-section p,
@@ -1958,8 +1932,6 @@ select.urlap-mezo:invalid {
 
 .house-rules-dialog-header h2 {
     margin: 0;
-    font-size: 1.35rem;
-    line-height: 1.2;
 }
 
 .house-rules-close {
@@ -2400,10 +2372,6 @@ select.urlap-mezo:invalid {
 }
 #szolgaltatasok h2 {
     margin: 0;
-    font-family: 'Reddit Sans Condensed', 'DM Sans', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 300;
-    line-height: 1.2;
     text-align: left;
 }
 .szolgaltatas-bevezeto {
@@ -2417,8 +2385,8 @@ select.urlap-mezo:invalid {
     max-width: 65ch;
     margin: 0;
     color: var(--ui-ink);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 .szolgaltatas-lista {
     display: grid;
@@ -2448,17 +2416,13 @@ select.urlap-mezo:invalid {
     grid-column: 2;
     margin: 0 0 8px;
     color: var(--ui-ink);
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
 }
 .szolgaltatas-kartya p {
     grid-column: 2;
     margin: 0;
     color: var(--ui-ink);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     hyphens: none;
 }
 .szolgaltatas-kartya p br { display: none; }
@@ -2517,16 +2481,13 @@ select.urlap-mezo:invalid {
 .bemutatkozas-szoveg { min-width: 0; }
 .bemutatkozas-szoveg h2 {
     margin: 0 0 20px;
-    font-size: clamp(36px, 4.8vw, 56px);
-    font-weight: 400;
-    line-height: 1.15;
 }
 .bemutatkozas-szoveg p {
     max-width: 65ch;
     margin: 0 0 20px;
     color: var(--ui-ink);
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     text-align: left;
     hyphens: none;
 }
@@ -2541,10 +2502,6 @@ select.urlap-mezo:invalid {
 .kapcsolat-tartalom h2 {
     max-width: 22ch;
     margin: 0 0 20px;
-    font-family: 'Reddit Sans Condensed', 'DM Sans', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 300;
-    line-height: 1.2;
     text-align: left;
 }
 .kapcsolat-tartalom .szekcio-leiras {
@@ -2656,8 +2613,7 @@ html:has(.home-sticky-header) {
         height: 52px;
         padding: 12px;
     }
-    .szolgaltatas-kartya h3 { grid-column: 2; margin: 0; font-size: 28px; }
-    .szolgaltatas-kartya p { grid-column: 2; font-size: 15px; }
+    .szolgaltatas-kartya h3 { grid-column: 2; margin: 0; }
     .szolgaltatas-kartya > a { grid-area: 1 / 3 / 3 / 4; }
     .bemutatkozas-belso {
         grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
@@ -2708,17 +2664,13 @@ html:has(.home-sticky-header) {
 }
 .home-gallery-heading h2 {
     margin: 0 0 12px;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.15;
     text-align: left;
 }
 .studio-intro {
     max-width: 44ch;
     margin: 0;
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 .studio-gallery-link {
     display: inline-flex;
@@ -2893,11 +2845,6 @@ html:has(.home-sticky-header) {
 .hero-copy h1 {
     margin: 0;
     color: inherit;
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(68px, 12vw, 96px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 0.95;
     text-align: left;
 }
 .hero-title-line { display: block; }
@@ -2905,8 +2852,8 @@ html:has(.home-sticky-header) {
     max-width: 34ch;
     margin: 0;
     color: inherit;
-    font-size: 16px;
-    line-height: 1.65;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 .hero-booking {
     gap: 24px;
@@ -2946,7 +2893,6 @@ html:has(.home-sticky-header) {
     }
     .hero-copy > p {
         grid-column: 2;
-        font-size: 18px;
     }
     .hero-booking {
         grid-column: 2;
@@ -3022,19 +2968,14 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
     max-width: 22ch;
     margin: 0 0 24px;
     color: inherit;
-    font-family: var(--font-display);
-    font-size: clamp(36px, 4vw, 56px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.12;
     text-align: left;
 }
 .seo-szolgaltatas-hero-szoveg > p {
     max-width: 65ch;
     margin: 0;
     color: inherit;
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     text-align: left;
 }
 .seo-szolgaltatas-hero-kep {
@@ -3099,11 +3040,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-gyik h2,
 .seo-szolgaltatas-zaras h2 {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 42px);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1;
 }
 
 .seo-szolgaltatas-bevezeto h2,
@@ -3192,11 +3128,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-szolgaltatas-kepek h2 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 42px);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1;
 }
 
 .seo-szolgaltatas-kepracs {
@@ -3262,10 +3193,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-gyik-lista h3 {
     margin: 0 0 14px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.15;
 }
 
 .seo-gyik-lista p {
@@ -3371,17 +3298,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
     body > #fo-tartalom.seo-szolgaltatas-oldal {
         --seo-oldal-margo: 16px;
     }
-
-    .seo-szolgaltatas-hero h1 {
-        font-size: clamp(30px, 8vw, 38px);
-    }
-    .seo-szolgaltatas-bevezeto h2,
-    .seo-szolgaltatas-szekcio h2,
-    .seo-szolgaltatas-kiemeles h2,
-    .seo-gyik h2,
-    .seo-szolgaltatas-zaras h2 {
-        font-size: clamp(28px, 7vw, 34px);
-    }
     .seo-szolgaltatas-ugras {
         gap: 10px 18px;
     }
@@ -3478,13 +3394,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .fiok-auth-bevezeto h2 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: var(--font-display);
-    font-weight: 600;
-    line-height: 1.02;
-}
-
-.fiok-hero h1 {
-    font-size: clamp(36px, 4.5vw, 60px);
 }
 
 .fiok-hero > p,
@@ -3495,8 +3404,8 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
     margin: 0;
     color: var(--ui-muted, #756a65);
     font-family: "DM Sans", sans-serif;
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.72;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .fiok-kicker {
@@ -3539,7 +3448,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 
 .fiok-auth-bevezeto h2 {
     max-width: 460px;
-    font-size: clamp(32px, 4vw, 48px);
 }
 
 .fiok-auth-bevezeto > p:not(.fiok-kicker) {
@@ -3621,11 +3529,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 
 .fiok-panel-fej {
     margin-bottom: 26px;
-}
-
-.fiok-panel-fej h2,
-.fiok-egyszeru-panel h2 {
-    font-size: clamp(34px, 4vw, 46px);
 }
 
 .fiok-panel-fej p:not(.fiok-kicker) {
@@ -3857,10 +3760,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
     align-items: center;
 }
 
-.fiok-dashboard-fej h2 {
-    font-size: clamp(32px, 4vw, 48px);
-}
-
 .fiok-dashboard-fej .fiok-akciosor {
     justify-content: flex-end;
     margin: 0;
@@ -3921,10 +3820,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .fiok-foglalas-fej h3 {
     margin: 0;
     color: var(--ui-ink, #64524d);
-    font-family: var(--font-display);
-    font-size: 25px;
-    font-weight: 600;
-    line-height: 1.1;
 }
 
 .fiok-foglalas-fej p,
@@ -4126,19 +4021,10 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
         padding-bottom: 30px;
     }
 
-    .fiok-hero h1 {
-        font-size: 48px;
-    }
-
     .fiok-auth-elrendezes,
     .fiok-dashboard {
         min-height: 0;
         margin-top: 0;
-    }
-
-    .fiok-auth-bevezeto h2,
-    .fiok-dashboard-fej h2 {
-        font-size: 40px;
     }
 
     .fiok-auth-bevezeto ul {
@@ -4231,8 +4117,6 @@ body.hibas-oldal {
 .hibas-oldal-kartya h1 {
     margin: 12px 0 20px;
     color: var(--ui-ink);
-    font-size: clamp(42px, 6vw, 76px);
-    line-height: 0.98;
     text-align: center;
     text-transform: none;
 }
@@ -4290,16 +4174,13 @@ body.hibas-oldal {
 .foglalas-lepes-fej h3 {
     margin: 0 0 6px;
     color: var(--barna);
-    font-family: var(--font-display);
-    font-size: 28px;
-    line-height: 1.05;
 }
 
 .foglalas-lepes-fej p {
     margin: 0;
     color: var(--szoveg);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.55;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .foglalas-lepes-szam {
@@ -4514,9 +4395,6 @@ body.hibas-oldal {
 .foglalas-osszefoglalo h3 {
     margin: 0 0 10px;
     color: var(--barna);
-    font-family: var(--font-display);
-    font-size: 26px;
-    line-height: 1;
 }
 
 .foglalas-osszefoglalo p {
@@ -4609,9 +4487,6 @@ body.hibas-oldal {
 }
 
 @media screen and (max-width: 640px) {
-    .foglalas-lepes-fej h3 {
-        font-size: 24px;
-    }
 
     .foglalas-mini-kartya,
     .foglalas-idopont-gomb {
@@ -4848,12 +4723,7 @@ body.hibas-oldal {
 .foglalas-asszisztens-fej h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
     max-width: 24ch;
-    font-size: clamp(36px, 4.5vw, 60px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.96;
     text-align: left;
     text-wrap: balance;
     overflow-wrap: anywhere;
@@ -4922,18 +4792,18 @@ body.hibas-oldal {
 .foglalas-ut-cim {
     display: block;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: 28px;
+    font-family: var(--lumi-heading-family);
+    font-size: var(--lumi-font-section-title);
     font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    letter-spacing: -0.035em;
+    line-height: var(--lumi-heading-leading);
 }
 
 .foglalas-ut-leiras {
     display: block;
     color: var(--ui-muted);
-    font-size: var(--lumi-font-body-small);
-    line-height: 1.6;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
 }
 
 .foglalas-ut-gomb {
@@ -5331,7 +5201,6 @@ body.hibas-oldal {
     box-shadow: none;
 }
 
-
 .foglalas-oldal input,
 .foglalas-oldal select,
 .foglalas-oldal textarea {
@@ -5359,9 +5228,6 @@ body.hibas-oldal {
 }
 
 @media screen and (max-width: 768px) {
-    .foglalas-asszisztens-fej h2 {
-        font-size: clamp(42px, 11vw, 50px);
-    }
 
     .foglalas-oldal {
         width: calc(100% - 32px);
@@ -5400,15 +5266,6 @@ body.hibas-oldal {
 }
 
 @media screen and (max-width: 480px) {
-    .foglalas-nyito h1 {
-        font-size: clamp(42px, 11.5vw, 48px);
-        line-height: 1;
-    }
-
-    .foglalas-asszisztens-fej h2 {
-        font-size: clamp(40px, 10.8vw, 46px);
-        line-height: 1;
-    }
 
     .foglalas-lepes {
         padding: 24px 0;
@@ -5488,8 +5345,8 @@ body.hibas-oldal {
 
     .foglalas-ut-leiras {
         grid-row: 2;
-        font-size: var(--lumi-font-body-small);
-        line-height: 1.45;
+        font-size: var(--lumi-font-body);
+        line-height: 1.75;
     }
 
     .foglalas-ut-gomb {
@@ -5520,11 +5377,6 @@ body.hibas-oldal {
 .foglalas-kezelo-bevezeto h2 {
     margin: 16px 0 24px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(46px, 5vw, 68px);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 0.94;
 }
 
 .foglalas-kezelo-bevezeto > p:last-child,
@@ -5777,11 +5629,6 @@ body.hibas-oldal {
         padding: 32px 0;
     }
 
-    .foglalas-kezelo-bevezeto h2 {
-        font-size: calc(clamp(36px, 10vw, 42px) + 2px);
-        line-height: 1;
-    }
-
     .foglalas-kezelo-bevitel {
         grid-template-columns: 1fr;
     }
@@ -5789,7 +5636,6 @@ body.hibas-oldal {
     .foglalas-kezelo-bevitel .gomb {
         width: 100%;
     }
-
 
 }
 

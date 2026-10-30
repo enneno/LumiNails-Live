@@ -22,8 +22,6 @@ body.hibas-oldal {
 .hibas-oldal-kartya h1 {
     margin: 12px 0 20px;
     color: var(--ui-ink);
-    font-size: clamp(42px, 6vw, 76px);
-    line-height: 0.98;
     text-align: center;
     text-transform: none;
 }

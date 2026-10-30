@@ -75,6 +75,16 @@
     --lumi-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%233e3935' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
+/* Public headings share the established house-rules typography. */
+body:not(.admin-body) {
+    --lumi-heading-family: 'Playfair Display', serif;
+    --lumi-font-page-title: clamp(68px, 9vw, 116px);
+    --lumi-font-section-title: clamp(1.2rem, 3vw, 1.5rem);
+    --lumi-title-leading: 0.9;
+    --lumi-title-tracking: -0.045em;
+    --lumi-heading-leading: 1.25;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -361,27 +371,33 @@ body.fooldal #fo-tartalom > section[hidden] {
 
 /* FŐCÍM STÍLUSA */
 h1 {
-    font-family: var(--font-display);
+    font-family: var(--lumi-heading-family, var(--font-display));
     color: var(--ui-ink);
-    font-size: clamp(40px, 5vw, 72px);
+    font-size: var(--lumi-font-page-title, clamp(40px, 5vw, 72px));
     margin-bottom: 16px;
     font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.08;
+    letter-spacing: var(--lumi-title-tracking, -0.04em);
+    line-height: var(--lumi-title-leading, 1.08);
     text-align: left;
 }
 
 /* SZOLGÁLTATÁSOK STÍLUSA */
-h2 {
-    font-family: var(--font-display);
+h2,
+:where(body:not(.admin-body)) h3 {
+    font-family: var(--lumi-heading-family, var(--font-display));
     color: var(--ui-ink);
-    font-size: clamp(28px, 3.5vw, 48px);
+    font-size: var(--lumi-font-section-title, clamp(28px, 3.5vw, 48px));
     font-weight: 600;
-    line-height: 1.12;
+    line-height: var(--lumi-heading-leading, 1.12);
     text-align: left;
     margin: 0 0 var(--lumi-heading-description-gap);
     letter-spacing: -0.035em;
     text-transform: none;
+}
+
+:where(body:not(.admin-body)) h1 {
+    overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .szekcio-leiras {

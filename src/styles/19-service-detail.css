@@ -64,19 +64,14 @@ body > #fo-tartalom.seo-szolgaltatas-oldal {
     max-width: 22ch;
     margin: 0 0 24px;
     color: inherit;
-    font-family: var(--font-display);
-    font-size: clamp(36px, 4vw, 56px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.12;
     text-align: left;
 }
 .seo-szolgaltatas-hero-szoveg > p {
     max-width: 65ch;
     margin: 0;
     color: inherit;
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: var(--lumi-font-body);
+    line-height: 1.75;
     text-align: left;
 }
 .seo-szolgaltatas-hero-kep {
@@ -141,11 +136,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-gyik h2,
 .seo-szolgaltatas-zaras h2 {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 42px);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1;
 }
 
 .seo-szolgaltatas-bevezeto h2,
@@ -234,11 +224,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-szolgaltatas-kepek h2 {
     margin: 0;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 42px);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1;
 }
 
 .seo-szolgaltatas-kepracs {
@@ -304,10 +289,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 .seo-gyik-lista h3 {
     margin: 0 0 14px;
     color: var(--ui-ink);
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.15;
 }
 
 .seo-gyik-lista p {
@@ -412,17 +393,6 @@ body:is([data-szolgaltatas-oldal="gelLakk"], [data-szolgaltatas-oldal="manikur"]
 @media screen and (max-width: 768px) {
     body > #fo-tartalom.seo-szolgaltatas-oldal {
         --seo-oldal-margo: 16px;
-    }
-
-    .seo-szolgaltatas-hero h1 {
-        font-size: clamp(30px, 8vw, 38px);
-    }
-    .seo-szolgaltatas-bevezeto h2,
-    .seo-szolgaltatas-szekcio h2,
-    .seo-szolgaltatas-kiemeles h2,
-    .seo-gyik h2,
-    .seo-szolgaltatas-zaras h2 {
-        font-size: clamp(28px, 7vw, 34px);
     }
     .seo-szolgaltatas-ugras {
         gap: 10px 18px;
