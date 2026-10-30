@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
 });
 
-test('current information leads the page and remains readable while scrolling and navigating', async ({ page }) => {
+test('current information follows the sticky header and scrolls away while navigation stays visible', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.studio-thumbnail')).toHaveCount(5);
   await page.evaluate(() => document.fonts.ready);
@@ -30,16 +30,21 @@ test('current information leads the page and remains readable while scrolling an
         clipped: notice.scrollHeight > notice.clientHeight + 1
       };
     });
-    expect(metrics.top).toBe(0);
-    expect(metrics.headerTop).toBeCloseTo(metrics.noticeBottom, 0);
-    expect(metrics.mainTop).toBeGreaterThanOrEqual(metrics.shellBottom);
+    expect(metrics.headerTop).toBe(0);
+    expect(metrics.top).toBeCloseTo(metrics.shellBottom, 0);
+    expect(metrics.mainTop).toBeGreaterThanOrEqual(metrics.noticeBottom);
     expect(metrics.overflow).toBeLessThanOrEqual(1);
     expect(metrics.clipped).toBe(false);
     await page.screenshot({ path: `output/playwright/notice-${width}.png` });
     await page.evaluate(() => scrollTo(0, 1200));
-    await expect(notice).toBeInViewport();
-    expect((await notice.boundingBox()).y).toBe(0);
-    await page.locator('#studio-tab-services').click();
+    await expect(notice).not.toBeInViewport();
+    expect((await page.locator('.site-header').boundingBox()).y).toBe(0);
+    if (width <= 768) {
+      await page.getByRole('button', { name: 'Menü megnyitása', exact: true }).click();
+      await page.locator('#mobil-nav a[href="/#szolgaltatasok"]').click();
+    } else {
+      await page.locator('.menu-pontok a[href="/#szolgaltatasok"]').click();
+    }
     await expect(page.locator('#szolgaltatasok')).toBeFocused();
     const title = await page.locator('#szolgaltatasok-cim').boundingBox();
     const shell = await page.locator('.home-sticky-header').boundingBox();
@@ -64,6 +69,7 @@ test('disabled, empty and long information adapt the shell without gaps or overf
     await page.evaluate(info => vendegertesitoAlkalmazasa(info), info);
     await expect(page.locator('#vendegertesito')).toBeHidden();
     expect((await page.locator('.home-sticky-header').boundingBox()).height).toBe(68);
+    expect((await page.locator('#fo-tartalom').boundingBox()).y).toBeCloseTo(68, 0);
   }
   await page.evaluate(() => vendegertesitoAlkalmazasa({ aktiv: true, cimke: 'Fontos tudnivaló', szoveg: 'Hosszabb tájékoztatás. '.repeat(80) + 'Utolsó mondat.' }));
   const notice = page.locator('#vendegertesito');
@@ -80,16 +86,16 @@ test('disabled, empty and long information adapt the shell without gaps or overf
   await expect(page.locator('#vendegertesito')).toHaveCount(0);
 });
 
-test('prerendered information remains open and sticky without JavaScript', async ({ browser }) => {
+test('prerendered information follows the header and scrolls away without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:8101/');
   const notice = page.locator('#vendegertesito');
   await expect(notice.locator('.vendegertesito-szoveg')).toContainText('Instagramon');
   await expect(notice).toBeInViewport();
-  await page.locator('#studio-tab-services').click();
-  await expect(notice).toBeInViewport();
-  expect((await notice.boundingBox()).y).toBe(0);
+  await page.goto('http://127.0.0.1:8101/#szolgaltatasok');
+  await expect(notice).not.toBeInViewport();
+  expect((await page.locator('.site-header').boundingBox()).y).toBe(0);
   const title = await page.locator('#szolgaltatasok-cim').boundingBox();
   const shell = await page.locator('.home-sticky-header').boundingBox();
   expect(title.y).toBeGreaterThanOrEqual(shell.height);

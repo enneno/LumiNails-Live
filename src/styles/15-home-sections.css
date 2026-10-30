@@ -172,7 +172,7 @@
     line-height: 1.5;
 }
 .vendegertesito[hidden] { display: none; }
-/* In-flow sticky shell reserves the actual notice and navigation height. */
+/* Only the navigation stays sticky; the following notice scrolls with the page. */
 body.fooldal { padding-top: 0; }
 .home-sticky-header {
     position: sticky;
@@ -193,8 +193,7 @@ html.oldal-gorgetes-zarolva body.fooldal {
     top: var(--ui-header-clearance, var(--ui-header-height));
 }
 html:has(.home-sticky-header) {
-    /* No-JS fallback allows the maximum notice height above anchor targets. */
-    scroll-padding-top: calc(var(--ui-header-clearance, var(--ui-header-height) + 25svh) + 24px);
+    scroll-padding-top: calc(var(--ui-header-clearance, var(--ui-header-height)) + 24px);
 }
 .vendegertesito {
     width: 100%;
