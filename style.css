@@ -2371,10 +2371,14 @@ select.urlap-mezo:invalid {
     margin-bottom: 32px;
 }
 #bemutatkozas-cim,
-#szolgaltatasok-cim,
 #munkak-cim,
 #kapcsolat-cim {
-    font-size: clamp(1.5rem, 3.5vw, 1.75rem);
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    overflow-wrap: anywhere;
+}
+#szolgaltatasok-cim {
+    font-size: clamp(1.75rem, 9vw, 3.5rem);
+    overflow-wrap: anywhere;
 }
 #szolgaltatasok h2 {
     margin: 0;
@@ -2572,8 +2576,8 @@ html:has(.home-sticky-header) {
 }
 .vendegertesito-tartalom {
     gap: 16px;
-    padding: 10px 32px;
-    font-size: 14px;
+    padding: 14px 32px;
+    font-size: 18px;
     line-height: 1.5;
     white-space: nowrap;
 }
@@ -2582,8 +2586,10 @@ html:has(.home-sticky-header) {
 .vendegertesito.mozog .vendegertesito-palya {
     animation: vendegertesito-futas var(--vendegertesito-ido) linear infinite;
 }
-.vendegertesito:hover .vendegertesito-palya,
-.vendegertesito:focus .vendegertesito-palya { animation-play-state: paused; }
+@media (hover: hover) and (pointer: fine) {
+    .vendegertesito:hover .vendegertesito-palya,
+    .vendegertesito:focus-visible .vendegertesito-palya { animation-play-state: paused; }
+}
 @keyframes vendegertesito-futas {
     to { transform: translateX(-50%); }
 }

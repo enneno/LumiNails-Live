@@ -1732,7 +1732,7 @@ function vendegertesitoFutasFrissitese(sav) {
     const masodikCsoport = csoport.cloneNode(true);
     masodikCsoport.setAttribute('aria-hidden', 'true');
     palya.appendChild(masodikCsoport);
-    sav.style.setProperty('--vendegertesito-ido', `${szelesseg * darab / 45}s`);
+    sav.style.setProperty('--vendegertesito-ido', `${szelesseg * darab / 90}s`);
     sav.classList.add('mozog');
 }
 
