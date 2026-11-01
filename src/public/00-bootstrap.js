@@ -46,6 +46,7 @@ function popupGorgetesZarolasBekotese() {
 document.addEventListener('DOMContentLoaded', function () {
     tisztaUrlBeallitasa();
     fooldalFejlecMeretBekotese();
+    vendegertesitoFutasInditasa();
     oldalTartalomMegjelenitese();
     const arlistaBetoltes = onlineArlistaBetoltese();
     const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);

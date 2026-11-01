@@ -48,6 +48,7 @@ function popupGorgetesZarolasBekotese() {
 document.addEventListener('DOMContentLoaded', function () {
     tisztaUrlBeallitasa();
     fooldalFejlecMeretBekotese();
+    vendegertesitoFutasInditasa();
     oldalTartalomMegjelenitese();
     const arlistaBetoltes = onlineArlistaBetoltese();
     const oldalvaz = Promise.allSettled([fejlecBetoltese(), lablecBetoltese()]);
@@ -1687,7 +1688,7 @@ function vendegertesitoAlkalmazasa(ertesito) {
     const sav = document.getElementById('vendegertesito');
     if (!sav) return;
 
-    const szoveg = String(ertesito?.szoveg || '').trim();
+    const szoveg = String(ertesito?.szoveg || '').replace(/\s+/g, ' ').trim();
     const aktiv = ertesito?.aktiv === true && Boolean(szoveg);
     sav.hidden = !aktiv;
     if (!aktiv) {
@@ -1699,7 +1700,40 @@ function vendegertesitoAlkalmazasa(ertesito) {
     szovegBeallitasa('.vendegertesito-cimke', cimke, sav);
     szovegBeallitasa('.vendegertesito-szoveg', szoveg, sav);
     sav.setAttribute('aria-label', cimke);
+    vendegertesitoFutasInditasa();
     fooldalFejlecMeretFrissitese();
+}
+
+function vendegertesitoFutasInditasa() {
+    const sav = document.getElementById('vendegertesito');
+    if (!sav || !sav.getBoundingClientRect().width) return;
+    vendegertesitoFutasFrissitese(sav);
+    if (!sav.dataset.resizeBekotve) {
+        window.addEventListener('resize', () => vendegertesitoFutasFrissitese(sav));
+        sav.dataset.resizeBekotve = '1';
+    }
+}
+
+function vendegertesitoFutasFrissitese(sav) {
+    const palya = sav.querySelector('.vendegertesito-palya');
+    const csoport = sav.querySelector('.vendegertesito-csoport');
+    const tartalom = csoport?.querySelector('.vendegertesito-tartalom');
+    if (!palya || !csoport || !tartalom || sav.hidden) return;
+
+    palya.querySelectorAll('[aria-hidden="true"]').forEach(elem => elem.remove());
+    const szelesseg = tartalom.getBoundingClientRect().width;
+    if (!szelesseg) return;
+    const darab = Math.max(1, Math.ceil(sav.clientWidth / szelesseg));
+    for (let index = 1; index < darab; index += 1) {
+        const masolat = tartalom.cloneNode(true);
+        masolat.setAttribute('aria-hidden', 'true');
+        csoport.appendChild(masolat);
+    }
+    const masodikCsoport = csoport.cloneNode(true);
+    masodikCsoport.setAttribute('aria-hidden', 'true');
+    palya.appendChild(masodikCsoport);
+    sav.style.setProperty('--vendegertesito-ido', `${szelesseg * darab / 45}s`);
+    sav.classList.add('mozog');
 }
 
 function bekezdesekRenderelese(selector, bekezdesek) {
