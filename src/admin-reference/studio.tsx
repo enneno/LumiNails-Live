@@ -462,6 +462,18 @@ export function LumiAdminStudio() {
         )}
       </div>
     );
+  if (!initialDataReady)
+    return (
+      <div className="admin-theme h-full">
+        <AdminAppearanceBridge />
+        <AdminLoadingState
+          embedded
+          state={initialLoadError ? "error" : "loading"}
+          message={initialLoadError}
+          onRetry={() => void load(activeTab, true)}
+        />
+      </div>
+    );
   const shared = { data, drafts, stage, run, report, busy, saveAll };
   return (
     <div className="admin-theme h-full">
@@ -619,7 +631,6 @@ export function LumiAdminStudio() {
                 if (event.target === event.currentTarget) setTabSlide(null);
               }}
             >
-              {initialDataReady ? <>
               {activeTab === "overview" ? (
                 <AdminOverview
                   today={today()}
@@ -830,9 +841,6 @@ export function LumiAdminStudio() {
                 activeTab,
               ) ? (
                 <Publication data={data} />
-              ) : null}
-              </> : initialLoadError ? (
-                <AdminLoadingState embedded state="error" message={initialLoadError} onRetry={() => void load(activeTab, true)} />
               ) : null}
             </main>
           </div>

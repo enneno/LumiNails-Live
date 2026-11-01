@@ -2,7 +2,9 @@ const { test, expect } = require('playwright/test');
 const { installSupabaseBoundaryMock, fixtures } = require('./helpers/admin-reference-boundary');
 
 for (const alreadyRead of [true, false]) {
-  test(`notification count waits for read status (${alreadyRead ? 'read' : 'unread'})`, async ({ page }) => {
+ for (const width of [390, 1280]) {
+  test(`initial loading waits for notification read status (${alreadyRead ? 'read' : 'unread'}, ${width})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
     const seed = fixtures();
     seed.bookings = [seed.bookings[1]];
     seed.blocked_times = [];
@@ -15,14 +17,17 @@ for (const alreadyRead of [true, false]) {
     await installSupabaseBoundaryMock(page, seed);
     await page.goto('/admin/?tab=bookings');
     const bell = page.getByRole('button', { name: /^Értesítések/ });
-    await expect(bell).toBeVisible();
     await expect.poll(() => page.evaluate(() => window.LumiAdminBackend?.snapshot().bookings?.length)).toBe(1);
-    await expect(bell).toHaveAttribute('aria-label', 'Értesítések');
-    await expect(page.locator('#admin-reference-root main article')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Admin adatok betöltése…' })).toBeVisible();
+    await expect(page.locator('[data-admin-shell]')).toHaveCount(0);
+    await expect(page.getByText('Adatok betöltése…', { exact: true })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => window.__releaseNotificationReads());
     await expect(page.locator('#admin-reference-root main article')).toHaveCount(1);
+    await expect(page.getByRole('heading', { name: 'Admin adatok betöltése…' })).toHaveCount(0);
     await expect(bell).toHaveAttribute('aria-label', alreadyRead ? 'Értesítések' : 'Értesítések, 1 jelzés');
   });
+ }
 }
 
 for (const width of [390, 1280]) {
@@ -120,7 +125,8 @@ test('independent admin data starts in parallel without showing an incomplete no
   await installSupabaseBoundaryMock(page, seed);
   await page.goto('/admin/?tab=overview');
   await expect.poll(() => page.evaluate(() => window.__adminNotificationReadsStarted && window.__adminReads.includes('blocked_times') && window.__adminReads.includes('admin_error_events') && window.__adminReads.includes('admin_error_log_reads'))).toBe(true);
-  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Admin adatok betöltése…' })).toBeVisible();
+  await expect(page.locator('[data-admin-shell]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'A szalon ma' })).toHaveCount(0);
   await page.evaluate(() => window.__releaseBookings());
   await expect(page.getByRole('heading', { name: 'A szalon ma' })).toBeVisible();
