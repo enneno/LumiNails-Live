@@ -3033,8 +3033,7 @@ function arlistaFeliratokFrissitese() {
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
         if (!ervenyes()) return false;
 
-        adminStudioFoglalasKartyak.clear();
-        allapot.foglalasElemek = [
+        const ujFoglalasElemek = [
             ...(foglalasok || []).map((foglalas) => ({
                 tipus: 'booking',
                 datum: foglalas.starts_at,
@@ -3047,8 +3046,12 @@ function arlistaFeliratokFrissitese() {
             }))
         ].sort((a, b) => new Date(b.datum) - new Date(a.datum));
 
-        await vendegLemondasEsemenyekBetoltese();
-        if (!ervenyes()) return false;
+        const ujLemondasEsemenyek = await vendegLemondasEsemenyekBetoltese(ujFoglalasElemek);
+        if (!ervenyes() || !ujLemondasEsemenyek) return false;
+
+        adminStudioFoglalasKartyak.clear();
+        allapot.foglalasElemek = ujFoglalasElemek;
+        allapot.lemondasEsemenyek = ujLemondasEsemenyek;
 
         if (allapot.foglalasOldal > foglalasOsszesOldal()) {
             allapot.foglalasOldal = foglalasOsszesOldal();
@@ -3193,16 +3196,18 @@ function arlistaFeliratokFrissitese() {
         );
     }
 
-    async function vendegLemondasEsemenyekBetoltese() {
+    async function vendegLemondasEsemenyekBetoltese(foglalasElemek) {
         const ervenyes = adminKeresMunkamenetOr();
-        const foglalasIds = vendegAltalLemondottFoglalasok()
+        const foglalasIds = foglalasElemek.filter(
+            elem => elem.tipus === 'booking' && String(elem.adat?.status || '').toLowerCase() === 'cancelled_by_customer'
+        )
             .map((elem) => elem.adat?.id)
             .filter(Boolean);
 
-        allapot.lemondasEsemenyek = new Map();
+        const lemondasEsemenyek = new Map();
 
         if (!foglalasIds.length) {
-            return;
+            return lemondasEsemenyek;
         }
 
         const { data, error } = await allapot.kliens
@@ -3214,17 +3219,18 @@ function arlistaFeliratokFrissitese() {
 
         if (error) {
             console.warn('Vendéglemondások értesítési állapota nem tölthető be:', error);
-            return;
+            onlineStatusz('Nem sikerült betölteni a lemondások állapotát. Próbáld újra.', true);
+            return null;
         }
 
-        if (!ervenyes()) return;
+        if (!ervenyes()) return null;
         (data || []).forEach((esemeny) => {
             const bookingId = String(esemeny.booking_id || '');
             if (!bookingId) {
                 return;
             }
 
-            const allapotAdat = allapot.lemondasEsemenyek.get(bookingId) || {};
+            const allapotAdat = lemondasEsemenyek.get(bookingId) || {};
             if (esemeny.event_type === 'customer_cancelled') {
                 allapotAdat.lemondas = esemeny.created_at;
                 allapotAdat.lemondasCsatorna = esemeny.channel;
@@ -3233,8 +3239,9 @@ function arlistaFeliratokFrissitese() {
             if (esemeny.event_type === 'customer_cancellation_acknowledged') {
                 allapotAdat.tudomasulvetel = esemeny.created_at;
             }
-            allapot.lemondasEsemenyek.set(bookingId, allapotAdat);
+            lemondasEsemenyek.set(bookingId, allapotAdat);
         });
+        return lemondasEsemenyek;
     }
 
     function vendegLemondasMegjegyzesEsemenybol(esemeny) {
@@ -7068,6 +7075,7 @@ function arlistaFeliratokFrissitese() {
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
             emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
+            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null,
             registrations:referenceRegistrations, pushPreferences:referencePushPreferences,
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }

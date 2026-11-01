@@ -864,7 +864,9 @@ test('booking badge: only actionable online cancellations and new bookings count
 
 test('notifications: cancellation is first until its own card is acknowledged, without a duplicate inbox event', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openAdmin(page);
+  const seed = fixtures();
+  seed.booking_events.find(row => row.event_type === 'customer_cancelled').created_at = new Date(Date.now() - 60000).toISOString();
+  await openAdmin(page, 'bookings', seed);
   const cards = page.locator('#admin-reference-root main article');
   await expect(cards.first()).toContainText('Farkas Petra');
   await page.getByRole('button', { name: /Értesítések/ }).click();

@@ -71,6 +71,8 @@ export function LumiAdminStudio() {
     [isMoreOpen, setIsMoreOpen] = useState(false),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(false),
+    [initialDataReady, setInitialDataReady] = useState(false),
+    [initialLoadError, setInitialLoadError] = useState(""),
     [notice, setNotice] = useState<any>(null);
   const [statuses, setStatuses] = useState<any>({}),
     [dates, setDates] = useState<any>({}),
@@ -94,7 +96,10 @@ export function LumiAdminStudio() {
   }, []);
   const workspace = useRef<HTMLDivElement>(null),
     scroll = useRef(new Map()),
-    loaded = useRef(new Set<string>());
+    loaded = useRef(new Set<string>()),
+    loadingCount = useRef(0),
+    initialReady = useRef(false),
+    activeTabRef = useRef(activeTab);
   const authorized = Boolean(data.authorized),
     bookings = data.bookings || [],
     effective = effectiveBookings(bookings, statuses, dates),
@@ -161,22 +166,33 @@ export function LumiAdminStudio() {
     if (!authorized) return;
     if (
       !force &&
+      initialReady.current &&
       loaded.current.has(tab) &&
       ["prices", "coupons", "content", "gallery", "settings"].includes(tab)
     )
       return;
+    loadingCount.current += 1;
     setLoading(true);
+    if (!initialReady.current) setInitialLoadError("");
     try {
       const snapshot = await api().load(tab, force);
       setData(snapshot);
       loaded.current.add(tab);
+      if (snapshot.authorized && tab === activeTabRef.current) {
+        initialReady.current = true;
+        setInitialDataReady(true);
+      }
     } catch (error) {
-      report(String(error), "error");
+      const message = error instanceof Error ? error.message : "Az adatok betöltése nem sikerült.";
+      if (!initialReady.current && tab === activeTabRef.current) setInitialLoadError(message);
+      else report(message, "error");
     } finally {
-      setLoading(false);
+      loadingCount.current -= 1;
+      setLoading(loadingCount.current > 0);
     }
   }
   function navigate(tab: string) {
+    activeTabRef.current = tab;
     scroll.current.set(activeTab, workspace.current?.scrollTop || 0);
     setTabSlide(
       getAdminViewDirection(
@@ -216,6 +232,9 @@ export function LumiAdminStudio() {
     if (link) link.disabled = true;
     if (!authorized) {
       loaded.current.clear();
+      initialReady.current = false;
+      setInitialDataReady(false);
+      setInitialLoadError("");
       setStatuses({});
       setDates({});
       setDrafts({});
@@ -227,12 +246,12 @@ export function LumiAdminStudio() {
       setPage(1);
       setNotice(null);
       setSavingPayments([]);
-    } else load(activeTab);
+    }
     return () => {};
   }, [authorized]);
   useEffect(() => {
     if (authorized && !drafts[activeTab]) void load(activeTab);
-  }, [activeTab]);
+  }, [activeTab, authorized]);
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
       if (dirty) {
@@ -416,8 +435,8 @@ export function LumiAdminStudio() {
     () => getAdminBookingTasks(effective, nowTimestamp),
     [data, statuses, dates, nowTimestamp],
   );
-  const pending = effective.filter((row: any) => row.status === "new").length,
-    unack = effective.filter(isUnacknowledgedGuestCancellation).length;
+  const pending = initialDataReady ? effective.filter((row: any) => row.status === "new").length : 0,
+    unack = initialDataReady ? effective.filter(isUnacknowledgedGuestCancellation).length : 0;
   const dockIndex =
     activeTab === "overview"
       ? 0
@@ -448,12 +467,13 @@ export function LumiAdminStudio() {
     <div className="admin-theme h-full">
       <AdminAppearanceBridge />
       <div className={styles.shell} data-admin-shell data-admin-ready>
-        {notice ? (
-          <div className={styles.toastLayer} style={{ display: "block" }}>
-            <AdminFeedbackNotice
+        {notice || loading ? (
+          <div className={styles.toastLayer}>
+            {loading ? <div className={styles.loadingNotice} role="status">Adatok betöltése…</div> : null}
+            {notice ? <AdminFeedbackNotice
               notice={notice}
               onDismiss={() => setNotice(null)}
-            />
+            /> : null}
           </div>
         ) : null}
         <header className={styles.header}>
@@ -599,11 +619,7 @@ export function LumiAdminStudio() {
                 if (event.target === event.currentTarget) setTabSlide(null);
               }}
             >
-              {loading ? (
-                <p className="py-2 text-xs text-ink-muted" role="status">
-                  Adatok betöltése…
-                </p>
-              ) : null}
+              {initialDataReady ? <>
               {activeTab === "overview" ? (
                 <AdminOverview
                   today={today()}
@@ -814,6 +830,9 @@ export function LumiAdminStudio() {
                 activeTab,
               ) ? (
                 <Publication data={data} />
+              ) : null}
+              </> : initialLoadError ? (
+                <AdminLoadingState embedded state="error" message={initialLoadError} onRetry={() => void load(activeTab, true)} />
               ) : null}
             </main>
           </div>

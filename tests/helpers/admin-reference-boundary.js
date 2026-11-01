@@ -335,6 +335,7 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             delete() { this.deleting=true;return this; }
 
             eq(key, value) {
+                if (this.table === 'booking_events' && key === 'event_type' && value === 'admin_notifications_read') this.notificationReads = true;
                 this.filters.push(row => String(key.includes('->>') ? row?.[key.split('->>')[0]]?.[key.split('->>')[1]] : row?.[key]) === String(value));
                 return this;
             }
@@ -345,6 +346,7 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
 
             in(key, values) {
+                if (this.table === 'booking_events' && key === 'event_type' && values.includes('customer_cancellation_acknowledged')) this.cancellationReads = true;
                 this.filters.push(row => values.map(String).includes(String(row?.[key])));
                 return this;
             }
@@ -390,6 +392,8 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
 
             execute() {
                 if (this.insertError) return { data: null, error: this.insertError };
+                if (this.cancellationReads && window.__adminCancellationLoadFailure) return { data: null, error: { message: 'Synthetic cancellation read failure' } };
+                if (this.table === 'bookings' && window.__adminBookingsLoadFailure) return { data: null, error: { message: 'Synthetic booking read failure' } };
                 if (this.table === 'admin_error_events' && window.__adminErrorLogLoadFailure) return { data: null, error: { message: 'Synthetic log read failure' } };
                 if (this.patch) {
                     for (const row of seed[this.table] || []) if (this.filters.every(filter => filter(row))) Object.assign(row, this.patch);
@@ -414,6 +418,12 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
 
             then(resolve, reject) {
+                if (this.cancellationReads && window.__adminCancellationsGate) {
+                    window.__adminCancellationWaiting = true;
+                    return window.__adminCancellationsGate.then(() => this.execute()).then(resolve, reject);
+                }
+                if (this.notificationReads && window.__adminNotificationReadsGate) return window.__adminNotificationReadsGate.then(() => this.execute()).then(resolve, reject);
+                if (this.table === 'bookings' && window.__adminBookingsGate) return window.__adminBookingsGate.then(() => this.execute()).then(resolve, reject);
                 return Promise.resolve(this.execute()).then(resolve, reject);
             }
         }

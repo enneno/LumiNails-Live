@@ -376,7 +376,7 @@ export function Inbox({ data, onOpen, onLoad, onOpenBookings, onOpenGuests, run 
       setAckBusy(false);
     }
   }
-  const notices = adminNotifications(data),
+  const notices = data.notificationsReady ? adminNotifications(data) : [],
     attention = notices.filter((row: any) => row.attention).length;
   return (
     <>
@@ -451,7 +451,11 @@ export function Inbox({ data, onOpen, onLoad, onOpenBookings, onOpenGuests, run 
               </p>
             </button>
           ))}
-          {!notices.length ? (
+          {!data.notificationsReady ? (
+            <p role="status" className="py-6 text-center text-xs text-ink-muted">
+              Értesítések betöltése…
+            </p>
+          ) : !notices.length ? (
             <p className="py-6 text-center text-xs text-ink-muted">
               Még nincs értesítés.
             </p>

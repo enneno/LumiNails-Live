@@ -165,6 +165,7 @@
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
             emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
+            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null,
             registrations:referenceRegistrations, pushPreferences:referencePushPreferences,
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }
