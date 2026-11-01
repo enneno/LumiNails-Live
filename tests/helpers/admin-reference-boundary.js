@@ -347,6 +347,7 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
 
             in(key, values) {
                 if (this.table === 'booking_events' && key === 'event_type' && values.includes('customer_cancellation_acknowledged')) this.cancellationReads = true;
+                if (this.table === 'booking_events' && key === 'event_type' && values.includes('booking_created')) this.guestEventReads = true;
                 this.filters.push(row => values.map(String).includes(String(row?.[key])));
                 return this;
             }
@@ -391,6 +392,7 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
             }
 
             execute() {
+                if (this.guestEventReads) window.__adminGuestEventsReceived = true;
                 if (this.insertError) return { data: null, error: this.insertError };
                 if (this.cancellationReads && window.__adminCancellationLoadFailure) return { data: null, error: { message: 'Synthetic cancellation read failure' } };
                 if (this.table === 'bookings' && window.__adminBookingsLoadFailure) return { data: null, error: { message: 'Synthetic booking read failure' } };
@@ -422,8 +424,10 @@ async function installSupabaseBoundaryMock(page,overrides={}) {
                     window.__adminCancellationWaiting = true;
                     return window.__adminCancellationsGate.then(() => this.execute()).then(resolve, reject);
                 }
+                if (this.notificationReads) window.__adminNotificationReadsStarted = true;
                 if (this.notificationReads && window.__adminNotificationReadsGate) return window.__adminNotificationReadsGate.then(() => this.execute()).then(resolve, reject);
                 if (this.table === 'bookings' && window.__adminBookingsGate) return window.__adminBookingsGate.then(() => this.execute()).then(resolve, reject);
+                if (window.__adminQueryDelayMs) return new Promise(done => setTimeout(done, window.__adminQueryDelayMs)).then(() => this.execute()).then(resolve, reject);
                 return Promise.resolve(this.execute()).then(resolve, reject);
             }
         }

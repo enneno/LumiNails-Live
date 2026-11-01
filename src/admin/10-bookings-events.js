@@ -21,11 +21,18 @@
             'id,service_id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
         const inspiracioSelect =
             'id,service_id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
-        let { data: foglalasok, error: foglalasHiba } = await allapot.kliens
-            .from('bookings')
-            .select(inspiracioSelect)
-            .order('starts_at', { ascending: false })
-            .limit(ADMIN_FOGLALAS_LIMIT);
+        const [foglalasValasz, tiltasValasz] = await Promise.all([
+            allapot.kliens.from('bookings')
+                .select(inspiracioSelect)
+                .order('starts_at', { ascending: false })
+                .limit(ADMIN_FOGLALAS_LIMIT),
+            allapot.kliens.from('blocked_times')
+                .select('id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)')
+                .order('starts_at', { ascending: false })
+                .limit(ADMIN_FOGLALAS_LIMIT)
+        ]);
+        let { data: foglalasok, error: foglalasHiba } = foglalasValasz;
+        let { data: tiltasok, error: tiltasHiba } = tiltasValasz;
 
         if (foglalasHiba && hianyzoInspiracioOszlop(foglalasHiba)) {
             ({ data: foglalasok, error: foglalasHiba } = await allapot.kliens
@@ -60,14 +67,6 @@
             }
         }
 
-        let { data: tiltasok, error: tiltasHiba } = await allapot.kliens
-            .from('blocked_times')
-            .select(
-                'id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)'
-            )
-            .order('starts_at', { ascending: false })
-            .limit(ADMIN_FOGLALAS_LIMIT);
-
         if (tiltasHiba && adatbazisOszlopHiany(tiltasHiba, ['service_id'])) {
             allapot.tiltasSzolgaltatasTamogatott = false;
             ({ data: tiltasok, error: tiltasHiba } = await allapot.kliens
@@ -95,7 +94,7 @@
 
         if (foglalasHiba || tiltasHiba) {
             onlineStatusz('Nem sikerült betölteni a foglalásokat.', true);
-            return;
+            return false;
         }
 
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
@@ -120,6 +119,7 @@
         adminStudioFoglalasKartyak.clear();
         allapot.foglalasElemek = ujFoglalasElemek;
         allapot.lemondasEsemenyek = ujLemondasEsemenyek;
+        allapot.referenceBookingsReady = true;
 
         if (allapot.foglalasOldal > foglalasOsszesOldal()) {
             allapot.foglalasOldal = foglalasOsszesOldal();

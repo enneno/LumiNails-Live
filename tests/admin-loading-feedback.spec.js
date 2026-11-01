@@ -109,3 +109,50 @@ test('failure to load cancellation events keeps the previous state and reports t
   await expect(page.getByText('Lemondás nyugtázása')).toHaveCount(0);
   expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().bookings.find(row => row.guestName === 'Farkas Petra').cancellationAcknowledgedAt)).toBe('2026-01-01T11:00:00Z');
 });
+
+test('independent admin data starts in parallel without showing an incomplete notification count', async ({ page }) => {
+  const seed = fixtures();
+  seed.bookings = [seed.bookings[1]];
+  seed.blocked_times = [];
+  seed.admin_registered_customer_profiles = [];
+  seed.booking_events = [{ id: 'changed-event', event_type: 'customer_booking_rescheduled', channel: 'customer', created_at: new Date().toISOString(), title: 'Vendég módosított', message: '' }];
+  await page.addInitScript(() => { window.__adminBookingsGate = new Promise(resolve => { window.__releaseBookings = resolve; }); });
+  await installSupabaseBoundaryMock(page, seed);
+  await page.goto('/admin/?tab=overview');
+  await expect.poll(() => page.evaluate(() => window.__adminNotificationReadsStarted && window.__adminReads.includes('blocked_times') && window.__adminReads.includes('admin_error_events') && window.__adminReads.includes('admin_error_log_reads'))).toBe(true);
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'A szalon ma' })).toHaveCount(0);
+  await page.evaluate(() => window.__releaseBookings());
+  await expect(page.getByRole('heading', { name: 'A szalon ma' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Értesítések, 2 jelzés', exact: true })).toBeVisible();
+});
+
+test('refresh keeps the previous notification state until matching bookings arrive', async ({ page }) => {
+  const seed = fixtures();
+  seed.bookings = [seed.bookings[0]];
+  seed.blocked_times = [];
+  seed.admin_registered_customer_profiles = [];
+  seed.booking_events = [];
+  await installSupabaseBoundaryMock(page, seed);
+  await page.goto('/admin/?tab=overview');
+  await expect(page.getByRole('heading', { name: 'A szalon ma' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const seed = window.__referenceSeed();
+    const booking = { ...seed.bookings[0], id: 'new-booking', status: 'pending' };
+    window.__adminReplaceRows('bookings', [...seed.bookings, booking]);
+    window.__adminReplaceRows('booking_events', [
+      { id: 'new-event', booking_id: booking.id, event_type: 'booking_created', channel: 'customer', title: 'Új foglalás', created_at: new Date().toISOString() },
+      { id: 'read-marker', event_type: 'admin_notifications_read', created_at: new Date().toISOString(), metadata: { admin_user_id: 'admin-demo', read_notice_ids: ['new:booking:new-booking'] } }
+    ]);
+    window.__adminGuestEventsReceived = false;
+    window.__adminBookingsGate = new Promise(resolve => { window.__releaseBookings = resolve; });
+  });
+  await page.getByRole('button', { name: 'Áttekintés frissítése' }).click();
+  await expect.poll(() => page.evaluate(() => window.__adminGuestEventsReceived)).toBe(true);
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => window.LumiAdminBackend.snapshot().events.length)).toBe(0);
+  await page.evaluate(() => window.__releaseBookings());
+  await expect(page.getByText('Adatok betöltése…', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Értesítések', exact: true })).toBeVisible();
+});

@@ -697,6 +697,7 @@
 
     function adminAdatCacheTorlese() {
         allapot.adatCacheVerzio = (allapot.adatCacheVerzio || 0) + 1;
+        allapot.referenceBookingsReady = false;
         adminBetoltottAdatok.clear();
         adminStudioFoglalasKartyak.clear();
         adminFolyamatbanLevoKeresek.clear();
@@ -719,12 +720,14 @@
             kuponok: ['szolgaltatasok', 'kuponok'], idosavok: ['idosavok'],
             tiltasok: ['szolgaltatasok', 'tiltasok'], beallitasok: ['beallitasok'],
         };
-        await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
+        const eredmenyek = await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
             if (!force && typeof adminStudioVanPiszkozat === 'function' && adminStudioVanPiszkozat(kulcs)) return;
             if (!force && stabil.has(kulcs) && adminBetoltottAdatok.has(kulcs)) return;
             const siker = await betoltok[kulcs]();
             if (siker !== false && stabil.has(kulcs) && verzio === allapot.adatCacheVerzio) adminBetoltottAdatok.add(kulcs);
+            return siker;
         }));
+        if (eredmenyek.includes(false)) return false;
         if (tab === 'attekintes') await adminV2AttekintesFrissitese();
     }
 
@@ -2953,11 +2956,18 @@ function arlistaFeliratokFrissitese() {
             'id,service_id,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,services(name,price_text)';
         const inspiracioSelect =
             'id,service_id,public_reference,customer_name,customer_phone,customer_email,note,starts_at,ends_at,status,created_at,paid_amount,coupon_code,coupon_title,inspiration_image_url,inspiration_image_path,inspiration_image_name,inspiration_image_type,inspiration_image_size,inspiration_images,nail_style,nail_style_note,services(name,price_text)';
-        let { data: foglalasok, error: foglalasHiba } = await allapot.kliens
-            .from('bookings')
-            .select(inspiracioSelect)
-            .order('starts_at', { ascending: false })
-            .limit(ADMIN_FOGLALAS_LIMIT);
+        const [foglalasValasz, tiltasValasz] = await Promise.all([
+            allapot.kliens.from('bookings')
+                .select(inspiracioSelect)
+                .order('starts_at', { ascending: false })
+                .limit(ADMIN_FOGLALAS_LIMIT),
+            allapot.kliens.from('blocked_times')
+                .select('id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)')
+                .order('starts_at', { ascending: false })
+                .limit(ADMIN_FOGLALAS_LIMIT)
+        ]);
+        let { data: foglalasok, error: foglalasHiba } = foglalasValasz;
+        let { data: tiltasok, error: tiltasHiba } = tiltasValasz;
 
         if (foglalasHiba && hianyzoInspiracioOszlop(foglalasHiba)) {
             ({ data: foglalasok, error: foglalasHiba } = await allapot.kliens
@@ -2992,14 +3002,6 @@ function arlistaFeliratokFrissitese() {
             }
         }
 
-        let { data: tiltasok, error: tiltasHiba } = await allapot.kliens
-            .from('blocked_times')
-            .select(
-                'id,starts_at,ends_at,reason,status,created_at,service_id,paid_amount,services(name,description,price_text,duration_minutes)'
-            )
-            .order('starts_at', { ascending: false })
-            .limit(ADMIN_FOGLALAS_LIMIT);
-
         if (tiltasHiba && adatbazisOszlopHiany(tiltasHiba, ['service_id'])) {
             allapot.tiltasSzolgaltatasTamogatott = false;
             ({ data: tiltasok, error: tiltasHiba } = await allapot.kliens
@@ -3027,7 +3029,7 @@ function arlistaFeliratokFrissitese() {
 
         if (foglalasHiba || tiltasHiba) {
             onlineStatusz('Nem sikerült betölteni a foglalásokat.', true);
-            return;
+            return false;
         }
 
         foglalasok = await foglalasInspiracioLinkekAlairasa(foglalasok || []);
@@ -3052,6 +3054,7 @@ function arlistaFeliratokFrissitese() {
         adminStudioFoglalasKartyak.clear();
         allapot.foglalasElemek = ujFoglalasElemek;
         allapot.lemondasEsemenyek = ujLemondasEsemenyek;
+        allapot.referenceBookingsReady = true;
 
         if (allapot.foglalasOldal > foglalasOsszesOldal()) {
             allapot.foglalasOldal = foglalasOsszesOldal();
@@ -6937,7 +6940,7 @@ function arlistaFeliratokFrissitese() {
         }
         return owner;
     }
-    async function referenceLoadGuestEvents(force=false) {
+    async function referenceLoadGuestEvents(force=false, bookingsReady=null) {
         const owner=referenceNotificationState();
         if(!force&&referenceGuestEventsLoadedAt>Date.now()-30000)return;
         const valid=adminKeresMunkamenetOr();
@@ -6952,6 +6955,7 @@ function arlistaFeliratokFrissitese() {
             // Match by the real user id; never guess a guest from an event's timestamp.
             const dates=registered.length ? await allapot.kliens.from('customer_profiles').select('user_id,created_at').in('user_id',registered.map(row=>row.user_id)) : {data:[]};
             if(dates.error)throw new Error('A regisztrációs értesítések nem tölthetők be. Próbáld újra.');
+            if(bookingsReady && await bookingsReady === false)return;
             if(valid()&&referenceNotificationState()===owner){
                 referenceGuestEvents=events.data || [];
                 referenceRegistrations=registered.map(row=>({...row,created_at:dates.data.find(date=>date.user_id===row.user_id)?.created_at})).filter(row=>row.created_at);
@@ -7002,7 +7006,7 @@ function arlistaFeliratokFrissitese() {
             }
         });
     }
-    async function referenceLoadNotificationReads(force = false) {
+    async function referenceLoadNotificationReads(force = false, bookingsReady = null) {
         const owner = referenceNotificationState();
         if (!owner) return;
         const pending=adminFolyamatbanLevoKeresek.get(`referenceNotificationReads:${owner}`);
@@ -7013,6 +7017,7 @@ function arlistaFeliratokFrissitese() {
                 .select('metadata,created_at').eq('event_type', 'admin_notifications_read')
                 .eq('metadata->>admin_user_id', owner).order('created_at', { ascending: false }).limit(50);
             if (error) throw new Error('Az értesítések olvasottsága nem tölthető be. Próbáld újra.');
+            if (bookingsReady && await bookingsReady === false) return;
             if (referenceNotificationState() !== owner) return;
             // Merge recent markers too, so simultaneous browser sessions do not undo each other's reads.
             const ids=(data || []).slice().reverse().flatMap(row=>Array.isArray(row.metadata?.read_notice_ids)?row.metadata.read_notice_ids:[]);
@@ -7075,7 +7080,7 @@ function arlistaFeliratokFrissitese() {
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
             emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
-            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null,
+            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null && Boolean(allapot.referenceBookingsReady),
             registrations:referenceRegistrations, pushPreferences:referencePushPreferences,
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }
@@ -7112,13 +7117,21 @@ function arlistaFeliratokFrissitese() {
         async load(scope,force=false) {
             referenceRequireAdmin();
             if(force&&['bookings','overview'].includes(scope))adminStudioFoglalasKartyak.clear();
-            if(['notifications','overview','bookings'].includes(scope))await Promise.all([adminPanelAdatokBetoltese('foglalasok',force),referenceLoadGuestEvents(force||scope==='notifications')]);
+            if(['notifications','overview','bookings'].includes(scope)){
+                const bookingsReady=adminPanelAdatokBetoltese('foglalasok',force);
+                const [bookingsResult]=await Promise.all([
+                    bookingsReady,
+                    referenceLoadGuestEvents(force||scope==='notifications',bookingsReady),
+                    referenceLoadNotificationReads(force,bookingsReady),
+                    referenceLoadErrorLogs(false,force)
+                ]);
+                if(bookingsResult===false){referenceCheckStatus();throw new Error('A foglalások most nem tölthetők be. Próbáld újra.');}
+            }
             else if(scope==='logs')await referenceLoadErrorLogs(true,true);
             else if(scope==='content'||scope==='gallery'){await window.LumiAdminCms.load(force);referenceCheckCms();}
             else await adminPanelAdatokBetoltese(referenceLoaders[scope] || 'attekintes',force);
             if(scope==='settings')await referenceLoadPushPreferences(force);
-            if (['overview','bookings','notifications'].includes(scope)) await referenceLoadNotificationReads(force);
-            if(scope!=='logs')await referenceLoadErrorLogs(false,force);
+            if(!['overview','bookings','notifications','logs'].includes(scope))await referenceLoadErrorLogs(false,force);
             referenceCheckStatus();
             return referenceSnapshot();
         },

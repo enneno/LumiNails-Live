@@ -27,7 +27,7 @@
         }
         return owner;
     }
-    async function referenceLoadGuestEvents(force=false) {
+    async function referenceLoadGuestEvents(force=false, bookingsReady=null) {
         const owner=referenceNotificationState();
         if(!force&&referenceGuestEventsLoadedAt>Date.now()-30000)return;
         const valid=adminKeresMunkamenetOr();
@@ -42,6 +42,7 @@
             // Match by the real user id; never guess a guest from an event's timestamp.
             const dates=registered.length ? await allapot.kliens.from('customer_profiles').select('user_id,created_at').in('user_id',registered.map(row=>row.user_id)) : {data:[]};
             if(dates.error)throw new Error('A regisztrációs értesítések nem tölthetők be. Próbáld újra.');
+            if(bookingsReady && await bookingsReady === false)return;
             if(valid()&&referenceNotificationState()===owner){
                 referenceGuestEvents=events.data || [];
                 referenceRegistrations=registered.map(row=>({...row,created_at:dates.data.find(date=>date.user_id===row.user_id)?.created_at})).filter(row=>row.created_at);
@@ -92,7 +93,7 @@
             }
         });
     }
-    async function referenceLoadNotificationReads(force = false) {
+    async function referenceLoadNotificationReads(force = false, bookingsReady = null) {
         const owner = referenceNotificationState();
         if (!owner) return;
         const pending=adminFolyamatbanLevoKeresek.get(`referenceNotificationReads:${owner}`);
@@ -103,6 +104,7 @@
                 .select('metadata,created_at').eq('event_type', 'admin_notifications_read')
                 .eq('metadata->>admin_user_id', owner).order('created_at', { ascending: false }).limit(50);
             if (error) throw new Error('Az értesítések olvasottsága nem tölthető be. Próbáld újra.');
+            if (bookingsReady && await bookingsReady === false) return;
             if (referenceNotificationState() !== owner) return;
             // Merge recent markers too, so simultaneous browser sessions do not undo each other's reads.
             const ids=(data || []).slice().reverse().flatMap(row=>Array.isArray(row.metadata?.read_notice_ids)?row.metadata.read_notice_ids:[]);
@@ -165,7 +167,7 @@
             couponScopes:referenceCouponScopes(), calculator:referenceCalculator(),
             publication:{text:document.getElementById('admin-publication-status')?.textContent || '',state:document.getElementById('admin-publication-status')?.dataset.publicationState || ''},
             emailErrors:adminV2EmailHibasEsemenyek().map(row=>row.id), notificationReadIds:Array.from(referenceNotificationReadIds),
-            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null,
+            notificationsReady:referenceNotificationsLoaded && referenceGuestEvents !== null && Boolean(allapot.referenceBookingsReady),
             registrations:referenceRegistrations, pushPreferences:referencePushPreferences,
             phoneVisible:adminElemek().telefonLathato?.checked ?? true, cms:window.LumiAdminCms?.source?.() || null };
     }
@@ -202,13 +204,21 @@
         async load(scope,force=false) {
             referenceRequireAdmin();
             if(force&&['bookings','overview'].includes(scope))adminStudioFoglalasKartyak.clear();
-            if(['notifications','overview','bookings'].includes(scope))await Promise.all([adminPanelAdatokBetoltese('foglalasok',force),referenceLoadGuestEvents(force||scope==='notifications')]);
+            if(['notifications','overview','bookings'].includes(scope)){
+                const bookingsReady=adminPanelAdatokBetoltese('foglalasok',force);
+                const [bookingsResult]=await Promise.all([
+                    bookingsReady,
+                    referenceLoadGuestEvents(force||scope==='notifications',bookingsReady),
+                    referenceLoadNotificationReads(force,bookingsReady),
+                    referenceLoadErrorLogs(false,force)
+                ]);
+                if(bookingsResult===false){referenceCheckStatus();throw new Error('A foglalások most nem tölthetők be. Próbáld újra.');}
+            }
             else if(scope==='logs')await referenceLoadErrorLogs(true,true);
             else if(scope==='content'||scope==='gallery'){await window.LumiAdminCms.load(force);referenceCheckCms();}
             else await adminPanelAdatokBetoltese(referenceLoaders[scope] || 'attekintes',force);
             if(scope==='settings')await referenceLoadPushPreferences(force);
-            if (['overview','bookings','notifications'].includes(scope)) await referenceLoadNotificationReads(force);
-            if(scope!=='logs')await referenceLoadErrorLogs(false,force);
+            if(!['overview','bookings','notifications','logs'].includes(scope))await referenceLoadErrorLogs(false,force);
             referenceCheckStatus();
             return referenceSnapshot();
         },

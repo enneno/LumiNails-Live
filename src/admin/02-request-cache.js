@@ -18,6 +18,7 @@
 
     function adminAdatCacheTorlese() {
         allapot.adatCacheVerzio = (allapot.adatCacheVerzio || 0) + 1;
+        allapot.referenceBookingsReady = false;
         adminBetoltottAdatok.clear();
         adminStudioFoglalasKartyak.clear();
         adminFolyamatbanLevoKeresek.clear();
@@ -40,11 +41,13 @@
             kuponok: ['szolgaltatasok', 'kuponok'], idosavok: ['idosavok'],
             tiltasok: ['szolgaltatasok', 'tiltasok'], beallitasok: ['beallitasok'],
         };
-        await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
+        const eredmenyek = await Promise.all((fuggosegek[tab] || []).map(async kulcs => {
             if (!force && typeof adminStudioVanPiszkozat === 'function' && adminStudioVanPiszkozat(kulcs)) return;
             if (!force && stabil.has(kulcs) && adminBetoltottAdatok.has(kulcs)) return;
             const siker = await betoltok[kulcs]();
             if (siker !== false && stabil.has(kulcs) && verzio === allapot.adatCacheVerzio) adminBetoltottAdatok.add(kulcs);
+            return siker;
         }));
+        if (eredmenyek.includes(false)) return false;
         if (tab === 'attekintes') await adminV2AttekintesFrissitese();
     }
